@@ -1,0 +1,430 @@
+import os
+import re
+import glob
+
+#import pandas as pd
+#======================================================
+# Config files
+#======================================================
+configfile: "config.yaml"
+
+#======================================================
+# Global variables
+#======================================================
+
+RAW_DATA_DIR =config['input_dir']
+RESULTS_DIR=config['results_dir'].rstrip("/")
+LONG_ASSEMBLER=config['long_assembler']
+IMGVR_blast=config['imgvr_blast']
+METAGENOME=config['metagenome']
+MEMORY_ECORR=config['ecc_memory']
+VCONTACT=config['run_vcontact']
+ASSEMLY_STATS=config['assembly_stats']
+
+if RESULTS_DIR == "" and not RAW_DATA_DIR == "":
+	RESULTS_DIR=os.path.abspath(os.path.join(RAW_DATA_DIR, os.pardir))
+
+REPRESENTATIVE_CONTIGS=config['representative_contigs'].rstrip("/")
+VIRAL_CONTIGS=REPRESENTATIVE_CONTIGS
+if VIRAL_CONTIGS == "":
+	VIRAL_CONTIGS_BASE="positive_viral_contigs"
+	VIRAL_CONTIGS_DIR=RESULTS_DIR + "/04_VIRAL_ID"
+	REPRESENTATIVE_CONTIGS_BASE="95-85_positive_viral_contigs"
+	REPRESENTATIVE_CONTIGS_DIR=RESULTS_DIR + "/05_vOTUs"
+else:
+	REPRESENTATIVE_CONTIGS_BASE=os.path.basename(os.path.abspath(VIRAL_CONTIGS)).split(".")[0]
+	REPRESENTATIVE_CONTIGS_DIR=os.path.dirname(os.path.abspath(VIRAL_CONTIGS)).rstrip("/")
+	VIRAL_CONTIGS_BASE=""
+	VIRAL_CONTIGS_DIR=""
+	if RESULTS_DIR== "":
+		RESULTS_DIR=REPRESENTATIVE_CONTIGS_DIR
+
+print("Viral contigs dir" + VIRAL_CONTIGS_DIR)
+
+if METAGENOME:
+	print("metagenomic mode")
+	METAGENOME_FLAG="--meta"
+else:
+	METAGENOME_FLAG=""
+
+RULES_DIR = 'rules'
+
+CONFIDENCE_TYPES=["high", "low"]
+
+SUBSAMPLING=config['subsampling']
+if SUBSAMPLING:
+	SAMPLING_TYPE=["tot", "sub"]
+else:
+	SAMPLING_TYPE=["tot"]
+
+SAMPLES=""
+SRA_list=config['sra_list'].split()
+
+CONTAMINANTS=config['contaminants_list'].split()
+CONTAMINANTS.append("GCF_000819615.1")
+
+
+NANOPORE=False
+TOMBO=False
+PAIRED=False
+test_assembly=config['subassembly']
+READ_TYPES=[config['forward_tag']]
+POOLED=config['nanopore_pooled']
+NANOPORE_SAMPLES=""
+if not RAW_DATA_DIR == "":
+	RAW_DATA_DIR=RAW_DATA_DIR.rstrip("/")
+	SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['reverse_tag']) + ".fastq.gz")
+	NANOPORE_SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['nanopore_tag']) + ".fastq.gz")
+
+	for fname in os.listdir(RAW_DATA_DIR):
+		if fname.endswith(str(config['reverse_tag']) + '.fastq.gz'):
+			PAIRED=True
+		elif fname.endswith(str(config['nanopore_tag']) + '.fastq.gz'):
+			NANOPORE=True
+		elif fname.endswith(str(config['nanopore_tag']) + '_fast5_single'):
+			TOMBO=True
+else:
+	RAW_DATA_DIR=RESULTS_DIR+"/00_RAW_DATA"
+
+
+#NANOPORE_SAMPLES=SAMPLES
+
+if PAIRED:
+	READ_TYPES.append(config['reverse_tag'])
+if POOLED:
+	print("Nanopore reads are from a pooled sample")
+	NANOPORE_SAMPLES=config['nanopore_pooled_name']
+if len(SAMPLES)==1:
+	SAMPLING_TYPE=["tot"]
+SAMPLING_TYPE_TOT=["tot"]
+
+REFERENCE_DATABASES=config["reference_databases"].split()
+
+dir_list = ["RULES_DIR","ENVS_DIR", "ADAPTERS_DIR", "CONTAMINANTS_DIR","CONTAMINANTS_DIR_DB","RAW_DATA_DIR", "QC_DIR", "CLEAN_DATA_DIR", "ASSEMBLY_DIR", "VIRAL_DIR", "vOUT_DIR", "MAPPING_DIR", "MMSEQS", "ANNOTATION", "ASSEMBLY_TEST", "BENCHMARKS"]
+dir_names = ["rules", "../envs", "db/adapters", RESULTS_DIR + "/db/contaminants" , "db/contaminants" ,RAW_DATA_DIR, RESULTS_DIR + "/01_QC", RESULTS_DIR + "/02_CLEAN_DATA", RESULTS_DIR + "/03_CONTIGS", VIRAL_CONTIGS_DIR , REPRESENTATIVE_CONTIGS_DIR ,RESULTS_DIR + "/06_MAPPING", RESULTS_DIR + "/08_MMSEQS", RESULTS_DIR + "/07_ANNOTATION", RESULTS_DIR + "/08_ASSEMBLY_TEST", RESULTS_DIR + "/BENCHMARK"]
+dirs_dict = dict(zip(dir_list, dir_names))
+
+
+print("Input Dir = ")
+print(RAW_DATA_DIR)
+#print(glob.glob(RAW_DATA_DIR + "/*" ))
+
+print("Results Dir = ")
+print(RESULTS_DIR)
+
+
+print("Read Types = " )
+print(*READ_TYPES, sep = ", ")
+
+print("Sample Names = ")
+print(*SAMPLES, sep = ", ")
+
+print("Contaminants = ")
+print(*CONTAMINANTS, sep = ", ")
+
+print("Reference contigs = ")
+print(REPRESENTATIVE_CONTIGS_BASE)
+print(REPRESENTATIVE_CONTIGS_DIR)
+
+
+print("Nanopore = ")
+print(NANOPORE)
+
+print("FAST5 = ")
+print(TOMBO)
+
+print("Nanopore samples= ")
+print(NANOPORE_SAMPLES)
+
+if VCONTACT:
+	print("RUN VCONTACT= ")
+	print(VCONTACT)
+#======================================================
+# Rules
+#======================================================
+
+def inputAll(wildcards):
+	inputs=[]
+	inputs.append(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html")
+	inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
+	inputs.append(dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html")
+	inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
+	inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_F_report_paired_tot.csv", sample=SAMPLES)),
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_O_report_paired_tot.csv", sample=SAMPLES)),
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_G_report_paired_tot.csv", sample=SAMPLES)),
+	inputs.append(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.tot.png")
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv", sample=SAMPLES)),
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv", sample=SAMPLES)),
+	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE_TOT))
+	inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample=SAMPLES))
+	inputs.append(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/quality_summary.tsv")
+	inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
+	inputs.extend((expand(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",sampling=SAMPLING_TYPE_TOT)))
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/bbmap_{sample}.{sampling}.sam", sampling=SAMPLING_TYPE, sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_summary.{sampling}.txt",sampling=SAMPLING_TYPE_TOT))
+	# inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv")
+	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv")
+	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv")
+	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
+	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
+
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_DB.{sampling}.txt", sampling=SAMPLING_TYPE))
+	# inputs.append(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.gbk")
+	# inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.html",sampling=SAMPLING_TYPE_TOT))
+	# inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tbl",sampling=SAMPLING_TYPE_TOT))
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES))
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_json.{sampling}.biom", sampling=SAMPLING_TYPE, confidence=CONFIDENCE_TYPES))
+	#inputs.append(dirs_dict["ANNOTATION"] + "/summary_information.tot.csv")
+	#inputs.append(dirs_dict["ANNOTATION"] + "/viga_log_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.txt"),
+	#inputs.extend(expand(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.csv",sampling=SAMPLING_TYPE))
+	# inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
+	# inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv", sampling=SAMPLING_TYPE_TOT))
+
+	if VCONTACT:
+		inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
+
+	if IMGVR_blast:
+		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
+
+	if test_assembly:
+		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_virsorter_checkV_tot/quality_summary.tsv", sample=SAMPLES, subsample=subsample_test)),
+
+	if ASSEMLY_STATS:
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_unfiltered.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+
+	if NANOPORE:
+		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_canu.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_1_"+ LONG_ASSEMBLER + ".tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES))
+
+	if TOMBO:
+		inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
+	return inputs
+
+
+def inputReadsCount(wildcards):
+	inputs=[]
+	inputs.extend(expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + "_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['reverse_tag']) + "_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE))
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE))
+	return inputs
+
+rule all:
+	input:
+		inputAll,
+		inputReadsCount,
+
+def inputCleanReads(wildcards):
+	inputs=[]
+	inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}.fastq.gz", sample=SAMPLES, sampling=SAMPLING_TYPE))
+
+	if NANOPORE:
+		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
+	return inputs
+
+rule trimmomatic:
+	input:
+		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt", sample=SAMPLES),
+
+rule annotate_isolates:
+	input:
+		dirs_dict["vOUT_DIR"] + "/checkV_isolates_tot/quality_summary.tsv",
+		dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
+		dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
+		dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.tot.png",
+		#dirs_dict["ANNOTATION"] + "/isolates_blast_IMGVR.tot.csv",
+		#dirs_dict["ANNOTATION"] + "/isolates_blast_RefSeqViral.tot.csv",
+		dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv",
+		#expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
+		#dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_phages.tot.csv",
+		dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_ORFs.tot.csv",
+		#dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.tot/",
+
+rule find_relatives:
+	input:
+		expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
+		(dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv"),
+
+rule clean_reads:
+	input:
+		inputCleanReads,
+		dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.tot.png",
+		dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
+		dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
+		dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html",
+		dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html",
+
+
+rule abundance_from_db_contigs:
+	input:
+		(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_DB.tot.txt"),
+		# expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES),
+
+rule assembly_vs_reference:
+	input:
+		(dirs_dict["MMSEQS"] + "/tmp")
+
+rule assembly:
+	input:
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
+		(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html"),
+		(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html"),
+		(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.tot.png"),
+
+#		scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample=SAMPLES),
+rule assembly_long:
+	input:
+		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".tot.fasta", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES),
+		#corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+
+rule assembly_long_only:
+	input:
+		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		directory(expand(dirs_dict["vOUT_DIR"] + "/{sample_nanopore}_checkM_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE)),
+
+
+rule annotate_VIBRANT_contigs:
+	input:
+		vibrant=(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".tot"),
+
+
+rule annotation_workflow:
+	input:
+		# aggregate_input_annotation,
+		# dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv",
+		dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotation_table_merged.csv",
+		blastall=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
+		cummulative_length=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_viga_ORFs_coding_lengths.tot.txt"),
+
+rule checkViralCompletness:
+	input:
+		checkV=dirs_dict["vOUT_DIR"] + "/checkV_tot/quality_summary.tsv"
+
+subsample_test=[10,20,30,40,50,60,70,80,90,]
+#subsample_test=[10,20]
+
+
+		#quast_txt_assembly=dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.tot.txt",
+		#quast_txt_viral=dirs_dict["ASSEMBLY_TEST"] + "/viral_representatives_quast_report.tot.txt",
+
+rule compare_assembly:
+	input:
+		scaffolds1=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_no_ecc_no_norm.tot.fasta", sample=SAMPLES),
+		scaffolds2=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_no_ecc_yes_norm.tot.fasta", sample=SAMPLES),
+		scaffolds3=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_yes_ecc_no_norm.tot.fasta", sample=SAMPLES),
+		scaffolds4=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_yes_ecc_yes_norm.tot.fasta", sample=SAMPLES),
+
+
+rule annotate_VIGA_contigs:
+	input:
+		# viga_log=dirs_dict["ANNOTATION"] + "/viga_log_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.txt",
+		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
+		blastall=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
+
+rule correct_start:
+	input:
+		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
+		representatives_corrected=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
+		clinker_dir_corrected=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_correctstart_clinker.html"),
+
+rule runVirSorter:
+	input:
+		expand(dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}/VIRSorter_global-phage-signal.csv", sampling=["tot"])
+
+rule runVcontact2:
+	input:
+		expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.tot/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT)
+
+rule getSRA_runs:
+	input:
+		expand(dirs_dict["RAW_DATA_DIR"] + "/{SRA}_pass_1.fastq", SRA=SRA_list),
+		expand(dirs_dict["RAW_DATA_DIR"] + "/{SRA}_pass_2.fastq", SRA=SRA_list),
+
+rule taxonomyAssignmentvContact:
+	input:
+		OTUs=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_merged.tot.fasta",
+
+rule taxonomyAssignmenMMseqs:
+	input:
+		html=(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.html"),
+
+rule runALE:
+	input:
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_short_read.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_hybrid_assembly.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_long_read.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_WEC_spades_filtered_scaffolds.tot.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_WEC_contigs_canu.tot.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_flye_combined_assembly_WEC.tot.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_racon_WEC_contigs_1_canu.tot.ale", sample=SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_WEC_canu_corrected_scaffolds.tot.ale", sample=SAMPLES),
+
+rule get_ORFs_long_assembly:
+	input:
+		hybrid=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		canu=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER +"_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		medaka=expand(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		racon1=expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		racon2=expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		scaffolds_pilon1_final=expand(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		scaffolds_pilon2_final=expand(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		scaffolds_pilon3_final=expand(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+		scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
+
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/hybrid_assembly.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/long_read.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/short_read.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/WEC_spades_filtered_scaffolds.tot.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/WEC_contigs_canu.tot.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/flye_combined_assembly_WEC.tot.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/racon_WEC_contigs_1_canu.tot.fasta
+# /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/WEC_canu_corrected_scaffolds.tot.fasta
+
+include: os.path.join(RULES_DIR, '00_download_tools.smk')
+include: os.path.join(RULES_DIR, '01_quality_control_short.smk')
+include: os.path.join(RULES_DIR, '02_assembly_short.smk')
+include: os.path.join(RULES_DIR, '03_viral_identification.smk')
+include: os.path.join(RULES_DIR, '04_vOTU_clustering.smk')
+include: os.path.join(RULES_DIR, '05_taxonomy_assignment.smk')
+include: os.path.join(RULES_DIR, '06_viral_annotation.smk')
+include: os.path.join(RULES_DIR, '07_abundance.smk')
+include: os.path.join(RULES_DIR, '08_resultsParsing.smk')
+include: os.path.join(RULES_DIR, '09_test_assembly_depth.smk')
+include: os.path.join(RULES_DIR, '10_single_isolates.smk')
+include: os.path.join(RULES_DIR, '11_bacterial_analysis.smk')
+
+if NANOPORE==True:
+	include: os.path.join(RULES_DIR, '01_quality_control_long.smk')
+	include: os.path.join(RULES_DIR, '02_assembly_long.smk')

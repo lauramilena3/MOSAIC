@@ -1,0 +1,28 @@
+channels:
+  - conda-forge
+  - agbiome
+  - bioconda
+  - biobuilds
+  - pytorch-lts
+dependencies:
+  - java-jdk =8.0.112
+  - hdf5 =1.10.4
+  - numpy =1.17.3
+  - pandas =0.25.3 #max for vContact2
+  - pytables =3.5.1
+  - pypandoc =1.4
+  - biopython =1.78
+  - networkx =2.4
+  - scipy =1.2.1
+  - scikit-learn =0.23.1
+  - psutil =5.7.0
+  - mcl =14.137
+  - pyparsing =2.4.5
+  - pytorch
+  - blast 2.12.0
+  - diamond =2.0.13
+#  - biom-format =2.1.7
+  - taxonkit =0.6.0
+  - mmseqs2 =13.45111
+#  - pip:
+#    - git+https://bitbucket.org/MAVERICLab/vcontact2/src/master/vcontact/

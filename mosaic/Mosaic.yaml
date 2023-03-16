@@ -1,0 +1,21 @@
+channels:
+  - conda-forge
+  - bioconda
+  - biobuilds
+  - agbiome
+  - asmeurer
+  - fastchan
+dependencies:
+  - snakemake =7.18.2
+  - pandas = 1.1.3
+  - numpy =1.16.3
+  - seaborn =0.10.1
+  - mamba =0.22.1
+  - dos2unix =7.4.1
+  - biopython =1.79
+  - singularity =3.7.1
+  - ruamel.yaml =0.17.21
+  - click =8.1.2
+  - tabulate =0.8.10
+  - scikit-bio =0.5.6
+#   - python_abi =3.10

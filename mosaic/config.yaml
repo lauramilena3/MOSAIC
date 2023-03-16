@@ -1,0 +1,93 @@
+input_dir: ""
+results_dir: ""
+metagenome: True
+
+operating_system: "linux"
+forward_tag: "R1"
+reverse_tag: "R2"
+nanopore_tag: "nanopore"
+nanopore_pooled: False
+nanopore_pooled_name: "raw"
+long_assembler: "canu"
+
+genome_size: "20m"
+
+trimmomatic_leading: "20"
+trimmomatic_trailing: "20"
+trimmomatic_window_size: "4"
+trimmomatic_window_quality: "20"
+trimmomatic_minlen: "50"
+nanopore_quality: "10"
+nanopore_minlen: 1000
+nanopore_maxlen: 10000000
+subsampling: False
+subassembly: False
+assembly_stats: False
+
+ecc_memory: 6000
+representative_contigs: ""
+sra_list: ""
+
+#species
+p_ident: "95"
+
+#Count Unique
+kmer_window: "25000"
+
+#bbnorm
+min_norm: "0"
+max_norm: "100"
+max_subsample: "50000000"
+#Spades and canu assembly
+min_len: "1000"
+min_cov: "2"
+
+contaminants_list: ""
+adapters_file: "adapters.fa"
+additional_reference_contigs: ""
+ambiguous_mapping: "best"
+basecalled_dir: "data/basecalled/"
+imgvr_blast: False
+
+reference_databases: "IMGVR GenBankViral RefSeqViral"
+IMGVR_db: "/home/lmf/db/IMG_VR_09_2020/IMGVR.fasta"
+IMGVR_protein_db: "/home/lmf/db/IMG_VR_09_2020/ORFs/IMGVR_ORF.faa"
+RefSeqViral_db: "/home/lmf/db/RefSeqViral/RefSeq_viral_2022_03_10.fasta"
+RefSeqViral_protein_db: "/home/lmf/db/RefSeqViral/ORFs/RefSeq_viral_2022_03_10_ORFs.faa"
+GenBankViral_db: "/home/lmf/db/GenBankViral/GenBankViral_2022_03_10.fasta"
+GenBankViral_protein_db: "/home/lmf/db/GenBankViral/ORFs/GenBankViral_2022_03_10_ORFs.faa"
+blast_db: "db/ncbi/NCBI_viral_proteins.faa"
+
+virSorter_db: "db/VirSorter/virsorter-data"
+#raken_db: "db/NCBI-bacteria-01.04.2019"
+kraken_db: "db/KRAKEN/k2_pluspfp_20220908"
+#kraken_db_mini: "db/KRAKEN/minikraken_8GB_202003"
+kraken_db_human: "db/kraken2_human_db"
+kraken_tools: "tools/KrakenTools"
+
+weesam_dir: "tools/weeSAM"
+checkv_db: "db/checkv-db-v1.4"
+checkm_db: "db/checkm-db"
+iphop_db: "db/iphop_db"
+
+canu_dir: "tools/canu-2.0/Linux-amd64/bin" #linux
+PhaGCN_newICTV_dir: "tools/PhaGCN_newICTV"
+quast_dir: "tools/quast-5.0.2"
+virSorter_dir: "tools/VirSorter"
+WTP_dir: "tools/WTP"
+virFinder_dir: "tools/VirFinder"
+clusterONE_dir: "tools/clusterONE"
+vcontact_dir: "tools/vcontact2"
+run_vcontact: False
+reference_genomes_vcontact: "None"
+taxonomy_file: "db/vcontact2/formatting_taxonomy_affiliations.csv"
+mmseqs_dir: "tools/MMseqs2"
+viga_dir: "tools/viga"
+piler_dir: "tools/pilercr1.06"
+trf_dir: "tools/TRF"
+vibrant_dir: "tools/VIBRANT"
+viridic_folder: "tools/viridic_v1.0_r3.6"
+sra_toolkit_dir: "tools/sratoolkit.2.10.0-ubuntu64"
+ALE_dir: "tools/ALE"
+wish_dir: "tools/WIsH"
+dion_db: "db/dionSetDB"

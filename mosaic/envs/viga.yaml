@@ -1,0 +1,32 @@
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - nlesc
+dependencies:
+  - python=2.7
+  - lastz =1.04.15
+  - infernal =1.1.4
+  - aragorn =1.2.38
+  - muscle =3.8.1551
+#  - ucsc-trfbig =377
+  - prodigal =2.6.3
+  - diamond =0.8.26
+  - blast =2.12.0
+  - hmmer =3.3.2
+#Other
+#  - mmseqs2=10.6d92c
+  - cmake =3.16.3
+  - perl =5.26.2 #blast
+  - nettle = 3.4.1 #blast
+  - libgcc-ng =11.2.0
+  - libcurl =7.85.0
+  - zlib =1.2.13 #
+  - openssl = 1.1.1q
+  - biopython =1.74
+  - scipy =1.2.1
+  - numpy =1.16.5
+  - git =2.39.1
+  - pip =19.3.1
+  - pip:
+    - bcbio-gff==0.6.6
