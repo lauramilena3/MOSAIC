@@ -2,7 +2,7 @@ rule get_SRAToolkit:
 	output:
 		SRAToolkit_dir=directory("tools/sratoolkit.2.10.0-ubuntu64"),
 	message:
-		"Downloading VIBRANT"
+		"Downloading SRA toolkit"
 	params:
 		tools="tools",
 	conda:
@@ -60,7 +60,7 @@ rule getQUAST:
 		"Downloading QUAST"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 4
+	threads: 1
 	shell:
 		"""
 		curl -OL https://downloads.sourceforge.net/project/quast/quast-5.0.2.tar.gz
@@ -303,6 +303,7 @@ rule getPhaGCN_newICTV:
 rule downloadPlusPFPKrakenDB:
 	output:
 		kraken_db=directory(config['kraken_db']),
+		kraken_tar=temp("k2_pluspfp_20220908.tar.gz")
 	message:
 		"Downloading Kraken database"
 	threads: 1
@@ -312,7 +313,7 @@ rule downloadPlusPFPKrakenDB:
 		"""
 		wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_20220908.tar.gz
 		mkdir {output.kraken_db}
-		tar -xvf k2_pluspfp_20220908.tar.gz -C {output.kraken_db}
+		tar -xvf {output.kraken_tar} -C {output.kraken_db}
 		"""
 
 rule buildBrackenDB:
