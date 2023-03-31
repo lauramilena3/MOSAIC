@@ -38,7 +38,7 @@ rule copy_notebooks:
 	input:
 		notebook="notebooks/{notebook}.py.ipynb"
 	output:
-		notebooks=dirs_dict["NOTEBOOKS_DIR"] +"{notebook}.py.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] +"{notebook}.py.ipynb"
 	shell:
 		"""
 		cp {input.notebook} {output.notebook}
