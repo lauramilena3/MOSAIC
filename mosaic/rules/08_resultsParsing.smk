@@ -92,7 +92,7 @@ rule QC_parsing:
 		samples=SAMPLES,
 
 	notebook:
-		"dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
+		dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
 
 
 
