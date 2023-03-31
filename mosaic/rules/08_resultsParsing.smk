@@ -40,9 +40,9 @@ rule copy_notebooks:
 	output:
 		notebooks=dirs_dict["NOTEBOOKS_DIR"] +"{notebook}.py.ipynb"
 	shell:
-	"""
-	cp {input.notebook} {output.notebook}
-	"""
+		"""
+		cp {input.notebook} {output.notebook}
+		"""
 
 rule plot_assemblies:
 	input:
