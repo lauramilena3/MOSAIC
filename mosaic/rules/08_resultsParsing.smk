@@ -1,38 +1,38 @@
-rule plot_kmer:
-	input:
-		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
-	output:
-		plot=(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.{sampling}.png"),
-		svg=(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.{sampling}.svg"),
+# rule plot_kmer:
+# 	input:
+# 		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
+# 	output:
+# 		plot=(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.{sampling}.png"),
+# 		svg=(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.{sampling}.svg"),
 
-	message:
-		"Plot unique reads with BBtools"
-	threads: 1
-	run:
-		import pandas as pd
-		import seaborn as sns; sns.set()
-		import matplotlib.pyplot as plt
+# 	message:
+# 		"Plot unique reads with BBtools"
+# 	threads: 1
+# 	run:
+# 		import pandas as pd
+# 		import seaborn as sns; sns.set()
+# 		import matplotlib.pyplot as plt
 
-		plt.figure(figsize=(12,12))
-		sns.set(font_scale=2)
-		sns.set_style("whitegrid")
+# 		plt.figure(figsize=(12,12))
+# 		sns.set(font_scale=2)
+# 		sns.set_style("whitegrid")
 
-		read_max=0
+# 		read_max=0
 
-		for h in input.histograms:
-			df=pd.read_csv(h, sep="\t")
-			df.columns=["count", "percent", "c", "d", "e", "f", "g", "h", "i", "j"]
-			df=df[["count", "percent"]]
-			ax = sns.lineplot(x="count", y="percent", data=df,err_style='band', label=h.split("/")[-1].split("_kmer")[0])
-			read_max=max(read_max,df["count"].max())
+# 		for h in input.histograms:
+# 			df=pd.read_csv(h, sep="\t")
+# 			df.columns=["count", "percent", "c", "d", "e", "f", "g", "h", "i", "j"]
+# 			df=df[["count", "percent"]]
+# 			ax = sns.lineplot(x="count", y="percent", data=df,err_style='band', label=h.split("/")[-1].split("_kmer")[0])
+# 			read_max=max(read_max,df["count"].max())
 
-		ax.set(ylim=(0, 100))
-		ax.set(xlim=(0, read_max*1.2))
+# 		ax.set(ylim=(0, 100))
+# 		ax.set(xlim=(0, read_max*1.2))
 
-		ax.set_xlabel("Read count",fontsize=20)
-		ax.set_ylabel("New k-mers (%)",fontsize=20)
-		ax.figure.savefig(output.plot)
-		ax.figure.savefig(output.svg, format="svg")
+# 		ax.set_xlabel("Read count",fontsize=20)
+# 		ax.set_ylabel("New k-mers (%)",fontsize=20)
+# 		ax.figure.savefig(output.plot)
+# 		ax.figure.savefig(output.svg, format="svg")
 
 
 rule plot_assemblies:
@@ -79,3 +79,21 @@ rule plot_assemblies:
 		ax.set_ylabel("New k-mers (%)",fontsize=20)
 		ax.figure.savefig(output.plot)
 		ax.figure.savefig(output.svg, format="svg")
+
+rule QC_parsing:
+	input:
+		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
+   output:
+		kmer_png=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot.{sampling}.png"),
+		kmer_svg=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot.{sampling}.svg"),
+	params:
+		results_dir=RESULTS_DIR,
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		samples=SAMPLES,
+   # conda:
+   #      "envs/hello.yaml"
+   notebook:
+      "dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
+
+
+
