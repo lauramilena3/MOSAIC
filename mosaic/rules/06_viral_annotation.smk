@@ -92,6 +92,7 @@ rule estimateGenomeCompletness_vOTUs:
 	threads: 32
 	shell:
 		"""
+		rm -rf {params.checkv_outdir} || true
 		if [ -s {input.filtered_representatives} ]; then
 		    		            	checkv contamination {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 		    		            	checkv completeness {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
