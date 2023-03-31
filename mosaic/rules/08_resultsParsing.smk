@@ -93,7 +93,7 @@ rule QC_parsing:
    # conda:
    #      "envs/hello.yaml"
    notebook:
-      "dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
+   	"dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
 
 
 
