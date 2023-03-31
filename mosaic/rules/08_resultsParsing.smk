@@ -101,7 +101,7 @@ rule QC_parsing:
 		kmer_fit_png=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot_fitted.{sampling}.png"),
 		kmer_fit_svg=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot_fitted.{sampling}.svg"),
 		kmer_fit_html=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_fitted.{sampling}.html"),
-		qc_summary_html=(dirs_dict["PLOTS_DIR"] + "/post_qc_read_summary.html"),
+		qc_summary_html=(dirs_dict["PLOTS_DIR"] + "/post_qc_read_summary.{sampling}.html"),
 		percentage_kept_reads_png=(dirs_dict["PLOTS_DIR"] + "/percentage_kept_reads.{sampling}.png"),
 		percentage_kept_reads_svg=(dirs_dict["PLOTS_DIR"] + "/percentage_kept_reads.{sampling}.svg"),
 		percentage_kept_Mbp_png=(dirs_dict["PLOTS_DIR"] + "/percentage_kept_Mbp.{sampling}.png"),
