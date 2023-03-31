@@ -90,7 +90,6 @@ rule QC_parsing:
 		results_dir=RESULTS_DIR,
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		samples=SAMPLES,
-
 	notebook:
 		dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
 
