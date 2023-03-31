@@ -422,6 +422,7 @@ rule preMultiQC:
 		zipped=expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_{reads}_fastqc.zip", sample=SAMPLES, reads=READ_TYPES),
 	output:
 		multiqc=dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
+		multiqc_txt=dirs_dict["QC_DIR"]+ "/preQC_illumina_report_data/multiqc_fastqc.txt",
 	params:
 		fastqc_dir=dirs_dict["RAW_DATA_DIR"],
 		html_name="preQC_illumina_report.html",
@@ -446,7 +447,8 @@ rule postMultiQC:
 		html_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_fastqc.html", sample=SAMPLES),
 		zipped_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"]  + "/{sample}_unpaired_clean.tot_fastqc.zip", sample=SAMPLES),
 	output:
-		multiqc=dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html"
+		multiqc=dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
+		multiqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
 	params:
 		fastqc_dir=dirs_dict["CLEAN_DATA_DIR"],
 		html_name="postQC_illumina_report.html",
