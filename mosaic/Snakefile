@@ -154,7 +154,7 @@ def inputAll(wildcards):
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_F_report_paired_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_O_report_paired_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_G_report_paired_tot.csv", sample=SAMPLES)),
-	inputs.append(dirs_dict["CLEAN_DATA_DIR"] + "/kmer_rarefraction_plot.tot.png")
+	inputs.append(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot.tot.png")
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv", sample=SAMPLES)),
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE_TOT))
