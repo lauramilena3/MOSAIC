@@ -83,17 +83,16 @@ rule plot_assemblies:
 rule QC_parsing:
 	input:
 		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
-   output:
+	output:
 		kmer_png=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot.{sampling}.png"),
 		kmer_svg=(dirs_dict["PLOTS_DIR"] + "/kmer_rarefraction_plot.{sampling}.svg"),
 	params:
 		results_dir=RESULTS_DIR,
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		samples=SAMPLES,
-   # conda:
-   #      "envs/hello.yaml"
-   notebook:
-   	"dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
+
+	notebook:
+		"dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
 
 
 
