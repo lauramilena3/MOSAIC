@@ -111,7 +111,7 @@ rule QC_parsing:
 		steps_qc_reads_svg=(dirs_dict["PLOTS_DIR"] + "/qc_bystep_counts.{sampling}.svg"),
 		steps_qc_percentage_png=(dirs_dict["PLOTS_DIR"] + "/qc_bystep_percentage.{sampling}.png"),
 		steps_qc_percentage_svg=(dirs_dict["PLOTS_DIR"] + "/qc_bystep_percentage.{sampling}.svg"),
-		supperdedupper_html==(dirs_dict["PLOTS_DIR"] + "/superdedupper_PCR.{sampling}.html"),
+		supperdedupper_html=(dirs_dict["PLOTS_DIR"] + "/superdedupper_PCR.{sampling}.html"),
 		supperdedupper_png=(dirs_dict["PLOTS_DIR"] + "/superdedupper_PCR.{sampling}.png"),
 		supperdedupper_svg=(dirs_dict["PLOTS_DIR"] + "/superdedupper_PCR.{sampling}.svg"),
 	params:
