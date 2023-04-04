@@ -125,7 +125,7 @@ rule QC_parsing:
 		raw_dir=dirs_dict["RAW_DATA_DIR"],
 		qc_dir=dirs_dict["QC_DIR"],
 	log:
-		dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.{sampling}.py.ipynb"
+		dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.{sampling}.html"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb"
 
