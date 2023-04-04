@@ -91,7 +91,6 @@ rule plot_assemblies:
 
 rule QC_parsing:
 	input:
-		notebook=dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb",
 		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
 		preqc_txt=dirs_dict["QC_DIR"]+ "/preQC_illumina_report_data/multiqc_fastqc.txt",
 		postqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
