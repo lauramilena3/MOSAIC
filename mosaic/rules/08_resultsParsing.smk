@@ -34,15 +34,15 @@
 # 		ax.figure.savefig(output.plot)
 # 		ax.figure.savefig(output.svg, format="svg")
 
-rule copy_notebooks:
-	input:
-		notebook="notebooks/{notebook}.py.ipynb"
-	output:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] +"/{notebook}.py.ipynb"
-	shell:
-		"""
-		cp {input.notebook} {output.notebook}
-		"""
+# rule copy_notebooks:
+# 	input:
+# 		notebook="notebooks/{notebook}.py.ipynb"
+# 	output:
+# 		notebook=dirs_dict["NOTEBOOKS_DIR"] +"/{notebook}.py.ipynb"
+# 	shell:
+# 		"""
+# 		cp {input.notebook} {output.notebook}
+# 		"""
 
 rule plot_assemblies:
 	input:
