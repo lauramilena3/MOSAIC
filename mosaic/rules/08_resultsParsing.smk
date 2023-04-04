@@ -91,14 +91,13 @@ rule plot_assemblies:
 
 rule QC_parsing:
 	input:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb",
+		notebook=dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb",
 		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
 		preqc_txt=dirs_dict["QC_DIR"]+ "/preQC_illumina_report_data/multiqc_fastqc.txt",
 		postqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
 		read_count_forward=expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + "_read_count.txt", sample=SAMPLES),
 		read_count_reverse=expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['reverse_tag']) + "_read_count.txt", sample=SAMPLES),
 		supper_dedup=(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
-
 	output:
 		kmer_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.{sampling}.png"),
 		kmer_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.{sampling}.svg"),
@@ -126,8 +125,10 @@ rule QC_parsing:
 		reverse_tag=config['reverse_tag'],
 		raw_dir=dirs_dict["RAW_DATA_DIR"],
 		qc_dir=dirs_dict["QC_DIR"],
-	notebook:
+	log:
 		dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.py.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb"
 
 
 
