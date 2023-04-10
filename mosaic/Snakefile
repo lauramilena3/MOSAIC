@@ -277,7 +277,7 @@ rule clean_reads:
 
 rule abundance_from_db_contigs:
 	input:
-		(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_DB.tot.txt"),
+		expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
 		# expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES),
 
 rule assembly_vs_reference:
