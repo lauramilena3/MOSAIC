@@ -55,6 +55,8 @@ if len(config['additional_reference_contigs'])==0:
 			filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
 			filtered_list_temp=temp(dirs_dict["vOUT_DIR"]+ "/filtered_temp_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt"),
 			filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		params:
+			min_votu_len=config['min_votu_length']
 		message:
 			"Filtering vOTUs "
 		conda:
@@ -64,7 +66,7 @@ if len(config['additional_reference_contigs'])==0:
 		threads: 4
 		shell:
 			"""
-			cat {input.representative_lengths} | awk '$2>=10000' | cut -f1 >  {output.filtered_list_temp}
+			cat {input.representative_lengths} | awk '$2>={params.min_votu_len}' | cut -f1 >  {output.filtered_list_temp}
 			cat {input.high_qualty_list} {output.filtered_list_temp} | sort | uniq > {output.filtered_list}
 			seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
 			"""
@@ -116,6 +118,8 @@ else:
 			filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
 			filtered_list_temp=temp(dirs_dict["vOUT_DIR"]+ "/filtered_temp_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt"),
 			filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		params:
+			min_votu_len=config['min_votu_length']
 		message:
 			"Filtering vOTUs "
 		conda:
@@ -125,7 +129,7 @@ else:
 		threads: 1
 		shell:
 			"""
-			cat {input.representative_lengths} | awk '$2>=10000' | cut -f1 >>  {output.filtered_list_temp}
+			cat {input.representative_lengths} | awk '$2>={params.min_votu_len}' | cut -f1 >>  {output.filtered_list_temp}
 			cat {input.high_qualty_list} {output.filtered_list_temp}| sort | uniq > {output.filtered_list}
 			seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
 			"""
