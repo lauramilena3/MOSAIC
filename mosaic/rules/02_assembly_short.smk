@@ -1,5 +1,4 @@
 #ruleorder: shortReadAsemblySpadesPE > shortReadAsemblySpadesSE
-
 rule shortReadAsemblySpadesPE:
 	input:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}.fastq.gz"),
@@ -25,7 +24,7 @@ rule shortReadAsemblySpadesPE:
 	shell:
 		"""
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		{params.metagenomic_flag} -t {threads} --only-assembler --memory 350
+		{params.metagenomic_flag} -t {threads} --memory 350
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}

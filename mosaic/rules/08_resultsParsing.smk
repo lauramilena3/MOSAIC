@@ -130,28 +130,28 @@ rule QC_parsing:
 		dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb"
 
 
-# rule Assembly_parsing_short:
-# 	input:
-# 		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
-# 	output:
-# 		log_number_contigs_png=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.png"),
-# 		log_number_contigs_svg=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.svg"),
-# 		contig_length_bp_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_bp_plot.{sampling}.png"),
-# 		contig_length_bp_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_bp_plot.{sampling}.svg"),
-# 		contig_number_total_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_number_total_plot.{sampling}.png"),
-# 		contig_number_total_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_number_total_plot.{sampling}.svg"),
-# 		contig_length_total_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_total_plot.{sampling}.png"),
-# 		contig_length_total_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_total_plot.{sampling}.svg"),
-# 	params:
-# 		input_quast_report=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
-# 		results_dir=RESULTS_DIR,
-# 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
-# 		samples=SAMPLES,
-# 		forward_tag=config['forward_tag'],
-# 		reverse_tag=config['reverse_tag'],
-# 		raw_dir=dirs_dict["RAW_DATA_DIR"],
-# 		qc_dir=dirs_dict["QC_DIR"],
-# 	log:
-# 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.{sampling}.ipynb"
-# 	notebook:
-# 		dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb"
+rule Assembly_parsing_short:
+	input:
+		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
+	output:
+		log_number_contigs_png=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.png"),
+		log_number_contigs_svg=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.svg"),
+		contig_length_bp_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_bp_plot.{sampling}.png"),
+		contig_length_bp_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_bp_plot.{sampling}.svg"),
+		contig_number_total_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_number_total_plot.{sampling}.png"),
+		contig_number_total_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_number_total_plot.{sampling}.svg"),
+		contig_length_total_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_total_plot.{sampling}.png"),
+		contig_length_total_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_total_plot.{sampling}.svg"),
+	params:
+		input_quast_report=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
+		results_dir=RESULTS_DIR,
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		samples=SAMPLES,
+		forward_tag=config['forward_tag'],
+		reverse_tag=config['reverse_tag'],
+		raw_dir=dirs_dict["RAW_DATA_DIR"],
+		qc_dir=dirs_dict["QC_DIR"],
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_assembly_short.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/01_assembly_short.py.ipynb"

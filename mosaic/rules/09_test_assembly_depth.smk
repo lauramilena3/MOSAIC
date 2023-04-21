@@ -83,7 +83,7 @@ rule metaspadesPE_test_depth:
 	shell:
 		"""
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		--meta -t {threads} --only-assembler --memory 350
+		--meta -t {threads} --memory 350
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
@@ -245,8 +245,8 @@ rule vOUTclustering_test_depth:
 	input:
 		final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}.fasta",
 	output:
-		clusters=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}_95-80.clstr",
-		representatives_temp=temp(dirs_dict["ASSEMBLY_TEST"]+ "/merged_positive_virsorter.{sampling}_95-80.fna"),
+		clusters=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}_95-85.clstr",
+		representatives_temp=temp(dirs_dict["ASSEMBLY_TEST"]+ "/merged_positive_virsorter.{sampling}_95-85.fna"),
 		representatives=dirs_dict["ASSEMBLY_TEST"]+ "/95-80_merged_positive_virsorter.{sampling}.fasta",
 		representative_lengths=dirs_dict["ASSEMBLY_TEST"] + "/95-80_merged_positive_virsorter_lengths.{sampling}.txt",
 	message:
@@ -258,7 +258,7 @@ rule vOUTclustering_test_depth:
 	threads: 1
 	shell:
 		"""
-		./scripts/stampede-Cluster_genomes.pl -f {input.final_viral_contigs} -c 80 -i 95
+		./scripts/stampede-Cluster_genomes.pl -f {input.final_viral_contigs} -c 85 -i 95
 		cat {output.representatives_temp} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
 		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		cp {output.representatives_temp} {output.representatives}
