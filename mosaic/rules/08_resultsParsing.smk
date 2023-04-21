@@ -132,7 +132,7 @@ rule QC_parsing:
 
 rule Assembly_parsing_short:
 	input:
-		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
+		quast_report_dir=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}",
 	output:
 		log_number_contigs_png=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.png"),
 		log_number_contigs_svg=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.svg"),
