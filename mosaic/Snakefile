@@ -154,7 +154,6 @@ def inputAll(wildcards):
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_F_report_paired_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_O_report_paired_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_G_report_paired_tot.csv", sample=SAMPLES)),
-	inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv", sample=SAMPLES)),
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE_TOT))
@@ -169,6 +168,9 @@ def inputAll(wildcards):
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv")
 	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
 	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
+
+	inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
+	inputs.append(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.tot.png")
 
 	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_DB.{sampling}.txt", sampling=SAMPLING_TYPE))
 	# inputs.append(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.gbk")
