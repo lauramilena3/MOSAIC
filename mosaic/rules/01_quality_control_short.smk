@@ -389,7 +389,7 @@ rule read_classification_BRACKEN:
 	output:
 		braken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv",
 	message:
-		"Creating family reports with Bracken"
+		"Creating taxonomic reports with Bracken"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:

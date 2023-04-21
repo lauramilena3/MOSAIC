@@ -43,6 +43,7 @@ rule remove_adapters_quality_nanopore:
 				--headcrop {params.headcrop} --tailcrop {params.tailcrop} | gzip > {output.trimmed_data}
 		"""
 
+
 rule remove_contaminants_nanopore:
 	input:
 		trimmed_data=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_nanofilt.fastq.gz",

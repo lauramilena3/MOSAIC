@@ -48,7 +48,7 @@ if POOLED==True:
 		shell:
 			"""
 			spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-			{params.metagenomic_flag}  -t {threads} --only-assembler --nanopore {input.nanopore} --memory 350
+			{params.metagenomic_flag}  -t {threads} --nanopore {input.nanopore} --memory 350
 			grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 			| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 			seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
@@ -77,7 +77,7 @@ rule hybridAsemblySpades:
 	shell:
 		"""
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		{params.metagenomic_flag}  -t {threads} --only-assembler --nanopore {input.nanopore} --memory 350
+		{params.metagenomic_flag}  -t {threads} --nanopore {input.nanopore} --memory 350
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
@@ -183,7 +183,7 @@ rule errorCorrectMedaka:
 		medaka_dir1=directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}"),
 		medaka_dir2=directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}"),
 	params:
-		medaka_model="r941_min_high_g360",
+		medaka_model="r941_min_high_g360", # TODO
 		medaka_fasta1=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}/consensus.fasta",
 		medaka_fasta2=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}/consensus.fasta",
 	message:
@@ -199,7 +199,7 @@ rule errorCorrectMedaka:
 		medaka_consensus -i {input.nanopore} -d {params.medaka_fasta1} -o {output.medaka_dir2} -m {params.medaka_model} -f
 		cp {params.medaka_fasta2} {output.corrected_medaka}
 		"""
-
+		
 rule errorCorrectRacon_2rounds:
 	input:
 		nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nanopore_clean.{sampling}.fastq.gz",
