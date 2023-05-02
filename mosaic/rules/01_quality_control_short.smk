@@ -56,8 +56,8 @@ rule fastQC_pre:
 	input:
 		raw_fastq=dirs_dict["RAW_DATA_DIR"] + "/{fastq_name}.fastq.gz"
 	output:
-		html=temp(dirs_dict["RAW_DATA_DIR"] + "{fastq_name}_fastqc.html"),
-		zipped=(dirs_dict["RAW_DATA_DIR"] + "{fastq_name}_fastqc.zip")
+		html=temp(dirs_dict["RAW_DATA_DIR"] + "/{fastq_name}_fastqc.html"),
+		zipped=(dirs_dict["RAW_DATA_DIR"] + "/{fastq_name}_fastqc.zip")
 	message:
 		"Performing fastqQC statistics"
 	conda:
@@ -69,13 +69,12 @@ rule fastQC_pre:
 		fastqc {input}
 		"""
 
-
 rule fastQC_post:
 	input:
 		raw_fastq=dirs_dict["CLEAN_DATA_DIR"] + "/{fastq_name}.fastq.gz"
 	output:
-		html=temp(dirs_dict["CLEAN_DATA_DIR"] + "{fastq_name}_fastqc.html"),
-		zipped=(dirs_dict["CLEAN_DATA_DIR"] + "{fastq_name}_fastqc.zip")
+		html=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{fastq_name}_fastqc.html"),
+		zipped=(dirs_dict["CLEAN_DATA_DIR"] + "/{fastq_name}_fastqc.zip")
 	message:
 		"Performing fastqQC statistics"
 	conda:
