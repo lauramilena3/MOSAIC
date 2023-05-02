@@ -297,7 +297,9 @@ rule getPhaGCN_newICTV:
 		mkdir -p tools
 		cd tools
 		git clone https://github.com/KennthShang/PhaGCN_newICTV
-		chmod 777 PhaGCN_newICTV/*
+		cd PhaGCN_newICTV
+		git reset --hard "9d7a1c8"
+		chmod 777 *
 		"""
 
 rule downloadPlusPFPKrakenDB:

@@ -15,7 +15,7 @@ rule virSorter2:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/virSorter2/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/virSorter2/{sample}_{sampling}_illumina.tsv"
 	threads: 8
 	shell:
 		"""
@@ -61,7 +61,7 @@ rule virSorter2_nanopore:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/virSorter2/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/virSorter2/{sample}_{sampling}_nanopore.tsv"
 	threads: 8
 	shell:
 		"""

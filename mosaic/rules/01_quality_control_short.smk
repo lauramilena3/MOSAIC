@@ -52,24 +52,40 @@ rule countReads:
 		grep -c "^@" {input.fastq} > {output.counts}
 		"""
 
-rule fastQC:
+rule fastQC_pre:
 	input:
-		raw_fastq="{fastq_name}.fastq.gz"
+		raw_fastq=dirs_dict["RAW_DATA_DIR"] + "/{fastq_name}.fastq.gz"
 	output:
-		html=temp("{fastq_name}_fastqc.html"),
-		zipped=("{fastq_name}_fastqc.zip")
+		html=temp(dirs_dict["RAW_DATA_DIR"] + "{fastq_name}_fastqc.html"),
+		zipped=(dirs_dict["RAW_DATA_DIR"] + "{fastq_name}_fastqc.zip")
 	message:
 		"Performing fastqQC statistics"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
-	# benchmark:
-		# dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}.tsv"
-#	threads: 1
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_pre_qc.tsv"
 	shell:
 		"""
 		fastqc {input}
 		"""
 
+
+rule fastQC_post:
+	input:
+		raw_fastq=dirs_dict["CLEAN_DATA_DIR"] + "/{fastq_name}.fastq.gz"
+	output:
+		html=temp(dirs_dict["CLEAN_DATA_DIR"] + "{fastq_name}_fastqc.html"),
+		zipped=(dirs_dict["CLEAN_DATA_DIR"] + "{fastq_name}_fastqc.zip")
+	message:
+		"Performing fastqQC statistics"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_post_qc.tsv"
+	shell:
+		"""
+		fastqc {input}
+		"""
 
 
 rule superDeduper_pcr:
@@ -191,7 +207,7 @@ rule contaminants_KRAKEN:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kmer_rarefraction/{sample}_tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
 	threads: 32
 	shell:
 		"""
@@ -234,7 +250,7 @@ rule remove_euk:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	threads: 4
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/remove_human_PE/{sample}.tsv"
+		dirs_dict["BENCHMARKS"] +"/remove_euk_PE/{sample}.tsv"
 	resources:
 		mem_gb=40
 	shell:
@@ -372,7 +388,7 @@ rule contaminants_KRAKEN_clean:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kmer_rarefraction/{sample}_tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_clean.tsv"
 	priority: 1
 	threads: 8
 	shell:
@@ -381,6 +397,7 @@ rule contaminants_KRAKEN_clean:
 			--paired {input.forward_paired} {input.reverse_paired} \
 			--output {output.kraken_output_paired} --report {output.kraken_report_paired}
 		"""
+
 rule read_classification_BRACKEN:
 	input:
 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv"),
@@ -432,7 +449,7 @@ rule preMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc.tsv"
+		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_pre.tsv"
 	shell:
 		"""
 		multiqc -f {params.fastqc_dir} -o {params.multiqc_dir} -n {params.html_name}
@@ -459,7 +476,7 @@ rule postMultiQC:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	priority: 1
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/postMultiQC/multiqc.tsv"
+		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_post.tsv"
 	shell:
 		"""
 		multiqc -f {params.fastqc_dir}/*zip -o {params.multiqc_dir} -n {params.html_name}
@@ -471,7 +488,6 @@ rule prekrakenMultiQC:
 	output:
 		multiqc=dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html"
 		# 		multiqc=dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
-
 	params:
 		fastqc_dir=dirs_dict["CLEAN_DATA_DIR"],
 		html_name="pre_decontamination_kraken_multiqc_report.html",
@@ -482,7 +498,7 @@ rule prekrakenMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken.tsv"
+		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_pre.tsv"
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
@@ -503,7 +519,7 @@ rule postkrakenMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/postMultiQC/multiqc_kraken.tsv"
+		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_post.tsv"
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
