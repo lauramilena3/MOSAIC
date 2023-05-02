@@ -214,7 +214,7 @@ rule errorCorrectRacon_2rounds:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/errorCorrectRacon_1st/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/errorCorrectRacon/{sample}_{sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -227,7 +227,7 @@ rule errorCorrectRacon_2rounds:
 		"""
 
 
-rule errorCorrectPilonPE_round1:
+rule errorCorrectPilonPE:
 	input:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
@@ -448,8 +448,6 @@ rule mergeAssembliesHYBRID:
 		"Merging assembled contigs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mergeAssembliesHYBRID/{sampling}.tsv"
 	threads: 1
 	shell:
 		"""
