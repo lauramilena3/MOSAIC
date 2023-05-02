@@ -15,6 +15,7 @@ rule get_SRAToolkit:
 		wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.10.0/sratoolkit.2.10.0-ubuntu64.tar.gz
 		tar -xzf sratoolkit.2.10.0-ubuntu64.tar.gz
 		"""
+
 rule downloadContaminants:
 	output:
 		contaminant_fasta=dirs_dict["CONTAMINANTS_DIR_DB"] +"/{contaminant}.fasta",
@@ -53,6 +54,7 @@ rule get_VIBRANT:
 		cd VIBRANT/databases
 		./VIBRANT_setup.py
 		"""
+
 rule getQUAST:
 	output:
 		quast_dir=directory(config["quast_dir"])
@@ -68,6 +70,7 @@ rule getQUAST:
 		cd {config[quast_dir]}
 		./setup.py install
 		"""
+
 rule get_mmseqs:
 	output:
 		mmseqs_dir=directory(os.path.join(workflow.basedir, config['mmseqs_dir'])),
@@ -110,6 +113,7 @@ rule get_mmseqs:
 		{output.mmseqs_dir}/build/bin/mmseqs createdb {output.refseq} RefSeqViral.fnaDB
 		{output.mmseqs_dir}/build/bin/mmseqs createtaxdb RefSeqViral.fnaDB tmp --ncbi-tax-dump {params.taxdump} --tax-mapping-file {output.refseq_taxid}
 		"""
+
 rule get_ALE:
 	output:
 		ALE_dir=directory(config['ALE_dir']),
@@ -124,6 +128,7 @@ rule get_ALE:
 		cd ALE/src
 		make
 		"""
+
 rule get_weeSAM:
 	output:
 		weesam_dir=directory(config['weesam_dir']),
@@ -136,6 +141,7 @@ rule get_weeSAM:
 		cd tools
 		git clone https://github.com/centre-for-virus-research/weeSAM
 		"""
+
 rule get_VIGA:
 	output:
 		VIGA_dir=directory(os.path.join(workflow.basedir, config['viga_dir'])),
@@ -223,6 +229,7 @@ rule downloadVirSorterDB:
 		virsorter setup -d {output.virSorter_dir} -j {threads}
 		#mkdir {output.virSorter_dir}
 		"""
+
 rule downloadIphopDB:
 	output:
 		iphop_db=directory(config['iphop_db']),
@@ -333,8 +340,6 @@ rule buildBrackenDB:
     	bracken-build -d {input.kraken_db} -t {threads} -k 35 -l 150
 		touch {output.bracken_checkpoint}
 		"""
-
-
 
 #rule downloadminiKrakenDB:
 #	output:
