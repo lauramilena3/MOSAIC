@@ -92,7 +92,7 @@ else:
 			scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
 			genomad_db=directory(config['genomad_db']),
 		output:
-			genomad_outdir=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/
+			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/),
 			positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		params:
 			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}.{sampling}_summary/sample}.{sampling}_virus.fna
