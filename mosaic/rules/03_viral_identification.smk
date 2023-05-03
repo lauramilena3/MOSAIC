@@ -87,7 +87,7 @@ if VIRSORTER:
 			seqtk subseq {input.scaffolds} {input.positive_list} > {output.positive_contigs}
 			"""
 else:
-	rule genomad_viral_id:
+	rule genomad_viral_id_subassembly:
 		input:
 			scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
 			genomad_db=directory(config['genomad_db']),
