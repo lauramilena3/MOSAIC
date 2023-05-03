@@ -1,5 +1,4 @@
 if VIRSORTER:
-	ruleorder extractViralContigs_VS>
 	rule virSorter2:
 		input:
 			scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
