@@ -6,6 +6,7 @@ channels:
 dependencies:
   # - bamm =1.7.3
   - iphop =1.2.0
+  - genomad =1.5.1
 
 #  - amos =3.1.0
 #  - perl-getopt-long=2.50

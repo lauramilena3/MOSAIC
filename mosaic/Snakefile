@@ -17,6 +17,7 @@ RESULTS_DIR=config['results_dir'].rstrip("/")
 LONG_ASSEMBLER=config['long_assembler']
 IMGVR_blast=config['imgvr_blast']
 METAGENOME=config['metagenome']
+VIRSORTER=config['VirSorter']
 MEMORY_ECORR=config['ecc_memory']
 VCONTACT=config['run_vcontact']
 ASSEMLY_STATS=config['assembly_stats']
