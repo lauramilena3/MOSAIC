@@ -95,7 +95,7 @@ else:
 			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
 			positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		params:
-			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}.{sampling}_summary/sample}.{sampling}_virus.fna
+			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}.{sampling}_summary/sample}.{sampling}_virus.fna",
 		message:
 			"Identifying viral contigs with geNomad"
 		conda:
