@@ -341,6 +341,19 @@ rule buildBrackenDB:
 		touch {output.bracken_checkpoint}
 		"""
 
+rule downloadGenomadDB:
+	output:
+		genomad_db=directory(config['genomad_db']),
+	message:
+		"Downloading geNomad database"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/2.yaml"
+	shell:
+		"""
+		genomad download-database {output.genomad_db}
+		"""
+
+
 #rule downloadminiKrakenDB:
 #	output:
 #		kraken_db=directory(config['kraken_db']),

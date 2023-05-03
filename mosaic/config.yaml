@@ -22,6 +22,7 @@ nanopore_minlen: 1000
 nanopore_maxlen: 10000000
 subsampling: False
 subassembly: False
+VirSorter: False
 assembly_stats: False
 
 ecc_memory: 6000
@@ -83,6 +84,7 @@ vcontact_dir: "tools/vcontact2"
 run_vcontact: False
 reference_genomes_vcontact: "None"
 taxonomy_file: "db/vcontact2/formatting_taxonomy_affiliations.csv"
+genomad_db: "db/genomad_db"
 mmseqs_dir: "tools/MMseqs2"
 viga_dir: "tools/viga"
 piler_dir: "tools/pilercr1.06"
