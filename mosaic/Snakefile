@@ -313,7 +313,7 @@ rule subassembly:
 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_G_report_paired_tot.csv", sample=SAMPLES),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 		dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png",
-		expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_tot/scaffolds.fasta", sample=SAMPLES, subsample=subsample_test),
+		expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test),
 
 #		scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample=SAMPLES),
 rule assembly_long:
