@@ -56,10 +56,10 @@ rule normalizeReads_test_depth:
 		"""
 		#PE
 		#paired
-		bbnorm.sh -Xmx{resources.mem_mb}m ecc in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
+		bbnorm.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
 		target={params.max_depth} mindepth={params.min_depth} t={threads}
 		#unpaired
-		bbnorm.sh -Xmx{resources.mem_mb}m ecc in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth}
+		bbnorm.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth}
 		"""
 
 rule metaspadesPE_test_depth:
