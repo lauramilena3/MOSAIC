@@ -213,10 +213,10 @@ if VIRSORTER:
 			sed "s/>/>{wildcards.sample}_{wildcards.subsample}_/g" -i {output.final_viral_contigs}
 			"""
 else:
-	rule genomad_viral_id:
+	rule genomad_viral_id_subassembly:
 		input:
 			scaffolds=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}.fasta"),
-			genomad_db=directory(config['genomad_db']),
+			genomad_db=(config['genomad_db']),
 		output:
 			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{subsample}_geNomad_{sampling}/"),
 			final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_virsorter.{sampling}.fasta",
