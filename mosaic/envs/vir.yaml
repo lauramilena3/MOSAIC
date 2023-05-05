@@ -17,6 +17,8 @@ dependencies:
   - hhsuite =3.3.0
   - diamond =2.0.15
   - scipy =1.6.0
+  - mmseqs2 =13.45111
+
 
 
 # #VirSorter

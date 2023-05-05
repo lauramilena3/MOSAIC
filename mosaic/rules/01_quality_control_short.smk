@@ -682,8 +682,23 @@ rule normalizeReads_PE:
 # 		bbnorm.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth} threads={threads}
 # 		"""
 
-
-
+rule concatenate_subassembly:
+	input:
+		forward_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",sample=SAMPLES),
+		reverse_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",sample=SAMPLES),
+		unpaired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz",sample=SAMPLES),
+	output:
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/ALL_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/ALL_reverse_paired_clean.tot.fastq.gz"),
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/ALL_unpaired_clean.tot.fastq.gz",
+	message:
+		"Concatenating clean reads for cross assembly"
+	shell:
+		"""
+		cat {input.forward_paired} > {output.forward_paired}
+		cat {input.reverse_paired} > {output.reverse_paired}
+		cat {input.unpaired} > {output.unpaired}
+		"""
 # rule normalizeReads_SE:
 # 	input:
 # 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq"
