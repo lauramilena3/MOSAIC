@@ -24,6 +24,7 @@ subsampling: False
 subassembly: False
 VirSorter: False
 assembly_stats: False
+cross_assembly: False
 
 ecc_memory: 6000
 representative_contigs: ""

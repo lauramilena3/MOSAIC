@@ -9,6 +9,8 @@ def input_vOTU_clustering(wildcards):
 		#input_list=expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta",sample=SAMPLES)
 		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
 		# print(input_list)
+	if CROSS_ASSEMBLY:
+		input_list=expand(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
 	return input_list
 
 
@@ -36,6 +38,7 @@ if len(config['additional_reference_contigs'])==0:
 		shell:
 			"""
 			cat {input.positive_contigs} > {output.combined_positive_contigs}
+			#mmseqs easy-cluster --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} clusterRes tmp   
 			makeblastdb -in {output.combined_positive_contigs} -dbtype nucl -out {output.combined_positive_contigs}
 			blastn -query {output.combined_positive_contigs} -db {output.combined_positive_contigs} -outfmt '6 std qlen slen' \
 				-max_target_seqs 10000 -out {output.blastout} -num_threads {threads}
