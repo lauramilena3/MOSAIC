@@ -13,8 +13,6 @@ def input_vOTU_clustering(wildcards):
 		input_list=expand(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
 	return input_list
 
-
-
 if len(config['additional_reference_contigs'])==0:
 
 	rule vOUTclustering:
