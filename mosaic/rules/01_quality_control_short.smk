@@ -207,7 +207,7 @@ rule contaminants_KRAKEN:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
-	threads: 32
+	threads: 16
 	shell:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \

@@ -347,7 +347,7 @@ rule downloadGenomadDB:
 	message:
 		"Downloading geNomad database"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/2.yaml"
+		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	shell:
 		"""
 		genomad download-database {output.genomad_db}
