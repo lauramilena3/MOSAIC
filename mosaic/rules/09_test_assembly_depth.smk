@@ -231,8 +231,8 @@ else:
 		threads: 8
 		shell:
 			"""
-			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds_spades} {output.genomad_outdir} {input.genomad_db} --relaxed
-			cp {params.viral_fasta} {output.positive_contigs}
+			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
+			cp {params.viral_fasta} {output.final_viral_contigs}
 			"""
 
 rule estimateGenomeCompletness_test_depth:
