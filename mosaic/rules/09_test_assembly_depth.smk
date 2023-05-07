@@ -51,7 +51,7 @@ rule normalizeReads_test_depth:
 		max_depth=config['max_norm']
 	threads: 4
 	resources:
-		mem_mb=6000
+		mem_mb=MEMORY_ECORR
 	shell:
 		"""
 		#PE
