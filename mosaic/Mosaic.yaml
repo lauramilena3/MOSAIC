@@ -10,7 +10,7 @@ dependencies:
   - python = 3.9
   - pandas = 1.1.3
   - numpy =1.24.2
-  - seaborn =0.10.1
+  - seaborn =0.12.2
   - matplotlib =3.7.1
   - mamba =0.22.1
   - dos2unix =7.4.1
