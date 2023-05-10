@@ -171,8 +171,6 @@ rule Assembly_parsing_long:
 	output:
 		orf_length_png=(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample}.png"),
 		orf_length_svg=(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample}.svg"),
-	params:
-		samples_nanopore=SAMPLES_NANOPORE,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_{sample}.ipynb"
 	notebook:
