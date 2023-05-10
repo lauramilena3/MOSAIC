@@ -158,7 +158,7 @@ rule Assembly_parsing_short:
 
 rule Assembly_parsing_long:
 	input:
-		caudovirales=("db/caudovirales_orf_lengths_09_05_2023.txt")
+		caudovirales=("db/caudovirales_orf_lengths_09_05_2023.txt"),
 		hybrid=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.tot.txt"),
 		canu=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER +"_ORFs_length.tot.txt"),
 		medaka=(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
