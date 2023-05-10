@@ -101,13 +101,16 @@ rule QC_parsing:
 		histogram_kmer_pre=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram_pre.tot.txt", sample=SAMPLES),
 		histogram_kmer_post=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram_post.tot.txt", sample=SAMPLES),
 		peak_kmer=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_peaks.tot.txt", sample=SAMPLES),
-
 	output:
 		kmer_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.{sampling}.png"),
 		kmer_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.{sampling}.svg"),
 		kmer_fit_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot_fitted.{sampling}.png"),
 		kmer_fit_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot_fitted.{sampling}.svg"),
 		kmer_fit_html=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_fitted.{sampling}.html"),
+		kmer_dist_pre_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_distribution_plot_pre.{sampling}.png"),
+		kmer_dist_pre_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_distribution_plot_pre.{sampling}.svg"),
+		kmer_dist_post_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_distribution_plot_post.{sampling}.png"),
+		kmer_dist_post_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_distribution_plot_post.{sampling}.svg"),
 		qc_summary_html=(dirs_dict["PLOTS_DIR"] + "/01_post_qc_read_summary.{sampling}.html"),
 		percentage_kept_reads_png=(dirs_dict["PLOTS_DIR"] + "/01_percentage_kept_reads.{sampling}.png"),
 		percentage_kept_reads_svg=(dirs_dict["PLOTS_DIR"] + "/01_percentage_kept_reads.{sampling}.svg"),
