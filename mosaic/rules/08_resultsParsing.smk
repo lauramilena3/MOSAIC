@@ -134,14 +134,14 @@ rule Assembly_parsing_short:
 	input:
 		quast_report_dir=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}",
 	output:
-		log_number_contigs_png=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.png"),
-		log_number_contigs_svg=(dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.{sampling}.svg"),
-		contig_length_bp_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_bp_plot.{sampling}.png"),
-		contig_length_bp_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_bp_plot.{sampling}.svg"),
-		contig_number_total_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_number_total_plot.{sampling}.png"),
-		contig_number_total_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_number_total_plot.{sampling}.svg"),
-		contig_length_total_png=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_total_plot.{sampling}.png"),
-		contig_length_total_svg=(dirs_dict["PLOTS_DIR"] + "/02_contig_length_total_plot.{sampling}.svg"),
+		log_number_contigs_png=(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.{sampling}.png"),
+		log_number_contigs_svg=(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.{sampling}.svg"),
+		contig_length_bp_png=(dirs_dict["PLOTS_DIR"] + "/03_contig_length_bp_plot.{sampling}.png"),
+		contig_length_bp_svg=(dirs_dict["PLOTS_DIR"] + "/03_contig_length_bp_plot.{sampling}.svg"),
+		contig_number_total_png=(dirs_dict["PLOTS_DIR"] + "/03_contig_number_total_plot.{sampling}.png"),
+		contig_number_total_svg=(dirs_dict["PLOTS_DIR"] + "/03_contig_number_total_plot.{sampling}.svg"),
+		contig_length_total_png=(dirs_dict["PLOTS_DIR"] + "/03_contig_length_total_plot.{sampling}.png"),
+		contig_length_total_svg=(dirs_dict["PLOTS_DIR"] + "/03_contig_length_total_plot.{sampling}.svg"),
 	params:
 		input_quast_report=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
 		results_dir=RESULTS_DIR,
@@ -152,6 +152,28 @@ rule Assembly_parsing_short:
 		raw_dir=dirs_dict["RAW_DATA_DIR"],
 		qc_dir=dirs_dict["QC_DIR"],
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_assembly_short.{sampling}.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_short.{sampling}.ipynb"
 	notebook:
-		dirs_dict["RAW_NOTEBOOKS"] + "/01_assembly_short.py.ipynb"
+		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_short.py.ipynb"
+
+rule Assembly_parsing_long:
+	input:
+		caudovirales=("db/caudovirales_orf_lengths_09_05_2023.txt")
+		hybrid=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.tot.txt"),
+		canu=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER +"_ORFs_length.tot.txt"),
+		medaka=(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+		racon1=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+		racon2=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+		scaffolds_pilon1_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+		scaffolds_pilon2_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+		scaffolds_pilon3_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+		scaffolds_pilon4_final=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon_ORFs_length.tot.txt"),
+	output:
+		orf_length_png=(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample}.png"),
+		orf_length_svg=(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample}.svg"),
+	params:
+		samples_nanopore=SAMPLES_NANOPORE,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_{sample}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long.py.ipynb"
