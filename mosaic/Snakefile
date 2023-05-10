@@ -209,6 +209,7 @@ def inputAll(wildcards):
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_1_"+ LONG_ASSEMBLER + ".tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))
 
 	if TOMBO:
 		inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
@@ -302,6 +303,7 @@ rule assembly:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 		dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png",
 		dirs_dict["PLOTS_DIR"] + "/02_log_number_contigs_plot.tot.png",
+		expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES),
 
 rule fix:
 	input:
