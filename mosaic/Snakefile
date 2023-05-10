@@ -304,6 +304,7 @@ rule assembly:
 		dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png",
 		dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.tot.png",
 		expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram.tot.txt", sample=SAMPLES),
 
 rule fix:
 	input:
