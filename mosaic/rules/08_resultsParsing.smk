@@ -98,6 +98,10 @@ rule QC_parsing:
 		read_count_forward=expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + "_read_count.txt", sample=SAMPLES),
 		read_count_reverse=expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['reverse_tag']) + "_read_count.txt", sample=SAMPLES),
 		supper_dedup=(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
+		histogram_kmer_pre=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram_pre.tot.txt", sample=SAMPLES),
+		histogram_kmer_post=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram_post.tot.txt", sample=SAMPLES),
+		peak_kmer=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_peaks.tot.txt", sample=SAMPLES),
+
 	output:
 		kmer_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.{sampling}.png"),
 		kmer_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.{sampling}.svg"),
@@ -131,7 +135,7 @@ rule QC_parsing:
 		dirs_dict["RAW_NOTEBOOKS"] + "/01_QC.py.ipynb"
 
 
-rule Assembly_parsing_short:
+rule assembly_parsing_short:
 	input:
 		quast_report_dir=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}",
 	output:
@@ -157,7 +161,7 @@ rule Assembly_parsing_short:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_short.py.ipynb"
 
-rule Assembly_parsing_long:
+rule assembly_parsing_long:
 	input:
 		caudovirales=("db/caudovirales_orf_lengths_09_05_2023.txt"),
 		hybrid=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.tot.txt"),
