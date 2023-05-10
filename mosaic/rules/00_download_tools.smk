@@ -329,7 +329,7 @@ rule buildBrackenDB:
 	input:
 		kraken_db=config['kraken_db'],
 	output:
-		bracken_checkpoint=config['kraken_db'] + "bracken_db_ckeckpoint.txt",
+		bracken_checkpoint=config['kraken_db'] + "_bracken_db_ckeckpoint.txt",
 	message:
 		"Downloading Kraken database"
 	threads: 64
