@@ -292,9 +292,9 @@ rule assembly_vs_reference:
 
 rule assembly:
 	input:
-		# dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
-		# dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
-		# dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html",
+		dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
+		dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
+		dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html",
 		dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html",
 		expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES),
 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_F_report_paired_tot.csv", sample=SAMPLES),
