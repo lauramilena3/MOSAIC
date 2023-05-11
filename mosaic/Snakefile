@@ -238,6 +238,13 @@ def inputAssembly(wildcards):
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))
 	return inputs
 
+def inputViralID:
+	inputs=[]
+	inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES)),
+	if NANOPORE:
+		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta", sample=NANOPORE_SAMPLES))
+	return inputs
+
 rule all:
 	input:
 		inputReadsCount,
@@ -255,6 +262,13 @@ rule runAssembly:
 		inputReadsCount,
 		inputQC,
 		inputAssembly,
+
+rule viralID:
+	input:
+		inputReadsCount,
+		inputQC,
+		inputAssembly,
+		inputViralID,
 
 rule trimmomatic:
 	input:
