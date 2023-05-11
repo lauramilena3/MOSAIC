@@ -18,7 +18,6 @@ dependencies:
   - diamond =2.0.15
   - scipy =1.6.0
   - mmseqs2 =13.45111
-  - genomad =1.5.1
   # - mmseqs2 =14.7e284
 
 
