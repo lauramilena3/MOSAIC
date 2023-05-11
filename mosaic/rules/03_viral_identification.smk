@@ -99,7 +99,7 @@ else:
 		message:
 			"Identifying viral contigs with geNomad"
 		conda:
-			dirs_dict["ENVS_DIR"] + "/env2.yaml"
+			dirs_dict["ENVS_DIR"] + "/env6.yaml"
 		benchmark:
 			dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_illumina.tsv"
 		threads: 8
@@ -121,7 +121,7 @@ else:
 		message:
 			"Identifying viral contigs with geNomad"
 		conda:
-			dirs_dict["ENVS_DIR"] + "/env2.yaml"
+			dirs_dict["ENVS_DIR"] + "/env6.yaml"
 		benchmark:
 			dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_nanopore.tsv"
 		threads: 8
