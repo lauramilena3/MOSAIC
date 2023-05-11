@@ -241,6 +241,8 @@ def inputAssembly(wildcards):
 def inputViralID(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES)),
+	if TEST_ASSEMBLY:
+		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.tot.fasta", sample=SAMPLES, subsample=subsample_test)),							
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=NANOPORE_SAMPLES))
 	return inputs
