@@ -263,7 +263,7 @@ rule runAssembly:
 		inputQC,
 		inputAssembly,
 
-rule viralID:
+rule runViralID:
 	input:
 		inputReadsCount,
 		inputQC,
