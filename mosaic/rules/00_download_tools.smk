@@ -346,11 +346,13 @@ rule downloadGenomadDB:
 		genomad_db=directory(config['genomad_db']),
 	message:
 		"Downloading geNomad database"
+	params:
+		db_dir="db/"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	shell:
 		"""
-		genomad download-database {output.genomad_db}
+		genomad download-database {params.db_dir}
 		"""
 
 
