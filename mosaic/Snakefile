@@ -242,7 +242,7 @@ def inputViralID(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES)),
 	if NANOPORE:
-		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta", sample=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=NANOPORE_SAMPLES))
 	return inputs
 
 rule all:
