@@ -7,4 +7,4 @@ dependencies:
   # - bamm =1.7.3
   - iphop =1.3.0
   - genomad =1.5.1
-  - mmseqs
+  - mmseqs2 =14.7e284
