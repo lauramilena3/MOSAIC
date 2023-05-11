@@ -9,7 +9,7 @@ dependencies:
   - snakemake =7.18.2
   - python = 3.9
   - pandas = 1.1.3
-  - numpy =1.24.2
+  - numpy =1.22.4
   - seaborn =0.12.2
   - matplotlib =3.7.1
   - mamba =0.22.1
