@@ -219,7 +219,7 @@ else:
 			genomad_db=(config['genomad_db']),
 		output:
 			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{subsample}_geNomad_{sampling}/"),
-			final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_virsorter.{sampling}.fasta",
+			final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.{sampling}.fasta",
 		params:
 			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_{subsample}_geNomad_{sampling}/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}_summary/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}_virus.fna",
 		message:
@@ -232,19 +232,19 @@ else:
 		shell:
 			"""
 			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
-			cp {params.viral_fasta} {output.final_viral_contigs}
+			cat {params.viral_fasta} | sed 's/|.*//' > {output.final_viral_contigs}
 			"""
 
 rule estimateGenomeCompletness_test_depth:
 	input:
-		final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_virsorter.{sampling}.fasta",
+		final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_{viral_id_tool}.{sampling}.fasta",
 	output:
-		quality_summary=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_virsorter_checkV_{sampling}/quality_summary.tsv",
-		completeness=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_virsorter_checkV_{sampling}/completeness.tsv",
-		contamination=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_virsorter_checkV_{sampling}/contamination.tsv",
-		tmp=directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_virsorter_checkV_{sampling}/tmp"),
+		quality_summary=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}checkV_{sampling}/quality_summary.tsv",
+		completeness=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/completeness.tsv",
+		contamination=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/contamination.tsv",
+		tmp=directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/tmp"),
 	params:
-		checkv_outdir=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_virsorter_checkV_{sampling}",
+		checkv_outdir=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}",
 #		checkv_db=dirs_dict["ASSEMBLY_TEST"] + "/95-80_merged_positive_virsorter_checkV_{sampling}",
 	message:
 		"Estimating genome completeness with CheckV "

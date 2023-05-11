@@ -106,10 +106,30 @@ else:
 		shell:
 			"""
 			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds_spades} {output.genomad_outdir} {input.genomad_db} --relaxed
-			cp {params.viral_fasta} {output.positive_contigs}
+			cat {params.viral_fasta} | sed 's/|.*//' > {output.positive_contigs}
 			"""
 
-
+	rule genomad_viral_id_nanopore:
+		input:
+			scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"),
+			genomad_db=(config['genomad_db']),
+		output:
+			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
+			positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+		params:
+			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}_summary/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}_virus.fna",
+		message:
+			"Identifying viral contigs with geNomad"
+		conda:
+			dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		benchmark:
+			dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_nanopore.tsv"
+		threads: 8
+		shell:
+			"""
+			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
+			cat {params.viral_fasta} | sed 's/|.*//' > {output.positive_contigs}
+			"""
 #
 # rule whatThePhage:
 # 	input:
