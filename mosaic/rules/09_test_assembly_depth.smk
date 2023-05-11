@@ -251,7 +251,7 @@ rule estimateGenomeCompletness_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_test_depth/{sample}_{subsample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_test_depth/{sample}_{subsample}_{viral_id_tool}_{sampling}.tsv"
 	threads: 4
 	shell:
 		"""
