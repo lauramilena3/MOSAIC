@@ -247,6 +247,11 @@ def inputViralID(wildcards):
 		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=NANOPORE_SAMPLES))
 	return inputs
 
+def inputvOTUClustering(wildcards):
+	inputs=[]
+	inputs.extend(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta")
+	return inputs
+
 rule all:
 	input:
 		inputReadsCount,
@@ -272,6 +277,14 @@ rule runViralID:
 		inputAssembly,
 		inputViralID,
 
+rule runvOTUClustering:
+	input:
+		inputReadsCount,
+		inputQC,
+		inputAssembly,
+		inputViralID,
+		inputvOTUClustering,
+		
 rule trimmomatic:
 	input:
 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt", sample=SAMPLES),
