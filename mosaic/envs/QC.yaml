@@ -7,11 +7,9 @@ dependencies:
   - multiqc =1.11      #python3.6
   - nanofilt =2.8.0   #python3.6
   - nanostat =1.6.0
-#  - quast =5.0.2
   - fastqc =0.11.9    #Java
 # Sra toolkit
   - perl-xml-libxml =2.0132
   - perl-bioperl =1.7.2
-#  - ncbi-genome-download =0.2.9
   - matplotlib =2.2.5
   - htstream =1.3.3

@@ -8,18 +8,14 @@ dependencies:
   - vcontact2 =0.9.19
   - checkv =1.0.1
   - blast =2.12.0
-#  - python =3.7
   - pandas=0.25.3
   - numpy=1.19.5
-#  - virsorter =2.0
   - clusterone =1.0
   - medaka =1.6.0
   - hhsuite =3.3.0
   - diamond =2.0.15
   - scipy =1.6.0
-  - mmseqs2 =13.45111
-  - gcc_linux-64 =12.2.0
-  # - mmseqs2 =14.7e284
+  - mmseqs2 =14.7e284
 
 
 

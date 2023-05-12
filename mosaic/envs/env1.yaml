@@ -3,16 +3,13 @@ channels:
   - agbiome
   - bioconda
   - biobuilds
-#  - g2554711/label/bioconda
 dependencies:
   - java-jdk =8.0.92
   - python = 3.7.3
   - matplotlib =3.1.2
-#  - joblib =0.13.2
   - trimmomatic =0.39
   - entrez-direct =11.0
   - bbmap =39.01
-#  - bmtagger =3.101
   - spades =3.15.5
   - flye =2.9
   - idba =1.1.3
