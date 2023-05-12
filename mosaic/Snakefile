@@ -249,7 +249,7 @@ def inputViralID(wildcards):
 
 def inputvOTUClustering(wildcards):
 	inputs=[]
-	inputs.append(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta")
+	inputs.append(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta")
 	return inputs
 
 rule all:
