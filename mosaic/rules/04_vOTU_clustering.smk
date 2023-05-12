@@ -28,8 +28,7 @@ rule vOUTclustering:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
 	params:
-		derreplicated_positive_contigs_temp=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated.{sampling}.fasta",
-		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}",
+		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated",
 		dir=dirs_dict["vOUT_DIR"],
 	message:
 		"Creating vOUTs with CheckV aniclust"
