@@ -183,3 +183,22 @@ rule assembly_parsing_long:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_{sample}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long.py.ipynb"
+
+# rule viralID_parsing:
+# 	input:
+# 		hybrid=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.tot.txt"),
+# 		canu=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER +"_ORFs_length.tot.txt"),
+# 		medaka=(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+# 		racon1=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+# 		racon2=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+# 		scaffolds_pilon1_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+# 		scaffolds_pilon2_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+# 		scaffolds_pilon3_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
+# 		scaffolds_pilon4_final=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon_ORFs_length.tot.txt"),
+# 	output:
+# 		orf_length_png=(dirs_dict["PLOTS_DIR"] + "/04_ORF_length_{sample}.png"),
+# 		orf_length_svg=(dirs_dict["PLOTS_DIR"] + "/04_ORF_length_{sample}.svg"),
+# 	log:
+# 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID.ipynb"
+# 	notebook:
+# 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
