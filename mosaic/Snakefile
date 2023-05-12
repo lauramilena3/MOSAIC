@@ -22,6 +22,8 @@ MEMORY_ECORR=config['ecc_memory']
 VCONTACT=config['run_vcontact']
 ASSEMLY_STATS=config['assembly_stats']
 CROSS_ASSEMBLY=config['cross_assembly']
+SUBASSEMBLY=config['subassembly']
+
 
 if RESULTS_DIR == "" and not RAW_DATA_DIR == "":
 	RESULTS_DIR=os.path.abspath(os.path.join(RAW_DATA_DIR, os.pardir))
@@ -71,7 +73,6 @@ subsample_test=[10,20,30,40,50,60,70,80,90,]
 NANOPORE=False
 TOMBO=False
 PAIRED=False
-TEST_ASSEMBLY=config['subassembly']
 READ_TYPES=[config['forward_tag']]
 POOLED=config['nanopore_pooled']
 NANOPORE_SAMPLES=""
@@ -231,7 +232,7 @@ def inputAssembly(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE_TOT))
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.tot.png")
-	if TEST_ASSEMBLY:
+	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
@@ -241,7 +242,7 @@ def inputAssembly(wildcards):
 def inputViralID(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES)),
-	if TEST_ASSEMBLY:
+	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.tot.fasta", sample=SAMPLES, subsample=subsample_test)),							
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=NANOPORE_SAMPLES))
