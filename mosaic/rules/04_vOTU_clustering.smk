@@ -21,7 +21,7 @@ rule vOUTclustering:
 	output:
 		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
-		derreplicated_tmp=directory(dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp")
+		derreplicated_tmp=directory(dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp"),
 		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
 		blastout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-blastout.csv",
 		aniout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-aniout.csv",
