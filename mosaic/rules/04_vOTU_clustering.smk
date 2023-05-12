@@ -21,6 +21,7 @@ rule vOUTclustering:
 	output:
 		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		derreplicated_tmp=directory(dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp")
 		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
 		blastout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-blastout.csv",
 		aniout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-aniout.csv",
@@ -29,7 +30,8 @@ rule vOUTclustering:
 		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
 	params:
 		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated",
-		dir=dirs_dict["vOUT_DIR"],
+		rep_temp="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp",
+		dir_votu=dirs_dict["vOUT_DIR"],
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
@@ -40,8 +42,8 @@ rule vOUTclustering:
 	shell:
 		"""
 		cat {input.positive_contigs} > {output.combined_positive_contigs}
-		cd {params.dir}
-		mmseqs easy-cluster --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} tmp
+		cd {params.dir_votu}
+		mmseqs easy-cluster --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
 		makeblastdb -in {output.derreplicated_positive_contigs} -dbtype nucl -out {output.derreplicated_positive_contigs}
 		blastn -query {output.derreplicated_positive_contigs} -db {output.derreplicated_positive_contigs} -outfmt '6 std qlen slen' \
 			-max_target_seqs 10000 -out {output.blastout} -num_threads {threads}
