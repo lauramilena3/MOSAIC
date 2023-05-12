@@ -43,7 +43,7 @@ rule vOUTclustering:
 		"""
 		cat {input.positive_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_votu}
-		mmseqs easy-cluster --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
+		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
 		makeblastdb -in {output.derreplicated_positive_contigs} -dbtype nucl -out {output.derreplicated_positive_contigs}
 		blastn -query {output.derreplicated_positive_contigs} -db {output.derreplicated_positive_contigs} -outfmt '6 std qlen slen' \
 			-max_target_seqs 10000 -out {output.blastout} -num_threads {threads}
