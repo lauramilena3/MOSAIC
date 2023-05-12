@@ -114,10 +114,10 @@ else:
 			scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"),
 			genomad_db=(config['genomad_db']),
 		output:
-			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
+			genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/"),
 			positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		params:
-			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}_summary/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}_virus.fna",
+			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}_summary/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}_virus.fna",
 		message:
 			"Identifying viral contigs with geNomad"
 		conda:
