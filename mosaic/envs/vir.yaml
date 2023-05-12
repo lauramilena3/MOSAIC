@@ -16,15 +16,15 @@ dependencies:
   - diamond =2.0.15
   - scipy =1.6.0
   - mmseqs2 =14.7e284
-  # - mpfr =4.0.2
-  - libicu-dev
-  - libgmp-dev
-  - libmpfr-dev
-  - libcgal-dev 
-  - gmsh
-  - libfreetype6-dev
-  - libxml2-dev
-  - libxslt-dev
+  - mpfr =4.0.1
+  # - libicu-dev
+  # - libgmp-dev
+  # - libmpfr-dev
+  # - libcgal-dev 
+  # - gmsh
+  # - libfreetype6-dev
+  # - libxml2-dev
+  # - libxslt-dev
 
 
 
