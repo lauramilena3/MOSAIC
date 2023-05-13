@@ -221,7 +221,7 @@ else:
 			genomad_outdir=directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_geNomad_{sampling}/"),
 			final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.{sampling}.fasta",
 		params:
-			viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_{subsample}_geNomad_{sampling}/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}_summary/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}_virus.fna",
+			viral_fasta=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_geNomad_{sampling}/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}_summary/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}_virus.fna",
 		message:
 			"Identifying viral contigs with geNomad"
 		conda:
