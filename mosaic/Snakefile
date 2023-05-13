@@ -70,6 +70,10 @@ CONTAMINANTS.append("GCF_000819615.1")
 
 subsample_test=[10,20,30,40,50,60,70,80,90,]
 
+viral_id_tool="geNomad"
+if VIRSORTER:
+	viral_id_tool="virSorter""
+
 NANOPORE=False
 TOMBO=False
 PAIRED=False

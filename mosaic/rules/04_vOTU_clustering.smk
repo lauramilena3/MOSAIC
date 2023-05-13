@@ -8,7 +8,7 @@ def input_vOTU_clustering(wildcards):
 	if CROSS_ASSEMBLY:
 		input_list.extend(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
 	if SUBASSEMBLY:
-		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_{{viral_id_tool}}.{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
+		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_" + viral_id_tool + ".{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
 	if len(config['additional_reference_contigs'])>0:
 		input_list.extend(config['additional_reference_contigs'])
 	return input_list
