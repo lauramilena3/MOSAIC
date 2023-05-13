@@ -12,7 +12,7 @@ rule estimateGenomeCompletness_long:
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/nanopore_{sample}_{sampling}.tsv"
 	threads: 4
@@ -49,7 +49,7 @@ rule estimateGenomeCompletness:
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}.tsv"
 	threads: 4
@@ -86,7 +86,7 @@ rule estimateGenomeCompletness_vOTUs:
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV.tsv"
 	threads: 32

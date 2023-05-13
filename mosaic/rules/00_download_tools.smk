@@ -253,7 +253,7 @@ rule downloadCheckvDB:
 		"Downloading CheckV database"
 	threads: 4
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	shell:
 		"""
 		checkv download_database ./db

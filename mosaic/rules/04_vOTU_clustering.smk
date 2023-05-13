@@ -55,7 +55,7 @@ rule vOUTclustering:
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
 	threads: 64
