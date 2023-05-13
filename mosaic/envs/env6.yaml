@@ -4,4 +4,6 @@ channels:
 dependencies:
   - genomad =1.5.0
   - checkv =1.0.1
+  - seqtk =1.3
+
 
