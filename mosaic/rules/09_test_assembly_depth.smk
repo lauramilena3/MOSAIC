@@ -249,7 +249,7 @@ rule estimateGenomeCompletness_test_depth:
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_test_depth/{sample}_{subsample}_{viral_id_tool}_{sampling}.tsv"
 	threads: 4
@@ -262,28 +262,28 @@ rule estimateGenomeCompletness_test_depth:
 		checkv quality_summary {input.final_viral_contigs} {params.checkv_outdir}
 		"""
 
-rule vOUTclustering_test_depth:
-	input:
-		final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}.fasta",
-	output:
-		clusters=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}_95-85.clstr",
-		representatives_temp=temp(dirs_dict["ASSEMBLY_TEST"]+ "/merged_positive_virsorter.{sampling}_95-85.fna"),
-		representatives=dirs_dict["ASSEMBLY_TEST"]+ "/95-80_merged_positive_virsorter.{sampling}.fasta",
-		representative_lengths=dirs_dict["ASSEMBLY_TEST"] + "/95-80_merged_positive_virsorter_lengths.{sampling}.txt",
-	message:
-		"Creating vOUTs with stampede"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/vOUTclustering_test_depth/{sampling}.tsv"
-	threads: 1
-	shell:
-		"""
-		./scripts/stampede-Cluster_genomes.pl -f {input.final_viral_contigs} -c 85 -i 95
-		cat {output.representatives_temp} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
-		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
-		cp {output.representatives_temp} {output.representatives}
-		"""
+# rule vOUTclustering_test_depth:
+# 	input:
+# 		final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}.fasta",
+# 	output:
+# 		clusters=dirs_dict["ASSEMBLY_TEST"] + "/merged_positive_virsorter.{sampling}_95-85.clstr",
+# 		representatives_temp=temp(dirs_dict["ASSEMBLY_TEST"]+ "/merged_positive_virsorter.{sampling}_95-85.fna"),
+# 		representatives=dirs_dict["ASSEMBLY_TEST"]+ "/95-80_merged_positive_virsorter.{sampling}.fasta",
+# 		representative_lengths=dirs_dict["ASSEMBLY_TEST"] + "/95-80_merged_positive_virsorter_lengths.{sampling}.txt",
+# 	message:
+# 		"Creating vOUTs with stampede"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/vOUTclustering_test_depth/{sampling}.tsv"
+# 	threads: 1
+# 	shell:
+# 		"""
+# 		./scripts/stampede-Cluster_genomes.pl -f {input.final_viral_contigs} -c 85 -i 95
+# 		cat {output.representatives_temp} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
+# 		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
+# 		cp {output.representatives_temp} {output.representatives}
+# 		"""
 
 rule viralStatsILLUMINA_test_depth:
 	input:
