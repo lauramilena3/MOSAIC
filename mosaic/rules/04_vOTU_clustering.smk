@@ -24,6 +24,7 @@ rule derreplicate_assembly:
 		derreplicated_tmp=directory(dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp"),
 	params:
 		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated",
+		rep_name_full=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_rep_seq.fasta",
 		rep_temp="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp",
 		dir_votu=dirs_dict["vOUT_DIR"],
 	message:
@@ -38,6 +39,7 @@ rule derreplicate_assembly:
 		cat {input.positive_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_votu}
 		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
+		mv {params.rep_name_full} {output.combined_positive_contigs}
 		"""
 
 rule vOUTclustering:
