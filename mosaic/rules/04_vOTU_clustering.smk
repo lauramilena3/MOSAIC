@@ -15,42 +15,57 @@ def input_vOTU_clustering(wildcards):
 
 # if len(config['additional_reference_contigs'])==0:
 
-rule vOUTclustering:
+rule derreplicate_assembly:
 	input:
 		positive_contigs=input_vOTU_clustering
 	output:
 		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
 		derreplicated_tmp=directory(dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp"),
+	params:
+		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated",
+		rep_temp="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp",
+		dir_votu=dirs_dict["vOUT_DIR"],
+	message:
+		"Derreplicating assembled contigs with mmseqs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/contig_derreplication/{sampling}.tsv"
+	threads: 16
+	shell:
+		"""
+		cat {input.positive_contigs} > {output.combined_positive_contigs}
+		cd {params.dir_votu}
+		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
+		"""
+
+rule vOUTclustering:
+	input:
+		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+	output:
 		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
 		blastout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-blastout.csv",
 		aniout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-aniout.csv",
 		representative_list=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.txt",
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
-	params:
-		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated",
-		rep_temp="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp",
-		dir_votu=dirs_dict["vOUT_DIR"],
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+		dirs_dict["ENVS_DIR"] + "/vir.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
 	threads: 64
 	shell:
 		"""
-		cat {input.positive_contigs} > {output.combined_positive_contigs}
-		cd {params.dir_votu}
-		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
-		makeblastdb -in {output.derreplicated_positive_contigs} -dbtype nucl -out {output.derreplicated_positive_contigs}
-		blastn -query {output.derreplicated_positive_contigs} -db {output.derreplicated_positive_contigs} -outfmt '6 std qlen slen' \
+		makeblastdb -in {input.derreplicated_positive_contigs} -dbtype nucl -out {input.derreplicated_positive_contigs}
+		blastn -query {input.derreplicated_positive_contigs} -db {input.derreplicated_positive_contigs} -outfmt '6 std qlen slen' \
 			-max_target_seqs 10000 -out {output.blastout} -num_threads {threads}
 		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		python scripts/aniclust_checkv.py --fna {output.derreplicated_positive_contigs} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+		python scripts/aniclust_checkv.py --fna {input.derreplicated_positive_contigs} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
 		cut {output.clusters} -f1 > {output.representative_list}
-		seqtk subseq {output.derreplicated_positive_contigs} {output.representative_list} > {output.representatives}
+		seqtk subseq {input.derreplicated_positive_contigs} {output.representative_list} > {output.representatives}
 		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
 			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
