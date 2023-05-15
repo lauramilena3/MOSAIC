@@ -232,7 +232,7 @@ else:
 		shell:
 			"""
 			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
-			cat {params.viral_fasta} | sed 's/|.*//' > {output.final_viral_contigs}
+			cat {params.viral_fasta} | sed "s/|/_/g" > {output.final_viral_contigs}
 			"""
 
 rule estimateGenomeCompletness_test_depth:
