@@ -184,21 +184,36 @@ rule assembly_parsing_long:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long.py.ipynb"
 
-# rule viralID_parsing:
-# 	input:
-# 		hybrid=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.tot.txt"),
-# 		canu=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER +"_ORFs_length.tot.txt"),
-# 		medaka=(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
-# 		racon1=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
-# 		racon2=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
-# 		scaffolds_pilon1_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
-# 		scaffolds_pilon2_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
-# 		scaffolds_pilon3_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.tot.txt"),
-# 		scaffolds_pilon4_final=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon_ORFs_length.tot.txt"),
-# 	output:
-# 		orf_length_png=(dirs_dict["PLOTS_DIR"] + "/04_ORF_length_{sample}.png"),
-# 		orf_length_svg=(dirs_dict["PLOTS_DIR"] + "/04_ORF_length_{sample}.svg"),
-# 	log:
-# 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID.ipynb"
-# 	notebook:
-# 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
+
+def inputAssemblyContigs(wildcards):
+	inputs=[]
+	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES))
+	if SUBASSEMBLY:
+		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
+	if NANOPORE:
+		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
+	if CROSS_ASSEMBLY:
+		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES)
+	return inputs
+
+rule viralID_parsing:
+	input:
+		input_vOTU_clustering,
+		inputAssemblyContigs,
+	output:
+		viral_sequences_count_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count.png"),
+		viral_sequences_count_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count.svg"),
+		viral_sequences_count_table_html=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count.html"),
+		viral_sequences_length_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length.png"),
+		viral_sequences_length_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length.svg"),
+		viral_sequences_length_table_html=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length.html"),
+	params:
+		samples=SAMPLES,
+		contig_dir=dirs_dict["ASSEMBLY_DIR"],
+		viral_dir=config['VIRAL_DIR'],
+		SUBASSEMBLY=SUBASSEMBLY,
+		CROSS_ASSEMBLY=CROSS_ASSEMBLY,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
