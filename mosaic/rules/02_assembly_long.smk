@@ -1,7 +1,7 @@
 #ruleorder: asemblyCanuPOOLED > asemblyCanu
 ruleorder: hybridAsemblySpades > shortReadAsemblySpadesPE
 #ruleorder: errorCorrectPE > errorCorrectSE
-ruleorder: assemblyStatsHYBRID > assemblyStatsILLUMINA
+# ruleorder: assemblyStatsHYBRID > assemblyStatsILLUMINA
 #ruleorder: mergeAssembliesHYBRID > mergeAssembliesSHORT
 
 
@@ -378,27 +378,6 @@ rule errorCorrectPilonPE:
 		cp {output.scaffolds_pilon2} {output.scaffolds_pilon2_final}
 		cp {output.scaffolds_pilon3} {output.scaffolds_pilon3_final}
 		cp {output.scaffolds_pilon4} {output.scaffolds_pilon4_final}
-		"""
-
-rule assemblyStatsHYBRID:
-	input:
-		quast_dir=(config["quast_dir"]),
-		scaffolds_spades=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES),
-		scaffolds_long=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES),
-	output:
-		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
-		quast_txt=dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt",
-	message:
-		"Creating assembly stats with quast"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/assemblyStats/{sampling}.tsv"
-	threads: 1
-	shell:
-		"""
-		{input.quast_dir}/quast.py {input.scaffolds_long} {input.scaffolds_spades} -o {output.quast_report_dir}
-		cp {output.quast_report_dir}/report.txt {output.quast_txt}
 		"""
 
 rule scoreALE:

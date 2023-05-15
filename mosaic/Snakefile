@@ -240,6 +240,7 @@ def inputAssembly(wildcards):
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.tot.png")
 	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
+		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.tot.txt"),
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))
@@ -253,8 +254,11 @@ def inputViralID(wildcards):
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_tot.png")
 	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.tot.fasta", sample=SAMPLES, subsample=subsample_test)),							
+		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report_viral.tot.txt"),
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=NANOPORE_SAMPLES))
+	if CROSS_ASSEMBLY:
+		inputs.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES),
 	return inputs
 
 def inputvOTUClustering(wildcards):
