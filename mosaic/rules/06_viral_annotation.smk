@@ -73,7 +73,7 @@ rule estimateGenomeCompletness:
 
 rule estimateGenomeCompletness_reference:
 	input:
-		reference_contigs=config['additional_reference_contigs']
+		reference_contigs=config['additional_reference_contigs'],
 		checkv_db=(config['checkv_db']),
 	output:
 		quality_summary=dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv",
