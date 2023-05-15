@@ -83,25 +83,6 @@ rule assemblyStats:
 		cp {output.quast_report_dir}/report.txt {output.quast_txt}
 		"""
 
-rule assemblyStats:
-	input:
-		quast_dir=(config["quast_dir"]),
-		scaffolds_spades=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES)
-	output:
-		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
-		quast_txt=dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt"
-	message:
-		"Creating assembly stats with quast"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/assemblyStatsILLUMINA/{sampling}.tsv"
-	threads: 4
-	shell:
-		"""
-		{input.quast_dir}/quast.py {input.scaffolds_spades} -o {output.quast_report_dir} --threads {threads}
-		cp {output.quast_report_dir}/report.txt {output.quast_txt}
-		"""
 
 # rule mergeAssembliesSHORT:
 # 	input:
