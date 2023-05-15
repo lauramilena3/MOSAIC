@@ -211,8 +211,8 @@ rule viralID_parsing:
 		samples=SAMPLES,
 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
 		viral_dir=dirs_dict['VIRAL_DIR'],
-		SUBASSEMBLY=SUBASSEMBLY,
-		CROSS_ASSEMBLY=CROSS_ASSEMBLY,
+		subassembly=SUBASSEMBLY,
+		cross_assembly=CROSS_ASSEMBLY,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID_{sampling}.ipynb"
 	notebook:
