@@ -106,7 +106,7 @@ else:
 		shell:
 			"""
 			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds_spades} {output.genomad_outdir} {input.genomad_db} --relaxed
-			cat {params.viral_fasta} | sed 's/|.*//' > {output.positive_contigs}
+			cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
 			"""
 
 	rule genomad_viral_id_nanopore:
@@ -128,7 +128,7 @@ else:
 		shell:
 			"""
 			genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
-			cat {params.viral_fasta} | sed 's/|.*//' > {output.positive_contigs}
+			cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
 			"""
 #
 # rule whatThePhage:
