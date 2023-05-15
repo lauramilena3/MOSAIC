@@ -53,7 +53,37 @@ rule shortReadAsemblySpadesPE:
 # 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 # 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
 # 		"""
-rule assemblyStatsILLUMINA:
+
+def input_Quast(wildcards):
+	input_list=[]
+	input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta",sample=SAMPLES))
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
+	if CROSS_ASSEMBLY:
+		input_list.extend(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
+	return input_list
+
+rule assemblyStats:
+	input:
+		scaffolds=input_Quast,
+		quast_dir=(config["quast_dir"]),
+	output:
+		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
+		quast_txt=dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt",
+	message:
+		"Creating assembly stats with quast"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/assemblyStats/{sampling}.tsv"
+	threads: 1
+	shell:
+		"""
+		{input.quast_dir}/quast.py {input.scaffolds} -o {output.quast_report_dir}
+		cp {output.quast_report_dir}/report.txt {output.quast_txt}
+		"""
+
+rule assemblyStats:
 	input:
 		quast_dir=(config["quast_dir"]),
 		scaffolds_spades=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES)
