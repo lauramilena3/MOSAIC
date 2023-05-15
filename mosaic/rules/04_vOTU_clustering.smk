@@ -98,7 +98,7 @@ rule getHighQuality:
 	threads: 1
 	shell:
 		"""
-		cat {input.quality_summary} | grep "High-quality" | cut -f1 > {output.high_qualty_list}
+		cat {input} | grep "High-quality" | cut -f1 > {output.high_qualty_list}
 		"""
 
 rule filter_vOTUs:
