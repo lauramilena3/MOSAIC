@@ -210,7 +210,7 @@ rule viralID_parsing:
 	params:
 		samples=SAMPLES,
 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
-		viral_dir=config['VIRAL_DIR'],
+		viral_dir=dirs_dict['VIRAL_DIR'],
 		SUBASSEMBLY=SUBASSEMBLY,
 		CROSS_ASSEMBLY=CROSS_ASSEMBLY,
 	log:
