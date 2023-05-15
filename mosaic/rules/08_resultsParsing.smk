@@ -187,13 +187,13 @@ rule assembly_parsing_long:
 
 def inputAssemblyContigs(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES))
+	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES))
 	if SUBASSEMBLY:
-		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
+		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test)),
 	if NANOPORE:
-		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
+		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
-		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES)
+		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES)
 	return inputs
 
 rule viralID_parsing:
@@ -201,12 +201,12 @@ rule viralID_parsing:
 		input_vOTU_clustering,
 		inputAssemblyContigs,
 	output:
-		viral_sequences_count_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count.png"),
-		viral_sequences_count_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count.svg"),
-		viral_sequences_count_table_html=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count.html"),
-		viral_sequences_length_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length.png"),
-		viral_sequences_length_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length.svg"),
-		viral_sequences_length_table_html=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length.html"),
+		viral_sequences_count_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_{sampling}.png"),
+		viral_sequences_count_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_{sampling}.svg"),
+		viral_sequences_count_table_html=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_{sampling}.html"),
+		viral_sequences_length_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length_{sampling}.png"),
+		viral_sequences_length_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length_{sampling}.svg"),
+		viral_sequences_length_table_html=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_length_{sampling}.html"),
 	params:
 		samples=SAMPLES,
 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
@@ -214,6 +214,6 @@ rule viralID_parsing:
 		SUBASSEMBLY=SUBASSEMBLY,
 		CROSS_ASSEMBLY=CROSS_ASSEMBLY,
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID_{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
