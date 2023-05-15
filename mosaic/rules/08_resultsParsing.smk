@@ -198,8 +198,8 @@ def inputAssemblyContigs(wildcards):
 
 rule viralID_parsing:
 	input:
-		input_vOTU_clustering,
-		inputAssemblyContigs,
+		viral_sequences=input_vOTU_clustering,
+		assembled_sequences=inputAssemblyContigs,
 	output:
 		viral_sequences_count_plot_png=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_{sampling}.png"),
 		viral_sequences_count_plot_svg=(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_{sampling}.svg"),
