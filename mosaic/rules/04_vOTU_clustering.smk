@@ -8,7 +8,7 @@ def input_vOTU_clustering(wildcards):
 	if CROSS_ASSEMBLY:
 		input_list.extend(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
 	if SUBASSEMBLY:
-		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_" + viral_id_tool + ".{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
+		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_" + VIRAL_ID_TOOL + ".{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
 	if len(config['additional_reference_contigs'])>0:
 		input_list.extend(config['additional_reference_contigs'])
 	return input_list
@@ -72,10 +72,21 @@ rule vOUTclustering:
 			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
 
+def input_getHighQuality(wildcards):
+	input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{{sampling}}/quality_summary.tsv",sample=SAMPLES)),
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{{sampling}}/quality_summary.tsv", sample=NANOPORE_SAMPLES)),
+	if CROSS_ASSEMBLY:
+		input_list.append(dirs_dict["vOUT_DIR"] + "/ALL_checkV_{{sampling}}/quality_summary.tsv"),
+	if SUBASSEMBLY:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_" + VIRAL_ID_TOOL + "_checkV_{{sampling}}/quality_summary.tsv", sample=SAMPLES, subsample=subsample_test)),
+	if len(config['additional_reference_contigs'])>0:
+		input_list.append(dirs_dict["ANNOTATION"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
+	return input_list
 
 rule getHighQuality:
 	input:
-		quality_summary=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/quality_summary.tsv",
+		input_getHighQuality,
 	output:
 		high_qualty_list=dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
 	message:
@@ -87,7 +98,7 @@ rule getHighQuality:
 	threads: 1
 	shell:
 		"""
-		cat {input.quality_summary} | grep "High-quality"  | cut -f1 > {output.high_qualty_list}
+		cat {input.quality_summary} | grep "High-quality" | cut -f1 > {output.high_qualty_list}
 		"""
 
 rule filter_vOTUs:
