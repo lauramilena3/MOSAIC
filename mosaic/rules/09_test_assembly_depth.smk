@@ -239,7 +239,7 @@ rule estimateGenomeCompletness_test_depth:
 	input:
 		final_viral_contigs=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_{viral_id_tool}.{sampling}.fasta",
 	output:
-		quality_summary=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}checkV_{sampling}/quality_summary.tsv",
+		quality_summary=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/quality_summary.tsv",
 		completeness=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/completeness.tsv",
 		contamination=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/contamination.tsv",
 		tmp=directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/tmp"),
