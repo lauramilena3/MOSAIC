@@ -456,11 +456,11 @@ rule preMultiQC:
 
 rule postMultiQC:
 	input:
-		html_forward=expand(dirs_dict["CLEAN_DATA_DIR"]  + "/{sample}_forward_paired_clean.tot_fastqc.html", sample=SAMPLES),
+		# html_forward=expand(dirs_dict["CLEAN_DATA_DIR"]  + "/{sample}_forward_paired_clean.tot_fastqc.html", sample=SAMPLES),
 		zipped_forward=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_fastqc.zip", sample=SAMPLES),
-		html_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_fastqc.html", sample=SAMPLES),
+		# html_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_fastqc.html", sample=SAMPLES),
 		zipped_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_fastqc.zip", sample=SAMPLES),
-		html_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_fastqc.html", sample=SAMPLES),
+		# html_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_fastqc.html", sample=SAMPLES),
 		zipped_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"]  + "/{sample}_unpaired_clean.tot_fastqc.zip", sample=SAMPLES),
 	output:
 		multiqc=dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
