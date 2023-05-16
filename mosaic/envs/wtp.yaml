@@ -1,7 +1,7 @@
 channels:
+  - conda-forge
   - bioconda
   - biobuilds
-  - conda-forge
   - r
 dependencies:
   - nextflow =23.04.1
