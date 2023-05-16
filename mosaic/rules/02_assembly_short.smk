@@ -1,13 +1,13 @@
 #ruleorder: shortReadAsemblySpadesPE > shortReadAsemblySpadesSE
 def input_error_correction(wildcards):
 	params_ecc=""
-	if wildcards.sample=="ALL"
+	if wildcards.sample=="ALL":
 		params_ecc="--only-assembler"
 	return params_ecc
 
 def input_threads_assembler(wildcards):
 	use_threads=8
-	if wildcards.sample=="ALL"
+	if wildcards.sample=="ALL":
 		use_threads=64
 	return use_threads
 
