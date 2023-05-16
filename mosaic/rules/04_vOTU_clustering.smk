@@ -132,7 +132,7 @@ rule vOUTclustering_get_new_references:
 	threads: 64
 	shell:
 		"""
-		seqtk subseq {input.derreplicated_positive_contigs} {output.representative_list} > {output.representatives}
+		seqtk subseq {input.derreplicated_positive_contigs} {input.representative_list} > {output.representatives}
 		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
 			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
