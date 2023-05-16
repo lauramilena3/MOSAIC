@@ -54,9 +54,10 @@ else:
 
 RULES_DIR = 'rules'
 
-CONFIDENCE_TYPES=["high", "low"]
+# CONFIDENCE_TYPES=["high", "low"]
 
 SUBSAMPLING=config['subsampling']
+
 if SUBSAMPLING:
 	SAMPLING_TYPE=["tot", "sub"]
 else:
@@ -84,8 +85,9 @@ NANOPORE_SAMPLES=""
 if not RAW_DATA_DIR == "":
 	RAW_DATA_DIR=RAW_DATA_DIR.rstrip("/")
 	SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['reverse_tag']) + ".fastq.gz")
+	SAMPLES.sort()
 	NANOPORE_SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['nanopore_tag']) + ".fastq.gz")
-
+	NANOPORE_SAMPLES.sort()
 	for fname in os.listdir(RAW_DATA_DIR):
 		if fname.endswith(str(config['reverse_tag']) + '.fastq.gz'):
 			PAIRED=True
@@ -96,8 +98,6 @@ if not RAW_DATA_DIR == "":
 else:
 	RAW_DATA_DIR=RESULTS_DIR+"/00_RAW_DATA"
 
-
-#NANOPORE_SAMPLES=SAMPLES
 
 if PAIRED:
 	READ_TYPES.append(config['reverse_tag'])
@@ -122,12 +122,12 @@ print(RAW_DATA_DIR)
 print("Results Dir = ")
 print(RESULTS_DIR)
 
-
 print("Read Types = " )
 print(*READ_TYPES, sep = ", ")
 
 print("Sample Names = ")
 print(*SAMPLES, sep = ", ")
+print(len(SAMPLES))
 
 print("Contaminants = ")
 print(*CONTAMINANTS, sep = ", ")
@@ -135,7 +135,6 @@ print(*CONTAMINANTS, sep = ", ")
 print("Reference contigs = ")
 print(REPRESENTATIVE_CONTIGS_BASE)
 print(REPRESENTATIVE_CONTIGS_DIR)
-
 
 print("Nanopore = ")
 print(NANOPORE)
