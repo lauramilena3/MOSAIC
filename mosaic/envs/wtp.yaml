@@ -4,5 +4,5 @@ channels:
   - conda-forge
   - r
 dependencies:
-  - nextflow =20.07.01
-  - singularity =3.6.3
+  - nextflow =23.04.1
+  - singularity =3.8.7
