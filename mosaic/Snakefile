@@ -260,7 +260,7 @@ def inputViralID(wildcards):
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
-		inputs.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES),
+		inputs.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".tot.fasta"),
 	return inputs
 
 def inputvOTUClustering(wildcards):
