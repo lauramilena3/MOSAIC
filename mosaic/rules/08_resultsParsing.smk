@@ -191,7 +191,7 @@ def inputAssemblyContigs(wildcards):
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
-		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES)
+		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.{{sampling}}.fasta")
 	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test)),
 	return inputs
