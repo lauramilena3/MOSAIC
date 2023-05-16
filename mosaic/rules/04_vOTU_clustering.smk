@@ -90,6 +90,7 @@ rule getHighQuality:
 	input:
 		input_getHighQuality,
 	output:
+		quality_summary_concat=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 		high_qualty_list=dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
 	message:
 		"Filtering vOTUs "
@@ -100,7 +101,8 @@ rule getHighQuality:
 	threads: 1
 	shell:
 		"""
-		cat {input} | grep "High-quality" | cut -f1 > {output.high_qualty_list}
+		cat {input} > {output.quality_summary_concat}
+		grep "High-quality" {output.quality_summary_concat} | cut -f1 > {output.high_qualty_list}
 		"""
 
 rule filter_vOTUs:
