@@ -124,7 +124,7 @@ rule vOUTclustering_get_new_references:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
 	message:
-		"Creating vOUTs with CheckV aniclust"
+		"Selecting new representatives with seqtk"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
@@ -136,6 +136,7 @@ rule vOUTclustering_get_new_references:
 		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
 			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
+
 rule filter_vOTUs:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
@@ -160,6 +161,7 @@ rule filter_vOTUs:
 		cat {input.high_qualty_list} {output.filtered_list_temp} | sort | uniq > {output.filtered_list}
 		seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
 		"""
+
 
 
 
