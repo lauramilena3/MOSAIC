@@ -23,11 +23,11 @@ rule subsampleReadsIllumina_PE_test_depth:
 		#paired
 		paired=$( cat {input.paired_sizes} )
 		p=$(echo "$paired"*{wildcards.subsample}/100 | bc)
-		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads=$p sampleseed=2
+		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads=$p sampleseed=1
 		#unpaired
 		unpaired=$( cat {input.unpaired_sizes} )
 		up=$(echo "$unpaired"*{wildcards.subsample}/100 | bc)
-		reformat.sh in={input.unpaired} out={output.unpaired} reads=$up sampleseed=2
+		reformat.sh in={input.unpaired} out={output.unpaired} reads=$up sampleseed=1
 		"""
 
 rule normalizeReads_test_depth:
