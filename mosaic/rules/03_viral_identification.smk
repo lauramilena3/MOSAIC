@@ -150,7 +150,7 @@ rule virSorter2:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/virSorter2/" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}_illumina.tsv"
-	threads: 8
+	threads: 32
 	shell:
 		"""
 		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db}
