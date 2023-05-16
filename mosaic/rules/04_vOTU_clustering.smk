@@ -119,7 +119,7 @@ rule select_vOTU_representative:
 rule vOUTclustering_get_new_references:
 	input:
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
-		representatives_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
+		representative_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
 	output:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
