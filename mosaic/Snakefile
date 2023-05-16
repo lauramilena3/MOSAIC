@@ -247,7 +247,7 @@ def inputAssembly(wildcards):
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
-		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES)
+		inputs.extend(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.tot.fasta")
 	return inputs
 
 def inputViralID(wildcards):
