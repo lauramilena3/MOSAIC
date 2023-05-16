@@ -50,9 +50,6 @@ rule vOUTclustering:
 		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
 		blastout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-blastout.csv",
 		aniout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}-aniout.csv",
-		representative_list=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.txt",
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
@@ -67,10 +64,6 @@ rule vOUTclustering:
 			-max_target_seqs 10000 -out {output.blastout} -num_threads {threads}
 		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
 		python scripts/aniclust_checkv.py --fna {input.derreplicated_positive_contigs} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
-		cut {output.clusters} -f1 > {output.representative_list}
-		seqtk subseq {input.derreplicated_positive_contigs} {output.representative_list} > {output.representatives}
-		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
-			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
 
 def input_getHighQuality(wildcards):
@@ -105,6 +98,44 @@ rule getHighQuality:
 		grep "High-quality" {output.quality_summary_concat} | cut -f1 > {output.high_qualty_list}
 		"""
 
+rule select_vOTU_representative:
+	input:
+		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt"
+		cluster_file=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
+	output:
+		representatives=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.csv"
+		checkv_categories=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_checkv_per_category.csv"
+	params:
+		samples=SAMPLES,
+		contig_dir=dirs_dict["ASSEMBLY_DIR"],
+		viral_dir=dirs_dict['VIRAL_DIR'],
+		subassembly=SUBASSEMBLY,
+		cross_assembly=CROSS_ASSEMBLY,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_representative.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/05_vOTU_representative.py.ipynb"
+
+rule vOUTclustering_get_new_references:
+	input:
+		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		representatives_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.csv"
+	output:
+		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
+	message:
+		"Creating vOUTs with CheckV aniclust"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
+	threads: 64
+	shell:
+		"""
+		seqtk subseq {input.derreplicated_positive_contigs} {output.representative_list} > {output.representatives}
+		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
+			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
+		"""
 rule filter_vOTUs:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
