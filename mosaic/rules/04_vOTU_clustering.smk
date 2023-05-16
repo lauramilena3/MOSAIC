@@ -101,7 +101,7 @@ rule getHighQuality:
 	threads: 1
 	shell:
 		"""
-		cat {input} > {output.quality_summary_concat}
+		awk 'FNR>1' {input} > {output.quality_summary_concat}
 		grep "High-quality" {output.quality_summary_concat} | cut -f1 > {output.high_qualty_list}
 		"""
 
