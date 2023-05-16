@@ -5,4 +5,4 @@ channels:
   - r
 dependencies:
   - nextflow =23.04.1
-  - singularity 
+  - singularity =3.7.1
