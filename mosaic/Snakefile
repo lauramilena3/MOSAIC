@@ -313,7 +313,7 @@ rule runvAbundance:
 		inputAssembly,
 		inputViralID,
 		inputvOTUClustering,
-		inputvAbundance,
+		# inputvAbundance,
 
 rule trimmomatic:
 	input:
