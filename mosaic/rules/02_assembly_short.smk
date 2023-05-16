@@ -24,8 +24,8 @@ rule shortReadAsemblySpadesPE:
 		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
 		assembly_graph=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/assembly_graph.fastg",
 		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}"),
-		metagenomic_flag=METAGENOME_FLAG
-		error_correction=input_error_correction
+		metagenomic_flag=METAGENOME_FLAG,
+		error_correction=input_error_correction,
 	message:
 		"Assembling PE reads with metaSpades"
 	conda:
