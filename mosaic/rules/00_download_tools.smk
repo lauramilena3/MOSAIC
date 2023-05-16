@@ -524,7 +524,7 @@ rule get_WTP:
 		mkdir {output.WTP_dir}
 		cd {output.WTP_dir}
 		singularity pull  --name nanozoo-sourmash-3.4.1--16a8db7.img docker://nanozoo/sourmash:3.4.1--16a8db7
-		nextflow run replikation/What_the_Phage -r v1.0.0 --setup -profile local,singularity --cachedir cache_dir
+		nextflow run replikation/What_the_Phage -r v1.2.0 --setup -profile local,singularity --cachedir cache_dir
 		"""
 
 
