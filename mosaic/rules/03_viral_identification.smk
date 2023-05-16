@@ -132,22 +132,47 @@ rule genomad_viral_id_nanopore:
 		"""
 
 # VIRAL FILTERING vOTUS
-rule what_the_phage_vOTUs:
+rule virSorter2:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-		WTP_dir=directory(os.path.join(workflow.basedir, config['WTP_dir'])),
+		virSorter_db=config['virSorter_db'],
 	output:
-		out_folder=directory(dirs_dict["VIRAL_DIR"] + "/WhatThePhage_{sampling}"),
-	# params:
-	# 	out_folder=dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}"
+		positive_fasta=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-combined.fa",
+		table_virsorter=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-score.tsv",
+		positive_list=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/positive_VS_list_{sampling}.txt",
+		viral_boundary=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-boundary.tsv",
+		iter=directory(dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/iter-0"),
+	params:
+		out_folder=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}"
 	message:
 		"Classifing contigs with VirSorter"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/whatThePhage/{sampling}.tsv"
-	threads: 32
+		dirs_dict["BENCHMARKS"] +"/virSorter2/" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}_illumina.tsv"
+	threads: 8
 	shell:
 		"""
-		nextflow run replikation/What_the_Phage -r v1.2.1 --cores {threads} --output {output.out_folder} -profile local,docker --fasta {input.representatives}
+		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db}
+		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
 		"""
+
+# rule what_the_phage_vOTUs:
+# 	input:
+# 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+# 		WTP_dir=directory(os.path.join(workflow.basedir, config['WTP_dir'])),
+# 	output:
+# 		out_folder=directory(dirs_dict["VIRAL_DIR"] + "/WhatThePhage_{sampling}"),
+# 	# params:
+# 	# 	out_folder=dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}"
+# 	message:
+# 		"Classifing contigs with VirSorter"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/whatThePhage/{sampling}.tsv"
+# 	threads: 32
+# 	shell:
+# 		"""
+# 		nextflow run replikation/What_the_Phage -r v1.2.0 --cores {threads} --output {output.out_folder} -profile local,docker --fasta {input.representatives}
+# 		"""

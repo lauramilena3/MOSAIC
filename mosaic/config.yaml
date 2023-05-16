@@ -45,11 +45,11 @@ min_len: "1000"
 min_cov: "2"
 
 # min_votu_length
-min_votu_length: 10000
+min_votu_length: 4000
 contaminants_list: ""
 adapters_file: "adapters.fa"
 additional_reference_contigs: ""
-ambiguous_mapping: "best"
+ambiguous_mapping: "all"
 basecalled_dir: "data/basecalled/"
 imgvr_blast: False
 
