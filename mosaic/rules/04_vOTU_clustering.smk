@@ -100,11 +100,11 @@ rule getHighQuality:
 
 rule select_vOTU_representative:
 	input:
-		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt"
+		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 		cluster_file=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
 	output:
-		representatives=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.csv"
-		checkv_categories=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_checkv_per_category.csv"
+		representatives=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.csv",
+		checkv_categories=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_checkv_per_category.csv",
 	params:
 		samples=SAMPLES,
 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
@@ -119,7 +119,7 @@ rule select_vOTU_representative:
 rule vOUTclustering_get_new_references:
 	input:
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
-		representatives_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.csv"
+		representatives_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.csv",
 	output:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
