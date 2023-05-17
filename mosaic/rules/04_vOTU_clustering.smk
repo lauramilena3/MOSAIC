@@ -162,7 +162,28 @@ rule filter_vOTUs:
 		seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
 		"""
 
-
+rule filter_vOTUs:
+	input:
+		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
+		cluster_file=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
+		vibrant_results_append(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.txt"),
+		VIBRANT_summary_results_95-85_positive_viral_contigs.tot.tsv
+		VIBRANT_genome_quality_95-85_positive_viral_contigs.tot.tsv
+		VIBRANT_complete_circular_95-85_positive_viral_contigs.tot.tsv
+	inputs.append(dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_tot/positive_VS_list_tot.txt"),
+	output:
+		representatives=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
+		checkv_categories=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_checkv_per_category.{sampling}.csv",
+	params:
+		samples=SAMPLES,
+		contig_dir=dirs_dict["ASSEMBLY_DIR"],
+		viral_dir=dirs_dict['VIRAL_DIR'],
+		subassembly=SUBASSEMBLY,
+		cross_assembly=CROSS_ASSEMBLY,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_representative.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/05_vOTU_representative.py.ipynb"
 
 
 # else:
