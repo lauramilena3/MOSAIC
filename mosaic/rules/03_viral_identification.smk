@@ -171,7 +171,7 @@ rule genomad_vOTUs:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_nanopore.tsv"
+		dirs_dict["BENCHMARKS"] +"/geNomad_viralID_filtering/{sampling}_nanopore.tsv"
 	threads: 8
 	shell:
 		"""
