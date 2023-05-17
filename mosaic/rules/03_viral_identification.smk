@@ -137,13 +137,13 @@ rule virSorter2:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		virSorter_db=config['virSorter_db'],
 	output:
-		positive_fasta=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-combined.fa",
-		table_virsorter=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-score.tsv",
-		positive_list=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/positive_VS_list_{sampling}.txt",
-		viral_boundary=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-boundary.tsv",
-		iter=directory(dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/iter-0"),
+		positive_fasta=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-combined.fa",
+		table_virsorter=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-score.tsv",
+		positive_list=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/positive_VS_list_{sampling}.txt",
+		viral_boundary=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/final-viral-boundary.tsv",
+		iter=directory(dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}/iter-0"),
 	params:
-		out_folder=dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}"
+		out_folder=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_{sampling}"
 	message:
 		"Classifing contigs with VirSorter"
 	conda:
