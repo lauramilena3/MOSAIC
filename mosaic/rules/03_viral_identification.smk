@@ -156,7 +156,28 @@ rule virSorter2:
 		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db}
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
 		"""
-
+rule genomad_vOTUs:
+	input:
+		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		genomad_db=(config['genomad_db']),
+	output:
+		virus_summary=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_virus_summary.tsv",
+		plasmid_summary=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_plasmid_summary.tsv",
+		viral_fasta=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_virus.fna",																																																
+	params:
+		genomad_outdir=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/",
+	message:
+		"Identifying viral contigs with geNomad"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_nanopore.tsv"
+	threads: 8
+	shell:
+		"""
+		genomad end-to-end --cleanup --splits 8 -t {threads} {input.representatives} {params.genomad_outdir} {input.genomad_db} --relaxed
+		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
+		"""
 # rule what_the_phage_vOTUs:
 # 	input:
 # 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
