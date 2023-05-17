@@ -162,7 +162,7 @@ rule filter_vOTUs:
 		seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
 		"""
 
-rule filter_vOTUs:
+rule get_list_filtered_vOTUs:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.csv",
