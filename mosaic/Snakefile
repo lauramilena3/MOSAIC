@@ -267,7 +267,7 @@ def inputvOTUClustering(wildcards):
 	inputs=[]
 	inputs.append(dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta")
 	inputs.append(dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt"),
-	inputs.append(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.txt"),
+	inputs.append(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
 	inputs.append(dirs_dict["VIRAL_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_virSorter_tot/positive_VS_list_tot.txt"),
 
 	return inputs

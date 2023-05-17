@@ -482,12 +482,12 @@ rule annotate_VIBRANT:
 		VIBRANT_dir=os.path.join(workflow.basedir, config['vibrant_dir']),
 	output:
 		vibrant=directory(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + ".{sampling}"),
-		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.txt",
-		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.txt",
-		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.txt",
+		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.csv",
+		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
+		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
+		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
 	params:
 		viral_dir=directory(dirs_dict["vOUT_DIR"]),
-		minlen=5000,
 		name_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + ".{sampling}/VIBRANT_results*/VIBRANT_complete_circular*.{sampling}.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
@@ -504,6 +504,7 @@ rule annotate_VIBRANT:
 		touch {output.vibrant_circular}
 		cp {output.vibrant}/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
 		cp {output.vibrant}/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
+		cp {output.vibrant}/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
 		"""
 
 rule detectNucleotideModifications:
