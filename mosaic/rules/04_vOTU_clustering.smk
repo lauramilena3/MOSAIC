@@ -162,29 +162,30 @@ rule filter_vOTUs:
 		seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
 		"""
 
-# rule filter_vOTUs:
-# 	input:
-# 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
-# 		cluster_file=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + ".{sampling}_95-85.clstr",
-# 		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.csv",
-# 		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
-# 		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
-# 		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
-# 		table_virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-score.tsv",
-# 		positive_list=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",	
-# 	output:
-# 		representatives=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
-# 		checkv_categories=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_checkv_per_category.{sampling}.csv",
-# 	params:
-# 		samples=SAMPLES,
-# 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
-# 		viral_dir=dirs_dict['VIRAL_DIR'],
-# 		subassembly=SUBASSEMBLY,
-# 		cross_assembly=CROSS_ASSEMBLY,
-# 	log:
-# 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_representative.{sampling}.ipynb"
-# 	notebook:
-# 		dirs_dict["RAW_NOTEBOOKS"] + "/05_vOTU_representative.py.ipynb"
+rule filter_vOTUs:
+	input:
+		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
+		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.csv",
+		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
+		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
+		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
+		virsorter_table=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-score.tsv",
+		virsorter_positive_list=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",	
+		genomad_virus_summary=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_virus_summary.tsv",
+		genomad_plasmid_summary=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_plasmid_summary.tsv",
+		genomad_viral_fasta=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_virus.fna",										
+	output:
+		fake=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_a_a_.{sampling}.csv",
+	params:
+		samples=SAMPLES,
+		contig_dir=dirs_dict["ASSEMBLY_DIR"],
+		viral_dir=dirs_dict['VIRAL_DIR'],
+		subassembly=SUBASSEMBLY,
+		cross_assembly=CROSS_ASSEMBLY,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/05_vOTU_filtering.py.ipynb"
 
 
 # else:
