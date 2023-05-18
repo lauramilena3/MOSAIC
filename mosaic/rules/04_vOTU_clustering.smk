@@ -129,7 +129,7 @@ rule vOUTclustering_get_new_references:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
-	threads: 64
+	threads: 1
 	shell:
 		"""
 		seqtk subseq {input.derreplicated_positive_contigs} {input.representative_list} > {output.representatives}
