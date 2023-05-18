@@ -196,7 +196,7 @@ rule annotate_VIBRANT:
 		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
 		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
 	params:
-		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
+		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
@@ -209,10 +209,10 @@ rule annotate_VIBRANT:
 		rm {params.vibrant_outdir} || true
 		mkdir {params.vibrant_outdir} ; cd {params.vibrant_outdir}
 		{input.VIBRANT_dir}/VIBRANT_run.py -i {input.representatives} -t {threads} -virome
-		cut -f1 {params.vibrant_outdir}/VIBRANT_results*/*complete_circular*txt > {output.vibrant_circular}
-		cp {params.vibrant_outdir}/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
-		cp {params.vibrant_outdir}/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
-		cp {params.vibrant_outdir}/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
+		cut -f1 {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/*complete_circular*tsv > {output.vibrant_circular}
+		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
+		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
+		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
 		"""
 # rule what_the_phage_vOTUs:
 # 	input:
