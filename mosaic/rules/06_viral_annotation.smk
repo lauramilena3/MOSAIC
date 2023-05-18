@@ -476,36 +476,7 @@ rule mapReadstoContigsPE:
 		samtools index {output.sorted_bam_unpaired}
 		"""
 
-rule annotate_VIBRANT:
-	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-		VIBRANT_dir=os.path.join(workflow.basedir, config['vibrant_dir']),
-	output:
-		vibrant=directory(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + ".{sampling}"),
-		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.csv",
-		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
-		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
-		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
-	params:
-		viral_dir=directory(dirs_dict["vOUT_DIR"]),
-		name_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + ".{sampling}/VIBRANT_results*/VIBRANT_complete_circular*.{sampling}.tsv"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env5.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_VIBRANT/{sampling}.tsv"
-	message:
-		"Annotating viral contigs with VIBRANT"
-	threads: 64
-	shell:
-		"""
-		cd {params.viral_dir}
-		{input.VIBRANT_dir}/VIBRANT_run.py -i {input.representatives} -t {threads} -virome
-		cut -f1 {params.name_circular} > {output.vibrant_circular}
-		touch {output.vibrant_circular}
-		cp {output.vibrant}/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
-		cp {output.vibrant}/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
-		cp {output.vibrant}/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
-		"""
+
 
 rule detectNucleotideModifications:
 	input:
