@@ -11,7 +11,7 @@ def input_vOTU_clustering(wildcards):
 	if SUBASSEMBLY:
 		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_" + VIRAL_ID_TOOL + ".{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
 	if len(config['additional_reference_contigs'])>0:
-		input_list.extend(config['additional_reference_contigs'])
+		input_list.append(config['additional_reference_contigs'])
 	return input_list
 
 # if len(config['additional_reference_contigs'])==0:
