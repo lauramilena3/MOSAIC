@@ -205,7 +205,7 @@ rule annotate_VIBRANT:
 	threads: 64
 	shell:
 		"""
-		rm {params.vibrant_outdir} || true
+		rm -rf {params.vibrant_outdir} || true
 		mkdir {params.vibrant_outdir} ; cd {params.vibrant_outdir}
 		{input.VIBRANT_dir}/VIBRANT_run.py -i {input.representatives} -t {threads} -virome
 		cut -f1 {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/*complete_circular*tsv > {output.vibrant_circular}
