@@ -228,7 +228,6 @@ def inputQC(wildcards):
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_O_report_paired_tot.csv", sample=SAMPLES)),
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_G_report_paired_tot.csv", sample=SAMPLES)),
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
-
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
