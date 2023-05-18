@@ -7,7 +7,7 @@ def input_vOTU_clustering(wildcards):
 	if NANOPORE:
 		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
-		input_list.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
+		input_list.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta")
 	if SUBASSEMBLY:
 		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_" + VIRAL_ID_TOOL + ".{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
 	if len(config['additional_reference_contigs'])>0:
@@ -72,7 +72,7 @@ def input_getHighQuality(wildcards):
 	if NANOPORE:
 		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{{sampling}}/quality_summary.tsv", sample=NANOPORE_SAMPLES)),
 	if CROSS_ASSEMBLY:
-		input_list.append(dirs_dict["vOUT_DIR"] + "/ALL_checkV_{{sampling}}/quality_summary.tsv"),
+		input_list.append(dirs_dict["vOUT_DIR"] + "/ALL_checkV_{sampling}/quality_summary.tsv"),
 	if SUBASSEMBLY:
 		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_" + VIRAL_ID_TOOL + "_checkV_{{sampling}}/quality_summary.tsv", sample=SAMPLES, subsample=subsample_test)),
 	if len(config['additional_reference_contigs'])>0:
@@ -86,7 +86,7 @@ rule getHighQuality:
 		quality_summary_concat=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 		high_qualty_list=dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
 	message:
-		"Filtering vOTUs "
+		"Getting list high-quality vOTUs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
@@ -149,7 +149,7 @@ rule filter_vOTUs:
 	params:
 		min_votu_len=config['min_votu_length']
 	message:
-		"Filtering vOTUs "
+		"Filtering vOTUs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
@@ -188,7 +188,6 @@ rule get_list_filtered_vOTUs:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/05_vOTU_filtering.py.ipynb"
-
 
 # else:
 
