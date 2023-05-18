@@ -150,7 +150,7 @@ rule virSorter2:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/VirSorter2_/" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}_illumina.tsv"
-	threads: 32
+	threads: 64
 	shell:
 		"""
 		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} --prep-for-dramv --provirus-off --include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae
@@ -175,7 +175,7 @@ rule genomad_vOTUs:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/geNomad_viralID_filtering/{sampling}_nanopore.tsv"
-	threads: 8
+	threads: 32
 	shell:
 		"""
 		genomad end-to-end --cleanup --splits 8 -t {threads} {input.representatives} {params.genomad_outdir} {input.genomad_db} --conservative  
