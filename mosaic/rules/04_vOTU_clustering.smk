@@ -76,7 +76,7 @@ def input_getHighQuality(wildcards):
 	if SUBASSEMBLY:
 		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_" + VIRAL_ID_TOOL + "_checkV_{{sampling}}/quality_summary.tsv", sample=SAMPLES, subsample=subsample_test)),
 	if len(config['additional_reference_contigs'])>0:
-		input_list.append(dirs_dict["ANNOTATION"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
+		input_list.append(dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
 	return input_list
 
 rule getHighQuality:
