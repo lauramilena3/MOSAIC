@@ -209,10 +209,10 @@ rule annotate_VIBRANT:
 		rm {params.vibrant_outdir} || true
 		mkdir {params.vibrant_outdir} ; cd {params.vibrant_outdir}
 		{input.VIBRANT_dir}/VIBRANT_run.py -i {input.representatives} -t {threads} -virome
-		cut -f1 {output.vibrant}/VIBRANT_results*/*complete_circular*txt > {output.vibrant_circular}
-		cp {output.vibrant}/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
-		cp {output.vibrant}/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
-		cp {output.vibrant}/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
+		cut -f1 {params.vibrant_outdir}/VIBRANT_results*/*complete_circular*txt > {output.vibrant_circular}
+		cp {params.vibrant_outdir}/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
+		cp {params.vibrant_outdir}/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
+		cp {params.vibrant_outdir}/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
 		"""
 # rule what_the_phage_vOTUs:
 # 	input:
