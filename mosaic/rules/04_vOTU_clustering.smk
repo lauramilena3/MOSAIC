@@ -56,7 +56,7 @@ rule vOUTclustering:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
-	threads: 64
+	threads: 144
 	shell:
 		"""
 		makeblastdb -in {input.derreplicated_positive_contigs} -dbtype nucl -out {input.derreplicated_positive_contigs}
