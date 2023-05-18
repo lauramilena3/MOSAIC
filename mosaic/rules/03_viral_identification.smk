@@ -196,7 +196,7 @@ rule annotate_VIBRANT:
 		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
 		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
 	params:
-		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling},
+		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
