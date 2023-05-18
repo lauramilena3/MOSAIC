@@ -301,11 +301,20 @@ rule estimateGenomeCompletness_test_depth:
 	threads: 4
 	shell:
 		"""
-		rm -rf {params.checkv_outdir} || true
-		checkv contamination {input.final_viral_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		checkv completeness {input.final_viral_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		checkv complete_genomes {input.final_viral_contigs} {params.checkv_outdir}
-		checkv quality_summary {input.final_viral_contigs} {params.checkv_outdir}
+		if [ -s {input.final_viral_contigs} ]; then
+				rm -rf {params.checkv_outdir} || true
+				checkv contamination {input.final_viral_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+				checkv completeness {input.final_viral_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+				checkv complete_genomes {input.final_viral_contigs} {params.checkv_outdir}
+				checkv quality_summary {input.final_viral_contigs} {params.checkv_outdir}
+		else
+				echo "The FASTA file {input.final_viral_contigs} is empty"
+				mkdir -p {params.checkv_outdir}
+				mkdir -p {output.tmp}
+				touch {output.quality_summary}
+				touch {output.completeness}
+				touch {output.contamination}
+		fi
 		"""
 
 # rule vOUTclustering_test_depth:
