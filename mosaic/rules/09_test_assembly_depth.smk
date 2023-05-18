@@ -251,8 +251,14 @@ rule genomad_viral_id_subassembly:
 	threads: 8
 	shell:
 		"""
-		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
-		cat {params.viral_fasta} | sed "s/|/_/g" > {output.final_viral_contigs}
+		if [ -s {input.scaffolds} ]; then
+				genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
+				cat {params.viral_fasta} | sed "s/|/_/g" > {output.final_viral_contigs}
+		else
+				echo "The FASTA file {input.scaffolds} is empty"
+				mkdir -p {output.genomad_outdir}
+				touch {output.final_viral_contigs}
+		fi
 		"""
 
 rule viralStatsILLUMINA_test_depth:
