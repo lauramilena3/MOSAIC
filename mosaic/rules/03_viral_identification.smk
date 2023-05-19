@@ -140,6 +140,8 @@ rule virSorter2:
 		positive_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-combined.fa",
 		table_virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-score.tsv",
 		positive_list=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",
+		DRAM_tab=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
+		DRAM_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
 		iter=directory(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/iter-0"),
 	params:
 		out_folder=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}"
@@ -152,7 +154,9 @@ rule virSorter2:
 	threads: 64
 	shell:
 		"""
-		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} --prep-for-dramv --provirus-off --include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae
+		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} \
+				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off --viral-gene-enrich-off \
+				--prep-for-dramv --provirus-off --min-score 0 --min-length 0 
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
 		"""
 

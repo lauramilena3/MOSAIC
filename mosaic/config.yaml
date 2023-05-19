@@ -86,6 +86,7 @@ run_vcontact: False
 reference_genomes_vcontact: "None"
 taxonomy_file: "db/vcontact2/formatting_taxonomy_affiliations.csv"
 genomad_db: "db/genomad_db"
+DRAM_db: "db/DRAM_db"
 mmseqs_dir: "tools/MMseqs2"
 viga_dir: "tools/viga"
 piler_dir: "tools/pilercr1.06"
