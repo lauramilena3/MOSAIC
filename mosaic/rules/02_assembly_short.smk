@@ -67,13 +67,22 @@ rule shortReadAsemblySpadesPE:
 # 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
 # 		"""
 
+# def input_Quast(wildcards):
+# 	input_list=[]
+# 	input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta",sample=SAMPLES))
+# 	if NANOPORE:
+# 		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
+# 	if CROSS_ASSEMBLY:
+# 		input_list.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
+# 	return input_list
+
 def input_Quast(wildcards):
 	input_list=[]
-	input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta",sample=SAMPLES))
+	input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta",sample=SAMPLES))
 	if NANOPORE:
-		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
-		input_list.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
+		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.{sampling}.fasta")
 	return input_list
 
 rule assemblyStats:

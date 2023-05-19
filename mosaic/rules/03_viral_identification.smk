@@ -155,8 +155,7 @@ rule virSorter2:
 	shell:
 		"""
 		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} \
-				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off --viral-gene-enrich-off \
-				--prep-for-dramv --provirus-off --min-score 0 --min-length 0 
+				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off  --provirus-off --min-length 0
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
 		"""
 
