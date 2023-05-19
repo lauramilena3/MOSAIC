@@ -22,4 +22,5 @@ dependencies:
   - scikit-bio =0.5.6
   - jupyter =1.0
   - jupyterlab_code_formatter =1.4
+  - lxml =4.9.2
 #   - python_abi =3.10
