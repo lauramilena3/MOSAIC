@@ -155,7 +155,7 @@ rule DRAM_annotation:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/DRAM/tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
 	message:
 		"Annotate contigs with DRAM"
 	threads: 32
