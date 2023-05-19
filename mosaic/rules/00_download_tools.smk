@@ -246,6 +246,19 @@ rule downloadIphopDB:
 		tar xzvf iPHoP_db_Sept21.tar.gz
 		"""
 
+rule downloadDRAMDB:
+	output:
+		DRAM_db=directory(config['DRAM_db']),
+	message:
+		"Downloading DRAM database"
+	threads: 4
+	conda:
+		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
+	shell:
+		"""
+		DRAM-setup.py prepare_databases --output_dir {output.DRAM_db}
+		"""
+
 rule downloadCheckvDB:
 	output:
 		checkv_db=directory(config['checkv_db']),

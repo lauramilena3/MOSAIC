@@ -271,6 +271,11 @@ def inputvOTUClustering(wildcards):
 	inputs.append(dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
 	return inputs
 
+def inputAnnotation(wildcards):
+	inputs=[]
+	inputs.append(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_tot"),
+	return inputs
+
 rule all:
 	input:
 		inputReadsCount,
@@ -304,14 +309,14 @@ rule runvOTUClustering:
 		inputViralID,
 		inputvOTUClustering,
 
-rule runvAbundance:
+rule runvAnnotation:
 	input:
 		inputReadsCount,
 		inputQC,
 		inputAssembly,
 		inputViralID,
 		inputvOTUClustering,
-		# inputvAbundance,
+		inputvAnnotation,
 
 rule trimmomatic:
 	input:
