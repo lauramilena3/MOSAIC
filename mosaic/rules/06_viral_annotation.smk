@@ -149,7 +149,7 @@ rule DRAM_annotation:
 		DRAM_output=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}"),
 		DRAM_summary=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_summary_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}"),
 	params:
-		annotations=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/annotations.tsv"),
+		DRAM_annotations=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/annotations.tsv"),
 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
 	conda:
@@ -162,7 +162,7 @@ rule DRAM_annotation:
 	shell:
 		"""
 		DRAM-v.py annotate -i {input.DRAM_fasta} -o {output.DRAM_output} --threads {threads} --skip_trnascan
-		DRAM-v.py distill -i {params.DRAM_output} -o {output.DRAM_summary} 
+		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
 rule annotate_VIGA:
