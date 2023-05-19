@@ -316,7 +316,7 @@ rule runvAnnotation:
 		inputAssembly,
 		inputViralID,
 		inputvOTUClustering,
-		inputvAnnotation,
+		inputAnnotation,
 
 rule trimmomatic:
 	input:
