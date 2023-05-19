@@ -143,15 +143,15 @@ rule estimateGenomeCompletness_reference:
 
 rule DRAM_annotation:
 	input:
-		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		DRAM_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
 		DRAM_db=directory(config['DRAM_db']),
 	output:
 		DRAM_output=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}"),
 		DRAM_summary=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_summary_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}"),
 	params:
 		annotations=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/annotations.tsv"),
-		trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
-		rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
+		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
+		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
@@ -161,8 +161,8 @@ rule DRAM_annotation:
 	threads: 32
 	shell:
 		"""
-		DRAM-v.py annotate -i {input.derreplicated_positive_contigs} -o {output.DRAM_output} --threads {threads}
-		DRAM-v.py distill -i {params.DRAM_output} -o {output.DRAM_summary} --trna_path {params.trnas} --rrna_path {params.rrnas}
+		DRAM-v.py annotate -i {input.DRAM_fasta} -o {output.DRAM_output} --threads {threads} --skip_trnascan
+		DRAM-v.py distill -i {params.DRAM_output} -o {output.DRAM_summary} 
 		"""
 
 rule annotate_VIGA:
