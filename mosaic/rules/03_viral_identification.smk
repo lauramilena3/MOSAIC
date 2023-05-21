@@ -140,8 +140,8 @@ rule virSorter2:
 		positive_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-combined.fa",
 		table_virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-score.tsv",
 		positive_list=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",
-		DRAM_tab=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
-		DRAM_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
+		# DRAM_tab=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
+		# DRAM_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
 		iter=directory(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/iter-0"),
 	params:
 		out_folder=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}"
@@ -216,6 +216,7 @@ rule annotate_VIBRANT:
 		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
 		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
 		"""
+
 # rule what_the_phage_vOTUs:
 # 	input:
 # 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
