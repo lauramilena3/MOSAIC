@@ -86,6 +86,7 @@ rule metaspadesPE_test_depth:
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
+		sed "s/>/>{wildcards.sample}_{wildcards.subsample}_/g" -i {output.scaffolds}
 		"""
 
 rule assemblyStatsILLUMINA_test_depth:
