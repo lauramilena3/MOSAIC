@@ -412,8 +412,8 @@ rule read_classification_BRACKEN:
 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
 	shell:
 		"""
-		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.braken_report_paired} -l {wildcards.level} -t 4000 || true
-		touch {output.braken_report_paired}
+		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t 4000 || true
+		touch {output.bracken_report_paired}
 		"""
 #
 # rule postQualityCheckIlluminaSE:
