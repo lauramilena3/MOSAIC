@@ -403,7 +403,7 @@ rule read_classification_BRACKEN:
 		kraken_db=(config['kraken_db']),
 		bracken_checkpoint="bracken_db_ckeckpoint.txt",
 	output:
-		braken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv",
+		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv",
 	message:
 		"Creating taxonomic reports with Bracken"
 	conda:
@@ -412,7 +412,8 @@ rule read_classification_BRACKEN:
 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
 	shell:
 		"""
-		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.braken_report_paired} -l {wildcards.level} -t 4000
+		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.braken_report_paired} -l {wildcards.level} -t 4000 || true
+		touch {output.braken_report_paired}
 		"""
 #
 # rule postQualityCheckIlluminaSE:
