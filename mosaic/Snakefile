@@ -185,12 +185,6 @@ def inputAnnotation(wildcards):
 
 	if IMGVR_blast:
 		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
-
-	if ASSEMLY_STATS:
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_unfiltered.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-
 	if TOMBO:
 		inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
 	return inputs
@@ -269,6 +263,11 @@ def inputvOTUClustering(wildcards):
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
+	if ASSEMLY_STATS:
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}_stat_unfiltered.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	return inputs
 
 def inputAnnotation(wildcards):
