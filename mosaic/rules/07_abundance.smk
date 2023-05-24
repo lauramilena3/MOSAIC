@@ -157,7 +157,7 @@ rule stat_mapReadsToUnfiltered:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}.tsv"
 	threads: 16
 	resources:
-		mem_mb=12000
+		mem_mb=24000
 	shell:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.unfiltered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \

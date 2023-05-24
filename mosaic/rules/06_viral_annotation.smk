@@ -144,12 +144,12 @@ rule estimateGenomeCompletness_reference:
 rule DRAM_annotation:
 	input:
 		DRAM_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
-		DRAM_db=directory(config['DRAM_db']),
+		DRAM_db=config['DRAM_db'],
 	output:
 		DRAM_output=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}"),
 		DRAM_summary=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_summary_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}"),
 	params:
-		DRAM_annotations=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/annotations.tsv"),
+		DRAM_annotations=dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/annotations.tsv",
 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
 	conda:
