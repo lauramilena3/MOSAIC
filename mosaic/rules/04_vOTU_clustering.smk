@@ -183,6 +183,7 @@ rule get_list_filtered_vOTUs:
 		samples=SAMPLES,
 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
 		viral_dir=dirs_dict['VIRAL_DIR'],
+		mapping_dir=dirs_dict['MAPPING_DIR'],
 		subassembly=SUBASSEMBLY,
 		cross_assembly=CROSS_ASSEMBLY,
 	log:
