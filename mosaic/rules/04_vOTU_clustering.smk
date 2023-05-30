@@ -140,11 +140,8 @@ rule vOUTclustering_get_new_references:
 rule filter_vOTUs:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-		high_qualty_list=dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
-		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
-	output:
 		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
-		filtered_list_temp=temp(dirs_dict["vOUT_DIR"]+ "/filtered_temp_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt"),
+	output:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	params:
 		min_votu_len=config['min_votu_length']
@@ -154,12 +151,10 @@ rule filter_vOTUs:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
-	threads: 4
+	threads: 2
 	shell:
 		"""
-		cat {input.representative_lengths} | awk '$2>={params.min_votu_len}' | cut -f1 >  {output.filtered_list_temp}
-		cat {input.high_qualty_list} {output.filtered_list_temp} | sort | uniq > {output.filtered_list}
-		seqtk subseq {input.representatives} {output.filtered_list} > {output.filtered_representatives}
+		seqtk subseq {input.representatives} {input.filtered_list} > {output.filtered_representatives}
 		"""
 
 rule get_list_filtered_vOTUs:
@@ -179,6 +174,7 @@ rule get_list_filtered_vOTUs:
 		genomad_viral_fasta_conservative=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/formatted_viral_" + REPRESENTATIVE_CONTIGS_BASE + "_conservative.{sampling}.fasta",
 	output:
 		summary=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.{sampling}.csv",
+		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
 	params:
 		samples=SAMPLES,
 		contig_dir=dirs_dict["ASSEMBLY_DIR"],
@@ -186,6 +182,7 @@ rule get_list_filtered_vOTUs:
 		mapping_dir=dirs_dict['MAPPING_DIR'],
 		subassembly=SUBASSEMBLY,
 		cross_assembly=CROSS_ASSEMBLY,
+		min_votu_len=config['min_votu_length']
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
 	notebook:
