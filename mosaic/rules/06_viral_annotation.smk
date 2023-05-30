@@ -624,12 +624,14 @@ rule hh_annotation:
 	message:
 		"Annotating proteins with hhpred"
 	params:
-		uniref="/home/lmf/db/hh-suite/UniRef30_2020_06",
+		context="/home/lmf/db/hh-suite/context_data.crf",
 		pdb_70="/home/lmf/db/hh-suite/pdb70",
-		pfam="/opt/hh-suite/data/pfam",
-		scop70_1="/opt/hh-suite/data/scop70_1.75",
+		pfam="/home/lmf/db/hh-suite/pfam",
+		# scop70_1="/opt/hh-suite/data/scop70_1.75",
 		NCBI_CD="/home/lmf/db/hh-suite/NCBI_CD",
-		context="/opt/hh-suite/data/context_data.crf",
+		uniref="/home/lmf/db/hh-suite/UniRef30_2022_02",
+		phrogs="/home/lmf/db/hh-suite/phrogs_v4",
+		metaclust="/home/lmf/db/hh-suite/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
 		maxres=32000,
 	threads: 4
 	shell:
@@ -637,7 +639,8 @@ rule hh_annotation:
 		perl ./scripts/reformat.pl fas a2m {input.fa} {output.a2m}
 		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
 		    		            -norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
-		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.scop70_1}  -d {params.NCBI_CD}  \
+		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
+									-d {params.uniref} -d {params.phrogs} -d {params.metaclust} \
 		    		            -o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
 		    		            -norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
 		grep "^  [0-9] " {output.hhr} > {output.txt}
