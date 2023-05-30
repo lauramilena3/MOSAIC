@@ -18,7 +18,6 @@ rule mapReadsToContigsPE:
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}_{ambiguous}.txt",
 		rpkm=dirs_dict["MAPPING_DIR"]+ "/bbmap_rpkm_{sample}.{sampling}_{ambiguous}.txt",
 	params:
-		ambiguous={ambiguous},
 	message:
 		"Mapping reads to contigs"
 	conda:
@@ -32,7 +31,7 @@ rule mapReadsToContigsPE:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
 			out={output.sam} threads={threads} covhist={output.covhist} basecov={output.basecov} statsfile={output.flagstats}\
-			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous={params.ambiguous} slow=t physcov=t maxindel=100
+			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous={wildcards.ambiguous} slow=t physcov=t maxindel=100
 		pileup.sh in={output.sam} out={output.covstats} rpkm={output.rpkm} secondary=t ref={input.filtered_representatives} threads={threads} 32bit=t
 		"""
 
