@@ -168,6 +168,7 @@ rule viralID_parsing:
 		viral_dir=dirs_dict['VIRAL_DIR'],
 		subassembly=SUBASSEMBLY,
 		cross_assembly=CROSS_ASSEMBLY,
+		long_assembler=LONG_ASSEMBLER
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID_{sampling}.ipynb"
 	notebook:
