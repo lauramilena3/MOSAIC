@@ -18,7 +18,7 @@ rule mapReadsToContigsPE:
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}_{ambiguous}.txt",
 		rpkm=dirs_dict["MAPPING_DIR"]+ "/bbmap_rpkm_{sample}.{sampling}_{ambiguous}.txt",
 	params:
-		ambiguous=wildcards.ambiguous,
+		ambiguous={ambiguous},
 	message:
 		"Mapping reads to contigs"
 	conda:
