@@ -89,7 +89,7 @@ rule stat_mapReadsToAssembly:
 		mem_mb=12000
 	shell:
 		"""
-		bbmap.sh -Xmx{resources.mem_mb}m ref={input.unfiltered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
+		bbmap.sh -Xmx{resources.mem_mb}m ref={input.scaffolds} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
 			covstats={output.covstats} scafstats={output.scafstats} statsfile={output.flagstats}\
 			minid=0.95 ambiguous={params.ambiguous} outm={output.sam} threads={threads} 
 		"""
@@ -120,7 +120,7 @@ rule stat_mapReadsToViral:
 		mem_mb=12000
 	shell:
 		"""
-		bbmap.sh -Xmx{resources.mem_mb}m ref={input.unfiltered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
+		bbmap.sh -Xmx{resources.mem_mb}m ref={input.positive_contigs} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
 			covstats={output.covstats} scafstats={output.scafstats} statsfile={output.flagstats}\
 			minid=0.95 ambiguous={params.ambiguous} outm={output.sam} threads={threads} 
 		"""
