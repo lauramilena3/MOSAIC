@@ -65,8 +65,8 @@ rule mapReadsToContigsPE_toss:
 
 rule get_norm_RPKM:
 	input:
-		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
-		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
+		covstats_all=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
+		covstats_toss=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
 	output:
 		nnorm_RPKM=dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt",
 	params:
@@ -80,7 +80,7 @@ rule get_norm_RPKM:
 	threads: 1
 	shell:
 		"""
-		perl ./scripts/Make-vOTU-RPKM-Norm.pl {input.toss} {input.all} {output.rpkm}
+		perl ./scripts/Make-vOTU-RPKM-Norm.pl {input.covstats_toss} {input.covstats_all} {output.rpkm}
 		"""
 
 rule stat_mapReadsToAssembly:
