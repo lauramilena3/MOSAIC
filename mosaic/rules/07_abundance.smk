@@ -1,6 +1,6 @@
 #ruleorder: mapReadsToContigsPE > mapReadsToContigsSE
 
-def input_sam_temp(wildcards):
+def output_sam_temp(wildcards):
 	sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam",
 	if wildcards.ambiguous=="toss":
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam"),
@@ -13,7 +13,7 @@ rule mapReadsToContigsPE:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
 	output:
-		sam=input_sam_temp,
+		sam=output_sam_temp,
 		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_{ambiguous}.txt",
 		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_{ambiguous}.txt",
 		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_{ambiguous}.txt",
