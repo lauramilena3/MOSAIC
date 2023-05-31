@@ -63,6 +63,26 @@ rule mapReadsToContigsPE_toss:
 		pileup.sh in={output.sam} out={output.covstats} rpkm={output.rpkm} secondary=t ref={input.filtered_representatives} threads={threads} 32bit=t
 		"""
 
+rule get_norm_RPKM:
+	input:
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
+	output:
+		nnorm_RPKM=dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt",
+	params:
+		ambiguous=config['ambiguous_mapping'],
+	message:
+		"Calculating normalised RPKM"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/normalise_RPKM/{sample}_{sampling}.tsv"
+	threads: 1
+	shell:
+		"""
+		perl ./scripts/Make-vOTU-RPKM-Norm.pl {input.toss} {input.all} {output.rpkm}
+		"""
+
 rule stat_mapReadsToAssembly:
 	input:
 		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),

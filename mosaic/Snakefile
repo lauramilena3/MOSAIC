@@ -274,6 +274,7 @@ def inputvOTUClustering(wildcards):
 def inputAbundance(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_{ambiguous}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, ambiguous=["all", "toss"])),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	if ASSEMLY_STATS:
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
