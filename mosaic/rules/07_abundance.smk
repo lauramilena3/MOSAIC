@@ -6,7 +6,7 @@ rule mapReadsToContigsPE_all:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
 	output:
-		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_all.sam",,
+		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_all.sam",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
 		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_all.txt",
 		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_all.txt",
@@ -38,7 +38,7 @@ rule mapReadsToContigsPE_toss:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
 	output:
-		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_toss.sam",,
+		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_toss.sam",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
 		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_toss.txt",
 		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_toss.txt",
