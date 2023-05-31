@@ -1,35 +1,60 @@
 #ruleorder: mapReadsToContigsPE > mapReadsToContigsSE
-
-def output_sam_temp(wildcards):
-	sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam",
-	if wildcards.ambiguous=="toss":
-		sam=temp(dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam"),
-	return sam 
-
-rule mapReadsToContigsPE:
+rule mapReadsToContigsPE_all:
 	input:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
 	output:
-		sam=output_sam_temp,
-		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_{ambiguous}.txt",
-		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_{ambiguous}.txt",
-		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_{ambiguous}.txt",
-		scafstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_scafstats_{sample}.{sampling}_{ambiguous}.txt",
-		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}_{ambiguous}.txt",
-		rpkm=dirs_dict["MAPPING_DIR"]+ "/bbmap_rpkm_{sample}.{sampling}_{ambiguous}.txt",
+		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_all.sam",,
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
+		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_all.txt",
+		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_all.txt",
+		scafstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_scafstats_{sample}.{sampling}_all.txt",
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}_all.txt",
+		rpkm=dirs_dict["MAPPING_DIR"]+ "/bbmap_rpkm_{sample}.{sampling}_all.txt",
 	params:
 	message:
 		"Mapping reads to contigs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_{ambiguous}.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_all.tsv"
 	threads: 16
 	resources:
-		mem_mb=64000
+		mem_mb=32000
+	shell:
+		"""
+		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
+			outm={output.sam} threads={threads} covhist={output.covhist} statsfile={output.flagstats}\
+			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous={wildcards.ambiguous} slow=t physcov=t maxindel=100
+		pileup.sh in={output.sam} out={output.covstats} rpkm={output.rpkm} secondary=t ref={input.filtered_representatives} threads={threads} 32bit=t
+		"""
+
+rule mapReadsToContigsPE_toss:
+	input:
+		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
+	output:
+		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_toss.sam",,
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
+		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_toss.txt",
+		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_toss.txt",
+		scafstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_scafstats_{sample}.{sampling}_toss.txt",
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}_toss.txt",
+		rpkm=dirs_dict["MAPPING_DIR"]+ "/bbmap_rpkm_{sample}.{sampling}_toss.txt",
+	params:
+	message:
+		"Mapping reads to contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_toss.tsv"
+	threads: 16
+	resources:
+		mem_mb=32000
 	shell:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
