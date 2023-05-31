@@ -26,7 +26,7 @@ rule mapReadsToContigsPE:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_{ambiguous}.tsv"
 	threads: 16
 	resources:
-		mem_mb=24000
+		mem_mb=32000
 	shell:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
@@ -78,47 +78,47 @@ rule mapReadsToContigsPE:
 # 		samtools index {output.bam_sorted}
 # 		samtools flagstat {output.bam} > {output.flagstats}
 # 		"""
-rule mapReadsToContigsPE_toss:
-	input:
-		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
-		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
-	output:
-		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}.sam",
-		bam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}.bam",
-		bam_sorted=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}_sorted.{sampling}.bam",
-		bam_indexed=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}_sorted.{sampling}.bam.bai",
-		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt",
-		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}.txt",
-		basecov=dirs_dict["MAPPING_DIR"]+ "/bbmap_basecov_{sample}.{sampling}.txt",
-		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}.txt",
-		scafstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_scafstats_{sample}.{sampling}.txt",
-		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}.txt",
-	params:
-		ambiguous=config['ambiguous_mapping'],
-	log:
-		checkMoutdir=(dirs_dict["MAPPING_DIR"] + "/{sample}_bbmap_{sampling}_log.txt"),
-	message:
-		"Mapping reads to contigs"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}.tsv"
-	threads: 16
-	resources:
-		mem_mb=24000
-	shell:
-		"""
-		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
-		outm={output.sam} threads={threads} covstats={output.covstats} covhist={output.covhist} basecov={output.basecov} \
-		bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous=toss 2>&1 > {log}
-		#Sam to Bam
-		samtools view -b -S {output.sam} > {output.bam}
-		samtools sort {output.bam} -o {output.bam_sorted}
-		samtools index {output.bam_sorted}
-		samtools flagstat {output.bam} > {output.flagstats}
-		"""
+# rule mapReadsToContigsPE_toss:
+# 	input:
+# 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+# 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
+# 	output:
+# 		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}.sam",
+# 		bam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}.bam",
+# 		bam_sorted=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}_sorted.{sampling}.bam",
+# 		bam_indexed=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}_sorted.{sampling}.bam.bai",
+# 		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt",
+# 		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}.txt",
+# 		basecov=dirs_dict["MAPPING_DIR"]+ "/bbmap_basecov_{sample}.{sampling}.txt",
+# 		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}.txt",
+# 		scafstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_scafstats_{sample}.{sampling}.txt",
+# 		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}.txt",
+# 	params:
+# 		ambiguous=config['ambiguous_mapping'],
+# 	log:
+# 		checkMoutdir=(dirs_dict["MAPPING_DIR"] + "/{sample}_bbmap_{sampling}_log.txt"),
+# 	message:
+# 		"Mapping reads to contigs"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}.tsv"
+# 	threads: 16
+# 	resources:
+# 		mem_mb=24000
+# 	shell:
+# 		"""
+# 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
+# 		outm={output.sam} threads={threads} covstats={output.covstats} covhist={output.covhist} basecov={output.basecov} \
+# 		bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous=toss 2>&1 > {log}
+# 		#Sam to Bam
+# 		samtools view -b -S {output.sam} > {output.bam}
+# 		samtools sort {output.bam} -o {output.bam_sorted}
+# 		samtools index {output.bam_sorted}
+# 		samtools flagstat {output.bam} > {output.flagstats}
+# 		"""
 
 rule stat_mapReadsToAssembly:
 	input:
