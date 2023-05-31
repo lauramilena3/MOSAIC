@@ -27,7 +27,7 @@ rule mapReadsToContigsPE_all:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
 			outm={output.sam} threads={threads} covhist={output.covhist} statsfile={output.flagstats}\
-			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous={wildcards.ambiguous} slow=t physcov=t maxindel=100
+			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous=all slow=t physcov=t maxindel=100
 		pileup.sh in={output.sam} out={output.covstats} rpkm={output.rpkm} secondary=t ref={input.filtered_representatives} threads={threads} 32bit=t
 		"""
 
@@ -59,7 +59,7 @@ rule mapReadsToContigsPE_toss:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
 			outm={output.sam} threads={threads} covhist={output.covhist} statsfile={output.flagstats}\
-			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous={wildcards.ambiguous} slow=t physcov=t maxindel=100
+			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous=toss slow=t physcov=t maxindel=100
 		pileup.sh in={output.sam} out={output.covstats} rpkm={output.rpkm} secondary=t ref={input.filtered_representatives} threads={threads} 32bit=t
 		"""
 
