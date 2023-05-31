@@ -1,4 +1,11 @@
 #ruleorder: mapReadsToContigsPE > mapReadsToContigsSE
+
+def input_sam_temp(wildcards):
+	sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam",
+	if wildcards.ambiguous=="toss":
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam"),
+	return sam 
+
 rule mapReadsToContigsPE:
 	input:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
@@ -6,13 +13,9 @@ rule mapReadsToContigsPE:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
 	output:
-		sam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}_{ambiguous}.sam",
-		# bam=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}.{sampling}.bam",
-		# bam_sorted=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}_sorted.{sampling}.bam",
-		# bam_indexed=dirs_dict["MAPPING_DIR"]+ "/bbmap_{sample}_sorted.{sampling}.bam.bai",
+		sam=input_sam_temp,
 		covstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_{ambiguous}.txt",
 		covhist=dirs_dict["MAPPING_DIR"]+ "/bbmap_covhist_{sample}.{sampling}_{ambiguous}.txt",
-		basecov=dirs_dict["MAPPING_DIR"]+ "/bbmap_basecov_{sample}.{sampling}_{ambiguous}.txt",
 		bincov=dirs_dict["MAPPING_DIR"]+ "/bbmap_bincov_{sample}.{sampling}_{ambiguous}.txt",
 		scafstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_scafstats_{sample}.{sampling}_{ambiguous}.txt",
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/bbmap_flagstats_{sample}.{sampling}_{ambiguous}.txt",
@@ -30,11 +33,11 @@ rule mapReadsToContigsPE:
 	shell:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
-			outm={output.sam} threads={threads} covhist={output.covhist} basecov={output.basecov} statsfile={output.flagstats}\
+			outm={output.sam} threads={threads} covhist={output.covhist} statsfile={output.flagstats}\
 			bincov={output.bincov} scafstats={output.scafstats} minid=0.95 ambiguous={wildcards.ambiguous} slow=t physcov=t maxindel=100
 		pileup.sh in={output.sam} out={output.covstats} rpkm={output.rpkm} secondary=t ref={input.filtered_representatives} threads={threads} 32bit=t
 		"""
-		
+
 rule stat_mapReadsToAssembly:
 	input:
 		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
