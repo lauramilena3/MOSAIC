@@ -154,39 +154,40 @@ if VCONTACT:
 
 def inputAnnotation(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample=SAMPLES))
-	inputs.append(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/quality_summary.tsv")
 	inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
-	# inputs.extend((expand(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",sampling=SAMPLING_TYPE_TOT)))
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/bbmap_{sample}.{sampling}.sam", sampling=SAMPLING_TYPE, sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_summary.{sampling}.txt",sampling=SAMPLING_TYPE_TOT))
-	# inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv")
+	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv")
 	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
-	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
+	inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv")
+	if VCONTACT:
+		inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
+	if IMGVR_blast:
+		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
+	# if TOMBO:
+	# 	inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
+	# if NANOPORE:
+	# 	inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES))
 
+
+	# inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample=SAMPLES))
+	# inputs.append(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/quality_summary.tsv")
+	# inputs.extend((expand(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",sampling=SAMPLING_TYPE_TOT)))
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/bbmap_{sample}.{sampling}.sam", sampling=SAMPLING_TYPE, sample=SAMPLES))
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_summary.{sampling}.txt",sampling=SAMPLING_TYPE_TOT))
+	# inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv")
 	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_DB.{sampling}.txt", sampling=SAMPLING_TYPE))
 	# inputs.append(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.gbk")
 	# inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.html",sampling=SAMPLING_TYPE_TOT))
 	# inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tbl",sampling=SAMPLING_TYPE_TOT))
 	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES))
 	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_json.{sampling}.biom", sampling=SAMPLING_TYPE, confidence=CONFIDENCE_TYPES))
-	#inputs.append(dirs_dict["ANNOTATION"] + "/summary_information.tot.csv")
-	#inputs.append(dirs_dict["ANNOTATION"] + "/viga_log_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.txt"),
-	#inputs.extend(expand(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.csv",sampling=SAMPLING_TYPE))
+	# inputs.append(dirs_dict["ANNOTATION"] + "/summary_information.tot.csv")
+	# inputs.append(dirs_dict["ANNOTATION"] + "/viga_log_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.txt"),
+	# inputs.extend(expand(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.csv",sampling=SAMPLING_TYPE))
 	# inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
 	# inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv", sampling=SAMPLING_TYPE_TOT))
-	if NANOPORE:
-		inputs.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES))
 
-	if VCONTACT:
-		inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
-
-	if IMGVR_blast:
-		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
-	if TOMBO:
-		inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
 	return inputs
 
 def inputReadsCount(wildcards):
@@ -270,10 +271,19 @@ def inputvOTUClustering(wildcards):
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_unfiltered.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	return inputs
 
-def inputAnnotation(wildcards):
+def inputAbundance(wildcards):
 	inputs=[]
-	inputs.append(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_tot"),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_{ambiguous}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, ambiguous=["all", "toss"])),
+	if ASSEMLY_STATS:
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_unfiltered.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	return inputs
+
+# def inputAnnotation(wildcards):
+# 	inputs=[]
+# 	inputs.append(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_tot"),
+# 	return inputs
 
 rule all:
 	input:
@@ -308,7 +318,12 @@ rule runvOTUClustering:
 		inputViralID,
 		inputvOTUClustering,
 
-rule runvAnnotation:
+rule runAbundance:
+		inputReadsCount,
+		inputQC,
+		inputAbundance, 
+
+rule runAnnotation:
 	input:
 		inputReadsCount,
 		inputQC,
