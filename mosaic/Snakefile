@@ -319,6 +319,7 @@ rule runvOTUClustering:
 		inputvOTUClustering,
 
 rule runAbundance:
+	input:
 		inputReadsCount,
 		inputQC,
 		inputAbundance, 
