@@ -68,7 +68,7 @@ rule get_norm_RPKM:
 		covstats_all=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
 		covstats_toss=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
 	output:
-		nnorm_RPKM=dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt",
+		rpkm=dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt",
 	params:
 		ambiguous=config['ambiguous_mapping'],
 	message:
