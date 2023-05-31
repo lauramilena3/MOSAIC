@@ -26,7 +26,7 @@ rule mapReadsToContigsPE:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_{ambiguous}.tsv"
 	threads: 16
 	resources:
-		mem_mb=32000
+		mem_mb=48000
 	shell:
 		"""
 		bbmap.sh -Xmx{resources.mem_mb}m ref={input.filtered_representatives} nodisk in1={input.forward_paired} in2={input.reverse_paired}  \
