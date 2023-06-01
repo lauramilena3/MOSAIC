@@ -231,3 +231,21 @@ rule PhaGCNTaxonomy:
 		python run_Speed_up.py --contigs {input.filtered_representatives} --len 2000 --threads {threads}
 		mv {params.taxonomy_table_temp} {output.taxonomy_table}
 	 	"""
+
+rule hostID_iphop:
+	input:
+		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		iphop_db=(config['iphop_db']),
+	output:
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir"),
+	message:
+		"Host finding with iphop"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/iphop/tot.tsv"
+	threads: 64
+	shell:
+		"""
+		iphop predict --fa_file {input.representatives} --db_dir {input.iphop_db}/Sept_2021_pub --out_dir {output.results_dir} --num_threads {threads}
+		"""
