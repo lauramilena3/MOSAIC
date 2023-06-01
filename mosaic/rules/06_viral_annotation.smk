@@ -280,9 +280,9 @@ rule cluster_proteins_viga:
 
 rule cluster_proteins:
 	input:
-		faa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.tot.faa",
+		faa=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.tot.faa",
 	output:
-		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+		mmseqs_out=(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	# benchmark:
