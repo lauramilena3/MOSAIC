@@ -257,9 +257,30 @@ rule annotate_BLAST:
 		-outfmt "6 qseqid sseqid stitle qstart qend qlen slen qcovs evalue length"  > {output.blast_output}
 		"""
 
-rule cluster_proteins:
+rule cluster_proteins_viga:
 	input:
 		faa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_viga_ORFs.tot.faa",
+	output:
+		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_viga_cluster.tsv"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	# benchmark:
+	# 	dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{sampling}.tsv"
+	message:
+		"Clustering proteins with mmseqs"
+	params:
+		rep_name=REPRESENTATIVE_CONTIGS_BASE + "_viga",
+		dir=dirs_dict["ANNOTATION"],
+	threads: 16
+	shell:
+		"""
+		cd {params.dir}
+		mmseqs easy-cluster {input.faa} {params.rep_name} tmp
+		"""
+
+rule cluster_proteins:
+	input:
+		faa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.tot.faa",
 	output:
 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 	conda:
@@ -573,7 +594,7 @@ rule gbk_to_faa:
 
 checkpoint split_multi_fasta:
 	input:
-		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_viga_cluster.tsv"),
 	output:
 		faa_dir=directory(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/"),
 	conda:
@@ -657,7 +678,7 @@ rule merge_annotations:
 		blast_output=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv"),
 		hhr=aggregate_input_annotation,
 		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.csv",
-		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_viga_cluster.tsv"),
 	output:
 		annotation_table=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotation_table_merged.csv",
 		annotation_table_hhpred=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotation_table_hhpred.csv",
