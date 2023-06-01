@@ -270,11 +270,11 @@ rule cluster_proteins_viga:
 		"Clustering proteins with mmseqs"
 	params:
 		rep_name=REPRESENTATIVE_CONTIGS_BASE + "_viga",
-		dir=dirs_dict["ANNOTATION"],
+		dir_mmseqs=dirs_dict["ANNOTATION"],
 	threads: 16
 	shell:
 		"""
-		cd {params.dir}
+		cd {params.dir_mmseqs}
 		mmseqs easy-cluster {input.faa} {params.rep_name} tmp
 		"""
 
@@ -291,11 +291,11 @@ rule cluster_proteins:
 		"Clustering proteins with mmseqs"
 	params:
 		rep_name=REPRESENTATIVE_CONTIGS_BASE,
-		dir=dirs_dict["ANNOTATION"],
+		dir_mmseqs=dirs_dict["vOUT_DIR"],
 	threads: 16
 	shell:
 		"""
-		cd {params.dir}
+		cd {params.dir_mmseqs}
 		mmseqs easy-cluster {input.faa} {params.rep_name} tmp
 		"""
 
