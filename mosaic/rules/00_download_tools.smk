@@ -242,7 +242,7 @@ rule downloadIphopDB:
 		"""
 		mkdir {output.iphop_db} || true
 		cd {output.iphop_db}
-		wget https://portal.nersc.gov/cfs/m342/iphop/db/iPHoP_db_Sept21.tar.gz
+		wget https://portal.nersc.gov/cfs/m342/iphop/db/iPHoP_db_Sept21_rw.tar.gz
 		tar xzvf iPHoP_db_Sept21.tar.gz
 		"""
 

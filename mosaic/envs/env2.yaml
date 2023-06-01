@@ -3,4 +3,4 @@ channels:
   - bioconda
   - anaconda
 dependencies:
-  - iphop =1.3.0
+  - iphop =1.3.1
