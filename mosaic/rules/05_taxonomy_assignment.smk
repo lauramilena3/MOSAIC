@@ -69,14 +69,14 @@ rule clusterTaxonomy:
 		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/gene-to-genome.30May2020.csv")),
 		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/vcontact_format_30May2020.faa")),
 	output:
-		gene2genome=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
-		merged_gene2genome=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
-		merged_ORFs=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_merged.{sampling}.fasta",
-		genome_file=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv",
-		viral_cluster_overview=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
+		gene2genome=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
+		merged_gene2genome=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
+		merged_ORFs=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_merged.{sampling}.fasta",
+		genome_file=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv",
+		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
 	params:
 		vcontact_dir=config["vcontact_dir"],
-		out_dir=directory(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}"),
+		out_dir=directory(dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}"),
 		reference_genomes=config["reference_genomes_vcontact"],
 		#reference_genomes='ProkaryoticViralRefSeq94-Merged'
 	message:
@@ -100,10 +100,10 @@ rule clusterTaxonomy:
 
 rule parseVcontact:
 	input:
-		viral_cluster_overview=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
+		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
 		formatting_taxonomy_affiliations=config["taxonomy_file"],
 	output:
-		taxonomy_results=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv",
+		taxonomy_results=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv",
 	message:
 		"Assigning viral taxonomy with vContact2 results"
 	benchmark:
@@ -212,7 +212,7 @@ rule PhaGCNTaxonomy:
 		PhaGCN_newICTV_dir=config['PhaGCN_newICTV_dir'],
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
-		taxonomy_table=dirs_dict["vOUT_DIR"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",
+		taxonomy_table=dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",
 	message:
 		"Taxonomy Assignment with PhaGCN"
 	conda:
