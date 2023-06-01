@@ -168,7 +168,7 @@ rule get_relatives_list:
 	input:
 		blast_output=dirs_dict["ANNOTATION"] + "/isolates_blast_{db}.{sampling}.csv",
 		isolate_len_file=dirs_dict["vOUT_DIR"]+ "/filtered_isolates_ORFs_length.{sampling}.txt",
-		isolate_coding=dirs_dict["vOUT_DIR"]+ "/filtered_isolates_ORFs_coding_lengths.{sampling}.txt",
+		isolate_coding=dirs_dict["ANNOTATION"]+ "/filtered_isolates_ORFs_coding_lengths.{sampling}.txt",
 		reference_len_file=inputDatabaseLen,
 		reference_coding=inputDatabaseCoding,
 	output:
