@@ -46,8 +46,8 @@ rule buildBowtieDB_assembly:
 rule stat_mapReadsToAssembly:
 	input:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.1.bt2",
-		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.bam"),
@@ -71,7 +71,7 @@ rule stat_mapReadsToAssembly:
 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
 		samtools index {output.sorted_bam}
-		samtools flagstat {output.sorted_bam} > {output.flagstat}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		"""
@@ -98,8 +98,8 @@ rule buildBowtieDB_viral:
 rule stat_mapReadsToViral:
 	input:
 		contigs_bt2=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.1.bt2",
-		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_viral_contigs_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_viral_contigs_{sampling}.bam"),
@@ -123,7 +123,7 @@ rule stat_mapReadsToViral:
 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
 		samtools index {output.sorted_bam}
-		samtools flagstat {output.sorted_bam} > {output.flagstat}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		"""
@@ -150,8 +150,8 @@ rule buildBowtieDB_unfiltered:
 rule stat_mapReadsToUnfiltered:
 	input:
 		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.1.bt2",
-		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_2M_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_unfiltered_contigs_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_unfiltered_contigs_{sampling}.bam"),
@@ -175,7 +175,7 @@ rule stat_mapReadsToUnfiltered:
 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
 		samtools index {output.sorted_bam}
-		samtools flagstat {output.sorted_bam} > {output.flagstat}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		"""
@@ -236,7 +236,7 @@ rule mapReadsToContigsPE:
 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
 		samtools index {output.sorted_bam}
-		samtools flagstat {output.sorted_bam} > {output.flagstat}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
