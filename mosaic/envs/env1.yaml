@@ -32,3 +32,4 @@ dependencies:
   - canu =2.0
   - biopython =1.79
   - spacepharer =5.c2e680a
+  - coverm =0.6.1

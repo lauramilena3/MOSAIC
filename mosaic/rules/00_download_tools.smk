@@ -244,6 +244,7 @@ rule downloadIphopDB:
 		cd {output.iphop_db}
 		wget https://portal.nersc.gov/cfs/m342/iphop/db/iPHoP_db_Sept21_rw.tar.gz
 		tar xzvf iPHoP_db_Sept21_rw.tar.gz
+		rm iPHoP_db_Sept21_rw.tar.gz
 		"""
 
 rule downloadDRAMDB:
