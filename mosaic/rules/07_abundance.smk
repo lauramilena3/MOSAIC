@@ -212,6 +212,7 @@ rule mapReadsToContigsPE:
 		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_{sample}_.{sampling}.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.{sampling}.txt",
+		flagstats_unique=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.{sampling}.txt",
 		unique_sam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_unique.sam"),
 		unique_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_unique.bam"),
 		unique_sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_unique_sorted.bam"),
@@ -243,7 +244,7 @@ rule mapReadsToContigsPE:
 		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
 		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
 		samtools index {output.unique_sorted_bam}
-		samtools flagstat {output.unique_bam}
+		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
 		#genomecov
 		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
 		bedtools genomecov -dz -ibam {output.unique_sorted_bam}> {output.unique_basecov}
