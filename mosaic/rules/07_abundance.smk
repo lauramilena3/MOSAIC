@@ -249,8 +249,8 @@ rule mapReadsToContigsPE:
 		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
 		bedtools genomecov -dz -ibam {output.unique_sorted_bam}> {output.unique_basecov}
 		#covstats
-		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.basecov}
-		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.unique_basecov}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
 # rule mapReadsToContigsPE_toss:
