@@ -268,10 +268,10 @@ def inputvOTUClustering(wildcards):
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
 	if ASSEMLY_STATS:
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_{ambiguous}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, ambiguous=["all", "toss"])),
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bbmap_covstats_{sample}_stat_unfiltered.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	return inputs
 
 def inputAbundance(wildcards):
