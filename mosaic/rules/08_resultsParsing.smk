@@ -173,3 +173,22 @@ rule viralID_parsing:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID_{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
+
+rule mapping_statistics_parsing:
+	input:
+		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
+		assembled_sequences=inputAssemblyContigs,
+	output:
+		mapping_stats_html=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html"),
+		filtered_viral_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.png"),
+		filtered_viral_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.svg"),
+		filtered_unfiltered_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.png"),
+		filtered_unfiltered_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.svg"),
+	params:
+		samples=SAMPLES,
+		mapping_dir=dirs_dict["MAPPING_DIR"],
+		sampling="{sampling}",
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/07_mapping_statistics.py.ipynb"
