@@ -189,6 +189,6 @@ rule mapping_statistics_parsing:
 		mapping_dir=dirs_dict["MAPPING_DIR"],
 		sampling="{sampling}",
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics{sampling}.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics_{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_mapping_statistics.py.ipynb"
