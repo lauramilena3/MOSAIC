@@ -292,7 +292,7 @@ rule mapReads_contaminants:
 		basecov=dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_basecov.txt",
 		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_unique_basecov.txt",
 	params:
-		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant},
+		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}",
 	message:
 		"Mapping reads to contigs"
 	conda:
