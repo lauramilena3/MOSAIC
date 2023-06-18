@@ -135,6 +135,9 @@ print(len(SAMPLES))
 print("Contaminants = ")
 print(*CONTAMINANTS, sep = ", ")
 
+print("Contaminants post= ")
+print(*CONTAMINANTS_LIST_POST, sep = ", ")
+
 print("Reference contigs = ")
 print(REPRESENTATIVE_CONTIGS_BASE)
 print(REPRESENTATIVE_CONTIGS_DIR)
