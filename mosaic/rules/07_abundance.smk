@@ -257,7 +257,7 @@ rule buildBowtieDB_contaminants:
 	output:
 		contigs_bt2=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}.1.bt2",
 	params:
-		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant},
+		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}",
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
