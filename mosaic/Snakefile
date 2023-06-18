@@ -116,7 +116,7 @@ dirs_dict = dict(zip(dir_list, dir_names))
 
 CONTAMINANTS_LIST_POST=[]
 if os.path.exists(dirs_dict["CONTAMINANTS_DIR_POST"]):
-	CONTAMINANTS_LIST_POST,=glob_wildcards(CONTAMINANTS_DIR_POST + "/{contaminant}_.fasta")
+	CONTAMINANTS_LIST_POST,=glob_wildcards(dirs_dict["CONTAMINANTS_DIR_POST"] + "/{contaminant}_.fasta")
 
 print("Input Dir = ")
 print(RAW_DATA_DIR)
