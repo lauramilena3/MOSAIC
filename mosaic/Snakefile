@@ -110,8 +110,8 @@ SAMPLING_TYPE_TOT=["tot"]
 
 REFERENCE_DATABASES=config["reference_databases"].split()
 
-dir_list = ["RULES_DIR","ENVS_DIR", "ADAPTERS_DIR", "RAW_NOTEBOOKS", "CONTAMINANTS_DIR","CONTAMINANTS_DIR_DB","RAW_DATA_DIR", "QC_DIR", "CLEAN_DATA_DIR", "ASSEMBLY_DIR", "VIRAL_DIR", "vOUT_DIR", "MAPPING_DIR", "MMSEQS", "ANNOTATION", "ASSEMBLY_TEST", "BENCHMARKS", "NOTEBOOKS_DIR", "PLOTS_DIR"]
-dir_names = ["rules", "../envs", "db/adapters", "../notebooks" , RESULTS_DIR + "/db/contaminants" , "db/contaminants" ,RAW_DATA_DIR, RESULTS_DIR + "/01_QC", RESULTS_DIR + "/02_CLEAN_DATA", RESULTS_DIR + "/03_CONTIGS", VIRAL_CONTIGS_DIR , REPRESENTATIVE_CONTIGS_DIR ,RESULTS_DIR + "/06_MAPPING", RESULTS_DIR + "/08_MMSEQS", RESULTS_DIR + "/07_ANNOTATION", RESULTS_DIR + "/08_ASSEMBLY_TEST", RESULTS_DIR + "/BENCHMARK", RESULTS_DIR + "/NOTEBOOKS" ,RESULTS_DIR + "/FIGURES_AND_TABLES"]
+dir_list = ["RULES_DIR","ENVS_DIR", "ADAPTERS_DIR", "RAW_NOTEBOOKS", "CONTAMINANTS_DIR","CONTAMINANTS_DIR_DB","CONTAMINANTS_DIR_POST","RAW_DATA_DIR", "QC_DIR", "CLEAN_DATA_DIR", "ASSEMBLY_DIR", "VIRAL_DIR", "vOUT_DIR", "MAPPING_DIR", "MMSEQS", "ANNOTATION", "ASSEMBLY_TEST", "BENCHMARKS", "NOTEBOOKS_DIR", "PLOTS_DIR"]
+dir_names = ["rules", "../envs", "db/adapters", "../notebooks" , RESULTS_DIR + "/db/contaminants" , "db/contaminants", "db/contaminants_post" ,RAW_DATA_DIR, RESULTS_DIR + "/01_QC", RESULTS_DIR + "/02_CLEAN_DATA", RESULTS_DIR + "/03_CONTIGS", VIRAL_CONTIGS_DIR , REPRESENTATIVE_CONTIGS_DIR ,RESULTS_DIR + "/06_MAPPING", RESULTS_DIR + "/08_MMSEQS", RESULTS_DIR + "/07_ANNOTATION", RESULTS_DIR + "/08_ASSEMBLY_TEST", RESULTS_DIR + "/BENCHMARK", RESULTS_DIR + "/NOTEBOOKS" ,RESULTS_DIR + "/FIGURES_AND_TABLES"]
 dirs_dict = dict(zip(dir_list, dir_names))
 
 
@@ -158,7 +158,7 @@ def inputAnnotation(wildcards):
 	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv")
-	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.csv"),
+	# inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.csv"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
 	
 	# inputs.append(dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
