@@ -261,7 +261,7 @@ rule buildBowtieDB_contaminants:
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sampling}_bowtie_contaminants.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{contaminant}_bowtie_contaminants.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	threads: 8
@@ -292,7 +292,7 @@ rule mapReads_contaminants:
 		basecov=dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_basecov.txt",
 		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_unique_basecov.txt",
 	params:
-		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}",
+		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{sample}_{contaminant}",
 	message:
 		"Mapping reads to contigs"
 	conda:
