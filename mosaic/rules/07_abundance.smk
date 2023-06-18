@@ -267,7 +267,7 @@ rule buildBowtieDB_contaminants:
 	threads: 8
 	shell:
 		"""
-		bowtie2-build {input.filtered_representatives} {params.prefix} --threads {threads}
+		bowtie2-build {input.contaminants} {params.prefix} --threads {threads}
 		"""
 
 rule mapReads_contaminants:
