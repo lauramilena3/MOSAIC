@@ -397,6 +397,25 @@ rule contaminants_KRAKEN_clean:
 			--output {output.kraken_output_paired} --report {output.kraken_report_paired}
 		"""
 
+rule read_classification_BRACKEN_pre:
+	input:
+		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv"),
+		kraken_db=(config['kraken_db']),
+		bracken_checkpoint="bracken_db_ckeckpoint.txt",
+	output:
+		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv",
+	message:
+		"Creating taxonomic reports with Bracken"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
+	shell:
+		"""
+		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t 4000 || true
+		touch {output.bracken_report_paired}
+		"""
+	
 rule read_classification_BRACKEN:
 	input:
 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv"),
