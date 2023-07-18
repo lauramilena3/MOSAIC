@@ -445,6 +445,7 @@ rule annotate_VIGA_contigs:
 		blastall=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
 
 rule annotate_VIGA_phage:
+	input:
 		GenBank_file=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.gbk",
 
 rule correct_start:
