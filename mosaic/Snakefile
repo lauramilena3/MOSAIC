@@ -444,6 +444,9 @@ rule annotate_VIGA_contigs:
 		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
 		blastall=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
 
+rule annotate_VIGA_phage:
+		GenBank_file=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.gbk",
+
 rule correct_start:
 	input:
 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
