@@ -30,8 +30,8 @@ rule subsampleReadsIllumina_PE_vOTU_mapping:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
-		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_forward_paired_clean.sub.fastq.gz"),
-		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_reverse_paired_clean.sub.fastq.gz"),
+		forward_paired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.sub.fastq.gz"),
+		reverse_paired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.sub.fastq.gz"),
 		viral_subsampling=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads_final.txt"),
 	message:
 		"Subsampling Illumina reads with BBtools"
