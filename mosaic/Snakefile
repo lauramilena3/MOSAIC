@@ -151,6 +151,9 @@ print(TOMBO)
 print("Nanopore samples= ")
 print(NANOPORE_SAMPLES)
 
+print("Sampling= ")
+print(SAMPLING_TYPE)
+
 if VCONTACT:
 	print("RUN VCONTACT= ")
 	print(VCONTACT)
