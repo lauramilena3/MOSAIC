@@ -175,7 +175,7 @@ rule annotate_VIGA:
 		modifiers=temp(dirs_dict["ANNOTATION"] + "/modifiers_{contigs}.txt"),
 		temp_symlink=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot.fasta_symlink"),
 		temp_viga_dir=temp(directory(dirs_dict["ANNOTATION"] + "/{contigs}_tempVIGA")),
-		GenBank_file=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.gbk",
+		GenBank_file=dirs_dict["ANNOTATION"] + "/{contigs}.tot_annotated.gbk",
 		GenBank_table_temp1=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.tbl"),
 		GenBank_table_temp2=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.tbl2"),
 		GenBank_table=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + ".tbl",
