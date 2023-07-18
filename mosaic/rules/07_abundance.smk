@@ -32,6 +32,7 @@ rule subsampleReadsIllumina_PE_vOTU_mapping:
 	output:
 		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_forward_paired_clean.sub.fastq.gz"),
 		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_reverse_paired_clean.sub.fastq.gz"),
+		viral_subsampling=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads_final.txt"),
 	message:
 		"Subsampling Illumina reads with BBtools"
 	conda:
@@ -43,6 +44,7 @@ rule subsampleReadsIllumina_PE_vOTU_mapping:
 		"""
 		reads=$(cat {input.viral_subsampling})
 		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads=$reads sampleseed=1
+		zgrep -c "^@" {output.forward_paired} > {output.size}
 		"""
 
 rule buildBowtieDB_assembly:
