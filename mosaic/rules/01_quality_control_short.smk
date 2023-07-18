@@ -545,42 +545,42 @@ rule postkrakenMultiQC:
 		"""
 
 
-rule subsampleReadsIllumina_PE:
-	input:
-		unpaired_sizes=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt", sample=SAMPLES),
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
-		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz"
-	output:
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.sub.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.sub.fastq.gz"),
-		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.sub.fastq.gz",
-	message:
-		"Subsampling Illumina reads with BBtools"
-	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE/{sample}.tsv"
-	params:
-		max_subsample=int(int(config['max_subsample'])/2),
-		files_unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/*_unpaired_clean.tot.txt",
-		files_paired=dirs_dict["CLEAN_DATA_DIR"] + "/*_paired_clean.tot.txt"
-	threads: 1
-	resources:
-		mem_mb=4000
-	shell:
-		"""
-		#paired
-		paired=$( cat {params.files_paired} | sort -n | head -1 )
-		p=$([ $paired -le {params.max_subsample} ] && echo "$paired" || echo {params.max_subsample})
-		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads=$p
-		#unpaired
-		unpaired_temp=$( cat {params.files_unpaired} | sort -n | head -1 )
-		un=$([ $unpaired_temp -le {params.max_subsample} ] && echo "$unpaired_temp" || echo {params.max_subsample})
-		reads_left=$(({params.max_subsample} - ($paired*2)))
-		unpaired=$([ $un -le $reads_left ] && echo "$un" || echo $reads_left )
-		reformat.sh in={input.unpaired} out={output.unpaired} reads=$unpaired
-		"""
+# rule subsampleReadsIllumina_PE:
+# 	input:
+# 		unpaired_sizes=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt", sample=SAMPLES),
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+# 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz"
+# 	output:
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.sub.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.sub.fastq.gz"),
+# 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.sub.fastq.gz",
+# 	message:
+# 		"Subsampling Illumina reads with BBtools"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE/{sample}.tsv"
+# 	params:
+# 		max_subsample=int(int(config['max_subsample'])/2),
+# 		files_unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/*_unpaired_clean.tot.txt",
+# 		files_paired=dirs_dict["CLEAN_DATA_DIR"] + "/*_paired_clean.tot.txt"
+# 	threads: 1
+# 	resources:
+# 		mem_mb=4000
+# 	shell:
+# 		"""
+# 		#paired
+# 		paired=$( cat {params.files_paired} | sort -n | head -1 )
+# 		p=$([ $paired -le {params.max_subsample} ] && echo "$paired" || echo {params.max_subsample})
+# 		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads=$p
+# 		#unpaired
+# 		unpaired_temp=$( cat {params.files_unpaired} | sort -n | head -1 )
+# 		un=$([ $unpaired_temp -le {params.max_subsample} ] && echo "$unpaired_temp" || echo {params.max_subsample})
+# 		reads_left=$(({params.max_subsample} - ($paired*2)))
+# 		unpaired=$([ $un -le $reads_left ] && echo "$un" || echo $reads_left )
+# 		reformat.sh in={input.unpaired} out={output.unpaired} reads=$unpaired
+# 		"""
 #
 # rule subsampleReadsIllumina_SE:
 # 	input:
