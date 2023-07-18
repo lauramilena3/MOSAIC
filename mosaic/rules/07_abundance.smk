@@ -37,7 +37,7 @@ rule subsampleReadsIllumina_PE_vOTU_mapping:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_vOTU_mapping/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_vOTU_mapping/{sample}.tsv"
 	threads: 1
 	shell:
 		"""
