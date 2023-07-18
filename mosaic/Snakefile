@@ -287,7 +287,7 @@ def inputvOTUClustering(wildcards):
 
 def inputAbundance(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	if ASSEMLY_STATS:
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT)),
@@ -453,7 +453,7 @@ rule correct_start:
 
 rule runVirSorter:
 	input:
-		expand(dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}/VIRSorter_global-phage-signal.csv", sampling=["tot"])
+		expand(dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}/VIRSorter_global-phage-signal.csv", sampling=SAMPLING_TYPE_TOT)
 
 rule runVcontact2:
 	input:
