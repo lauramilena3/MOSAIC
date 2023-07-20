@@ -64,7 +64,7 @@ rule getORFs_coding_length:
 
 rule clusterTaxonomy:
 	input:
-		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.fasta",
+		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa",
 		clusterONE_dir=config["clusterONE_dir"],
 		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/gene-to-genome.30May2020.csv")),
 		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/vcontact_format_30May2020.faa")),
