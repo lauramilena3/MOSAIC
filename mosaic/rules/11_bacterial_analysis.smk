@@ -49,7 +49,7 @@ rule derreplicate_microbial:
 		assembled_contigs=input_microbial_merge,
 	output:
 		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial.tot.fasta",
-		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		derreplicated_tmp=directory(dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_tmp"),
 	params:
 		rep_name="combined_microbial_derreplicated_tot_tmp",
@@ -66,13 +66,13 @@ rule derreplicate_microbial:
 		cat {input.assembled_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_assembly}
 		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} --threads {threads}
-		mv {params.rep_name_full} {output.derreplicated_positive_contigs}
+		mv {params.rep_name_full} {output.derreplicated_microbial_contigs}
 		"""
 
 
 rule buildBowtieDB_microbial:
 	input:
-		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.1.bt2",
 	params:
@@ -86,7 +86,7 @@ rule buildBowtieDB_microbial:
 	threads: 8
 	shell:
 		"""
-		bowtie2-build {input.derreplicated_positive_contigs} {params.prefix} --threads {threads}
+		bowtie2-build {input.derreplicated_microbial_contigs} {params.prefix} --threads {threads}
 		"""
 
 rule mapReadsToContigs_microbial:
@@ -143,7 +143,7 @@ rule mapReadsToContigs_microbial:
 
 rule bacterial_binning:
 	input:
-		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
 	output:
 		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
@@ -158,5 +158,5 @@ rule bacterial_binning:
 		"""
 		mkdir {output.metabat_outdir}
 		cd {output.metabat_outdir}
-		runMetaBat.sh {input.merged_assemblies} {input.sorted_bam}
+		runMetaBat.sh {input.derreplicated_microbial_contigs} {input.sorted_bam}
 		"""
