@@ -13,7 +13,7 @@ dependencies:
   - clusterone =1.0
   - medaka =1.6.0
   - hhsuite =3.3.0
-  - diamond =2.0.15
+  - diamond =2.1.8
   - scipy =1.6.0
   - mmseqs2 =14.7e284
   - mpfr =4.0.1
