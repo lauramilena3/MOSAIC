@@ -64,7 +64,7 @@ rule derreplicate_microbial:
 	shell:
 		"""
 		cat {input.assembled_contigs} > {output.combined_positive_contigs}
-		cd {params.dir_votu}
+		cd {params.dir_assembly}
 		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} --threads {threads}
 		mv {params.rep_name_full} {output.derreplicated_positive_contigs}
 		"""
