@@ -532,7 +532,7 @@ rule get_WTP:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	threads: 1
 	shell:
-		"""c
+		"""
 		mkdir -p tools
 		cd tools
 		mkdir {output.WTP_dir}
@@ -541,6 +541,23 @@ rule get_WTP:
 		nextflow run replikation/What_the_Phage -r v1.2.0 --setup -profile local,singularity --cachedir cache_dir
 		"""
 
+rule get_vcontact2:
+	output:
+		vcontact_dir=directory(os.path.join(workflow.basedir, config['vcontact_dir'])),
+	message:
+		"Downloading vConTACT"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	threads: 1
+	shell:
+		"""
+		mkdir -p tools
+		cd tools
+		mkdir {output.vcontact_dir}
+		cd {output.vcontact_dir}
+		wget https://bitbucket.org/MAVERICLab/vcontact2/src/master/vConTACT2.def
+		singularity build vConTACT2.sif vConTACT2.def
+		"""
 
 rule downloadDionSpacers:
 	output:
