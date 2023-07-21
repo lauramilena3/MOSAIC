@@ -74,9 +74,9 @@ rule buildBowtieDB_microbial:
 	input:
 		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
-		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.1.bt2",
+		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.tot.1.bt2",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot",
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.tot",
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
@@ -91,7 +91,7 @@ rule buildBowtieDB_microbial:
 
 rule mapReadsToContigs_microbial:
 	input:
-		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.{sampling}.1.bt2",
+		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.1.bt2",
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
