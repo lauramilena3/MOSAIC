@@ -31,18 +31,18 @@ def input_microbial_merge(wildcards):
 		input_list.append(config['additional_reference_contigs'])
 	return input_list
 
-rule merge_assembly:
-	input:
-		assembled_contigs=input_microbial_merge,
-	output:
-        combined_microbial=
-		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
-	message:
-		"Merging microbial assemblies"
-	shell:
-		"""
-		cat {input.assembled_contigs} > {output.merged_assemblies}
-		"""
+# rule merge_assembly:
+# 	input:
+# 		assembled_contigs=input_microbial_merge,
+# 	output:
+#         combined_microbial=
+# 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
+# 	message:
+# 		"Merging microbial assemblies"
+# 	shell:
+# 		"""
+# 		cat {input.assembled_contigs} > {output.merged_assemblies}
+# 		"""
 
 rule derreplicate_microbial:
 	input:
