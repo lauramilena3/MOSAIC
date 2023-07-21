@@ -68,6 +68,7 @@ rule clusterTaxonomy:
 		clusterONE_dir=config["clusterONE_dir"],
 		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/gene-to-genome.30May2020.csv")),
 		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/vcontact_format_30May2020.faa")),
+		vcontact_dir=config["vcontact_dir"],
 	output:
 		gene2genome=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
 		merged_gene2genome=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
@@ -75,24 +76,25 @@ rule clusterTaxonomy:
 		genome_file=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv",
 		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
 	params:
-		vcontact_dir=config["vcontact_dir"],
 		out_dir=directory(dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}"),
 		reference_genomes=config["reference_genomes_vcontact"],
 		#reference_genomes='ProkaryoticViralRefSeq94-Merged'
 	message:
 		"Clustering viral genomes with vContact2"
+	# conda:
+	# 	dirs_dict["ENVS_DIR"] + "/vir.yaml"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/clusterTaxonomy/{sampling}.tsv"
 	threads: 64
 	shell:
 		"""
-		vcontact2_gene2genome -p {input.aa} -s Prodigal-FAA -o {output.gene2genome}
+		singularity run vConTACT2.sif vcontact2_gene2genome -p {input.aa} -s Prodigal-FAA -o {output.gene2genome}
 		cat {output.gene2genome} {input.gene2genome_format_csv}  > {output.merged_gene2genome}
 		cat {input.aa} {input.vcontact_format_aa} > {output.merged_ORFs}
 		dos2unix {output.merged_gene2genome}
-		vcontact2 --raw-proteins {output.merged_ORFs} --rel-mode 'Diamond' --proteins-fp {output.merged_gene2genome} \
+		singularity run vConTACT2.sif vcontact2 --raw-proteins {output.merged_ORFs} --rel-mode 'Diamond' --proteins-fp {output.merged_gene2genome} \
 		--db {params.reference_genomes} --pcs-mode MCL --vcs-mode ClusterONE --c1-bin {input.clusterONE_dir}/cluster_one-1.0.jar \
 		--output-dir {params.out_dir} --threads {threads} -f
 		#|| true
