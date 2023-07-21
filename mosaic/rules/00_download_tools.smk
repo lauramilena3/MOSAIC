@@ -543,7 +543,7 @@ rule get_WTP:
 
 rule get_vcontact2:
 	output:
-		vcontact_dir=directory(os.path.join(workflow.basedir, config['vcontact_dir'])),
+		vcontact_dir=directory(config['vcontact_dir']),
 	message:
 		"Downloading vConTACT"
 	conda:
