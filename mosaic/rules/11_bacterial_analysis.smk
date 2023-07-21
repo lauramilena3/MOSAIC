@@ -60,14 +60,12 @@ rule derreplicate_microbial:
 		"Derreplicating assembled contigs with mmseqs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/contig_derreplication/{sampling}.tsv"
 	threads: 16
 	shell:
 		"""
 		cat {input.assembled_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_votu}
-		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
+		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} --threads {threads}
 		mv {params.rep_name_full} {output.derreplicated_positive_contigs}
 		"""
 
