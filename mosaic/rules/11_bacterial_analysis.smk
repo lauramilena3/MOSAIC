@@ -43,7 +43,7 @@ rule merge_assembly:
 		cat {input.assembled_contigs} > {output.merged_assemblies}
 		"""
 
-rule buildBowtieDB_filtered:
+rule buildBowtieDB_microbial:
 	input:
 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
 	output:
