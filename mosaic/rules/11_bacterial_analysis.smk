@@ -46,7 +46,7 @@ def input_microbial_merge(wildcards):
 
 rule derreplicate_microbial:
 	input:
-		assembled_contigs=input_vOTU_clustering,
+		assembled_contigs=input_microbial_merge,
 	output:
 		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial.tot.fasta",
 		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
