@@ -554,7 +554,7 @@ rule get_vcontact2:
 		mkdir -p {output.vcontact_dir}
 		cd {output.vcontact_dir}
 		wget https://bitbucket.org/MAVERICLab/vcontact2/src/master/vConTACT2.def
-		singularity build vConTACT2.sif vConTACT2.def
+		singularity build --fakeroot vConTACT2.sif vConTACT2.def 
 		"""
 
 rule downloadDionSpacers:
