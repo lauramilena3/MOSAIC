@@ -349,6 +349,10 @@ rule runAnnotation:
 		inputvOTUClustering,
 		inputAnnotation,
 
+rule microbial_binning:
+	input:
+		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+
 rule trimmomatic:
 	input:
 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt", sample=SAMPLES),
