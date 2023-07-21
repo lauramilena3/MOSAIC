@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - agbiome
+  - bioconda
+  - biobuilds
+dependencies:
+  - metabat2 =2.15
