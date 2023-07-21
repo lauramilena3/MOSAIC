@@ -275,7 +275,7 @@ rule cluster_proteins_viga:
 	shell:
 		"""
 		cd {params.dir_mmseqs}
-		mmseqs easy-cluster {input.faa} {params.rep_name} tmp
+		mmseqs easy-cluster {input.faa} {params.rep_name} tmp --threads {threads} 
 		"""
 
 rule cluster_proteins:
@@ -296,7 +296,7 @@ rule cluster_proteins:
 	shell:
 		"""
 		cd {params.dir_mmseqs}
-		mmseqs easy-cluster {input.faa} {params.rep_name} tmp
+		mmseqs easy-cluster {input.faa} {params.rep_name} tmp --threads {threads}
 		"""
 
 rule clinker_figure:
