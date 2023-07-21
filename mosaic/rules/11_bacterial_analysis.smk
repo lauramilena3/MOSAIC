@@ -86,7 +86,7 @@ rule buildBowtieDB_microbial:
 	threads: 8
 	shell:
 		"""
-		bowtie2-build {input.merged_assemblies} {params.prefix} --threads {threads}
+		bowtie2-build {input.derreplicated_positive_contigs} {params.prefix} --threads {threads}
 		"""
 
 rule mapReadsToContigs_microbial:
