@@ -62,7 +62,7 @@ rule buildBowtieDB_microbial:
 		bowtie2-build {input.merged_assemblies} {params.prefix} --threads {threads}
 		"""
 
-rule mapReadsToContigsPE:
+rule mapReadsToContigs_microbial:
 	input:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.{sampling}.1.bt2",
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
