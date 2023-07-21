@@ -24,7 +24,7 @@ rule estimateBacterialGenomeCompletness:
 		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
 
-def input_vOTU_clustering(wildcards):
+def input_microbial_merge(wildcards):
 	input_list=[]
 	input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES)),
 	if len(config['additional_reference_contigs'])>0:
@@ -33,8 +33,9 @@ def input_vOTU_clustering(wildcards):
 
 rule merge_assembly:
 	input:
-		assembled_contigs=input_vOTU_clustering,
+		assembled_contigs=input_microbial_merge,
 	output:
+        combined_microbial=
 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
 	message:
 		"Merging microbial assemblies"
@@ -43,9 +44,37 @@ rule merge_assembly:
 		cat {input.assembled_contigs} > {output.merged_assemblies}
 		"""
 
+rule derreplicate_microbial:
+	input:
+		assembled_contigs=input_vOTU_clustering,
+	output:
+		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial.tot.fasta",
+		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_tmp=directory(dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_tmp"),
+	params:
+		rep_name="combined_microbial_derreplicated_tot_tmp",
+		rep_name_full=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_rep_seq.fasta",
+		rep_temp="combined_microbial_derreplicated_tmp",
+		dir_assembly=dirs_dict["ASSEMBLY_DIR"],
+	message:
+		"Derreplicating assembled contigs with mmseqs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/contig_derreplication/{sampling}.tsv"
+	threads: 16
+	shell:
+		"""
+		cat {input.assembled_contigs} > {output.combined_positive_contigs}
+		cd {params.dir_votu}
+		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
+		mv {params.rep_name_full} {output.derreplicated_positive_contigs}
+		"""
+
+
 rule buildBowtieDB_microbial:
 	input:
-		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
+		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.1.bt2",
 	params:
@@ -116,7 +145,7 @@ rule mapReadsToContigs_microbial:
 
 rule bacterial_binning:
 	input:
-		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
+		derreplicated_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
 	output:
 		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
