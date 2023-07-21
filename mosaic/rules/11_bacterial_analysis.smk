@@ -1,39 +1,39 @@
 rule estimateBacterialGenomeCompletness:
-    input:
-        corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
-        checkm_db=(config['checkm_db']),
-    output:
-        checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
-        checkMoutdir=directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}"),
-    params:
-        checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
-    log:
-        checkMoutdir=(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_log"),
-    message:
-        "Estimating genome completeness with CheckM "
-    conda:
-        dirs_dict["ENVS_DIR"] + "/env5.yaml"
-    benchmark:
-        dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}_checkm.tsv"
-    threads: 4
-    shell:
-        """
-        mkdir {output.checkMoutdir_temp}
-        cp {input.corrected2_racon} {output.checkMoutdir_temp}
-        cd {output.checkMoutdir_temp}
-        checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
-        """
+	input:
+		corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		checkm_db=(config['checkm_db']),
+	output:
+		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
+		checkMoutdir=directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}"),
+	params:
+		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
+	log:
+		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_log"),
+	message:
+		"Estimating genome completeness with CheckM "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}_checkm.tsv"
+	threads: 4
+	shell:
+		"""
+		mkdir {output.checkMoutdir_temp}
+		cp {input.corrected2_racon} {output.checkMoutdir_temp}
+		cd {output.checkMoutdir_temp}
+		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		"""
 
 def input_vOTU_clustering(wildcards):
 	input_list=[]
-    input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES)),
+	input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES)),
 	if len(config['additional_reference_contigs'])>0:
 		input_list.append(config['additional_reference_contigs'])
 	return input_list
 
 rule merge_assembly:
 	input:
-		assembled_contigs=input_vOTU_clustering
+		assembled_contigs=input_vOTU_clustering,
 	output:
 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
 	message:
@@ -117,7 +117,7 @@ rule mapReadsToContigsPE:
 rule bacterial_binning:
 	input:
 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
-    	sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
+		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
 	output:
 		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
 	message:
@@ -129,7 +129,7 @@ rule bacterial_binning:
 	threads: 8
 	shell:
 		"""
-        mkdir {output.metabat_outdir}
-        cd {output.metabat_outdir}
-        runMetaBat.sh {input.merged_assemblies} {input.sorted_bam}
+		mkdir {output.metabat_outdir}
+		cd {output.metabat_outdir}
+		runMetaBat.sh {input.merged_assemblies} {input.sorted_bam}
 		"""
