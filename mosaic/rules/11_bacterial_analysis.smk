@@ -53,7 +53,7 @@ rule buildBowtieDB_microbial:
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sampling}_bowtie_microbial.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/bowtie_microbial.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	threads: 8
