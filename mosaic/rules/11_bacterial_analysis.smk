@@ -53,7 +53,7 @@ rule derreplicate_microbial:
 		derreplicated_tmp=directory(dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_tmp"),
 	params:
 		rep_name="combined_microbial_derreplicated_tot_tmp",
-		rep_name_full=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_rep_seq.fasta",
+		rep_name_full=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_tmp_rep_seq.fasta",
 		rep_temp="combined_microbial_derreplicated_tmp",
 		dir_assembly=dirs_dict["ASSEMBLY_DIR"],
 	message:
