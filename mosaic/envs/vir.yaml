@@ -10,14 +10,14 @@ dependencies:
   - blast =2.12.0
   - pandas=2.0.3
   # - numpy
-  - clusterone =1.0
+  # - clusterone =1.0
   - medaka =1.6.0
   - hhsuite =3.3.0
-  - diamond =2.1.8
+  - diamond 
   - scipy =1.6.0
   - mmseqs2 =14.7e284
-  - mpfr =4.0.1
-  - libopenblas =0.3.23
+  # - mpfr =4.0.1
+  # - libopenblas =0.3.23
   # - libicu-dev
   # - libgmp-dev
   # - libmpfr-dev
