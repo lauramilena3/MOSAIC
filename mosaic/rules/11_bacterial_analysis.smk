@@ -54,7 +54,7 @@ rule derreplicate_microbial:
 	params:
 		rep_name="combined_microbial_derreplicated_tot_tmp",
 		rep_name_full=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_tmp_rep_seq.fasta",
-		rep_temp="combined_microbial_derreplicated_tmp",
+		rep_temp="combined_microbial_derreplicated_tot_tmp",
 		dir_assembly=dirs_dict["ASSEMBLY_DIR"],
 	message:
 		"Derreplicating assembled contigs with mmseqs"
