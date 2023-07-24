@@ -92,8 +92,8 @@ rule buildBowtieDB_microbial:
 rule mapReadsToContigs_microbial:
 	input:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.1.bt2",
-		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}.bam"),
@@ -111,7 +111,7 @@ rule mapReadsToContigs_microbial:
 		basecov=dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}_basecov.txt",
 		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}_unique_basecov.txt",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot",
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.tot",
 	message:
 		"Mapping microbial reads to assembly"
 	conda:
