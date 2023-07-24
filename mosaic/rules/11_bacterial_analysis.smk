@@ -111,7 +111,7 @@ rule mapReadsToContigs_microbial:
 		basecov=dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}_basecov.txt",
 		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}_unique_basecov.txt",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.tot",
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot",
 	message:
 		"Mapping microbial reads to assembly"
 	conda:
