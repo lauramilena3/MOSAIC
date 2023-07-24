@@ -158,5 +158,5 @@ rule bacterial_binning:
 		"""
 		mkdir {output.metabat_outdir}
 		cd {output.metabat_outdir}
-		runMetaBat.sh {input.derreplicated_microbial_contigs} {input.sorted_bam} -t {threads}
+		runMetaBat.sh -t {threads} {input.derreplicated_microbial_contigs} {input.sorted_bam}
 		"""
