@@ -76,7 +76,7 @@ rule buildBowtieDB_microbial:
 	output:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.1.bt2",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tott",
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot",
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
