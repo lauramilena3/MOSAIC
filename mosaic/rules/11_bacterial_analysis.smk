@@ -153,10 +153,10 @@ rule bacterial_binning:
 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning.tsv"
-	threads: 8
+	threads: 64
 	shell:
 		"""
 		mkdir {output.metabat_outdir}
 		cd {output.metabat_outdir}
-		runMetaBat.sh {input.derreplicated_microbial_contigs} {input.sorted_bam}
+		runMetaBat.sh {input.derreplicated_microbial_contigs} {input.sorted_bam} -t {threads}
 		"""
