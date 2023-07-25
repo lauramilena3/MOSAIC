@@ -354,6 +354,7 @@ rule microbial_binning:
 	input:
 		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
 		checkMoutdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+		GTDB_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
 
 
 rule trimmomatic:

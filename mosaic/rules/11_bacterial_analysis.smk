@@ -184,3 +184,23 @@ rule estimateBinningQuality:
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf -t {threads} -x fa {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
+
+rule taxonomy_binning:
+	input:
+		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		gtdbtk_db=directory(config['gtdbtk_db']),
+	output:
+		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
+	message:
+		"Assigning microbial taxonomy with GTDB-Tk "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/microbial_GTDB-Tk.tsv"
+	threads: 64
+	shell:
+		"""
+        gtdbtk classify_wf --genome_dir {input.metabat_outdir} --out_dir {output.GTDB_outdir} --cpus {threads}
+		"""
+
+

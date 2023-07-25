@@ -290,6 +290,22 @@ rule downloadCheckMDB:
 		checkm data setRoot {output.checkm_db}
 		"""
 
+rule downloadGtdbtk_db:
+	output:
+		gtdbtk_db=directory(config['gtdbtk_db']),
+	message:
+		"Downloading GTDB-Tk database"
+	threads: 4
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	shell:
+		"""
+		wget https://data.gtdb.ecogenomic.org/releases/release214/214.0/auxillary_files/gtdbtk_r214_data.tar.gz
+		mkdir -p {output.gtdbtk_db}
+		tar xzvf gtdbtk_r214_data.tar.gz -C {output.gtdbtk_db}
+		"""
+		
+
 rule getKrakenTools:
 	output:
 		kraken_tools=directory(config['kraken_tools']),

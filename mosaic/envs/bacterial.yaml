@@ -5,3 +5,4 @@ channels:
   - biobuilds
 dependencies:
   - metabat2 =2.15
+  - gtdbtk =2.3.2
