@@ -163,7 +163,7 @@ rule bacterial_binning:
 
 rule estimateBinningQuality:
 	input:
-		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
