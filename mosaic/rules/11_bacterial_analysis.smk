@@ -201,7 +201,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
-        GTDBTK_DATA_PATH={input.gtdbtk_db}
+        conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}
         gtdbtk classify_wf --genome_dir {input.metabat_outdir} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {output.mash_outdir}
 		"""
 
