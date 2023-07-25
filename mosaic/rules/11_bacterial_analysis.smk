@@ -160,3 +160,27 @@ rule bacterial_binning:
 		cd {output.metabat_outdir}
 		runMetaBat.sh -t {threads} {input.derreplicated_microbial_contigs} {input.sorted_bam}
 		"""
+
+rule estimateBinningQuality:
+	input:
+		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		checkm_db=(config['checkm_db']),
+	output:
+		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
+		checkMoutdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+	log:
+		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/microbial_checkM_log"),
+	message:
+		"Estimating genome completeness with CheckM "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/microbial_checkm.tsv"
+	threads: 16
+	shell:
+		"""
+		mkdir {output.checkMoutdir_temp}
+		cp -r {input.metabat_outdir}/*metabat-bins*/* {output.checkMoutdir_temp}
+		cd {output.checkMoutdir_temp}
+		checkm lineage_wf -t {threads} -x fa {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		"""
