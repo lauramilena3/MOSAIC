@@ -188,7 +188,7 @@ rule estimateBinningQuality:
 rule taxonomy_binning:
 	input:
 		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
-		gtdbtk_db=directory(config['gtdbtk_db']),
+		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
 	message:
