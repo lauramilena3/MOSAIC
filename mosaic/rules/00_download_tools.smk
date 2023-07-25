@@ -303,6 +303,7 @@ rule downloadGtdbtk_db:
 		wget https://data.gtdb.ecogenomic.org/releases/release214/214.0/auxillary_files/gtdbtk_r214_data.tar.gz
 		mkdir -p {output.gtdbtk_db}
 		tar xzvf gtdbtk_r214_data.tar.gz -C {output.gtdbtk_db}
+		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		"""
 		
 
