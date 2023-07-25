@@ -285,6 +285,7 @@ rule downloadCheckMDB:
 	shell:
 		"""
 		wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
+		mkdir -p {output.checkm_db}
 		tar xzvf {output.checkm_tar} -C {output.checkm_db}
 		checkm data setRoot {output.checkm_db}
 		"""
