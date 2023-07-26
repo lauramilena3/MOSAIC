@@ -226,12 +226,12 @@ def inputReadsCount(wildcards):
 
 def inputQC(wildcards):
 	inputs=[]
-	inputs.append(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html")
-	inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
-	inputs.append(dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html")
-	inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
+	# inputs.append(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html")
+	# inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
+	# inputs.append(dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html")
+	# inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
 	# inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
 	# inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
 	# if len(CONTAMINANTS_LIST_POST)>0:
