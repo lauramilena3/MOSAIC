@@ -191,7 +191,8 @@ rule taxonomy_binning:
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
-		mash_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
+    params:
+		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
 	message:
 		"Assigning microbial taxonomy with GTDB-Tk "
 	conda:
