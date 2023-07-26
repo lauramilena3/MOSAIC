@@ -191,7 +191,7 @@ rule taxonomy_binning:
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
-    params:
+	params:
 		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
 	message:
 		"Assigning microbial taxonomy with GTDB-Tk "
@@ -202,7 +202,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
-        gtdbtk classify_wf --genome_dir {input.metabat_outdir}/*metabat-bins* --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {output.mash_outdir} --extension fa
+        gtdbtk classify_wf --genome_dir {input.metabat_outdir}/*metabat-bins* --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
 
