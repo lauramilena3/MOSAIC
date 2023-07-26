@@ -311,7 +311,7 @@ rule all:
 
 rule runQC:
 	input:
-		inputReadsCount,
+		# inputReadsCount,
 		inputQC,
 
 rule runAssembly:
