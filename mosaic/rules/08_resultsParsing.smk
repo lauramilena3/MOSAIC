@@ -207,7 +207,7 @@ rule subsample_reads:
 	input:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.tot.csv",
 		flagstats=expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.tot.txt", sample=SAMPLES),
-		SAMPLES_sub_file=RESULTS_DIR + "/key_samples_list.txt",
+		key_samples=RESULTS_DIR + "/key_samples_list.txt",
 	output:
 		viral_subsampling=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads.txt", sample=SAMPLES),
 	params:
