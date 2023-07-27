@@ -932,22 +932,22 @@ rule parse_blastall:
 	shell:
 		"""
 		#cut useful fields
-		time cut -f1,2,9,10 {input.blast} > {input.blastall_short}
-		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {input.blastall_short} > {input.parsed_blastall}
-		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {input.parsed_blastall} > {input.parsed_blastall_first}
-		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {input.parsed_blastall_first} > {input.similarity}
-		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {input.similarity} similarity} > {input.similarity_dup}
-		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($1 in a) print $0, a[$1]}}' {input.cummulative_length} {input.similarity_dup} > {input.similarity_dup2}
-		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($2 in a) print $0, a[$2]}}' {input.cummulative_length} {input.similarity_dup2} > {input.similarity_dup3}
-		time awk '{{ col9 = ( ($3 + $5) * 100 ) / ($7 + $8); col10 = 100 - col9; print $0, col9, col10 }}' {input.similarity_dup3}  | sed 's/\t/ /g' > {input.distance}
-		time cut -d' ' -f1,2,10 {input.distance} > {input.distance_short}
-		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {input.distance_short} > {input.distance_short_full}
-		time awk '{{ if (!(($1,$2) in data)) {{ keys1[$1] = 1; keys2[$2] = 1; }} data[$1,$2] = $3; }} END {{ printf "\t"; for (key2 in keys2) {{ printf "%s\t", key2; }} printf "\n"; for (key1 in keys1) {{ printf "%s\t", key1; for (key2 in keys2) {{ printf "%s\t", data[key1,key2]; }} printf "\n"; }} }}' {input.distance_short_full} > {input.pivot}
-		time sort {input.pivot} | awk 'BEGIN{{FS=OFS="\t"}} {{for (i=1; i<=NF; i++) {{if(NR==1) header[i]=$i; else data[i][NR-1]=$i}}}} END{{for (i=1; i<=NF; i++) {{printf "%s%s", header[i], (i==NF?ORS:OFS); for (j=1; j<=NR-1; j++) printf "%s%s", data[i][j], (j==NR-1?ORS:OFS)}}}}' | sort > {input.pivot_sorted}
+		time cut -f1,2,9,10 {input.blast} > {output.blastall_short}
+		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {output.blastall_short} > {output.parsed_blastall}
+		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {output.parsed_blastall} > {output.parsed_blastall_first}
+		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {output.parsed_blastall_first} > {output.similarity}
+		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {output.similarity} similarity} > {output.similarity_dup}
+		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($1 in a) print $0, a[$1]}}' {input.cummulative_length} {output.similarity_dup} > {output.similarity_dup2}
+		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($2 in a) print $0, a[$2]}}' {input.cummulative_length} {output.similarity_dup2} > {output.similarity_dup3}
+		time awk '{{ col9 = ( ($3 + $5) * 100 ) / ($7 + $8); col10 = 100 - col9; print $0, col9, col10 }}' {output.similarity_dup3}  | sed 's/\t/ /g' > {output.distance}
+		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
+		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
+		time awk '{{ if (!(($1,$2) in data)) {{ keys1[$1] = 1; keys2[$2] = 1; }} data[$1,$2] = $3; }} END {{ printf "\t"; for (key2 in keys2) {{ printf "%s\t", key2; }} printf "\n"; for (key1 in keys1) {{ printf "%s\t", key1; for (key2 in keys2) {{ printf "%s\t", data[key1,key2]; }} printf "\n"; }} }}' {output.distance_short_full} > {output.pivot}
+		time sort {output.pivot} | awk 'BEGIN{{FS=OFS="\t"}} {{for (i=1; i<=NF; i++) {{if(NR==1) header[i]=$i; else data[i][NR-1]=$i}}}} END{{for (i=1; i<=NF; i++) {{printf "%s%s", header[i], (i==NF?ORS:OFS); for (j=1; j<=NR-1; j++) printf "%s%s", data[i][j], (j==NR-1?ORS:OFS)}}}}' | sort > {output.pivot_sorted}
 		# remove empty lines
-		time sed -i '/^[[:blank:]]*$/d' {input.pivot_sorted}
+		time sed -i '/^[[:blank:]]*$/d' {output.pivot_sorted}
 		# force diagonals to be 0
-		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {input.pivot_sorted} > {input.pivot_sorted_zero_diagonal}
+		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot_sorted} > {output.pivot_sorted_zero_diagonal}
 		"""
 
 rule change_start_site_full:
