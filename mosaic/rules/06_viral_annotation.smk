@@ -911,19 +911,19 @@ rule parse_blastall:
 		blast=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
 		cummulative_length=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
 	output:
-		blastall_short=temp(dirs_dict["ANNOTATION"] + "blastall_short.txt"),
-		parsed_blastall=temp(dirs_dict["ANNOTATION"] + "parsed_blastall.txt"),
-		parsed_blastall_first=temp(dirs_dict["ANNOTATION"] + "parsed_blastall_first.txt"),
-		similarity=temp(dirs_dict["ANNOTATION"] + "similarity.txt"),
-		similarity_dup=temp(dirs_dict["ANNOTATION"] + "similarity_dup.txt"),
-		similarity_dup2=temp(dirs_dict["ANNOTATION"] + "similarity_dup2.txt"),
-		similarity_dup3=temp(dirs_dict["ANNOTATION"] + "similarity_dup3.txt"),
-		distance=temp(dirs_dict["ANNOTATION"] + "distance.txt"),
-		distance_short=temp(dirs_dict["ANNOTATION"] + "distance_short.txt"),
-		distance_short_full=temp(dirs_dict["ANNOTATION"] + "distance_short_full.txt"),
-		pivot=temp(dirs_dict["ANNOTATION"] + "pivot.txt"),
-		pivot_sorted=temp(dirs_dict["ANNOTATION"] + "pivot_sorted.txt"),
-		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "pivot_sorted_zero_diagonal.txt",
+		blastall_short=temp(dirs_dict["ANNOTATION"] + "/blastall_short.txt"),
+		parsed_blastall=temp(dirs_dict["ANNOTATION"] + "/parsed_blastall.txt"),
+		parsed_blastall_first=temp(dirs_dict["ANNOTATION"] + "/parsed_blastall_first.txt"),
+		similarity=temp(dirs_dict["ANNOTATION"] + "/similarity.txt"),
+		similarity_dup=temp(dirs_dict["ANNOTATION"] + "/similarity_dup.txt"),
+		similarity_dup2=temp(dirs_dict["ANNOTATION"] + "/similarity_dup2.txt"),
+		similarity_dup3=temp(dirs_dict["ANNOTATION"] + "/similarity_dup3.txt"),
+		distance=temp(dirs_dict["ANNOTATION"] + "/distance.txt"),
+		distance_short=temp(dirs_dict["ANNOTATION"] + "/distance_short.txt"),
+		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/distance_short_full.txt"),
+		pivot=temp(dirs_dict["ANNOTATION"] + "/pivot.txt"),
+		pivot_sorted=temp(dirs_dict["ANNOTATION"] + "/pivot_sorted.txt"),
+		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/pivot_sorted_zero_diagonal.txt",
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/blastall_parsing.tsv"
 	message:
