@@ -923,7 +923,7 @@ rule parse_blastall:
 		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/distance_short_full.txt"),
 		pivot=temp(dirs_dict["ANNOTATION"] + "/pivot.txt"),
 		pivot_sorted=temp(dirs_dict["ANNOTATION"] + "/pivot_sorted.txt"),
-		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/pivot_sorted_zero_diagonal.txt",
+		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/distance_matrix_AAI.txt",
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/blastall_parsing.tsv"
 	message:
