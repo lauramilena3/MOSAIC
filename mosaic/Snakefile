@@ -169,7 +169,7 @@ def inputAnnotation(wildcards):
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv")
 	# inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.csv"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
-	inputs.append(dirs_dict["ANNOTATION"] + "pivot_sorted_zero_diagonal.txt")
+	inputs.append(dirs_dict["ANNOTATION"] + "/pivot_sorted_zero_diagonal.txt")
 	# inputs.append(dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
 	inputs.append(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv")
 	if VCONTACT:
