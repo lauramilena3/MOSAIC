@@ -925,7 +925,7 @@ rule parse_blastall:
 		pivot_sorted=temp(dirs_dict["ANNOTATION"] + "pivot_sorted.txt"),
 		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "pivot_sorted_zero_diagonal.txt",
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_blastall_parsing.tsv"
+		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/blastall_parsing.tsv"
 	message:
 		"Parsing blast results to AAI distance matrix"
 	threads: 1
