@@ -908,7 +908,7 @@ rule blastall:
 
 rule parse_blastall:
 	input:
-		blast=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.{sampling}.csv"),
+		blast=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
 		cummulative_length=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
 	output:
 		blastall_short=temp(dirs_dict["ANNOTATION"] + "blastall_short.txt"),
@@ -925,7 +925,7 @@ rule parse_blastall:
 		pivot_sorted=temp(dirs_dict["ANNOTATION"] + "pivot_sorted.txt"),
 		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "pivot_sorted_zero_diagonal.txt",
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_blastall_parsing_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_blastall_parsing.tsv"
 	message:
 		"Parsing blast results to AAI distance matrix"
 	threads: 1
