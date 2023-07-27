@@ -175,9 +175,9 @@ rule viralID_parsing:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
 
 
-def input_assembly_flagstats():
+def input_assembly_flagstats(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
