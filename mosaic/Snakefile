@@ -415,6 +415,9 @@ rule assembly_long_only:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		(expand(dirs_dict["vOUT_DIR"] + "/{sample_nanopore}_checkM_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE)),
 
+rule subsampling_file:
+	input:
+		viral_subsampling=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads.txt", sample=SAMPLES),
 
 rule annotate_VIBRANT_contigs:
 	input:
