@@ -174,10 +174,20 @@ rule viralID_parsing:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
 
+
+def input_assembly_flagstats():
+	inputs=[]
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+	return inputs
+
 rule mapping_statistics_parsing:
 	input:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
 		assembled_sequences=inputAssemblyContigs,
+		assembly_flagstats=input_assembly_flagstats
 	output:
 		mapping_stats_html=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html"),
 		filtered_viral_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.png"),
@@ -192,3 +202,21 @@ rule mapping_statistics_parsing:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics_{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_mapping_statistics.py.ipynb"
+
+rule subsample_reads:
+	input:
+		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.tot.csv",
+		assembled_sequences=inputAssemblyContigs,
+		flagstats=expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_tot.txt", sample=SAMPLES, sampling=SAMPLING_TYPE),
+		SAMPLES_sub_file=dirs_dict["RESULTS_DIR"] + "/key_samples_list.txt",
+	output:
+		viral_subsampling=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads.txt", sample=SAMPLES),
+	params:
+		samples=SAMPLES,
+		mapping_dir=dirs_dict["MAPPING_DIR"],
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		sampling="tot",
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_subsampling.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/07_subsampling.py.ipynb"
