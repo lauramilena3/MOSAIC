@@ -936,7 +936,7 @@ rule parse_blastall:
 		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {output.blastall_short} > {output.parsed_blastall}
 		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {output.parsed_blastall} > {output.parsed_blastall_first}
 		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {output.parsed_blastall_first} > {output.similarity}
-		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {output.similarity} similarity} > {output.similarity_dup}
+		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {output.similarity} {output.similarity} > {output.similarity_dup}
 		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($1 in a) print $0, a[$1]}}' {input.cummulative_length} {output.similarity_dup} > {output.similarity_dup2}
 		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($2 in a) print $0, a[$2]}}' {input.cummulative_length} {output.similarity_dup2} > {output.similarity_dup3}
 		time awk '{{ col9 = ( ($3 + $5) * 100 ) / ($7 + $8); col10 = 100 - col9; print $0, col9, col10 }}' {output.similarity_dup3}  | sed 's/\t/ /g' > {output.distance}
