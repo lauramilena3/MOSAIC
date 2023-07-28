@@ -907,7 +907,7 @@ rule blastall:
 		"""
 
 
-awk_command= r"""'{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }'""""
+awk_command= r"""'{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }'"""
 rule parse_blastall:
 	input:
 		blast=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
