@@ -906,6 +906,8 @@ rule blastall:
 		    		            -outfmt "6 qseqid sseqid qstart qend qlen slen qcovs qcovhsp length pident evalue positive gaps" > {output.blast_output}
 		"""
 
+
+awk_command= r"""'{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }'""""
 rule parse_blastall:
 	input:
 		blast=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
@@ -942,7 +944,6 @@ rule parse_blastall:
 		time awk '{{ col9 = ( ($3 + $5) * 100 ) / ($7 + $8); col10 = 100 - col9; print $0, col9, col10 }}' {output.similarity_dup3}  | sed 's/\t/ /g' > {output.distance}
 		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
-		awk_command= '{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }'
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
 		time sort {output.pivot} | awk 'BEGIN{{FS=OFS="\t"}} {{for (i=1; i<=NF; i++) {{if(NR==1) header[i]=$i; else data[i][NR-1]=$i}}}} END{{for (i=1; i<=NF; i++) {{printf "%s%s", header[i], (i==NF?ORS:OFS); for (j=1; j<=NR-1; j++) printf "%s%s", data[i][j], (j==NR-1?ORS:OFS)}}}}' | sort > {output.pivot_sorted}
 		# remove empty lines
