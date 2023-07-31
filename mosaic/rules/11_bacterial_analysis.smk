@@ -152,7 +152,7 @@ rule bacterial_binning_metabat_preprocess:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning.tsv"
+		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning_{sample}.tsv"
 	threads: 32
 	shell:
 		"""
