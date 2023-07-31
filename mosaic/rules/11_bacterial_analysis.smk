@@ -156,7 +156,7 @@ rule bacterial_binning_metabat_preprocess:
 	threads: 1
 	shell:
 		"""
-		pileup.sh in={input.sorted_bam} out={output.cov}
+		pileup.sh in={input.sorted_bam} out={output.cov} 32bit=t
 		awk '{{print $1"\t"$5}}' {output.cov} | grep -v '^#' > {output.abundance}
 		"""
 
