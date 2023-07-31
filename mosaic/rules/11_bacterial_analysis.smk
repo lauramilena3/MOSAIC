@@ -166,6 +166,7 @@ rule bacterial_binning_MaxBin2:
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
 	output:
 		maxbin_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
+		abund_list=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_bam_list.txt"),
 	message:
 		"Binning microbial contigs with MaxBin2"
 	conda:
@@ -177,7 +178,8 @@ rule bacterial_binning_MaxBin2:
 		"""
 		mkdir -p {output.maxbin_outdir}
 		cd {output.maxbin_outdir}
-		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -abund_list {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
+        ls {input.sorted_bam} > {output.abund_list}
+		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -abund_list {output.abund_list} -out {output.maxbin_outdir} -thread {threads}
 		"""
 
 rule bacterial_binning_CONCOCT:
