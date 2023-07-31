@@ -141,7 +141,7 @@ rule mapReadsToContigs_microbial:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
-rule bacterial_binning:
+rule bacterial_binning_metabat:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
@@ -160,14 +160,94 @@ rule bacterial_binning:
 		cd {output.metabat_outdir}
 		runMetaBat.sh -t {threads} {input.derreplicated_microbial_contigs} {input.sorted_bam}
 		"""
+rule bacterial_binning_MaxBin2:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
+	output:
+		maxbin_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
+	message:
+		"Binning microbial contigs with MaxBin2"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/MaxBin2/binning.tsv"
+	threads: 32
+	shell:
+		"""
+		mkdir {output.maxbin_outdir}
+		cd {output.maxbin_outdir}
+        run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -reads {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
+		"""
+
+rule bacterial_binning_CONCOCT:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
+		sorted_bam_index=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam.bai", sample=SAMPLES),
+	output:
+		CONCOCT_10k_fasta=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.fasta"),
+		CONCOCT_10k_bed=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.bed"),
+		CONCOCT_coverage=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_coverage.txt"),
+    	# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "CONCOCT_results/"),
+    	CONCOCT_fasta=directory(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/CONCOCT_fasta_bins"),
+        CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
+    params:
+    	CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
+	message:
+		"Binning microbial contigs with CONCOCT"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/CONCOCT_outdir/binning.tsv"
+	threads: 32
+	shell:
+		"""
+		mkdir {params.CONCOCT_outdir}
+		cd {params.CONCOCT_outdir}
+        cut_up_fasta.py {input.derreplicated_microbial_contigs} -c 10000 -o 0 --merge_last -b {output.CONCOCT_10k_bed} > {output.CONCOCT_10k_fasta}
+        concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
+        concoct --composition_file {output.CONCOCT_10k_fasta} --coverage_file {output.CONCOCT_coverage} -b {params.CONCOCT_outdir} -threads {threads}
+        merge_cutup_clustering.py {params.CONCOCT_outdir}/clustering_gt1000.csv > {output.CONCOCT_clustering}
+        extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_bins}
+		"""
+
+rule polish_bins:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+        CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
+		maxbin_outdir=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
+	output:
+        scaffolds2bin_concoct=(dirs_dict["MAPPING_DIR"] + "/concoct_scaffolds2bin.tsv"),
+        scaffolds2bin_metabat=(dirs_dict["MAPPING_DIR"] + "/metabat_scaffolds2bin.tsv"),
+        scaffolds2bin_maxbin=(dirs_dict["MAPPING_DIR"] + "/maxbin_scaffolds2bin.tsv"),
+		DAS_Tool_results=directory(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+	message:
+		"Binning microbial contigs with MaxBin2"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/MaxBin2/binning.tsv"
+	threads: 64
+	shell:
+		"""
+        perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
+        Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat2}
+        Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
+        DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat2},{output.scaffolds2bin_maxbin} \
+         -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {input.DAS_Tool_results} --search_engine diamond --threads {threads}
+		"""
+
 
 rule estimateBinningQuality:
 	input:
-		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
 		checkMoutdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+		checkMoutplots=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_plots"),
 	params:
 		checkm_table=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/tab_results_checkM.csv"),
 		checkm_outfile=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/output_results_checkM.txt"),
@@ -183,9 +263,9 @@ rule estimateBinningQuality:
 	shell:
 		"""
 		mkdir {output.checkMoutdir_temp}
-		cp -r {input.metabat_outdir}/*metabat-bins*/* {output.checkMoutdir_temp}
+		cp -r {input.DAS_Tool_results}/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
-		checkm lineage_wf -t {threads} --tab_table {params.checkm_table} -f -x fa {output.checkMoutdir_temp} {output.checkMoutdir}  1> {log}
+		checkm lineage_wf -t {threads} --tab_table {params.checkm_table} -f {params.checkm_outfile} -x fa {output.checkMoutdir_temp} {output.checkMoutdir}  1> {log}
 		"""
 
 rule taxonomy_binning:

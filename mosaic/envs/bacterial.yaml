@@ -6,3 +6,7 @@ channels:
 dependencies:
   - metabat2 =2.15
   - gtdbtk =2.3.2
+  - maxbin2 =2.2.7
+  - concoct =1.1.0
+  - das_tool =1.1.6
+  
