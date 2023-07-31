@@ -270,7 +270,7 @@ rule estimateBinningQuality:
 
 rule taxonomy_binning:
 	input:
-		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
@@ -285,7 +285,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
-		gtdbtk classify_wf --genome_dir {input.metabat_outdir}/*metabat-bins* --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
+		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
 
