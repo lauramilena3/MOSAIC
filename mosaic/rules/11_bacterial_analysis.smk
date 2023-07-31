@@ -186,7 +186,7 @@ rule bacterial_binning_MaxBin2:
 		abundances=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_abundance.txt", sample=SAMPLES),
 	output:
 		maxbin_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
-		abund_list=(tempdirs_dict["MAPPING_DIR"] + "/MaxBin2_abundance_list.txt"),
+		abund_list=temp(dirs_dict["MAPPING_DIR"] + "/MaxBin2_abundance_list.txt"),
 	message:
 		"Binning microbial contigs with MaxBin2"
 	conda:
