@@ -177,7 +177,7 @@ rule bacterial_binning_MaxBin2:
 		"""
 		mkdir -p {output.maxbin_outdir}
 		cd {output.maxbin_outdir}
-		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -reads {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
+		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} --reads_list {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
 		"""
 
 rule bacterial_binning_CONCOCT:
