@@ -233,9 +233,9 @@ rule polish_bins:
 	shell:
 		"""
 		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
-		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat2}
+		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
 		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
-		DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat2},{output.scaffolds2bin_maxbin} \
+		DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
 		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {input.DAS_Tool_results} --search_engine diamond --threads {threads}
 		"""
 
