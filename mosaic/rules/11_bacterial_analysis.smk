@@ -153,7 +153,7 @@ rule bacterial_binning_metabat_preprocess:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning_{sample}.tsv"
-	threads: 32
+	threads: 1
 	shell:
 		"""
 		pileup.sh in={input.sorted_bam} out={output.cov}
@@ -186,7 +186,7 @@ rule bacterial_binning_MaxBin2:
 		abundances=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_abundance.txt", sample=SAMPLES),
 	output:
 		maxbin_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
-		abund_list=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_bam_list.txt"),
+		abund_list=(tempdirs_dict["MAPPING_DIR"] + "/MaxBin2_abundance_list.txt"),
 	message:
 		"Binning microbial contigs with MaxBin2"
 	conda:
