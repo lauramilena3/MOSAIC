@@ -35,7 +35,7 @@ def input_microbial_merge(wildcards):
 # 	input:
 # 		assembled_contigs=input_microbial_merge,
 # 	output:
-#         combined_microbial=
+#		 combined_microbial=
 # 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
 # 	message:
 # 		"Merging microbial assemblies"
@@ -168,8 +168,8 @@ rule estimateBinningQuality:
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
 		checkMoutdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
-    params:
-        checkm_table=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/tab_results_checkM")
+	params:
+		checkm_table=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/tab_results_checkM")
 	log:
 		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/microbial_checkM_log"),
 	message:
@@ -204,7 +204,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
-        gtdbtk classify_wf --genome_dir {input.metabat_outdir}/*metabat-bins* --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
+		gtdbtk classify_wf --genome_dir {input.metabat_outdir}/*metabat-bins* --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
 
