@@ -141,8 +141,6 @@ rule mapReadsToContigs_microbial:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
-pileup.sh
-
 rule bacterial_binning_metabat_preprocess:
 	input:
 		sorted_bam=(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam"),
