@@ -18,7 +18,7 @@ rule estimateBacterialGenomeCompletness:
 	threads: 4
 	shell:
 		"""
-		mkdir {output.checkMoutdir_temp}
+		mkdir -p {output.checkMoutdir_temp}
 		cp {input.corrected2_racon} {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
@@ -156,7 +156,7 @@ rule bacterial_binning_metabat:
 	threads: 64
 	shell:
 		"""
-		mkdir {output.metabat_outdir}
+		mkdir -p {output.metabat_outdir}
 		cd {output.metabat_outdir}
 		runMetaBat.sh -t {threads} {input.derreplicated_microbial_contigs} {input.sorted_bam}
 		"""
@@ -175,7 +175,7 @@ rule bacterial_binning_MaxBin2:
 	threads: 32
 	shell:
 		"""
-		mkdir {output.maxbin_outdir}
+		mkdir -p {output.maxbin_outdir}
 		cd {output.maxbin_outdir}
 		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -reads {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
 		"""
@@ -203,7 +203,7 @@ rule bacterial_binning_CONCOCT:
 	threads: 32
 	shell:
 		"""
-		mkdir {params.CONCOCT_outdir}
+		mkdir -p {params.CONCOCT_outdir}
 		cd {params.CONCOCT_outdir}
 		cut_up_fasta.py {input.derreplicated_microbial_contigs} -c 10000 -o 0 --merge_last -b {output.CONCOCT_10k_bed} > {output.CONCOCT_10k_fasta}
 		concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
@@ -262,7 +262,8 @@ rule estimateBinningQuality:
 	threads: 16
 	shell:
 		"""
-		mkdir {output.checkMoutdir_temp}
+
+		mkdir -p {output.checkMoutdir_temp}
 		cp -r {input.DAS_Tool_results}/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf -t {threads} --tab_table {params.checkm_table} -f {params.checkm_outfile} -x fa {output.checkMoutdir_temp} {output.checkMoutdir}  1> {log}
