@@ -168,6 +168,8 @@ rule estimateBinningQuality:
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
 		checkMoutdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+    params:
+        checkm_table=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/tab_results_checkM")
 	log:
 		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/microbial_checkM_log"),
 	message:
@@ -182,7 +184,7 @@ rule estimateBinningQuality:
 		mkdir {output.checkMoutdir_temp}
 		cp -r {input.metabat_outdir}/*metabat-bins*/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
-		checkm lineage_wf -t {threads} -x fa {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		checkm lineage_wf -t {threads} -x fa {output.checkMoutdir_temp} {output.checkMoutdir} --tab_table {params.checkm_table} 1> {log}
 		"""
 
 rule taxonomy_binning:
