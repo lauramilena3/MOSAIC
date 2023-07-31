@@ -177,7 +177,7 @@ rule bacterial_binning_MaxBin2:
 		"""
 		mkdir {output.maxbin_outdir}
 		cd {output.maxbin_outdir}
-        run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -reads {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
+		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -reads {input.sorted_bam} -out {output.maxbin_outdir} -thread {threads}
 		"""
 
 rule bacterial_binning_CONCOCT:
@@ -189,11 +189,11 @@ rule bacterial_binning_CONCOCT:
 		CONCOCT_10k_fasta=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.fasta"),
 		CONCOCT_10k_bed=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.bed"),
 		CONCOCT_coverage=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_coverage.txt"),
-    	# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "CONCOCT_results/"),
-    	CONCOCT_fasta=directory(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/CONCOCT_fasta_bins"),
-        CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
-    params:
-    	CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
+		# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "CONCOCT_results/"),
+		CONCOCT_fasta=directory(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/CONCOCT_fasta_bins"),
+		CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
+	params:
+		CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
 	message:
 		"Binning microbial contigs with CONCOCT"
 	conda:
@@ -205,23 +205,23 @@ rule bacterial_binning_CONCOCT:
 		"""
 		mkdir {params.CONCOCT_outdir}
 		cd {params.CONCOCT_outdir}
-        cut_up_fasta.py {input.derreplicated_microbial_contigs} -c 10000 -o 0 --merge_last -b {output.CONCOCT_10k_bed} > {output.CONCOCT_10k_fasta}
-        concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
-        concoct --composition_file {output.CONCOCT_10k_fasta} --coverage_file {output.CONCOCT_coverage} -b {params.CONCOCT_outdir} -threads {threads}
-        merge_cutup_clustering.py {params.CONCOCT_outdir}/clustering_gt1000.csv > {output.CONCOCT_clustering}
-        extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_bins}
+		cut_up_fasta.py {input.derreplicated_microbial_contigs} -c 10000 -o 0 --merge_last -b {output.CONCOCT_10k_bed} > {output.CONCOCT_10k_fasta}
+		concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
+		concoct --composition_file {output.CONCOCT_10k_fasta} --coverage_file {output.CONCOCT_coverage} -b {params.CONCOCT_outdir} -threads {threads}
+		merge_cutup_clustering.py {params.CONCOCT_outdir}/clustering_gt1000.csv > {output.CONCOCT_clustering}
+		extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_bins}
 		"""
 
 rule polish_bins:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
-        CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
+		CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
 		maxbin_outdir=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
 	output:
-        scaffolds2bin_concoct=(dirs_dict["MAPPING_DIR"] + "/concoct_scaffolds2bin.tsv"),
-        scaffolds2bin_metabat=(dirs_dict["MAPPING_DIR"] + "/metabat_scaffolds2bin.tsv"),
-        scaffolds2bin_maxbin=(dirs_dict["MAPPING_DIR"] + "/maxbin_scaffolds2bin.tsv"),
+		scaffolds2bin_concoct=(dirs_dict["MAPPING_DIR"] + "/concoct_scaffolds2bin.tsv"),
+		scaffolds2bin_metabat=(dirs_dict["MAPPING_DIR"] + "/metabat_scaffolds2bin.tsv"),
+		scaffolds2bin_maxbin=(dirs_dict["MAPPING_DIR"] + "/maxbin_scaffolds2bin.tsv"),
 		DAS_Tool_results=directory(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 	message:
 		"Binning microbial contigs with MaxBin2"
@@ -232,11 +232,11 @@ rule polish_bins:
 	threads: 64
 	shell:
 		"""
-        perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
-        Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat2}
-        Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
-        DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat2},{output.scaffolds2bin_maxbin} \
-         -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {input.DAS_Tool_results} --search_engine diamond --threads {threads}
+		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
+		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat2}
+		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
+		DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat2},{output.scaffolds2bin_maxbin} \
+		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {input.DAS_Tool_results} --search_engine diamond --threads {threads}
 		"""
 
 
