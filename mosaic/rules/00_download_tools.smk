@@ -297,7 +297,7 @@ rule downloadGtdbtk_db:
 		"Downloading GTDB-Tk database"
 	threads: 4
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	shell:
 		"""
 		wget https://data.gtdb.ecogenomic.org/releases/release214/214.0/auxillary_files/gtdbtk_r214_data.tar.gz

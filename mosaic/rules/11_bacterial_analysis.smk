@@ -279,7 +279,7 @@ rule taxonomy_binning:
 	message:
 		"Assigning microbial taxonomy with GTDB-Tk "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/microbial_GTDB-Tk.tsv"
 	threads: 64
