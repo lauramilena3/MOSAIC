@@ -236,7 +236,7 @@ rule polish_bins:
 		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
 		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
 		DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
-		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {input.DAS_Tool_results} --search_engine diamond --threads {threads}
+		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {output.DAS_Tool_results} --search_engine diamond --threads {threads}
 		"""
 
 
