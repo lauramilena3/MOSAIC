@@ -157,7 +157,7 @@ rule bacterial_binning_metabat_preprocess:
 	shell:
 		"""
 		pileup.sh in={input.sorted_bam} out={output.cov}
-		awk '{print $1"\t"$5}' {output.cov} | grep -v '^#' > {output.abundance}
+		awk '{{print $1"\t"$5}}' {output.cov} | grep -v '^#' > {output.abundance}
 		"""
 
 rule bacterial_binning_metabat:
