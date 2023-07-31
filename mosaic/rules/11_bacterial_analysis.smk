@@ -141,6 +141,27 @@ rule mapReadsToContigs_microbial:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
+pileup.sh
+
+rule bacterial_binning_metabat_preprocess:
+	input:
+		sorted_bam=(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam"),
+	output:
+		cov=temp(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_coverage.txt"),
+		abundance=temp(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_abundance.txt"),
+	message:
+		"Binning microbial contigs with MetaBAT"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning.tsv"
+	threads: 32
+	shell:
+		"""
+		pileup.sh in={input.sorted_bam} out={output.cov}
+		awk '{print $1"\t"$5}' {output.cov} | grep -v '^#' > {output.abundance}
+		"""
+
 rule bacterial_binning_metabat:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
@@ -160,10 +181,11 @@ rule bacterial_binning_metabat:
 		cd {output.metabat_outdir}
 		runMetaBat.sh -t {threads} {input.derreplicated_microbial_contigs} {input.sorted_bam}
 		"""
+
 rule bacterial_binning_MaxBin2:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
+		abundances=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_abundance.txt", sample=SAMPLES),
 	output:
 		maxbin_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
 		abund_list=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_bam_list.txt"),
@@ -178,7 +200,7 @@ rule bacterial_binning_MaxBin2:
 		"""
 		mkdir -p {output.maxbin_outdir}
 		cd {output.maxbin_outdir}
-        ls {input.sorted_bam} > {output.abund_list}
+		  ls {input.abundances} > {output.abund_list}
 		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -abund_list {output.abund_list} -out {output.maxbin_outdir} -thread {threads}
 		"""
 
