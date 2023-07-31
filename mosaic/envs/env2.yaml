@@ -4,5 +4,4 @@ channels:
   - anaconda
 dependencies:
   - iphop =1.3.1
-  - gtdbtk =2.3.2
 
