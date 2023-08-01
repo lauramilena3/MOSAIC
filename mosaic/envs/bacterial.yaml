@@ -8,4 +8,6 @@ dependencies:
   - maxbin2 =2.2.7
   - concoct =1.1.0
   - das_tool =1.1.6
+  - scikit-learn=1.1.0
+
   
