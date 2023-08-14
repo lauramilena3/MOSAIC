@@ -56,6 +56,7 @@ rule derreplicate_microbial:
 		rep_name_full=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot_tmp_rep_seq.fasta",
 		rep_temp="combined_microbial_derreplicated_tot_tmp",
 		dir_assembly=dirs_dict["ASSEMBLY_DIR"],
+		min_len=2000
 	message:
 		"Derreplicating assembled contigs with mmseqs"
 	conda:
@@ -66,7 +67,7 @@ rule derreplicate_microbial:
 		cat {input.assembled_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_assembly}
 		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} --threads {threads}
-		mv {params.rep_name_full} {output.derreplicated_microbial_contigs}
+		awk -v min_size={params.min_size} '/^>/ {{if (seqlen >= min_size) {{print seq; print}} seq=""; seqlen=0; next}} {{seq = seq $0; seqlen += length($0)}} END {{if (seqlen >= min_size) print seq}}' {params.rep_name_full} > {output.derreplicated_microbial_contigs}
 		"""
 
 
