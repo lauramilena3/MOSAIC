@@ -67,7 +67,7 @@ rule derreplicate_microbial:
 		cat {input.assembled_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_assembly}
 		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} --threads {threads}
-		awk -v min_size={params.min_size} '/^>/ {{if (seqlen >= min_size) {{print seq; print}} seq=""; seqlen=0; next}} {{seq = seq $0; seqlen += length($0)}} END {{if (seqlen >= min_size) print seq}}' {params.rep_name_full} > {output.derreplicated_microbial_contigs}
+		awk -v min_size={params.min_len} '/^>/ {{if (seqlen >= min_size) {{print seq; print}} seq=""; seqlen=0; next}} {{seq = seq $0; seqlen += length($0)}} END {{if (seqlen >= min_size) print seq}}' {params.rep_name_full} > {output.derreplicated_microbial_contigs}
 		"""
 
 
