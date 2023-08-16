@@ -91,6 +91,7 @@ rule clusterTaxonomy:
 	shell:
 		"""
 		rm -rf {params.out_dir}
+		mkdir {params.out_dir}
 		vcontact2_gene2genome -p {input.aa} -s Prodigal-FAA -o {output.gene2genome}
 		cat {output.gene2genome} {input.gene2genome_format_csv}  > {output.merged_gene2genome}
 		cat {input.aa} {input.vcontact_format_aa} > {output.merged_ORFs}
