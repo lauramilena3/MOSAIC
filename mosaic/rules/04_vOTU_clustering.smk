@@ -189,23 +189,25 @@ rule filter_vOTUs:
 		seqtk subseq {input.representatives} {input.filtered_list} > {output.filtered_representatives}
 		"""
 
-# rule cluster_with_filter_vOTUs:
-# 	input:
-# 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
-# 		new_clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv",
-# 		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
-# 	output:
-# 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-# 	params:
-# 		min_votu_len=config['min_votu_length']
-# 	message:
-# 		"Filtering vOTUs"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
-# 	threads: 2
-# 	shell:
-# 		"""
-# 		seqtk subseq {input.representatives} {input.filtered_list} > {output.filtered_representatives}
-# 		"""
+rule clustered_with_filter_vOTUs:
+	input:
+		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		new_clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv",
+		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
+	output:
+		cluster_filtered_representatives_list=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
+		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+	params:
+		min_votu_len=config['min_votu_length']
+	message:
+		"Filtering vOTUs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/cluster_filtered_representatives_{sampling}.tsv"
+	threads: 2
+	shell:
+		"""
+		grep -f {input.filtered_list} {input.new_clusters} | cut -f2 > {output.cluster_filtered_representatives_list}
+		seqtk subseq {input.derreplicated_positive_contigs} {output.cluster_filtered_representatives_list} > {output.cluster_filtered_representatives_fasta}
+		"""
