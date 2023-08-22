@@ -4,7 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - conda =4.10.1
-  - python >=3.6
+  - python ==3.11.4
   - scikit-learn ==0.22.1
   - imbalanced-learn
   - pandas
