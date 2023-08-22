@@ -4,7 +4,7 @@ channels:
   - conda-forge
 dependencies:
   # - conda =4.10.1
-  - python ==3.8
+  - python >=3.7
   # - scikit-learn 
   # - imbalanced-learn
   - pandas
@@ -20,7 +20,7 @@ dependencies:
 #DRAM
   # - python>=3.7
   # - pandas
-  - scikit-bio ==0.5.8
+  - scikit-bio <=0.5.8
   # - prodigal
   # - mmseqs2==13.45111
   # - hmmer!=3.3.1
