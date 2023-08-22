@@ -256,7 +256,7 @@ rule polish_bins:
 	threads: 64
 	shell:
 		"""
-		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
+		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} | tail -n +2 > {output.scaffolds2bin_concoct}
 		Fasta_to_Contig2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
 		Fasta_to_Contig2Bin.sh -i {input.maxbin_outdir} -e fasta > {output.scaffolds2bin_maxbin}
 		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
