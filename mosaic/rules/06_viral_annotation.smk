@@ -368,6 +368,7 @@ rule create_dbs_mmseqs2:
 		representatives=dirs_dict["vOUT_DIR"] + "/merged_scaffolds.tot_95-80.fna",
 		reference=REPRESENTATIVE_CONTIGS
 	output:
+	
 		index_representatives=dirs_dict["MMSEQS"] + "/representatives.index",
 		index_reference=dirs_dict["MMSEQS"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".index",
 		idx_reference=dirs_dict["MMSEQS"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".idx",

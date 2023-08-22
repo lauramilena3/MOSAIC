@@ -136,27 +136,7 @@ rule vOUTclustering_get_new_references:
 		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
 			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
-
-rule filter_vOTUs:
-	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
-	output:
-		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-	params:
-		min_votu_len=config['min_votu_length']
-	message:
-		"Filtering vOTUs"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
-	threads: 2
-	shell:
-		"""
-		seqtk subseq {input.representatives} {input.filtered_list} > {output.filtered_representatives}
-		"""
-
+		
 rule get_list_filtered_vOTUs:
 	input:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
@@ -187,3 +167,24 @@ rule get_list_filtered_vOTUs:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/05_vOTU_filtering.py.ipynb"
+
+rule filter_vOTUs:
+	input:
+		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
+	output:
+		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+	params:
+		min_votu_len=config['min_votu_length']
+	message:
+		"Filtering vOTUs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
+	threads: 2
+	shell:
+		"""
+		seqtk subseq {input.representatives} {input.filtered_list} > {output.filtered_representatives}
+		"""
+
