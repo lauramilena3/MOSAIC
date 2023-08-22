@@ -192,7 +192,7 @@ rule filter_vOTUs:
 rule cluster_with_filter_vOTUs:
 	input:
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
-		new_clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv"
+		new_clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv",
 		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
 	output:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
