@@ -161,7 +161,7 @@ rule DRAM_annotation:
 	threads: 32
 	shell:
 		"""
-		DRAM-v.py annotate -i {input.DRAM_fasta} -o {output.DRAM_output} --threads {threads} --skip_trnascan
+		DRAM-v.py annotate -i {input.DRAM_fasta} -o {output.DRAM_output} --threads {threads} 
 		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
