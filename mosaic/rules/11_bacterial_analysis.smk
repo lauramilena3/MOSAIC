@@ -252,13 +252,13 @@ rule polish_bins:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/MaxBin2/binning.tsv"
+		dirs_dict["BENCHMARKS"] +"/DAS_Tool/binning.tsv"
 	threads: 64
 	shell:
 		"""
 		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
 		Fasta_to_Contig2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
-		Fasta_to_Contig2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
+		Fasta_to_Contig2Bin.sh -i {input.maxbin_outdir} -e fasta > {output.scaffolds2bin_maxbin}
 		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat}/*metabat-bins*/,{output.scaffolds2bin_maxbin} \
 		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {output.DAS_Tool_results} --search_engine diamond --threads {threads}
 		"""
