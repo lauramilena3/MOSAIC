@@ -83,6 +83,7 @@ virFinder_dir: "tools/VirFinder"
 clusterONE_dir: "tools/clusterONE"
 vcontact_dir: "tools/vcontact2"
 run_vcontact: False
+run_DRAM: False
 reference_genomes_vcontact: "None"
 taxonomy_file: "db/vcontact2/formatting_taxonomy_affiliations.csv"
 genomad_db: "db/genomad_db"

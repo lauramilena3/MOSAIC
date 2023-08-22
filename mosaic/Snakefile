@@ -20,6 +20,7 @@ METAGENOME=config['metagenome']
 VIRSORTER=config['VirSorter']
 MEMORY_ECORR=config['ecc_memory']
 VCONTACT=config['run_vcontact']
+DRAM=config['run_DRAM']
 ASSEMLY_STATS=config['assembly_stats']
 CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
@@ -176,6 +177,9 @@ def inputAnnotation(wildcards):
 		inputs.extend(expand(dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
 	if IMGVR_blast:
 		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
+	if DRAM:
+		inputs.append=(dirs_dict["vOUT_DIR"]+ "/DRAM_distill_results_tot"),
+
 	# if TOMBO:
 	# 	inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
 	# if NANOPORE:
