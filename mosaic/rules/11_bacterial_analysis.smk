@@ -232,6 +232,7 @@ rule bacterial_binning_CONCOCT:
 		concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
 		concoct --composition_file {output.CONCOCT_10k_fasta} --coverage_file {output.CONCOCT_coverage} -b {params.CONCOCT_outdir} -t {threads}
 		merge_cutup_clustering.py {params.CONCOCT_outdir}/clustering_gt1000.csv > {output.CONCOCT_clustering}
+		mkdir {output.CONCOCT_fasta}
 		extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_fasta}
 		"""
 
@@ -256,8 +257,8 @@ rule polish_bins:
 	shell:
 		"""
 		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} > {output.scaffolds2bin_concoct}
-		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
-		Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
+		./scripts/Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
+		./scripts/Fasta_to_Scaffolds2Bin.sh -i {input.metabat_outdir} -e fasta > {output.scaffolds2bin_maxbin}
 		DAS_Tool-.sif -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
 		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {output.DAS_Tool_results} --search_engine diamond --threads {threads}
 		"""
