@@ -61,7 +61,6 @@ rule getORFs_coding_length:
 		cat {output.length} | cut -f3,2 | awk '{{arr[$2]+=$1}} END {{for (i in arr) {{print i,arr[i]}}}}' > {output.cummulative_length}
 		"""
 
-
 rule clusterTaxonomy:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa",
