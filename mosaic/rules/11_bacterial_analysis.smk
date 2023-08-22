@@ -199,7 +199,7 @@ rule bacterial_binning_MaxBin2:
 		"""
 		mkdir -p {output.maxbin_outdir}
 		cd {output.maxbin_outdir}
-		  ls {input.abundances} > {output.abund_list}
+		ls {input.abundances} > {output.abund_list}
 		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -abund_list {output.abund_list} -out {output.maxbin_outdir} -thread {threads}
 		"""
 
