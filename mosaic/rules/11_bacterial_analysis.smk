@@ -264,7 +264,7 @@ rule polish_bins:
 		mkdir {output.DAS_Tool_results} 
 		cd {output.DAS_Tool_results} 
 		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
-		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} --search_engine diamond --threads {threads}
+		 -l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} --search_engine diamond --threads {threads} --write_bins
 		"""
 
 
