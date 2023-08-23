@@ -270,7 +270,7 @@ rule polish_bins:
 
 rule estimateBinningQuality:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results_DASTool_bins"),
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
@@ -292,14 +292,14 @@ rule estimateBinningQuality:
 		"""
 
 		mkdir -p {output.checkMoutdir_temp}
-		cp -r {input.DAS_Tool_results}/* {output.checkMoutdir_temp}
+		cp -r {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf -t {threads} --tab_table {params.checkm_table} -f {params.checkm_outfile} -x fa {output.checkMoutdir_temp} {output.checkMoutdir}  1> {log}
 		"""
 
 rule taxonomy_binning:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results_DASTool_bins"),
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
@@ -314,7 +314,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
-		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
+		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
 
