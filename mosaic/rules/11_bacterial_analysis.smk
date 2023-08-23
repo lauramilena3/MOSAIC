@@ -236,17 +236,15 @@ rule bacterial_binning_CONCOCT:
 		extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_fasta}
 		"""
 
-# Fasta_to_Contig2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
-
 rule polish_bins:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-		# metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
 		CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
 		maxbin_outdir=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
 	output:
 		scaffolds2bin_concoct=(dirs_dict["MAPPING_DIR"] + "/concoct_scaffolds2bin.tsv"),
-		# scaffolds2bin_metabat=(dirs_dict["MAPPING_DIR"] + "/metabat_scaffolds2bin.tsv"),
+		scaffolds2bin_metabat=(dirs_dict["MAPPING_DIR"] + "/metabat_scaffolds2bin.tsv"),
 		scaffolds2bin_maxbin=(dirs_dict["MAPPING_DIR"] + "/maxbin_scaffolds2bin.tsv"),
 		DAS_Tool_results=directory(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 	params:
@@ -261,12 +259,13 @@ rule polish_bins:
 	shell:
 		"""
 		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} | tail -n +2 > {output.scaffolds2bin_concoct}
+		Fasta_to_Contig2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
 		Fasta_to_Contig2Bin.sh -i {input.maxbin_outdir} -e fasta > {output.scaffolds2bin_maxbin}
 		mkdir {output.DAS_Tool_results} 
 		cd {output.DAS_Tool_results} 
-		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_maxbin}  -l concoct,maxbin \
-			-c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} --search_engine diamond \
-			--threads {threads} --write_bins --write_bin_evals
+		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
+			-l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} \
+			--search_engine diamond --threads {threads} --write_bins --write_bin_evals --score_threshold 0
 		"""
 
 rule estimateBinningQuality:
@@ -315,7 +314,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
-		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
+		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
 
