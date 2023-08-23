@@ -270,7 +270,7 @@ rule polish_bins:
 
 rule estimateBinningQuality:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results_DASTool_bins"),
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
@@ -299,7 +299,7 @@ rule estimateBinningQuality:
 
 rule taxonomy_binning:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results_DASTool_bins"),
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
