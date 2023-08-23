@@ -290,7 +290,6 @@ rule estimateBinningQuality:
 	threads: 16
 	shell:
 		"""
-
 		mkdir -p {output.checkMoutdir_temp}
 		cp -r {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
@@ -314,6 +313,7 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
+		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
