@@ -264,8 +264,9 @@ rule polish_bins:
 		Fasta_to_Contig2Bin.sh -i {input.maxbin_outdir} -e fasta > {output.scaffolds2bin_maxbin}
 		mkdir {output.DAS_Tool_results} 
 		cd {output.DAS_Tool_results} 
-		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_maxbin} \
-		 -l concoct,maxbin -c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} --search_engine diamond --threads {threads} --write_bins
+		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_maxbin}  -l concoct,maxbin \
+			-c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} --search_engine diamond \
+			--threads {threads} --write_bins --write_bin_evals
 		"""
 
 rule estimateBinningQuality:
