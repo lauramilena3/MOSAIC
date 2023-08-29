@@ -434,6 +434,47 @@ rule read_classification_BRACKEN:
 		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t 4000 || true
 		touch {output.bracken_report_paired}
 		"""
+
+rule krakenUnique:
+	input:
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+		krakenUniq_db=(config['krakenUniq_db']),
+	output:
+		krakenuniq_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_output_paired_clean_tot.csv"),
+		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
+	message:
+		"Assesing taxonomy with kraken2 on clean reads"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/krakenUniq/{sample}_clean.tsv"
+	priority: 1
+	threads: 8
+	shell:
+		"""
+		krakenuniq --report-file {output.krakenuniq_report_paired} --db {input.krakenUniq_db}--threads {threads} --output {output.krakenuniq_output_paired} --paired {input.forward_paired} {input.reverse_paired}
+		"""
+
+rule read_classification_BRACKENUniq:
+	input:
+		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
+		krakenuniq_db=(config['krakenuniq_db']),
+		bracken_checkpoint="brackenuniq_db_ckeckpoint.txt",
+	output:
+		brackenuniq_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_brackenuniq_{level}_report_paired_tot.csv",
+	message:
+		"Creating taxonomic reports with Bracken"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
+	shell:
+		"""
+		bracken -d {input.krakenuniq_db}  -i {input.krakenuniq_report_paired}  -o {output.brackenuniq_report_paired} -l {wildcards.level} -t 4000 || true
+		touch {output.brackenuniq_report_paired}
+		"""
+
 #
 # rule postQualityCheckIlluminaSE:
 # 	input:
