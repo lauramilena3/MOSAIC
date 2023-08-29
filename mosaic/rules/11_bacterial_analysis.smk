@@ -293,7 +293,7 @@ rule estimateBinningQuality:
 		mkdir -p {output.checkMoutdir_temp}
 		cp -r {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
-		checkm lineage_wf -t {threads} --tab_table {params.checkm_table} -f {params.checkm_outfile} -x fa {output.checkMoutdir_temp} {output.checkMoutdir}  1> {log}
+		checkm lineage_wf -t {threads} -f {params.checkm_outfile} -x fa {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
 
 rule taxonomy_binning:
