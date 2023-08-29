@@ -394,7 +394,7 @@ rule buildBrackenUniqDB:
 	input:
 		krakenuniq_db=config['krakenUniq_db'],
 	output:
-		brackenuniq_checkpoint=config['kraken_db'] + "_brackenuniq_db_ckeckpoint.txt",
+		brackenuniq_checkpoint=config['krakenUniq_db'] + "_brackenuniq_db_ckeckpoint.txt",
 	message:
 		"Building BrakenUniq database"
 	threads: 64
