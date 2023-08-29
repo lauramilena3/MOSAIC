@@ -29,6 +29,7 @@ dependencies:
   - racon =1.4.20
   - kraken2 =2.1.2
   - bracken =2.8
+  - krakenuniq 1.0.4
   - canu =2.0
   - biopython =1.79
   - spacepharer =5.c2e680a
