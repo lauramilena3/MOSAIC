@@ -453,7 +453,7 @@ rule krakenUnique:
 	threads: 8
 	shell:
 		"""
-		krakenuniq --report-file {output.krakenuniq_report_paired} --db {input.krakenUniq_db}--threads {threads} --output {output.krakenuniq_output_paired} --paired {input.forward_paired} {input.reverse_paired}
+		krakenuniq --report-file {output.krakenuniq_report_paired} --db {input.krakenUniq_db} --threads {threads} --output {output.krakenuniq_output_paired} --paired {input.forward_paired} {input.reverse_paired}
 		"""
 
 rule read_classification_BRACKENUniq:
