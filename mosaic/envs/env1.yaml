@@ -19,7 +19,7 @@ dependencies:
   - mummer4 =4.0.0rc1
   - prodigal =2.6.3
   - bwa =0.7.17
-  - perl =5.32.1
+  - perl =5.26.2
   - circlator=1.5.5
   - seqtk =1.3
   - bedtools =2.29.2.0
@@ -29,7 +29,6 @@ dependencies:
   - racon =1.4.20
   - kraken2 =2.1.2
   - bracken =2.8
-  - krakenuniq 1.0.4
   - canu =2.0
   - biopython =1.79
   - spacepharer =5.c2e680a
