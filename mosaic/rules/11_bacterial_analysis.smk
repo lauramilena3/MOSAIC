@@ -275,7 +275,7 @@ rule estimateBinningQuality:
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
 		checkMoutdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
-		checkMoutplots=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_plots"),
+		# checkMoutplots=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_plots"),
 	params:
 		checkm_table=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/tab_results_checkM.csv"),
 		checkm_outfile=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/output_results_checkM.txt"),
