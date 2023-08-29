@@ -211,3 +211,18 @@ rule clustered_with_filter_vOTUs:
 		grep -f {input.filtered_list} {input.new_clusters} | cut -f2 > {output.cluster_filtered_representatives_list}
 		seqtk subseq {input.derreplicated_positive_contigs} {output.cluster_filtered_representatives_list} > {output.cluster_filtered_representatives_fasta}
 		"""
+
+rule get_composition:
+	input:
+		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+	output:
+		composition=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_nucleotide_content.{sampling}.fasta",
+	message:
+		"Getting vOTUs nucleotide composition"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 1
+	shell:
+		"""
+		seqtk comp {input.derreplicated_positive_contigs} > {output.composition}
+		"""
