@@ -403,7 +403,7 @@ rule buildBrackenUniqDB:
 	shell:
 		"""
     	bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150
-		touch {output.bracken_checkpoint}
+		touch {output.brackenuniq_checkpoint}
 		"""
 
 rule downloadGenomadDB:
