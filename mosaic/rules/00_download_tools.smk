@@ -339,7 +339,7 @@ rule getPhaGCN_newICTV:
 		git reset --hard "9d7a1c8"
 		chmod 777 *
 		"""
-		
+
 rule downloadKrakenDB:
 	output:
 		kraken_db=directory(config['kraken_db']),
@@ -358,7 +358,7 @@ rule downloadKrakenDB:
 
 rule downloadKrakenUniqDB:
 	output:
-		krakenuniq_db=directory(config['krakenuniq_db']),
+		krakenuniq_db=directory(config['krakenUniq_db']),
 		krakenuniq_tar=temp("kuniq_standard_minus_kdb.20220616.tgz")
 	message:
 		"Downloading Kraken database"
@@ -392,7 +392,7 @@ rule buildBrackenDB:
 
 rule buildBrackenUniqDB:
 	input:
-		krakenuniq_db=config['krakenuniq_db'],
+		krakenuniq_db=config['krakenUniq_db'],
 	output:
 		brackenuniq_checkpoint=config['kraken_db'] + "_brackenuniq_db_ckeckpoint.txt",
 	message:
