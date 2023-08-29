@@ -339,8 +339,8 @@ rule getPhaGCN_newICTV:
 		git reset --hard "9d7a1c8"
 		chmod 777 *
 		"""
-
-rule downloadPlusPFPKrakenDB:
+		
+rule downloadKrakenDB:
 	output:
 		kraken_db=directory(config['kraken_db']),
 		kraken_tar=temp("k2_pluspfp_20220908.tar.gz")
@@ -356,19 +356,53 @@ rule downloadPlusPFPKrakenDB:
 		tar -xvf {output.kraken_tar} -C {output.kraken_db}
 		"""
 
+rule downloadKrakenUniqDB:
+	output:
+		krakenuniq_db=directory(config['krakenuniq_db']),
+		krakenuniq_tar=temp("kuniq_standard_minus_kdb.20220616.tgz")
+	message:
+		"Downloading Kraken database"
+	threads: 1
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	shell:
+		"""
+		mkdir {output.krakenuniq_db}
+		cd {output.krakenuniq_db}
+		wget https://genome-idx.s3.amazonaws.com/kraken/uniq/krakendb-2022-06-16-STANDARD/kuniq_standard_minus_kdb.20220616.tgz
+		wget https://genome-idx.s3.amazonaws.com/kraken/uniq/krakendb-2022-06-16-STANDARD/database.kdb 
+		tar -xvf {output.krakenuniq_tar} -C {output.krakenuniq_db}
+		"""
+
 rule buildBrackenDB:
 	input:
 		kraken_db=config['kraken_db'],
 	output:
 		bracken_checkpoint=config['kraken_db'] + "_bracken_db_ckeckpoint.txt",
 	message:
-		"Downloading Kraken database"
+		"Building Braken database"
 	threads: 64
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
 		"""
     	bracken-build -d {input.kraken_db} -t {threads} -k 35 -l 150
+		touch {output.bracken_checkpoint}
+		"""
+
+rule buildBrackenUniqDB:
+	input:
+		krakenuniq_db=config['krakenuniq_db'],
+	output:
+		brackenuniq_checkpoint=config['kraken_db'] + "_brackenuniq_db_ckeckpoint.txt",
+	message:
+		"Building BrakenUniq database"
+	threads: 64
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	shell:
+		"""
+    	bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150
 		touch {output.bracken_checkpoint}
 		"""
 
