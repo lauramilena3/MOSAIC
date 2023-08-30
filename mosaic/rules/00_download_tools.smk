@@ -377,7 +377,7 @@ rule downloadKrakenUniqDB:
 
 rule installBracken:
 	output:
-		bracken_dir=config['bracken_dir'],
+		bracken_dir=directory(config['bracken_dir']),
 	message:
 		"Downloading Braken"
 	threads: 1
@@ -394,6 +394,7 @@ rule installBracken:
 
 rule buildBrackenDB:
 	input:
+		bracken_dir=directory(config['bracken_dir']),
 		kraken_db=config['kraken_db'],
 	output:
 		bracken_checkpoint=config['kraken_db'] + "_bracken_db_ckeckpoint.txt",
@@ -410,6 +411,7 @@ rule buildBrackenDB:
 
 rule buildBrackenUniqDB:
 	input:
+		bracken_dir=config['bracken_dir'],
 		krakenuniq_db=config['krakenUniq_db'],
 	output:
 		brackenuniq_checkpoint=config['krakenUniq_db'] + "_brackenuniq_db_ckeckpoint.txt",
