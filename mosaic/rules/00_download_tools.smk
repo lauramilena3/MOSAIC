@@ -394,7 +394,7 @@ rule installBracken:
 
 rule buildBrackenDB:
 	input:
-		bracken_dir=directory(config['bracken_dir']),
+		bracken_dir=(config['bracken_dir']),
 		kraken_db=config['kraken_db'],
 	output:
 		bracken_checkpoint=config['kraken_db'] + "_bracken_db_ckeckpoint.txt",
@@ -422,7 +422,7 @@ rule buildBrackenUniqDB:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
 		"""
-    	bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150 -y krakenuniq
+    	{input.bracken_dir}/bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150 -y krakenuniq
 		touch {output.brackenuniq_checkpoint}
 		"""
 
