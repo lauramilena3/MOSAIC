@@ -318,7 +318,7 @@ rule taxonomy_binning:
 		"""
 
 
-rule DRAM_annotation:
+rule DRAM_microbial_annotation:
 	input:
 		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
 		DRAM_db=config['DRAM_db'],
