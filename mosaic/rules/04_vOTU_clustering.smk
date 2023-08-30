@@ -216,7 +216,7 @@ rule get_composition:
 	input:
 		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
-		composition=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_nucleotide_content.{sampling}.fasta",
+		composition=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_nucleotide_content.{sampling}.tsv",
 	message:
 		"Getting vOTUs nucleotide composition"
 	conda:
