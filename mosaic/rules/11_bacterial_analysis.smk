@@ -326,6 +326,7 @@ rule DRAM_microbial_annotation:
 		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}"),
 		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_{sampling}"),
 	params:
+		DAS_Tool_bins=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results_DASTool_bins"),
 		DRAM_annotations=dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}/annotations.tsv",
 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
@@ -338,7 +339,7 @@ rule DRAM_microbial_annotation:
 	threads: 32
 	shell:
 		"""
-		DRAM.py annotate -i {input.DAS_Tool_results}/*fa -o {output.DRAM_output} --threads 64
+		DRAM.py annotate -i {params.DAS_Tool_bins}/*fa -o {output.DRAM_output} --threads 64
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
