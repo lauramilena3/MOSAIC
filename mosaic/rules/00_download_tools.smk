@@ -419,7 +419,7 @@ rule buildBrackenUniqDB:
 		"Building BrakenUniq database"
 	threads: 32
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	shell:
 		"""
     	{input.bracken_dir}/bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150 -y krakenuniq
