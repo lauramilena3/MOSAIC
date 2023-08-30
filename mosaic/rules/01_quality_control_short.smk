@@ -395,6 +395,7 @@ rule contaminants_KRAKEN_clean:
 		kraken2 --db {params.kraken_db} --threads {threads} \
 			--paired {input.forward_paired} {input.reverse_paired} \
 			--output {output.kraken_output_paired} --report {output.kraken_report_paired}
+			
 		"""
 
 rule read_classification_BRACKEN_pre:
