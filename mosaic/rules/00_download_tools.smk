@@ -388,7 +388,7 @@ rule installBracken:
 		mkdir -p tools
 		cd tools
     	git clone https://github.com/jenniferlu717/Bracken
-		cd {output.bracken_dir}
+		cd Bracken
 		bash install_bracken.sh
 		"""
 
