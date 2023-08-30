@@ -318,3 +318,28 @@ rule taxonomy_binning:
 		"""
 
 
+rule DRAM_annotation:
+	input:
+		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+		DRAM_db=config['DRAM_db'],
+	output:
+		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}"),
+		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_{sampling}"),
+	params:
+		DRAM_annotations=dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}/annotations.tsv",
+		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
+		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
+	message:
+		"Annotate contigs with DRAM"
+	threads: 32
+	shell:
+		"""
+		DRAM.py annotate -i {input.DAS_Tool_results}*fa -o {output.DRAM_output} --threads 64
+		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
+		"""
+
+
