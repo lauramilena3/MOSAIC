@@ -339,7 +339,7 @@ rule DRAM_microbial_annotation:
 	threads: 32
 	shell:
 		"""
-		DRAM.py annotate -i {params.DAS_Tool_bins}/*fa -o {output.DRAM_output} --threads 64
+		DRAM.py annotate -i '{params.DAS_Tool_bins}/*fa' -o {output.DRAM_output} --threads 64
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
