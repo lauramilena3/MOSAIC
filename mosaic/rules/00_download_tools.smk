@@ -381,7 +381,7 @@ rule buildBrackenDB:
 		bracken_checkpoint=config['kraken_db'] + "_bracken_db_ckeckpoint.txt",
 	message:
 		"Building Braken database"
-	threads: 64
+	threads: 32
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
@@ -397,12 +397,12 @@ rule buildBrackenUniqDB:
 		brackenuniq_checkpoint=config['krakenUniq_db'] + "_brackenuniq_db_ckeckpoint.txt",
 	message:
 		"Building BrakenUniq database"
-	threads: 64
+	threads: 32
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
 		"""
-    	bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150
+    	bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150 -y krakenuniq
 		touch {output.brackenuniq_checkpoint}
 		"""
 
