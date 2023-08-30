@@ -374,6 +374,24 @@ rule downloadKrakenUniqDB:
 		tar -xvf {output.krakenuniq_tar} -C {output.krakenuniq_db}
 		"""
 
+
+rule installBracken:
+	output:
+		bracken_dir=config['bracken_dir'],
+	message:
+		"Downloading Braken"
+	threads: 1
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	shell:
+		"""
+		mkdir -p tools
+		cd tools
+    	git clone https://github.com/jenniferlu717/Bracken
+		cd {output.bracken_dir}
+		bash install_bracken.sh
+		"""
+
 rule buildBrackenDB:
 	input:
 		kraken_db=config['kraken_db'],

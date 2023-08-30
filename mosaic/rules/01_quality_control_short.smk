@@ -459,6 +459,7 @@ rule krakenUnique:
 
 rule read_classification_BRACKENUniq:
 	input:
+		bracken_dir=config['bracken_dir'],
 		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
 		krakenuniq_db=(config['krakenUniq_db']),
 		brackenuniq_checkpoint=config['krakenUniq_db'] + "_brackenuniq_db_ckeckpoint.txt",
