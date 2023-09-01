@@ -141,15 +141,43 @@ rule estimateGenomeCompletness_reference:
 
 # 		"""
 
-rule DRAM_annotation:
+
+rule virSorter2_DRAM:
+	input:
+		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		virSorter_db=config['virSorter_db'],
+	output:
+		positive_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/final-viral-combined.fa",
+		table_virsorter=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/final-viral-score.tsv",
+		positive_list=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/positive_VS_list_{sampling}.txt",
+		DRAM_tab=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
+		DRAM_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
+		iter=directory(dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/iter-0"),
+	params:
+		out_folder=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}"
+	message:
+		"Classifing contigs with VirSorter"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/VirSorter2_DRAM/{sampling}_illumina.tsv"
+	threads: 64
+	shell:
+		"""
+		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} \
+				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off  --provirus-off --min-length 0
+		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
+		"""
+
+rule DRAMv_annotation:
 	input:
 		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 		DRAM_db=config['DRAM_db'],
 	output:
-		DRAM_output=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_annotate_results_{sampling}"),
-		DRAM_summary=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_distill_results_{sampling}"),
+		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}"),
+		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_{sampling}"),
 	params:
-		DRAM_annotations=dirs_dict["vOUT_DIR"]+ "/DRAM_annotate_results_{sampling}/annotations.tsv",
+		DRAM_annotations=dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}/annotations.tsv",
 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
 	conda:

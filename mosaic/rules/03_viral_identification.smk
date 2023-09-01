@@ -159,6 +159,7 @@ rule virSorter2:
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
 		"""
 
+
 rule genomad_vOTUs:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
