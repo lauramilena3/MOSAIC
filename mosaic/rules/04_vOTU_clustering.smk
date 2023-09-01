@@ -224,5 +224,5 @@ rule get_composition:
 	threads: 1
 	shell:
 		"""
-		seqtk comp {input.derreplicated_positive_contigs} > {output.composition}
+		seqtk comp {input.cluster_filtered_representatives_fasta} > {output.composition}
 		"""
