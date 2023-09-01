@@ -164,7 +164,7 @@ rule virSorter2_DRAM:
 	threads: 64
 	shell:
 		"""
-		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} \
+		virsorter run -w {params.out_folder} -i {input.cluster_filtered_representatives_fasta} -j {threads} --db-dir {input.virSorter_db} \
 				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off  --provirus-off --min-length 0
 				--viral-gene-enrich-off --prep-for-dramv --keep-original-seq --min-score 0
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
