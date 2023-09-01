@@ -175,10 +175,10 @@ rule DRAMv_annotation:
 		DRAM_tab=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
 		DRAM_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",		DRAM_db=config['DRAM_db'],
 	output:
-		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}"),
-		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_{sampling}"),
+		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}"),
+		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_{sampling}"),
 	params:
-		DRAM_annotations=dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}/annotations.tsv",
+		DRAM_annotations=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/annotations.tsv",
 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
 	conda:
