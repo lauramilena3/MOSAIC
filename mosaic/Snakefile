@@ -179,7 +179,7 @@ def inputAnnotation(wildcards):
 	if IMGVR_blast:
 		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
 	if DRAM:
-		inputs.append(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
+		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_tot"),
 
 	# if TOMBO:
 	# 	inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")
