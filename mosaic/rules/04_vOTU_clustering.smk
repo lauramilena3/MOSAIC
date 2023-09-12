@@ -39,7 +39,7 @@ rule derreplicate_assembly:
 		"""
 		cat {input.positive_contigs} > {output.combined_positive_contigs}
 		cd {params.dir_votu}
-		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp}
+		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} 
 		mv {params.rep_name_full} {output.derreplicated_positive_contigs}
 		"""
 
