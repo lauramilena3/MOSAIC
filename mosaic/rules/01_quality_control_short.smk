@@ -213,13 +213,13 @@ rule contaminants_KRAKEN:
 		kraken2 --db {params.kraken_db} --threads {threads} \
 			--paired {input.forward_paired} {input.reverse_paired} \
 			--output {output.kraken_output_paired} --report {output.kraken_report_paired}\
-			–report-minimizer-data
+			--report-minimizer-data
 
 		grep -P 'D\t' {output.kraken_report_paired} | sort -r > {output.kraken_domain}
 		#UNPAIRED
 		kraken2 --db {params.kraken_db} --threads {threads} {input.merged_unpaired}  \
 			--output {output.kraken_output_unpaired} --report {output.kraken_report_unpaired}\
-			–report-minimizer-data
+			--report-minimizer-data
 
 		"""
 		# python {input.kraken_tools}/combine_kreports.py \
@@ -397,7 +397,7 @@ rule contaminants_KRAKEN_clean:
 		kraken2 --db {params.kraken_db} --threads {threads} \
 			--paired {input.forward_paired} {input.reverse_paired} \
 			--output {output.kraken_output_paired} --report {output.kraken_report_paired} \
-			–report-minimizer-data
+			--report-minimizer-data
 		"""
 
 rule read_classification_BRACKEN_pre:
