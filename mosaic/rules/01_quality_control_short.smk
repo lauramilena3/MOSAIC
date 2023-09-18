@@ -239,7 +239,7 @@ rule contaminants_KRAKEN_microbial:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
-	threads: 16
+	threads: 32
 	shell:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \
