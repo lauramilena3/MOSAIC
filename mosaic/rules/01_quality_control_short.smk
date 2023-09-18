@@ -244,7 +244,7 @@ rule contaminants_KRAKEN_microbial:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \
 			--paired {input.forward_paired} {input.reverse_paired} \
-			--output {output.kraken_output_paired} --report {output.kraken_report_paired}
+			--output {output.kraken_output_paired} --report {output.kraken_report_paired} \
 			--report-minimizer-data
 		"""
 
