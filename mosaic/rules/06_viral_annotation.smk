@@ -144,7 +144,8 @@ rule estimateGenomeCompletness_reference:
 
 rule virSorter2_DRAM:
 	input:
-		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		# cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 		virSorter_db=config['virSorter_db'],
 	output:
 		positive_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/final-viral-combined.fa",
@@ -152,7 +153,7 @@ rule virSorter2_DRAM:
 		positive_list=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/positive_VS_list_{sampling}.txt",
 		DRAM_tab=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
 		DRAM_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
-		iter=directory(dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/iter-0"),
+		iteration=directory(dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/iter-0"),
 	params:
 		out_folder=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}"
 	message:
@@ -164,7 +165,7 @@ rule virSorter2_DRAM:
 	threads: 64
 	shell:
 		"""
-		virsorter run -w {params.out_folder} -i {input.cluster_filtered_representatives_fasta} -j {threads} --db-dir {input.virSorter_db} \
+		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} \
 				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off  --provirus-off --min-length 0 \
 				--viral-gene-enrich-off --prep-for-dramv --keep-original-seq --min-score 0
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
@@ -173,7 +174,8 @@ rule virSorter2_DRAM:
 rule DRAMv_annotation:
 	input:
 		DRAM_tab=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
-		DRAM_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",		DRAM_db=config['DRAM_db'],
+		DRAM_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",		
+		DRAM_db=config['DRAM_db'],
 	output:
 		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}"),
 		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_{sampling}"),
