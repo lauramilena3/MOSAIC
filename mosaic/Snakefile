@@ -383,6 +383,12 @@ rule annotate_isolates:
 		dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_ORFs.tot.csv",
 		#dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.tot/",
 
+rule microdiversity:
+	input: 
+		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa"
+
+
+
 rule find_relatives:
 	input:
 		expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
