@@ -339,7 +339,7 @@ rule buildBowtieDB_contaminants:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{contaminant}_bowtie_contaminants.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 8
+	threads: 32
 	shell:
 		"""
 		bowtie2-build {input.contaminants} {params.prefix} --threads {threads}
