@@ -326,6 +326,26 @@ rule mapReadsToContigsPE:
 # 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 # 		"""
 
+rule call_SNPs_sub:
+	input:
+		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_sorted.bam"),
+	output:
+		snp_temp=temp(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.bcf"),
+		snp=(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv"),
+	message:
+		"Calling SNPs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/SNP_calling/{sample}_sub.tsv"
+	threads: 8
+	shell:
+		"""
+		bcftools mpileup -Ou -I -d 1000 -f {input.filtered_representatives} {input.sorted_bam} | bcftools call -mv -Ob --ploidy 1 -o {output.snp_temp}
+		bcftools view -i '%QUAL>=20' {output.snp_temp} | bcftools query -f "%CHROM\t%POS\t%REF\t%ALT\n" -o {output.snp}
+		"""
+
 rule buildBowtieDB_contaminants:
 	input:
 		contaminants=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}.fasta",
@@ -396,6 +416,7 @@ rule mapReads_contaminants:
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
+
 
 # rule get_norm_RPKM:
 # 	input:
