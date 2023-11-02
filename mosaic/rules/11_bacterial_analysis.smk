@@ -337,7 +337,7 @@ rule taxonomy_binning_assembly:
 		mkdir {output.GTDB_outdir}/input_assemblies
 		cp {input.racoon_assembly} {output.GTDB_outdir}/input_assemblies
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
-		gtdbtk classify_wf --genome_dir {input.GTDB_outdir}/input_assemblies/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
+		gtdbtk classify_wf --genome_dir {output.GTDB_outdir}/input_assemblies/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
 
 rule DRAM_microbial_annotation:
