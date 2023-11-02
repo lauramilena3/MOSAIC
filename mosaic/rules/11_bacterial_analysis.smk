@@ -317,6 +317,28 @@ rule taxonomy_binning:
 		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
+rule taxonomy_binning:
+	input:
+		racoon_assembly=(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		gtdbtk_db=(config['gtdbtk_db']),
+	output:
+		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
+	params:
+		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
+	message:
+		"Assigning microbial taxonomy with GTDB-Tk "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
+	threads: 64
+	shell:
+		"""
+		mkdir {output.GTDB_outdir}/input_assemblies
+		cp {input.racoon_assembly} {output.GTDB_outdir}/input_assemblies
+		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
+		gtdbtk classify_wf --genome_dir {input.GTDB_outdir}/input_assemblies/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
+		"""
 
 rule DRAM_microbial_annotation:
 	input:
