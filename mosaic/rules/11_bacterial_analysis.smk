@@ -317,7 +317,7 @@ rule taxonomy_binning:
 		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
 		"""
 
-rule taxonomy_binning:
+rule taxonomy_binning_assembly:
 	input:
 		racoon_assembly=expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		gtdbtk_db=(config['gtdbtk_db']),
