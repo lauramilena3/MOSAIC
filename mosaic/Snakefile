@@ -453,7 +453,7 @@ rule annotation_workflow:
 
 rule checkViralCompletness:
 	input:
-		checkV=dirs_dict["vOUT_DIR"] + "/checkV_tot/quality_summary.tsv"
+		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 
 #subsample_test=[10,20]
 
