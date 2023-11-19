@@ -23,4 +23,5 @@ dependencies:
   - jupyter =1.0
   - jupyterlab_code_formatter =1.4
   - lxml =4.9.2
+  - matplotlib-venn =0.11.9
 #   - python_abi =3.10
