@@ -263,7 +263,7 @@ def inputAbundance(wildcards):
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	return inputs
-	
+
 def inputAnnotation(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
@@ -357,7 +357,7 @@ rule runAnnotation:
 		inputvOTUClustering,
 		inputAnnotation,
 
-rule run_workflow:
+rule runWorkflow:
 	input:
 		inputReadsCount,
 		inputQC,
