@@ -177,7 +177,7 @@ rule viralID_parsing:
 
 def input_assembly_flagstats(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
