@@ -360,6 +360,16 @@ rule runAnnotation:
 		inputvOTUClustering,
 		inputAnnotation,
 
+rule run_workflow:
+	input:
+		inputReadsCount,
+		inputQC,
+		inputAssembly,
+		inputViralID,
+		inputvOTUClustering,
+		inputAbundance, 
+		inputAnnotation,
+		
 rule microbial:
 	input:
 		# metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
