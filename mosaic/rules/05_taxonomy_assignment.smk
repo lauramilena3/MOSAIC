@@ -250,5 +250,5 @@ rule hostID_iphop:
 	threads: 64
 	shell:
 		"""
-		iphop predict --fa_file {input.representatives} --db_dir {input.iphop_db}/Sept_2021_pub_rw --out_dir {output.results_dir} --num_threads {threads}
+		iphop predict --fa_file {input.representatives} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
 		"""
