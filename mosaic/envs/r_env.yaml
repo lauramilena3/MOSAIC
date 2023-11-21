@@ -1,6 +1,6 @@
 channels:
-  - conda-forge
   - r
+  - conda-forge
 dependencies:
   - r-base =4.2.0 
   - jupyter =1.0.0
