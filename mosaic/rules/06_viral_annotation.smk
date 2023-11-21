@@ -537,8 +537,6 @@ rule mapReadstoContigsPE:
 		samtools index {output.sorted_bam_unpaired}
 		"""
 
-
-
 rule detectNucleotideModifications:
 	input:
 		fastq_file=dirs_dict["RAW_DATA_DIR"] + "/{sample_nanopore}_nanopore.fastq",
