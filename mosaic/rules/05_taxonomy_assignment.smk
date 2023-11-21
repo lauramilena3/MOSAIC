@@ -69,13 +69,13 @@ rule clusterTaxonomy:
 		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Aug2023_genomes.faa")),
 		# vcontact_dir=config["vcontact_dir"],
 	output:
-		gene2genome=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
-		merged_gene2genome=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
-		merged_ORFs=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_merged.{sampling}.fasta",
-		genome_file=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv",
-		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
+		gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
+		merged_gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
+		merged_ORFs=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_merged.{sampling}.fasta",
+		genome_file=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv",
+		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
 	params:
-		out_dir=directory(dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}"),
+		out_dir=directory(dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}"),
 		reference_genomes=config["reference_genomes_vcontact"],
 		#reference_genomes='ProkaryoticViralRefSeq94-Merged'
 	message:
@@ -103,10 +103,10 @@ rule clusterTaxonomy:
 
 rule parseVcontact:
 	input:
-		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
+		viral_cluster_overview=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/viral_cluster_overview.csv",
 		formatting_taxonomy_affiliations=config["taxonomy_file"],
 	output:
-		taxonomy_results=dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv",
+		taxonomy_results=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv",
 	message:
 		"Assigning viral taxonomy with vContact2 results"
 	benchmark:
