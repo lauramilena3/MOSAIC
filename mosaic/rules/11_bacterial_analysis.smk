@@ -268,6 +268,24 @@ rule polish_bins:
 			--search_engine diamond --threads {threads} --write_bins --write_bin_evals --score_threshold 0
 		"""
 
+rule predict_spacers:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+	output:
+		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
+	message:
+		"Getting CRISPR spacers with MinCED"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/CRISPR/minced.tsv"
+	threads: 64
+	shell:
+		"""
+		minced -spacers {input.derreplicated_microbial_contigs} {output.spacers}
+		"""
+
+
 rule estimateBinningQuality:
 	input:
 		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
