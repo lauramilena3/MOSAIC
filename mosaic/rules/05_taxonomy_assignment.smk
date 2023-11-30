@@ -252,3 +252,35 @@ rule hostID_iphop:
 		"""
 		iphop predict --fa_file {input.representatives} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
 		"""
+
+
+rule match_spacers:
+	input:
+		spacers=config['microbial_spacers'],
+		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+	output:
+		spacer_match=dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
+		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB.{sampling}")),
+		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_rev.{sampling}")),
+		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_mincedSetDB.{sampling}")),
+		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder.{sampling}")),
+	message:
+		"Matching microbial spacers"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	params:
+		taxonomy_table_temp=("final_prediction.csv"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/PhaGCN_Taxonomy/{sampling}.tsv"
+	threads: 32
+	shell:
+		"""
+		spacepharer createsetdb {input.filtered_representatives} {output.viralTargetDB} {output.tmpFolder}
+		spacepharer createsetdb {input.filtered_representatives} {output.viralTargetDB_rev} {output.tmpFolder} --reverse-fragments 1
+		spacepharer createsetdb {input.spacers} {output.spacers_mincedSetDB} {output.tmpFolder} --extractorf-spacer 1
+		spacepharer predictmatch {output.spacers_mincedSetDB} {output.viralTargetDB} {output.viralTargetDB_rev} {output.spacer_match} {output.tmpFolder}
+	 	"""
+
+
