@@ -316,7 +316,7 @@ rule estimateBinningQuality:
 
 rule taxonomy_binning:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
@@ -332,7 +332,7 @@ rule taxonomy_binning:
 	shell:
 		"""
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
-		gtdbtk classify_wf --genome_dir {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fa
+		gtdbtk classify_wf --genome_dir {input.derreplicated_microbial_contigs}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
 
 rule taxonomy_binning_assembly:

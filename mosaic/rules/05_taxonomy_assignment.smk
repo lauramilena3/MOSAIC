@@ -280,7 +280,7 @@ rule match_spacers:
 		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
 		spacepharer createsetdb {input.spacers} {params.spacers_mincedSetDB} {params.tmpFolder} --extractorf-spacer 1
 		spacepharer predictmatch {params.spacers_mincedSetDB} {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder}
-		rm {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
+		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
 	 	"""
 
 
