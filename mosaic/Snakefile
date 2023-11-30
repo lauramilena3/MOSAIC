@@ -282,6 +282,9 @@ def inputAnnotation(wildcards):
 		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
 	if DRAM:
 		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_tot"),
+	if config["microbial_spacers"]>0:
+		inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
+
 
 	# if TOMBO:
 	# 	inputs.append(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + ".fraction_modified_reads.plus.wig")

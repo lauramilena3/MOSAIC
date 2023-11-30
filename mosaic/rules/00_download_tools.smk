@@ -633,7 +633,7 @@ rule downloadDionSpacers:
 		blast=(os.path.join(workflow.basedir,"db/ncbi/NCBI_viral_proteins.faa")),
 		dion_db=directory(os.path.join(workflow.basedir, config['dion_db'])),
 	message:
-		"Downloading RefSeq viral proteins for blast annotation"
+		"Downloading Dion spacer database"
 	threads: 1
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
@@ -641,3 +641,4 @@ rule downloadDionSpacers:
 		"""
 		spacepharer downloaddb spacers_dion_et_al_2021 dionSetDB tmpFolder
 		"""
+
