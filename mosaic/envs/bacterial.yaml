@@ -9,5 +9,5 @@ dependencies:
   - concoct =1.1.0
   - das_tool =1.1.6
   - scikit-learn=1.1.0
-
+  - minced =0.4.2
   
