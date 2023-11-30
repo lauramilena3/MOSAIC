@@ -268,7 +268,8 @@ rule match_spacers:
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB.{sampling}")),
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_rev.{sampling}")),
 		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_mincedSetDB.{sampling}")),
-		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder.{sampling}")),	conda:
+		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder.{sampling}")),	
+	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/PhaGCN_Taxonomy/{sampling}.tsv"
