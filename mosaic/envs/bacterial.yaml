@@ -1,9 +1,9 @@
 channels:
-  - bioconda
-  - pytorch
+  # - pytorch
   - conda-forge
-  - agbiome
-  - biobuilds
+  - bioconda
+  # - agbiome
+  # - biobuilds
 dependencies:
   - metabat2 =2.15
   - maxbin2 =2.2.7
