@@ -1,7 +1,8 @@
 channels:
+  - bioconda
+  - pytorch
   - conda-forge
   - agbiome
-  - bioconda
   - biobuilds
 dependencies:
   - metabat2 =2.15
