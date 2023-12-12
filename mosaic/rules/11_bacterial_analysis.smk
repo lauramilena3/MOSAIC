@@ -236,6 +236,39 @@ rule bacterial_binning_CONCOCT:
 		extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_fasta}
 		"""
 
+rule bacterial_binning_VAMB:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
+		sorted_bam_index=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam.bai", sample=SAMPLES),
+	output:
+		CONCOCT_10k_fasta=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.fasta"),
+		CONCOCT_10k_bed=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.bed"),
+		CONCOCT_coverage=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_coverage.txt"),
+		# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "CONCOCT_results/"),
+		CONCOCT_fasta=directory(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/CONCOCT_fasta_bins"),
+		CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
+	params:
+		CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
+	message:
+		"Binning microbial contigs with CONCOCT"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/CONCOCT_outdir/binning.tsv"
+	threads: 32
+	shell:
+		"""
+		mkdir -p {params.CONCOCT_outdir}
+		cd {params.CONCOCT_outdir}
+		cut_up_fasta.py {input.derreplicated_microbial_contigs} -c 10000 -o 0 --merge_last -b {output.CONCOCT_10k_bed} > {output.CONCOCT_10k_fasta}
+		concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
+		concoct --composition_file {output.CONCOCT_10k_fasta} --coverage_file {output.CONCOCT_coverage} -b {params.CONCOCT_outdir} -t {threads}
+		merge_cutup_clustering.py {params.CONCOCT_outdir}/clustering_gt1000.csv > {output.CONCOCT_clustering}
+		mkdir {output.CONCOCT_fasta}
+		extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_fasta}
+		"""
+
 rule polish_bins:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
@@ -320,6 +353,7 @@ rule taxonomy_binning:
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
+		tempdir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_dir")),
 	params:
 		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
 	message:
@@ -331,6 +365,8 @@ rule taxonomy_binning:
 	threads: 64
 	shell:
 		"""
+		mkdir {output.tempdir}
+		cp {input.tempdir}
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {input.derreplicated_microbial_contigs}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
