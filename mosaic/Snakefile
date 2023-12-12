@@ -213,6 +213,8 @@ def inputAssembly(wildcards):
 	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
 		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.tot.txt"),
+		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report_viral.tot.txt"),
+
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))

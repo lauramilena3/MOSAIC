@@ -253,7 +253,6 @@ rule hostID_iphop:
 		iphop predict --fa_file {input.representatives} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
 		"""
 
-
 rule match_spacers:
 	input:
 		spacers=config['microbial_spacers'],
