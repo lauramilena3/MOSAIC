@@ -530,6 +530,10 @@ rule runALE:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_racon_WEC_contigs_1_canu.tot.ale", sample=SAMPLES),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.tot_to_WEC_canu_corrected_scaffolds.tot.ale", sample=SAMPLES),
 
+rule map_to_contaminants:
+	input:
+		extend(expand(dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_covstats.txt", sample=SAMPLES, contaminant=CONTAMINANTS_LIST_POST)),
+
 # rule get_ORFs_long_assembly:
 # 	input:
 # 		hybrid=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
