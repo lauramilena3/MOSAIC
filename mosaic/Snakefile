@@ -25,7 +25,7 @@ ASSEMLY_STATS=config['assembly_stats']
 CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
 
-REFERENCE=config['additional_reference_contigs']
+REFERENCE=config['additional_reference_contigs'].rsplit(".", n=1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
 
 if RESULTS_DIR == "" and not RAW_DATA_DIR == "":
