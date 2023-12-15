@@ -532,7 +532,7 @@ rule runALE:
 
 rule map_to_contaminants:
 	input:
-		(expand(dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_covstats.txt", sample=SAMPLES, contaminant=CONTAMINANTS_LIST_POST)),
+		expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)
 
 # rule get_ORFs_long_assembly:
 # 	input:
