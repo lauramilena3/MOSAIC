@@ -467,7 +467,7 @@ rule mapReads_reference:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_" + REFERENCE + "_contaminants.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_" + REFERENCE + "_contaminants.tsv"
 	threads: 16
 	shell:
 		"""
