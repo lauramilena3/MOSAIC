@@ -441,8 +441,8 @@ rule buildBowtieDB_reference:
 rule mapReads_reference:
 	input:
 		contigs_bt2=REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2",
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_{sample}_" + REFERENCE + ".sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_{sample}_" + REFERENCE + ".bam"),
