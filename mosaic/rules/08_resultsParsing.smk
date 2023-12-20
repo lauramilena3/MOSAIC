@@ -139,7 +139,6 @@ rule assembly_parsing_long:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long.py.ipynb"
 
-
 def inputAssemblyContigs(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES))
@@ -173,7 +172,6 @@ rule viralID_parsing:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID_{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
-
 
 def input_assembly_flagstats(wildcards):
 	inputs=[]
@@ -219,3 +217,25 @@ rule subsample_reads:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_subsampling.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_subsampling.py.ipynb"
+
+rule normalise_reads:
+	input:
+		postqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
+		covstats=expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{{sampling}}_covstats.txt", sample=SAMPLES),
+		covstats_unique=expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{{sampling}}_unique_covstats.txt", sample=SAMPLES),
+	output:
+		raw_RPKM_file=dirs_dict["MAPPING_DIR"] + "/RPKM_raw_{sampling}.txt",
+		norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",
+		raw_count_file=dirs_dict["MAPPING_DIR"] + "/counts_raw_{sampling}.txt",
+		norm_count_file=dirs_dict["MAPPING_DIR"] + "/counts_normalised_{sampling}.txt",
+		coverage_RPKM_file=dirs_dict["MAPPING_DIR"] + "/breadth_coverage_percent_{sampling}.txt",
+		coverage_bases_RPKM_file=dirs_dict["MAPPING_DIR"] + "/breadth_coverage_bases_{sampling}.txt",
+	params:
+		samples=SAMPLES,
+		mapping_dir=dirs_dict["MAPPING_DIR"],
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		sampling="{sampling}",
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
