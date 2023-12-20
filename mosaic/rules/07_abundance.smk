@@ -221,6 +221,7 @@ rule buildBowtieDB_filtered:
 		"""
 		bowtie2-build {input.filtered_representatives} {params.prefix} --threads {threads}
 		"""
+
 rule mapReadsToContigsPE:
 	input:
 		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.1.bt2",
@@ -417,7 +418,6 @@ rule mapReads_contaminants:
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
-
 
 rule buildBowtieDB_reference:
 	input:
