@@ -236,7 +236,32 @@ rule normalise_reads:
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="{sampling}",
 		threshold_bases=200,
+		reference=False,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
+
+rule normalise_reads_reference:
+	input:
+		postqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
+		covstats=expand(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{{sampling}}_covstats.txt", sample=SAMPLES),
+		covstats_unique=expand(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{{sampling}}_unique_covstats.txt", sample=SAMPLES),
+	output:
+		raw_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_RPKM_raw_{sampling}.txt",
+		norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_RPKM_normalised_{sampling}.txt",
+		raw_count_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_counts_raw_{sampling}.txt",
+		norm_count_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_counts_normalised_{sampling}.txt",
+		coverage_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_breadth_coverage_percent_{sampling}.txt",
+		coverage_bases_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_breadth_coverage_bases_{sampling}.txt",
+	params:
+		samples=SAMPLES,
+		mapping_dir=dirs_dict["MAPPING_DIR"],
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		sampling="{sampling}",
+		threshold_bases=200,
+		reference=True,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise" + REFERENCE + ".{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"

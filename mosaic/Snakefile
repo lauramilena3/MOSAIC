@@ -537,6 +537,9 @@ rule map_to_reference:
 	input:
 		# expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)
 		expand(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)
+		expand(dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE)),
+
+		norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/RPKM_normalised_{sampling}.txt",
 
 # rule get_ORFs_long_assembly:
 # 	input:
