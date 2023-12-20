@@ -262,6 +262,6 @@ rule normalise_reads_reference:
 		threshold_bases=200,
 		reference=REFERENCE,
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise" + REFERENCE + ".{sampling}.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_" + REFERENCE + ".{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
