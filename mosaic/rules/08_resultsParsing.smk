@@ -236,7 +236,7 @@ rule normalise_reads:
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="{sampling}",
 		threshold_bases=200,
-		reference=False,
+		reference="",
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.{sampling}.ipynb"
 	notebook:
@@ -260,7 +260,7 @@ rule normalise_reads_reference:
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="{sampling}",
 		threshold_bases=200,
-		reference=True,
+		reference=REFERENCE,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise" + REFERENCE + ".{sampling}.ipynb"
 	notebook:
