@@ -236,6 +236,6 @@ rule normalise_reads:
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="{sampling}",
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
