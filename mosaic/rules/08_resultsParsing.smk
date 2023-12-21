@@ -230,12 +230,19 @@ rule normalise_reads:
 		norm_count_file=dirs_dict["MAPPING_DIR"] + "/counts_normalised_{sampling}.txt",
 		coverage_RPKM_file=dirs_dict["MAPPING_DIR"] + "/breadth_coverage_percent_{sampling}.txt",
 		coverage_bases_RPKM_file=dirs_dict["MAPPING_DIR"] + "/breadth_coverage_bases_{sampling}.txt",
+		filtered_raw_RPKM_file=dirs_dict["MAPPING_DIR"] + "/filtered_RPKM_raw_{sampling}.txt",
+		filtered_norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/filtered_RPKM_normalised_{sampling}.txt",
+		filtered_raw_count_file=dirs_dict["MAPPING_DIR"] + "/filtered_counts_raw_{sampling}.txt",
+		filtered_norm_count_file=dirs_dict["MAPPING_DIR"] + "/filtered_counts_normalised_{sampling}.txt",
+		filtered_75_raw_RPKM_file=dirs_dict["MAPPING_DIR"] + "/filtered_75_RPKM_raw_{sampling}.txt",
+		filtered_75_norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/filtered_75_RPKM_normalised_{sampling}.txt",
 	params:
 		samples=SAMPLES,
 		mapping_dir=dirs_dict["MAPPING_DIR"],
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="{sampling}",
 		threshold_bases=200,
+		threshold_RPKM=0.1,
 		reference="",
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.{sampling}.ipynb"
@@ -254,12 +261,19 @@ rule normalise_reads_reference:
 		norm_count_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_counts_normalised_{sampling}.txt",
 		coverage_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_breadth_coverage_percent_{sampling}.txt",
 		coverage_bases_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_breadth_coverage_bases_{sampling}.txt",
+		filtered_raw_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/filtered_" + REFERENCE + "_RPKM_raw_{sampling}.txt",
+		filtered_norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/filtered_" + REFERENCE + "_RPKM_normalised_{sampling}.txt",
+		filtered_raw_count_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/filtered_" + REFERENCE + "_counts_raw_{sampling}.txt",
+		filtered_norm_count_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/filtered_" + REFERENCE + "_counts_normalised_{sampling}.txt",
+		filtered_75_raw_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/filtered_75_" + REFERENCE + "_RPKM_raw_{sampling}.txt",
+		filtered_75_norm_RPKM_file=dirs_dict["MAPPING_DIR"] + "/REFERENCES/filtered_75_" + REFERENCE + "_RPKM_normalised_{sampling}.txt",
 	params:
 		samples=SAMPLES,
 		mapping_dir=dirs_dict["MAPPING_DIR"],
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="{sampling}",
 		threshold_bases=200,
+		threshold_RPKM=0.1,
 		reference=REFERENCE,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_" + REFERENCE + ".{sampling}.ipynb"
