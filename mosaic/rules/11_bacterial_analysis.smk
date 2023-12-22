@@ -318,7 +318,6 @@ rule predict_spacers:
 		minced -spacers {input.derreplicated_microbial_contigs} {output.spacers}
 		"""
 
-
 rule estimateBinningQuality:
 	input:
 		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
@@ -419,4 +418,36 @@ rule DRAM_microbial_annotation:
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
+rule defense_finder:
+	input:
+		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
+	output:
+		defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_{sampling}/"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/DefenseFinder/{sampling}.tsv"
+	message:
+		"Detecting defense systems with DefenseFinder"
+	threads: 32
+	shell:
+		"""
+		defense-finder run –dbtype gembase {input.aa} -w {threads} --out-dir {output.defenseFinder_dir}
+		"""
 
+
+rule getORFs_microbial:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+	output:
+		coords=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.coords",
+		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
+	message:
+		"Calling ORFs with prodigal"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 1
+	shell:
+		"""
+		prodigal -i {input.derreplicated_microbial_contigs} -o {output.coords} -a {output.aa} -p meta
+		"""
