@@ -432,7 +432,7 @@ rule defense_finder:
 	threads: 32
 	shell:
 		"""
-		defense-finder run –dbtype gembase {input.aa} -w {threads} --out-dir {output.defenseFinder_dir}
+		defense-finder run -–dbtype gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
 		"""
 
 
