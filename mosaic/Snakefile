@@ -121,6 +121,10 @@ CONTAMINANTS_LIST_POST=[]
 if os.path.exists(dirs_dict["CONTAMINANTS_DIR_POST"]):
 	CONTAMINANTS_LIST_POST,=glob_wildcards(dirs_dict["CONTAMINANTS_DIR_POST"] + "/{contaminant}.fasta")
 
+
+
+SAMPLES_NO_TECHNICAL=[element for element in SAMPLES if "_T" not in element]
+
 print("Input Dir = ")
 print(RAW_DATA_DIR)
 #print(glob.glob(RAW_DATA_DIR + "/*" ))
@@ -383,7 +387,9 @@ rule microbial:
 		# DRAM_summary=(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
 		kraken_report_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv", sample=SAMPLES),
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
-		defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
+		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/taxvamb_binning_results/"),
+
+		# defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
 
 
 rule trimmomatic:
