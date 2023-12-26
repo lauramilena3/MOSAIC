@@ -242,9 +242,10 @@ rule bacterial_binning_VAMB:
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES_NO_TECHNICAL),
 		sorted_bam_index=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam.bai", sample=SAMPLES_NO_TECHNICAL),
 	output:
-		vamb_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/taxvamb_binning_results/"),
+		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 	params:
-		# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
+		vamb_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
+		min_votu_len=config['min_votu_length'],
 	message:
 		"Binning microbial contigs with vamb"
 	conda:
@@ -254,8 +255,9 @@ rule bacterial_binning_VAMB:
 	threads: 64
 	shell:
 		"""
-		vamb -o "_" --outdir {output.vamb_outdir} --fasta {input.derreplicated_microbial_contigs}  \
-				--bamfiles {input.sorted_bam} --minfasta 2000 -p {threads}
+		vamb -o "_" --outdir {params.vamb_outdir} --fasta {input.derreplicated_microbial_contigs}  \
+				--bamfiles {input.sorted_bam} --minfasta {params.min_votu_len} -p {threads}
+		cp {params.vamb_outdir}/bins/*/*fna > {output.vamb_bins} 
 		"""
 
 rule polish_bins:
@@ -309,7 +311,7 @@ rule predict_spacers:
 
 rule estimateBinningQuality:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
@@ -330,14 +332,14 @@ rule estimateBinningQuality:
 	shell:
 		"""
 		mkdir -p {output.checkMoutdir_temp}
-		cp -r {input.DAS_Tool_results}/DAS_Tool_results_DASTool_bins/* {output.checkMoutdir_temp}
+		cp -r {input.vamb_bins}/* {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
-		checkm lineage_wf --tab_table -t {threads} -f {params.checkm_outfile} -x fa {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		checkm lineage_wf --tab_table -t {threads} -f {params.checkm_outfile} -x fna {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
 
 rule taxonomy_binning:
 	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
@@ -356,7 +358,7 @@ rule taxonomy_binning:
 		mkdir {output.tempdir}
 		cp {input.tempdir}
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
-		gtdbtk classify_wf --genome_dir {input.derreplicated_microbial_contigs}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
+		gtdbtk classify_wf --genome_dir {input.vamb_bins}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fna
 		"""
 
 rule taxonomy_binning_assembly:
@@ -384,13 +386,12 @@ rule taxonomy_binning_assembly:
 
 rule DRAM_microbial_annotation:
 	input:
-		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
+		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		DRAM_db=config['DRAM_db'],
 	output:
 		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}"),
 		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_{sampling}"),
 	params:
-		DAS_Tool_bins=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results_DASTool_bins"),
 		DRAM_annotations=dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}/annotations.tsv",
 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
@@ -403,40 +404,40 @@ rule DRAM_microbial_annotation:
 	threads: 32
 	shell:
 		"""
-		DRAM.py annotate -i '{params.DAS_Tool_bins}/*fa' -o {output.DRAM_output} --threads 64
+		DRAM.py annotate -i '{input.DAS_Tool_bins}/*fna' -o {output.DRAM_output} --threads {threads}
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
-rule defense_finder:
-	input:
-		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
-	output:
-		defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_{sampling}/"),
-	conda:
-		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/DefenseFinder/{sampling}.tsv"
-	message:
-		"Detecting defense systems with DefenseFinder"
-	threads: 32
-	shell:
-		"""
-		defense-finder run -–db-type gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
-		"""
+# rule defense_finder:
+# 	input:
+# 		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
+# 	output:
+# 		defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_{sampling}/"),
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/DefenseFinder/{sampling}.tsv"
+# 	message:
+# 		"Detecting defense systems with DefenseFinder"
+# 	threads: 32
+# 	shell:
+# 		"""
+# 		defense-finder run -–db-type gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
+# 		"""
 
 
-rule getORFs_microbial:
-	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-	output:
-		coords=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.coords",
-		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
-	message:
-		"Calling ORFs with prodigal"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 1
-	shell:
-		"""
-		prodigal -i {input.derreplicated_microbial_contigs} -o {output.coords} -a {output.aa} -p meta
-		"""
+# rule getORFs_microbial:
+# 	input:
+# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+# 	output:
+# 		coords=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.coords",
+# 		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
+# 	message:
+# 		"Calling ORFs with prodigal"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	threads: 1
+# 	shell:
+# 		"""
+# 		prodigal -i {input.derreplicated_microbial_contigs} -o {output.coords} -a {output.aa} -p meta
+# 		"""
