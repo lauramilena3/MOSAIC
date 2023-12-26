@@ -254,7 +254,7 @@ rule bacterial_binning_VAMB:
 	threads: 64
 	shell:
 		"""
-		vamb bin taxvamb -o "_" --outdir {output.vamb_outdir} --fasta {input.derreplicated_microbial_contigs}  \
+		vamb bin default -o "_" --outdir {output.vamb_outdir} --fasta {input.derreplicated_microbial_contigs}  \
 				--bamfiles {input.sorted_bam} --minfasta 2000 -p {threads}
 		"""
 
