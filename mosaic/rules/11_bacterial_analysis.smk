@@ -242,7 +242,7 @@ rule bacterial_binning_VAMB:
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES_NO_TECHNICAL),
 		sorted_bam_index=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam.bai", sample=SAMPLES_NO_TECHNICAL),
 	output:
-		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/taxvamb_binning_results/"),
+		vamb_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/taxvamb_binning_results/"),
 	params:
 		# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
 	message:
