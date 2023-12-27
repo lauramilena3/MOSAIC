@@ -256,6 +256,7 @@ rule bacterial_binning_VAMB:
 	threads: 64
 	shell:
 		"""
+		rm -rf {params.vamb_outdir_temp}
 		vamb -o "_" --outdir {params.vamb_outdir_temp} --fasta {input.derreplicated_microbial_contigs}  \
 				--bamfiles {input.sorted_bam} --minfasta {params.min_votu_len} -p {threads}
 		mv {params.vamb_outdir_temp} {params.vamb_outdir}
