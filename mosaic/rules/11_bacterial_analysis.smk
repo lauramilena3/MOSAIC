@@ -244,6 +244,7 @@ rule bacterial_binning_VAMB:
 	output:
 		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 	params:
+		vamb_outdir_temp=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results_temp/"),
 		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
 		min_votu_len=config['min_votu_length'],
 	message:
@@ -255,8 +256,9 @@ rule bacterial_binning_VAMB:
 	threads: 64
 	shell:
 		"""
-		vamb -o "_" --outdir {params.vamb_outdir} --fasta {input.derreplicated_microbial_contigs}  \
+		vamb -o "_" --outdir {params.vamb_outdir_temp} --fasta {input.derreplicated_microbial_contigs}  \
 				--bamfiles {input.sorted_bam} --minfasta {params.min_votu_len} -p {threads}
+		mv {params.vamb_outdir_temp} {params.vamb_outdir}
 		cp {params.vamb_outdir}/bins/*/*fna > {output.vamb_bins} 
 		"""
 
