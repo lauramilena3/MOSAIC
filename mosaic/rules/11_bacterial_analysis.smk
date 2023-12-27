@@ -262,7 +262,7 @@ rule bacterial_binning_VAMB:
 		mkdir {params.vamb_outdir}
 		mv {params.vamb_outdir_temp}/* {params.vamb_outdir}
 		rm -rf {params.vamb_outdir_temp}
-		for d in {params.vamb_outdir}/bins/*/ ; do cp ${d}*fna {output.vamb_bins} & done
+		for d in {params.vamb_outdir}/bins/*/ ; do cp ${{d}}*fna {output.vamb_bins} & done
 		"""
 
 rule polish_bins:
