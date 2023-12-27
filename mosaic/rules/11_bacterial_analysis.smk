@@ -325,6 +325,7 @@ rule estimateBinningQuality:
 	params:
 		checkm_table=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/tab_results_checkM.csv"),
 		checkm_outfile=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM/output_results_checkM.txt"),
+		all_bins=dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp/all_bins",
 	log:
 		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/microbial_checkM_log"),
 	message:
@@ -338,7 +339,7 @@ rule estimateBinningQuality:
 		"""
 		mkdir -p {output.checkMoutdir_temp}
 		cp -r {input.vamb_bins} {output.checkMoutdir_temp}
-		cd {output.checkMoutdir_temp}
+		cd {params.all_bins}
 		checkm lineage_wf --tab_table -t {threads} -f {params.checkm_outfile} -x fna {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
 
