@@ -259,8 +259,10 @@ rule bacterial_binning_VAMB:
 		rm -rf {params.vamb_outdir_temp}
 		vamb -o "_" --outdir {params.vamb_outdir_temp} --fasta {input.derreplicated_microbial_contigs}  \
 				--bamfiles {input.sorted_bam} --minfasta {params.min_votu_len} -p {threads}
-		mv {params.vamb_outdir_temp} {params.vamb_outdir}
-		cp {params.vamb_outdir}/bins/*/*fna > {output.vamb_bins} 
+		mkdir {params.vamb_outdir}
+		mv {params.vamb_outdir_temp}/* {params.vamb_outdir}
+		rm -rf {params.vamb_outdir_temp}
+		for d in {params.vamb_outdir}/bins/*/ ; do cp ${d}*fna {output.vamb_bins} & done
 		"""
 
 rule polish_bins:
@@ -335,7 +337,7 @@ rule estimateBinningQuality:
 	shell:
 		"""
 		mkdir -p {output.checkMoutdir_temp}
-		cp -r {input.vamb_bins}/* {output.checkMoutdir_temp}
+		cp -r {input.vamb_bins} {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf --tab_table -t {threads} -f {params.checkm_outfile} -x fna {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
