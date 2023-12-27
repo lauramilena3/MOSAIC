@@ -244,8 +244,8 @@ rule bacterial_binning_VAMB:
 	output:
 		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins"),
 	params:
-		vamb_outdir_temp=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results_temp/"),
-		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
+		vamb_outdir_temp=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results_temp"),
+		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results"),
 		min_votu_len=config['min_votu_length'],
 	message:
 		"Binning microbial contigs with vamb"
