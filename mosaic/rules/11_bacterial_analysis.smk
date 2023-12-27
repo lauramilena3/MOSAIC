@@ -84,7 +84,7 @@ rule buildBowtieDB_microbial:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/bowtie_microbial.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 8
+	threads: 64
 	shell:
 		"""
 		bowtie2-build {input.derreplicated_microbial_contigs} {params.prefix} --threads {threads}
@@ -244,7 +244,7 @@ rule bacterial_binning_VAMB:
 	output:
 		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 	params:
-		vamb_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
+		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
 		min_votu_len=config['min_votu_length'],
 	message:
 		"Binning microbial contigs with vamb"
@@ -311,7 +311,7 @@ rule predict_spacers:
 
 rule estimateBinningQuality:
 	input:
-		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
+		vamb_bins=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM_temp")),
@@ -328,7 +328,7 @@ rule estimateBinningQuality:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/microbial_checkm.tsv"
-	threads: 16
+	threads: 32
 	shell:
 		"""
 		mkdir -p {output.checkMoutdir_temp}
@@ -339,7 +339,7 @@ rule estimateBinningQuality:
 
 rule taxonomy_binning:
 	input:
-		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
+		vamb_bins=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
