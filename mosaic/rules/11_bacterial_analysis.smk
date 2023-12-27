@@ -340,7 +340,7 @@ rule estimateBinningQuality:
 		mkdir -p {output.checkMoutdir_temp}
 		cp -r {input.vamb_bins} {output.checkMoutdir_temp}
 		cd {params.all_bins}
-		checkm lineage_wf --tab_table -t {threads} -f {params.checkm_outfile} -x fna {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		checkm lineage_wf --tab_table -t {threads} -f {params.checkm_outfile} -x fna {params.all_bins} {output.checkMoutdir} 1> {log}
 		"""
 
 rule taxonomy_binning:
