@@ -361,7 +361,7 @@ rule taxonomy_binning:
 	shell:
 		"""
 		mkdir {output.tempdir}
-		cp {input.tempdir}
+		cp {output.tempdir}
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {input.vamb_bins}/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fna
 		"""
