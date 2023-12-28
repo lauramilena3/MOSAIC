@@ -24,6 +24,30 @@ rule subsampleReadsIllumina_PE_mapping:
 		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads={params.n_reads} sampleseed=1
 		"""
 
+rule subsampleReadsIllumina_PE_mapping_7M:
+	input:
+		paired_sizes=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}_read_count.txt",),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+	output:
+		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/7M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/7M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+	params:
+		n_reads=7000000
+	message:
+		"Subsampling Illumina reads with BBtools"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_mapping/{sample}_{sampling}.tsv"
+	threads: 1
+	# resources:
+	# 	mem_mb=4000
+	shell:
+		"""
+		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads={params.n_reads} sampleseed=1
+		"""
+
 rule subsampleReadsIllumina_PE_vOTU_mapping:
 	input:
 		viral_subsampling=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads.txt"),
@@ -441,25 +465,25 @@ rule buildBowtieDB_reference:
 rule mapReads_reference:
 	input:
 		contigs_bt2=REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2",
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
-		sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}.sam"),
-		bam=(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}.bam"),
-		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_sorted.bam"),
-		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_sorted.bam.bai"),
-		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_filtered.bam"),
-		flagstats=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_" + REFERENCE + "_{sample}.{sampling}.txt",
-		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.{sampling}.txt",
-		flagstats_unique=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_unique_" + REFERENCE + "_{sample}.{sampling}.txt",
-		unique_sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_unique.sam"),
-		unique_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_unique.bam"),
-		unique_sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_unique_sorted.bam"),
-		unique_sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_unique_sorted.bam.bai"),
-		covstats=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_covstats.txt",
-		covstats_unique=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_unique_covstats.txt",
-		basecov=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_basecov.txt",
-		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_{sampling}_unique_basecov.txt",
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot.sam"),
+		bam=(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_" + REFERENCE + "_{sample}.tot.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.tot.txt",
+		flagstats_unique=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_unique_" + REFERENCE + "_{sample}.tot.txt",
+		unique_sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_unique.sam"),
+		unique_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_unique.bam"),
+		unique_sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_unique_sorted.bam"),
+		unique_sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_unique_sorted.bam.bai"),
+		covstats=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_covstats.txt",
+		covstats_unique=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_unique_covstats.txt",
+		basecov=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_basecov.txt",
+		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_tot_unique_basecov.txt",
 	params:
 		prefix=REFERENCE_DIR+ "/" + REFERENCE + "",
 	message:
@@ -467,7 +491,60 @@ rule mapReads_reference:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_" + REFERENCE + "_contaminants.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_tot_" + REFERENCE + "_contaminants.tsv"
+	threads: 16
+	shell:
+		"""
+		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --fast
+		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+		samtools index {output.sorted_bam}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
+		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
+		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
+		samtools index {output.unique_sorted_bam}
+		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
+		#genomecov
+		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
+		bedtools genomecov -dz -ibam {output.unique_sorted_bam}> {output.unique_basecov}
+		#covstats
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
+		"""
+
+rule mapReads_reference_sub:
+	input:
+		contigs_bt2=REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2",
+		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/7M_{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/7M_{sample}_reverse_paired_clean.tot.fastq.gz"),
+	output:
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub.sam"),
+		bam=(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_" + REFERENCE + "_{sample}.sub.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.sub.txt",
+		flagstats_unique=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_unique_" + REFERENCE + "_{sample}.sub.txt",
+		unique_sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_unique.sam"),
+		unique_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_unique.bam"),
+		unique_sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_unique_sorted.bam"),
+		unique_sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_unique_sorted.bam.bai"),
+		covstats=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_covstats.txt",
+		covstats_unique=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_unique_covstats.txt",
+		basecov=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_basecov.txt",
+		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub_unique_basecov.txt",
+	params:
+		prefix=REFERENCE_DIR+ "/" + REFERENCE + "",
+	message:
+		"Mapping reads to contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_sub_" + REFERENCE + "_contaminants.tsv"
 	threads: 16
 	shell:
 		"""
