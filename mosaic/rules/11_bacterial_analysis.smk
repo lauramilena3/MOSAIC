@@ -73,11 +73,11 @@ rule derreplicate_microbial:
 
 rule buildBowtieDB_microbial:
 	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial.tot.fasta",
 	output:
-		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.1.bt2",
+		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial.tot.1.bt2",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot",
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial.tot",
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
@@ -87,12 +87,12 @@ rule buildBowtieDB_microbial:
 	threads: 64
 	shell:
 		"""
-		bowtie2-build {input.derreplicated_microbial_contigs} {params.prefix} --threads {threads}
+		bowtie2-build {input.combined_positive_contigs} {params.prefix} --threads {threads}
 		"""
 
 rule mapReadsToContigs_microbial:
 	input:
-		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.1.bt2",
+		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial.tot.1.bt2",
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
@@ -112,7 +112,7 @@ rule mapReadsToContigs_microbial:
 		basecov=dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}_basecov.txt",
 		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_{sampling}_unique_basecov.txt",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot",
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial.tot",
 	message:
 		"Mapping microbial reads to assembly"
 	conda:
@@ -238,7 +238,7 @@ rule bacterial_binning_CONCOCT:
 
 rule bacterial_binning_VAMB:
 	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial.tot.fasta",
 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES_NO_TECHNICAL),
 		sorted_bam_index=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam.bai", sample=SAMPLES_NO_TECHNICAL),
 	output:
@@ -257,7 +257,7 @@ rule bacterial_binning_VAMB:
 	shell:
 		"""
 		rm -rf {params.vamb_outdir_temp}
-		vamb -o "_" --outdir {params.vamb_outdir_temp} --fasta {input.derreplicated_microbial_contigs}  \
+		vamb -o "_" --outdir {params.vamb_outdir_temp} --fasta {input.combined_positive_contigs}  \
 				--bamfiles {input.sorted_bam} --minfasta {params.min_votu_len} -p {threads}
 		mkdir {params.vamb_outdir}
 		mv {params.vamb_outdir_temp}/* {params.vamb_outdir}
@@ -299,7 +299,7 @@ rule polish_bins:
 
 rule predict_spacers:
 	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial.tot.fasta",
 	output:
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
 	message:
@@ -311,7 +311,7 @@ rule predict_spacers:
 	threads: 64
 	shell:
 		"""
-		minced -spacers {input.derreplicated_microbial_contigs} {output.spacers}
+		minced -spacers {input.combined_positive_contigs} {output.spacers}
 		"""
 
 rule estimateBinningQuality:
