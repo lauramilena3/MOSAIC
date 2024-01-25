@@ -362,11 +362,11 @@ rule runAbundance:
 
 rule runAnnotation:
 	input:
-		inputReadsCount,
-		inputQC,
-		inputAssembly,
-		inputViralID,
-		inputvOTUClustering,
+		# inputReadsCount,
+		# inputQC,
+		# inputAssembly,
+		# inputViralID,
+		# inputvOTUClustering,
 		inputAnnotation,
 
 rule runWorkflow:
