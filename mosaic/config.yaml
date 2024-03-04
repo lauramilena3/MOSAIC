@@ -55,8 +55,8 @@ imgvr_blast: False
 microbial_spacers: ""
 
 reference_databases: "IMGVR GenBankViral RefSeqViral"
-IMGVR_db: "/home/lmf/db/IMG_VR_09_2020/IMGVR.fasta"
-IMGVR_protein_db: "/home/lmf/db/IMG_VR_09_2020/ORFs/IMGVR_ORF.faa"
+IMGVR_db: "/home/lmf/db/IMG_VR_2022-12-19_7/IMGVR_all_nucleotides"
+IMGVR_protein_db: "/home/lmf/db/IMG_VR_2022-12-19_7/IMGVR_all_proteins"
 RefSeqViral_db: "/home/lmf/db/RefSeqViral/RefSeq_viral_2022_03_10.fasta"
 RefSeqViral_protein_db: "/home/lmf/db/RefSeqViral/ORFs/RefSeq_viral_2022_03_10_ORFs.faa"
 GenBankViral_db: "/home/lmf/db/GenBankViral/GenBankViral_2022_03_10.fasta"
