@@ -23,6 +23,8 @@ dependencies:
   - scikit-bio #==0.5.8
   - prodigal ==2.6.3
   - mmseqs2 ==14.7e284
+  - openssl #= 1.1.1q
+
   # - hmmer!=3.3.1
   - trnascan-se ==2.0.12
   - scipy #==1.8.1
