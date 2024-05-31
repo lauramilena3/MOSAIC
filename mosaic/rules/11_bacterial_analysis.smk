@@ -393,7 +393,7 @@ rule taxonomy_binning_assembly:
 
 rule DRAM_microbial_annotation:
 	input:
-		vamb_bins=directory(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
+		vamb_bins=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		DRAM_db=config['DRAM_db'],
 	output:
 		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/DRAM_annotate_results_{sampling}"),
