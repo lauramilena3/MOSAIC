@@ -63,7 +63,7 @@ rule remove_contaminants_nanopore:
 		"""
 		cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
 		minimap2 -ax map-ont {output.phix_contaminants_fasta} {input.trimmed_data} | samtools fastq -c 6 -n -f 4 - > {output.fastq}
-		zgrep -c "^@" {output.fastq} > {output.size}
+		zgrep -c "^+" {output.fastq} > {output.size}
 		"""
 
 if CONTAMINANTS==["GCF_000819615.1"]:
@@ -85,7 +85,7 @@ if CONTAMINANTS==["GCF_000819615.1"]:
 		shell:
 			"""
 			cp {input.trimmed_data} {output.fastq}
-			zgrep -c "^@" {output.fastq} > {output.size}
+			zgrep -c "^+" {output.fastq} > {output.size}
 			"""
 
 
@@ -147,5 +147,5 @@ rule subsampleReadsNanopore:
 		"""
 		nanopore=$( cat {params.sizes} | sort -n | head -1 )
 		reformat.sh in={input.nanopore} out={output.nanopore} reads=$nanopore ignorebadquality
-		grep -c "^@" {output.nanopore} > {output.size}
+		grep -c "^+" {output.nanopore} > {output.size}
 		"""
