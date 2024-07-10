@@ -63,7 +63,7 @@ rule remove_contaminants_nanopore:
 		"""
 		cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
 		minimap2 -ax map-ont {output.phix_contaminants_fasta} {input.trimmed_data} | samtools fastq -c 6 -n -f 4 - > {output.fastq}
-		zgrep -c "^+" {output.fastq} > {output.size}
+		echo $(( $(zgrep -Ec "$" {output.fastq}) / 4 )) > {output.size}
 		"""
 
 if CONTAMINANTS==["GCF_000819615.1"]:
@@ -85,7 +85,7 @@ if CONTAMINANTS==["GCF_000819615.1"]:
 		shell:
 			"""
 			cp {input.trimmed_data} {output.fastq}
-			zgrep -c "^+" {output.fastq} > {output.size}
+			echo $(( $(zgrep -Ec "$" {output.fastq}) / 4 )) > {output.size}
 			"""
 
 
