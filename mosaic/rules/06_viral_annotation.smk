@@ -667,7 +667,7 @@ rule hh_annotation:
 		NCBI_CD="/home/lmf/db/hh-suite/NCBI_CD",
 		uniref="/home/lmf/db/hh-suite/UniRef30_2022_02",
 		phrogs="/home/lmf/db/hh-suite/phrogs_v4",
-		metaclust="/home/lmf/db/hh-suite/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
+		# metaclust="/home/lmf/db/hh-suite/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
 		maxres=32000,
 	threads: 4
 	shell:
@@ -676,7 +676,7 @@ rule hh_annotation:
 		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
 		    		            -norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
 		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
-									-d {params.uniref} -d {params.phrogs} -d {params.metaclust} \
+									-d {params.uniref} -d {params.phrogs} 
 		    		            -o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
 		    		            -norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
 		grep "^  [0-9] " {output.hhr} > {output.txt}
