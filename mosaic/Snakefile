@@ -194,17 +194,17 @@ def inputReadsCount(wildcards):
 
 def inputQC(wildcards):
 	inputs=[]
-	# inputs.append(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html")
-	# inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
-	# inputs.append(dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html")
-	# inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
-	# # inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
-	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_brackenuniq_{level}_report_paired_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
-	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
-	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
+	inputs.append(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html")
+	inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
+	inputs.append(dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html")
+	inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
+	# inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_brackenuniq_{level}_report_paired_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
+	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv", sample=SAMPLES, level=["K","P","F","O","G","S"])),
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
-	# if len(CONTAMINANTS_LIST_POST)>0:
-	# 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_covstats.txt", sample=SAMPLES, contaminant=CONTAMINANTS_LIST_POST)),
+	if len(CONTAMINANTS_LIST_POST)>0:
+			inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_covstats.txt", sample=SAMPLES, contaminant=CONTAMINANTS_LIST_POST)),
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
@@ -260,14 +260,14 @@ def inputvOTUClustering(wildcards):
 
 def inputAbundance(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam", sample=SAMPLES, sampling=SAMPLING_TYPE)),
-	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv", sample=SAMPLES, sampling=SAMPLING_TYPE)),
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE)),
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam", sample=SAMPLES, sampling=SAMPLING_TYPE)),
+	# # inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv", sample=SAMPLES, sampling=SAMPLING_TYPE)),
+	# inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE)),
 
 	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	if ASSEMLY_STATS:
-		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT)),
+		# inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
