@@ -69,7 +69,6 @@ rule subsampleReadsIllumina_PE_vOTU_mapping:
 		reads=$(cat {input.viral_subsampling})
 		reformat.sh in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} reads=$reads sampleseed=1
 		echo $(( $(zgrep -Ec "$" {output.forward_paired}) / 4 )) > {output.viral_subsampling}
-
 		"""
 
 rule buildBowtieDB_assembly:
