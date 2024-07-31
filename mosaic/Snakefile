@@ -257,8 +257,8 @@ def inputAbundance(wildcards):
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	# # inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv", sample=SAMPLES, sampling=SAMPLING_TYPE)),
-	# inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE)),
-	# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE)),
+	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	if ASSEMLY_STATS:
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
