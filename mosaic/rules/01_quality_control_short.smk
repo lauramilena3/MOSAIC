@@ -35,7 +35,7 @@ rule countReads_gz:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
 	shell:
 		"""
-		echo $(( $(zgrep -Ec "$" {input.fastq}) / 4 )) > {output.counts} 
+		echo $(( $(zgrep -Ec "$" {input.fastq}) / 4 )) > {output.counts}
 		"""
 
 rule countReads:
@@ -49,7 +49,7 @@ rule countReads:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
 	shell:
 		"""
-		echo $(( $(grep -Ec "$" {input.fastq}) / 4 )) > {output.counts} 
+		echo $(( $(grep -Ec "$" {input.fastq}) / 4 )) > {output.counts}
 		"""
 
 rule fastQC_pre:
