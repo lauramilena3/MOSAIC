@@ -179,12 +179,12 @@ def inputReadsCount(wildcards):
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)) 
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt", sample=SAMPLES))
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_read_count.txt", sample=SAMPLES))
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt", sample=SAMPLES))
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT))
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT))
+	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}_read_count.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)) 
 	if CROSS_ASSEMBLY:
 		inputs.append(dirs_dict["CLEAN_DATA_DIR"] + "/ALL_forward_paired_clean.tot_read_count.txt"),
 		inputs.append(dirs_dict["CLEAN_DATA_DIR"] + "/ALL_forward_paired_norm.tot_read_count.txt"),
