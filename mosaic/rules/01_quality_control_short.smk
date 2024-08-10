@@ -456,7 +456,7 @@ rule read_classification_BRACKEN:
 	shell:
 		"""
 		read_count=$(cat {input.read_count})
-		threshold=$((read_count / 1000))
+		threshold=$((read_count*500 / 1000000))
 		echo threshold $threshold
 		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
 		touch {output.bracken_report_paired}
