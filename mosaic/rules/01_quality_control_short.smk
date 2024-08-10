@@ -444,7 +444,7 @@ rule read_classification_BRACKEN:
 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv"),
 		kraken_db=(config['kraken_db']),
 		bracken_checkpoint="bracken_db_ckeckpoint.txt",
-		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "{sample}_forward_paired_clean.tot_read_count.txt"),
+		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt"),
 	output:
 		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv",
 	message:
