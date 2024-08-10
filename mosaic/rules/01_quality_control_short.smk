@@ -455,7 +455,7 @@ rule read_classification_BRACKEN:
 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
 	shell:
 		"""
-		read_count=$(cat {intput.read_count})
+		read_count=$(cat {input.read_count})
 		threshold=$((read_count / 1000))
 		echo threshold $threshold
 		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
