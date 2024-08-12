@@ -409,6 +409,23 @@ rule buildBrackenDB:
 		echo {input.kraken_db} > {output.bracken_checkpoint}
 		"""
 
+rule buildBrackenDB_nt:
+	input:
+		bracken_dir=(config['bracken_dir']),
+		kraken_db=config['kraken_db_nt'],
+	output:
+		bracken_checkpoint=config['kraken_db'] + "../bracken_db_ckeckpoint_nt.txt",
+	message:
+		"Building Braken database"
+	threads: 144
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	shell:
+		"""
+    	bracken-build -d {input.kraken_db} -t {threads} -k 35 -l 150
+		echo {input.kraken_db} > {output.bracken_checkpoint}
+		"""
+
 rule buildBrackenUniqDB:
 	input:
 		bracken_dir=config['bracken_dir'],
