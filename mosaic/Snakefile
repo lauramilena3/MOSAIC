@@ -24,6 +24,7 @@ DRAM=config['run_DRAM']
 ASSEMLY_STATS=config['assembly_stats']
 CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
+MICROBIAL=config['microbial']
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
@@ -208,7 +209,9 @@ def inputQC(wildcards):
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
-	return inputs
+	if MICROBIAL:
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_nt_S_report_paired_tot.csv", sample=SAMPLES)),
+		return inputs
 
 def inputAssembly(wildcards):
 	inputs=[]

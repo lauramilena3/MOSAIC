@@ -1,6 +1,7 @@
 input_dir: ""
 results_dir: ""
 metagenome: True
+microbial: True
 
 operating_system: "linux"
 forward_tag: "R1"
