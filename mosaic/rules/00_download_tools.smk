@@ -414,7 +414,7 @@ rule buildBrackenDB_nt:
 		bracken_dir=(config['bracken_dir']),
 		kraken_db=config['kraken_db_nt'],
 	output:
-		bracken_checkpoint=config['kraken_db'] + "../bracken_db_ckeckpoint_nt.txt",
+		bracken_checkpoint=config['kraken_db_nt'] + "../bracken_db_ckeckpoint_nt.txt",
 	message:
 		"Building Braken database"
 	threads: 144
