@@ -406,7 +406,7 @@ rule buildBrackenDB:
 	shell:
 		"""
     	bracken-build -d {input.kraken_db} -t {threads} -k 35 -l 150
-		echo {kraken_db} > {output.bracken_checkpoint}
+		echo {input.kraken_db} > {output.bracken_checkpoint}
 		"""
 
 rule buildBrackenUniqDB:
