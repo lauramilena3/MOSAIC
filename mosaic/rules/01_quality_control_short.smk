@@ -481,7 +481,7 @@ rule read_classification_BRACKEN_microbial:
 		read_count=$(cat {input.read_count})
 		threshold=$((read_count*500 / 1000000))
 		echo threshold $threshold
-		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
+		est_abundance.py -k {input.kraken_db}database150mers.kmer_distrib -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
 		touch {output.bracken_report_paired}
 		"""
 
