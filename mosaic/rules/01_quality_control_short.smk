@@ -469,7 +469,7 @@ rule read_classification_BRACKEN_microbial:
 		bracken_checkpoint=config['kraken_db_nt'] + "../bracken_db_ckeckpoint.txt",
 		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt"),
 	output:
-		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_nt_{level}_report_paired_tot.csv",
+		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_{level}_report_paired_tot.csv",
 	message:
 		"Creating taxonomic reports with Bracken"
 	conda:
