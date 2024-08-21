@@ -642,3 +642,16 @@ rule downloadDionSpacers:
 		spacepharer downloaddb spacers_dion_et_al_2021 dionSetDB tmpFolder
 		"""
 
+# rule get_satellite_finder:
+# 	output:
+# 		satellite_finder_dir=directory(config['satellite_finder_dir']),
+# 	message:
+# 		"Downloading Satellite Finder spacer database"
+# 	threads: 1
+# 	conda:
+# 		dirs_dict["ENVS_DIR"]+ "/satellite_finder.yaml",
+# 	shell:
+# 		"""
+# 	 	docker pull gempasteur/satellite_finder:0.9.1
+	 	# """
+

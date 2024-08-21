@@ -87,6 +87,27 @@
 # 			seqtk subseq {input.scaffolds} {input.positive_list} > {output.positive_contigs}
 # 			"""
 # else:
+
+rule satellite_finder:
+	input:
+		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
+	output:
+		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_satellite_finder_{sampling}/"),
+		positive_satellites=dirs_dict["VIRAL_DIR"]+ "/{sample}_satellites.{sampling}.fasta",
+	params:
+		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
+	message:
+		"Identifying viral satellites with satellite_finder"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/satellite_finder/{sample}_{sampling}.tsv"
+	threads: 16
+	shell:
+		"""
+		apptainer run -H ${HOME} docker://gempasteur/satellite_finder:0.9.1  --db-type ordered_replicon  --models  <cfPICI | PICI | P4 | PLE>  --sequence-db {params.faa} -w {threads}
+		"""
+
 rule genomad_viral_id:
 	input:
 		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
