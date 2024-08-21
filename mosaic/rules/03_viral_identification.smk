@@ -93,6 +93,7 @@ rule satellite_finder:
 		genomad_outdir=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/",
 	output:
 		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
+		faa_temp=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed",
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
 		model="{model}"
@@ -105,7 +106,8 @@ rule satellite_finder:
 	threads: 8
 	shell:
 		"""
-		apptainer run -H ${{HOME}} docker://gempasteur/satellite_finder:0.9.1 --db-type gembase --models {params.model} --sequence-db {params.faa} -w {threads} -o {output.satellite_finder_outdir} --mute
+		awk '/^>/ {print $1} !/^>/ {print}' {params.faa} | sed -e '/^>/ {{s/_/-/g; s/-\([^_-]*\)$/_\1/}}' > {output.faa_temp}
+		apptainer run -H ${{HOME}} docker://gempasteur/satellite_finder:0.9.1 --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
 		"""
 
 rule genomad_viral_id:
