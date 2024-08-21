@@ -95,6 +95,7 @@ rule satellite_finder:
 		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
+		model="{model}"
 	message:
 		"Identifying viral satellites with satellite_finder"
 	conda:
@@ -104,7 +105,7 @@ rule satellite_finder:
 	threads: 8
 	shell:
 		"""
-		apptainer run -H ${HOME} docker://gempasteur/satellite_finder:0.9.1  --db-type ordered_replicon  --models  {wildcards.model}  --sequence-db {params.faa} -w {threads} -o {output.satellite_finder_outdir}
+		apptainer run -H ${HOME} docker://gempasteur/satellite_finder:0.9.1 --db-type ordered_replicon  --models {params.model} --sequence-db {params.faa} -w {threads} -o {output.satellite_finder_outdir}
 		"""
 
 rule genomad_viral_id:
