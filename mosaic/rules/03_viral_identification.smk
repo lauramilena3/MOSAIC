@@ -97,7 +97,8 @@ rule satellite_finder:
 		faa_idx_temp=temp(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}.idx"),
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
-		model="{model}"
+		model="{model}",
+		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools/",
 	message:
 		"Identifying viral satellites with satellite_finder"
 	conda:
@@ -108,7 +109,7 @@ rule satellite_finder:
 	shell:
 		"""
 		python scripts/process_fasta_satellite_finder.py {params.faa} {output.faa_temp}
-		apptainer run -H ${{HOME}} docker://gempasteur/satellite_finder:0.9.1 --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
+		apptainer run -H ${{HOME}} {params.satellite_finder_dir}/fixed_satellite_finder.sif --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
 		"""
 
 rule genomad_viral_id:
