@@ -105,7 +105,7 @@ rule satellite_finder:
 	threads: 8
 	shell:
 		"""
-		apptainer run -H ${HOME} docker://gempasteur/satellite_finder:0.9.1 --db-type ordered_replicon  --models {params.model} --sequence-db {params.faa} -w {threads} -o {output.satellite_finder_outdir}
+		apptainer run -H ${{HOME}} docker://gempasteur/satellite_finder:0.9.1 --db-type ordered_replicon  --models {params.model} --sequence-db {params.faa} -w {threads} -o {output.satellite_finder_outdir}
 		"""
 
 rule genomad_viral_id:
