@@ -98,7 +98,7 @@ rule satellite_finder:
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
 		model="{model}",
-		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools/",
+		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools",
 	message:
 		"Identifying viral satellites with satellite_finder"
 	conda:
