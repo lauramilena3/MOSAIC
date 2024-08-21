@@ -107,7 +107,7 @@ rule satellite_finder:
 	threads: 8
 	shell:
 		"""
-		scripts/process_fasta_satellite_finder.py {params.faa} {output.faa_temp}
+		python scripts/process_fasta_satellite_finder.py {params.faa} {output.faa_temp}
 		apptainer run -H ${{HOME}} docker://gempasteur/satellite_finder:0.9.1 --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
 		"""
 
