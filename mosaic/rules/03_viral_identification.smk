@@ -106,7 +106,7 @@ rule satellite_finder:
 	threads: 8
 	shell:
 		"""
-		awk '/^>/ {print $1} !/^>/ {print}' {params.faa} | sed -e '/^>/ {{s/_/-/g; s/-\([^_-]*\)$/_\1/}}' > {output.faa_temp}
+		awk '/^>/ {{print $1}} !/^>/ {{print}}' {params.faa} | sed -e '/^>/ {{s/_/-/g; s/-\([^_-]*\)$/_\1/}}' > {output.faa_temp}
 		apptainer run -H ${{HOME}} docker://gempasteur/satellite_finder:0.9.1 --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
 		"""
 
