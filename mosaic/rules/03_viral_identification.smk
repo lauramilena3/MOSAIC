@@ -94,7 +94,7 @@ rule satellite_finder:
 	output:
 		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
 		faa_temp=(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}"),
-		faa_idx_temp=temp(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}.sdx"),
+		faa_idx_temp=temp(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}.idx"),
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
 		model="{model}"
