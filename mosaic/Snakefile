@@ -234,7 +234,7 @@ def inputViralID(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".tot.fasta", sample=SAMPLES)),
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/04_viral_sequences_count_tot.png")
-	inputs.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, model=["P4", "PLE"])),
+	inputs.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, model=["P4", "PLE","PICI"])),
 	# inputs.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, model=["cfPICI", "PICI", "P4", "PLE"])),
 	if SUBASSEMBLY:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.tot.fasta", sample=SAMPLES, subsample=subsample_test)),							
