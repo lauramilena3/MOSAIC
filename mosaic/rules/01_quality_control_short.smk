@@ -229,7 +229,7 @@ rule contaminants_KRAKEN_microbial:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
 		kraken_db=(config['kraken_db_nt']),
 	output:
-		kraken_output_paired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_output_paired_microbial.tot.csv"),
+		kraken_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_output_paired_microbial.tot.csv"),
 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
 	params:
 		kraken_db=config['kraken_db_nt'],
