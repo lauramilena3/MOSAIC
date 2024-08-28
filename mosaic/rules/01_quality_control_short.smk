@@ -438,7 +438,6 @@ rule read_classification_BRACKEN_pre:
 		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t 4000 || true
 		touch {output.bracken_report_paired}
 		"""
-	
 rule read_classification_BRACKEN:
 	input:
 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv"),
