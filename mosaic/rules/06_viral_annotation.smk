@@ -6,7 +6,7 @@ rule lifestyle_bacphlip:
 	message:
 		"Predicting lifecycle with BACPHLIP"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/bacphlip/tot.tsv"
 	threads: 1
