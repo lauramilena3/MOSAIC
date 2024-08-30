@@ -1,3 +1,20 @@
+rule lifestyle_bacphlip:
+	input:
+		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+	output:
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_bacphlip"),
+	message:
+		"Predicting lifecycle with BACPHLIP"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/bacphlip/tot.tsv"
+	threads: 1
+	shell:
+		"""
+		bacphlip -i {input.representatives} --multi_fasta
+		"""
+
 rule estimateGenomeCompletness_long:
 	input:
 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
