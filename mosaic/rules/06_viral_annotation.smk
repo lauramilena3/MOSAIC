@@ -13,7 +13,7 @@ rule lifestyle_bacphlip:
 	threads: 1
 	shell:
 		"""
-		bacphlip -i {input.representatives} --multi_fasta
+		bacphlip -i {input.representatives} --multi_fasta -f
 		"""
 
 rule estimateGenomeCompletness_long:
