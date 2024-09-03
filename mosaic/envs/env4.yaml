@@ -25,8 +25,10 @@ dependencies:
   - taxonkit =0.6.0
   - mmseqs2 =14.7e284
   - bacphlip =0.9.6
+  - nanoplot =1.28.2
+  - pauvre =0.1.86
   - pip 
   - pip:
-    - git+https://github.com/dib-lab/genome-grist.git@v0.9.3'
+    - git+https://github.com/dib-lab/genome-grist.git@v0.9.3
 
 #    - git+https://bitbucket.org/MAVERICLab/vcontact2/src/master/vcontact/
