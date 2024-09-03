@@ -156,7 +156,7 @@ rule sourmash_sketch_trim:
 	shell:
 		"""
 		echo name,read1,read2 > {output.manysketch_csv}
-		echo {params.sample},{intput.forward_paired},{intput.reverse_paired} >> {output.manysketch_csv}
+		echo {params.sample},{input.forward_paired},{input.reverse_paired} >> {output.manysketch_csv}
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
