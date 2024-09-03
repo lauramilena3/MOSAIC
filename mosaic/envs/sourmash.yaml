@@ -3,7 +3,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - sourmash =4.8.3
+  - sourmash>=4.8.3,<5
+  - conda-forge::sourmash-minimal
   - pip
   - rust
   - maturin>=1,<2
