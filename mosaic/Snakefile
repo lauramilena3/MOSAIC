@@ -203,12 +203,12 @@ def inputQC(wildcards):
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_S_report_paired_tot.csv", sample=SAMPLES))
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv", sample=SAMPLES, level=LEVELS_BRACKEN)),
 	# inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
-	if len(CONTAMINANTS_LIST_POST)>0:
-			inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_covstats.txt", sample=SAMPLES, contaminant=CONTAMINANTS_LIST_POST)),
-	if NANOPORE:
-		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
-		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
-		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
+	# if len(CONTAMINANTS_LIST_POST)>0:
+	# 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/CONTAMINANTS/bowtie2_{sample}_{contaminant}_covstats.txt", sample=SAMPLES, contaminant=CONTAMINANTS_LIST_POST)),
+	# if NANOPORE:
+	# 	inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
+	# 	inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
+	# 	inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 	if MICROBIAL:
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_S_report_paired_tot.csv", sample=SAMPLES)),
 		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz", sample=SAMPLES))
