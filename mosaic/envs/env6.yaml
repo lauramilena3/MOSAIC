@@ -1,14 +1,11 @@
 channels:
-  - conda-forge
   - bioconda
+  - conda-forge
 dependencies:
   - genomad =1.5.0
   - checkv =1.0.1
   - seqtk =1.3
   - krakenuniq =1.0.4
-  - sourmash #=4.3.0
-  - pip 
-  - pip:
-    - git+https://github.com/sourmash-bio/sourmash_plugin_branchwatergit@v0.9.7
+
 
 
