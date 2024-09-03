@@ -1,0 +1,16 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - sourmash>=4.8.3,<5
+  - pip
+  - rust
+  - maturin>=1,<2
+  - pytest
+  - pandas
+  - compilers
+  - pip:
+    - git+https://github.com/sourmash-bio/sourmash_plugin_branchwatergit@v0.9.7
+
+
