@@ -27,8 +27,7 @@ dependencies:
   - bacphlip =0.9.6
   # - nanoplot =1.28.2
   # - pauvre =0.1.86
-  - sourmash #=4.3.0
-  - sourmash_plugin_branchwater
+
   # - pip 
   # - pip:
     # - git+https://github.com/dib-lab/genome-grist.git@v0.9.3
