@@ -6,7 +6,7 @@ dependencies:
   - checkv =1.0.1
   - seqtk =1.3
   - krakenuniq =1.0.4
-  - sourmash #=4.3.0
+  # - sourmash #=4.3.0
   - sourmash_plugin_branchwater
 
 
