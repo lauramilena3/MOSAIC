@@ -136,6 +136,31 @@ rule trim_adapters_quality_illumina_PE:
 			SLIDINGWINDOW:{config[trimmomatic_window_size]}:{config[trimmomatic_window_quality]} MINLEN:{config[trimmomatic_minlen]}
 		cat {output.forward_unpaired} {output.reverse_unpaired} > {output.merged_unpaired}
 		"""
+
+rule sourmash_sketch_trim:
+	input:
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
+	output:
+		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_manysketch.csv"),
+		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
+	params:
+		sample="{sample}"
+	message:
+		"Building sketches with sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_sketch.tsv"
+	threads: 8
+	shell:
+		"""
+		echo name,read1,read2 > {output.manysketch_csv}
+		echo {params.sample},{intput.forward_paired},{intput.reverse_paired} >> {output.manysketch_csv}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
+		"""
+
+
 #
 # rule trim_adapters_quality_illumina_SE:
 # 	input:
@@ -223,30 +248,30 @@ rule contaminants_KRAKEN:
 		# 	-o {output.kraken_report_combined}
 		# ""
 
-rule contaminants_KRAKEN_microbial:
-	input:
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
-		kraken_db=(config['kraken_db_nt']),
-	output:
-		kraken_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_output_paired_microbial.tot.csv"),
-		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
-	params:
-		kraken_db=config['kraken_db_nt'],
-	message:
-		"Assesing contamination with kraken2"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
-	threads: 32
-	shell:
-		"""
-		kraken2 --db {params.kraken_db} --threads {threads} \
-			--paired {input.forward_paired} {input.reverse_paired} \
-			--output {output.kraken_output_paired} --report {output.kraken_report_paired} \
-			--report-minimizer-data
-		"""
+# rule contaminants_KRAKEN_microbial:
+# 	input:
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
+# 		kraken_db=(config['kraken_db_nt']),
+# 	output:
+# 		kraken_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_output_paired_microbial.tot.csv"),
+# 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
+# 	params:
+# 		kraken_db=config['kraken_db_nt'],
+# 	message:
+# 		"Assesing contamination with kraken2"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
+# 	threads: 32
+# 	shell:
+# 		"""
+# 		kraken2 --db {params.kraken_db} --threads {threads} \
+# 			--paired {input.forward_paired} {input.reverse_paired} \
+# 			--output {output.kraken_output_paired} --report {output.kraken_report_paired} \
+# 			--report-minimizer-data
+		# """
 
 rule remove_euk:
 	input:
@@ -361,9 +386,6 @@ rule remove_user_contaminants_PE:
 # 		grep -c "^@" {output.unpaired} > {output.unpaired_size} ||  echo "0" > {output.unpaired_size}
 # 		"""
 
-
-
-
 #
 # rule postQualityCheckIlluminaPE:
 # 	input:
@@ -420,109 +442,109 @@ rule contaminants_KRAKEN_clean:
 			--report-minimizer-data
 		"""
 
-rule read_classification_BRACKEN_pre:
-	input:
-		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv"),
-		kraken_db=(config['kraken_db']),
-		bracken_checkpoint=config['kraken_db'] + "../bracken_db_ckeckpoint.txt",
-	output:
-		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv",
-	message:
-		"Creating taxonomic reports with Bracken"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
-	shell:
-		"""
-		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t 4000 || true
-		touch {output.bracken_report_paired}
-		"""
-rule read_classification_BRACKEN:
-	input:
-		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv"),
-		kraken_db=(config['kraken_db']),
-		bracken_checkpoint=config['kraken_db'] + "../bracken_db_ckeckpoint.txt",
-		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt"),
-	output:
-		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv",
-	message:
-		"Creating taxonomic reports with Bracken"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
-	shell:
-		"""
-		read_count=$(cat {input.read_count})
-		threshold=$((read_count*500 / 1000000))
-		echo threshold $threshold
-		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
-		touch {output.bracken_report_paired}
-		"""
+# rule read_classification_BRACKEN_pre:
+# 	input:
+# 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv"),
+# 		kraken_db=(config['kraken_db']),
+# 		bracken_checkpoint=config['kraken_db'] + "../bracken_db_ckeckpoint.txt",
+# 	output:
+# 		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_pre_tot.csv",
+# 	message:
+# 		"Creating taxonomic reports with Bracken"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
+# 	shell:
+# 		"""
+# 		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t 4000 || true
+# 		touch {output.bracken_report_paired}
+# 		"""
+# rule read_classification_BRACKEN:
+# 	input:
+# 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_clean_tot.csv"),
+# 		kraken_db=(config['kraken_db']),
+# 		bracken_checkpoint=config['kraken_db'] + "../bracken_db_ckeckpoint.txt",
+# 		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt"),
+# 	output:
+# 		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_bracken_{level}_report_paired_tot.csv",
+# 	message:
+# 		"Creating taxonomic reports with Bracken"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
+# 	shell:
+# 		"""
+# 		read_count=$(cat {input.read_count})
+# 		threshold=$((read_count*500 / 1000000))
+# 		echo threshold $threshold
+# 		bracken -d {input.kraken_db}  -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
+# 		touch {output.bracken_report_paired}
+# 		"""
 
-rule read_classification_BRACKEN_microbial:
-	input:
-		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
-		kraken_db=(config['kraken_db_nt']),
-		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_read_count.txt"),
-	output:
-		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_{level}_report_paired_tot.csv",
-	message:
-		"Creating taxonomic reports with Bracken"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
-	shell:
-		"""
-		read_count=$(cat {input.read_count})
-		threshold=$((read_count*500 / 1000000))
-		echo threshold $threshold
-		est_abundance.py -k {input.kraken_db}/database150mers.kmer_distrib -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
-		touch {output.bracken_report_paired}
-		"""
+# rule read_classification_BRACKEN_microbial:
+# 	input:
+# 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
+# 		kraken_db=(config['kraken_db_nt']),
+# 		read_count=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_read_count.txt"),
+# 	output:
+# 		bracken_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_{level}_report_paired_tot.csv",
+# 	message:
+# 		"Creating taxonomic reports with Bracken"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
+# 	shell:
+# 		"""
+# 		read_count=$(cat {input.read_count})
+# 		threshold=$((read_count*500 / 1000000))
+# 		echo threshold $threshold
+# 		est_abundance.py -k {input.kraken_db}/database150mers.kmer_distrib -i {input.kraken_report_paired}  -o {output.bracken_report_paired} -l {wildcards.level} -t $threshold || true
+# 		touch {output.bracken_report_paired}
+# 		"""
 
-rule krakenUnique:
-	input:
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
-		krakenUniq_db=(config['krakenUniq_db']),
-	output:
-		krakenuniq_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_output_paired_clean_tot.csv"),
-		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
-	message:
-		"Assesing taxonomy with kraken2 on clean reads"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env6.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/krakenUniq/{sample}_clean.tsv"
-	priority: 1
-	threads: 8
-	shell:
-		"""
-		krakenuniq --report-file {output.krakenuniq_report_paired} --db {input.krakenUniq_db} --threads {threads} --output {output.krakenuniq_output_paired} --paired {input.forward_paired} {input.reverse_paired}
-		"""
+# rule krakenUnique:
+# 	input:
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+# 		krakenUniq_db=(config['krakenUniq_db']),
+# 	output:
+# 		krakenuniq_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_output_paired_clean_tot.csv"),
+# 		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
+# 	message:
+# 		"Assesing taxonomy with kraken2 on clean reads"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/krakenUniq/{sample}_clean.tsv"
+# 	priority: 1
+# 	threads: 8
+# 	shell:
+# 		"""
+# 		krakenuniq --report-file {output.krakenuniq_report_paired} --db {input.krakenUniq_db} --threads {threads} --output {output.krakenuniq_output_paired} --paired {input.forward_paired} {input.reverse_paired}
+# 		"""
 
-rule read_classification_BRACKENUniq:
-	input:
-		bracken_dir=config['bracken_dir'],
-		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
-		krakenuniq_db=(config['krakenUniq_db']),
-		brackenuniq_checkpoint=config['krakenUniq_db'] + "_brackenuniq_db_ckeckpoint.txt",
-	output:
-		brackenuniq_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_brackenuniq_{level}_report_paired_tot.csv",
-	message:
-		"Creating taxonomic reports with Bracken"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
-	shell:
-		"""
-		bracken -d {input.krakenuniq_db}  -i {input.krakenuniq_report_paired}  -o {output.brackenuniq_report_paired} -l {wildcards.level} -t 4000 || true
-		touch {output.brackenuniq_report_paired}
-		"""
+# rule read_classification_BRACKENUniq:
+# 	input:
+# 		bracken_dir=config['bracken_dir'],
+# 		krakenuniq_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_krakenuniq_report_paired_clean_tot.csv"),
+# 		krakenuniq_db=(config['krakenUniq_db']),
+# 		brackenuniq_checkpoint=config['krakenUniq_db'] + "_brackenuniq_db_ckeckpoint.txt",
+# 	output:
+# 		brackenuniq_report_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_brackenuniq_{level}_report_paired_tot.csv",
+# 	message:
+# 		"Creating taxonomic reports with Bracken"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/bracken/{sample}_{level}_tot.tsv"
+# 	shell:
+# 		"""
+# 		bracken -d {input.krakenuniq_db}  -i {input.krakenuniq_report_paired}  -o {output.brackenuniq_report_paired} -l {wildcards.level} -t 4000 || true
+# 		touch {output.brackenuniq_report_paired}
+# 		"""
 
 #
 # rule postQualityCheckIlluminaSE:

@@ -210,7 +210,8 @@ def inputQC(wildcards):
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 	if MICROBIAL:
-		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_S_report_paired_tot.csv", sample=SAMPLES)),
+		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_S_report_paired_tot.csv", sample=SAMPLES)),
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"), sample=SAMPLES),
 	return inputs
 
 def inputAssembly(wildcards):
