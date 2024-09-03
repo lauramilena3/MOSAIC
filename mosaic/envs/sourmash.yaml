@@ -12,6 +12,4 @@ dependencies:
   - pandas
   - compilers
   - pip:
-    - git+https://github.com/sourmash-bio/sourmash_plugin_branchwatergit@v0.9.7
-
-
+    - git+https://github.com/sourmash-bio/sourmash_plugin_branchwater.git@v0.9.7
