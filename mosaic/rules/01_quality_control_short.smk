@@ -168,7 +168,8 @@ rule sourmash_gather:
 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
 		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
 	params:
-		sample="{sample}_sourmash"
+		sample="{sample}_sourmash",
+		outdir=(dirs_dict["CLEAN_DATA_DIR"]),
 	message:
 		"Assigning taxonomy with sourmash tax"
 	conda:
@@ -179,7 +180,8 @@ rule sourmash_gather:
 	shell:
 		"""
 		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
-		sourmash tax metagenome --gather-csv {output.gather} -t {input.sourmash_tax}  -o {params.sample} --output-format kreport --rank species -f
+		sourmash tax metagenome --gather-csv {output.gather} -t {input.sourmash_tax}  -o {params.sample} \
+			--output-format kreport --rank species -f --output-dir {params.outdir}
 		"""
 
 # rule trim_adapters_quality_illumina_SE:
