@@ -105,7 +105,6 @@ rule superDeduper_pcr:
 		hts_SuperDeduper -L {output.duplicate_stats} -1 {input.forward_file} -2 {input.reverse_file} > {output.deduplicate}
 		"""
 
-
 rule trim_adapters_quality_illumina_PE:
 	input:
 		forward_file=dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + ".fastq.gz",
@@ -160,8 +159,30 @@ rule sourmash_sketch_trim:
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
+rule sourmash_gather:
+	input:
+		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
+		sourmash_sig=config['sourmash_sig'],
+		sourmash_tax=config['sourmash_tax'],
+	output:
+		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
+		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
 
-#
+	params:
+		sample="{sample}_sourmash"
+	message:
+		"Assigning taxonomy with sourmash tax"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_gather_tax.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
+		sourmash tax metagenome --gather-csv {output.gather} -t {input.sourmash_tax}  -o {sample} --output-format kreport --rank species -f
+		"""
+
 # rule trim_adapters_quality_illumina_SE:
 # 	input:
 # 		forward_file=dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + ".fastq",
