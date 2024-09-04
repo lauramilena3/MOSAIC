@@ -163,9 +163,25 @@ rule sourmash_gather:
 	input:
 		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
 		sourmash_sig=config['sourmash_sig'],
-		sourmash_tax=config['sourmash_tax'],
 	output:
 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
+	message:
+		"Metagenome containtment with sourmash gather"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_gather.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
+		"""
+
+rule sourmash_tax:
+	input:
+		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
+		sourmash_tax=config['sourmash_tax'],
+	output:
 		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
 	params:
 		sample="{sample}_sourmash",
@@ -175,12 +191,11 @@ rule sourmash_gather:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_gather_tax.tsv"
-	threads: 8
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_tax.tsv"
+	threads: 1
 	shell:
 		"""
-		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
-		sourmash tax metagenome --gather-csv {output.gather} -t {input.sourmash_tax}  -o {params.sample} \
+		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.sample} \
 			--output-format kreport --rank species -f --output-dir {params.outdir}
 		"""
 
