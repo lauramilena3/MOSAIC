@@ -179,7 +179,7 @@ rule sourmash_gather:
 	shell:
 		"""
 		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
-		sourmash tax metagenome --gather-csv {output.gather} -t {input.sourmash_tax}  -o {sample} --output-format kreport --rank species -f
+		sourmash tax metagenome --gather-csv {output.gather} -t {input.sourmash_tax}  -o {params.sample} --output-format kreport --rank species -f
 		"""
 
 # rule trim_adapters_quality_illumina_SE:
