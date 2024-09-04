@@ -166,8 +166,7 @@ rule sourmash_gather:
 		sourmash_tax=config['sourmash_tax'],
 	output:
 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
-		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
-
+		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
 	params:
 		sample="{sample}_sourmash"
 	message:
