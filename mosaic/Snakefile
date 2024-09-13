@@ -332,7 +332,7 @@ rule all:
 rule runQC:
 	input:
 		inputReadsCount,
-		# inputQC,
+		inputQC,
 
 rule runAssembly:
 	input:
@@ -349,8 +349,8 @@ rule runViralID:
 
 rule runvOTUClustering:
 	input:
-		inputReadsCount,
-		inputQC,
+		# inputReadsCount,
+		# inputQC,
 		inputAssembly,
 		inputViralID,
 		inputvOTUClustering,
