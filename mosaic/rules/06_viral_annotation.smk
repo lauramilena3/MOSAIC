@@ -14,6 +14,7 @@ rule lifestyle_bacphlip:
 	threads: 1
 	shell:
 		"""
+		mkdir {output.results_dir}
 		bacphlip -i {input.representatives} --multi_fasta -f
 		mv {output.results_bacphlip} {output.results_bacphlip_final}
 		"""
