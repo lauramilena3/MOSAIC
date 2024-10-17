@@ -2,9 +2,10 @@ rule lifestyle_bacphlip:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 	output:
-		results_dir=temp(directory(dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.BACPHLIP_DIR")),
-		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.bacphlip"),
-		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_bacphlip.csv"),
+		results_dir=temp(directory(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.BACPHLIP_DIR")),
+		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_bacphlip.csv"),
+	params:
+		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.BACPHLIP_DIR/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.bacphlip")
 	message:
 		"Predicting lifecycle with BACPHLIP"
 	conda:
@@ -17,7 +18,7 @@ rule lifestyle_bacphlip:
 		mkdir {output.results_dir}
 		cd {output.results_dir}
 		bacphlip -i {input.representatives} --multi_fasta -f
-		mv {output.results_bacphlip} {output.results_bacphlip_final}
+		mv {params.results_bacphlip} {output.results_bacphlip_final}
 		"""
 
 rule estimateGenomeCompletness_long:
