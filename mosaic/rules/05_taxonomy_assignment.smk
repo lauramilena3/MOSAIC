@@ -284,7 +284,7 @@ rule match_spacers:
 
 rule match_spacers_dion:
 	input:
-		spacers=(os.path.join(workflow.basedir, config['dion_db'])),
+		spacers_dion_db=(os.path.join(workflow.basedir, config['dion_db'])),
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
 		spacer_match=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
@@ -306,7 +306,6 @@ rule match_spacers_dion:
 		"""
 		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB} {params.tmpFolder}
 		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
-		spacepharer createsetdb {input.spacers} {params.spacers_mincedSetDB} {params.tmpFolder} --extractorf-spacer 1
-		spacepharer predictmatch {params.spacers_mincedSetDB} {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} --tax-lineage 1
-		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
+		spacepharer predictmatch {input.spacers_dion_db} {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} --tax-lineage 1
+		rm -rf {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
 	 	"""
