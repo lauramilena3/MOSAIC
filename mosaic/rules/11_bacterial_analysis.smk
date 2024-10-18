@@ -301,6 +301,7 @@ rule bacterial_binning_VAMB:
 rule predict_spacers:
 	input:
 		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		minced_dir=directory(os.path.join(workflow.basedir, config['minced_dir'])),
 	output:
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
 	message:
@@ -312,7 +313,7 @@ rule predict_spacers:
 	threads: 64
 	shell:
 		"""
-		minced -spacers {input.combined_positive_contigs} {output.spacers}
+		{input.minced_dir}/minced -spacers {input.combined_positive_contigs} {output.spacers}
 		"""
 
 rule estimateBinningQuality:

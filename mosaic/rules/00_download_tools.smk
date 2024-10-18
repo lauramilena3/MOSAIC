@@ -55,6 +55,23 @@ rule get_VIBRANT:
 		./VIBRANT_setup.py
 		"""
 
+rule get_minced:
+	output:
+		minced_dir=directory(os.path.join(workflow.basedir, config['minced_dir'])),
+	message:
+		"Downloading VIBRANT"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	threads: 1
+	shell:
+		"""
+		mkdir -p tools
+		cd tools
+		git clone https://github.com/ctSkennerton/minced/
+		cd minced
+		make
+		"""
+
 rule getQUAST:
 	output:
 		quast_dir=directory(config["quast_dir"])
