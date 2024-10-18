@@ -349,16 +349,16 @@ rule taxonomy_binning:
 		vamb_bins=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
 		gtdbtk_db=(config['gtdbtk_db']),
 	output:
-		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
+		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/microbial_vamb_GTDB-Tk"),
 		tempdir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_dir")),
 	params:
-		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
+		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_vamb_GTDB-Tk_mash"),
 	message:
 		"Assigning microbial taxonomy with GTDB-Tk "
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/microbial_GTDB-Tk.tsv"
+		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/microbial_vamb_GTDB-Tk.tsv"
 	threads: 64
 	shell:
 		"""
