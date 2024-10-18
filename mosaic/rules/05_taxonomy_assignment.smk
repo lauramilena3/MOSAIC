@@ -271,8 +271,8 @@ rule match_spacers:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/PhaGCN_Taxonomy/{sampling}.tsv"
-	threads: 32
+		dirs_dict["BENCHMARKS"] +"/spacepharer/{sampling}.tsv"
+	threads: 1
 	shell:
 		"""
 		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB} {params.tmpFolder}
@@ -282,4 +282,31 @@ rule match_spacers:
 		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
 	 	"""
 
-
+rule match_spacers_dion:
+	input:
+		spacers=directory(os.path.join(workflow.basedir, config['dion_db'])),
+		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+	output:
+		spacer_match_dion=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
+	message:
+		"Matching microbial spacers with the DION database"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	params:
+		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion.{sampling}")),
+		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion_rev.{sampling}")),
+		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_dionSetDB.{sampling}")),
+		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder_dion.{sampling}")),	
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/spacepharer/{sampling}_dion.tsv"
+	threads: 1
+	shell:
+		"""
+		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB} {params.tmpFolder}
+		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
+		spacepharer createsetdb {input.spacers} {params.spacers_mincedSetDB} {params.tmpFolder} --extractorf-spacer 1
+		spacepharer predictmatch {params.spacers_mincedSetDB} {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} --tax-lineage 1
+		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
+	 	"""
