@@ -639,6 +639,8 @@ rule downloadDionSpacers:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
 	shell:
 		"""
+		mkdir {output.dion_db}
+		cd {output.dion_db}
 		spacepharer downloaddb spacers_dion_et_al_2021 dionSetDB tmpFolder
 		"""
 

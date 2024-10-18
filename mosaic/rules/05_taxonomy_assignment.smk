@@ -306,6 +306,6 @@ rule match_spacers_dion:
 		"""
 		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB} {params.tmpFolder}
 		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
-		spacepharer predictmatch {input.spacers_dion_db} {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} --tax-lineage 1
+		spacepharer predictmatch {input.spacers_dion_db}/dionSetDB {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} --tax-lineage 1
 		rm -rf {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
 	 	"""
