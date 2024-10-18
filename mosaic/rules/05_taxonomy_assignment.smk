@@ -287,7 +287,7 @@ rule match_spacers_dion:
 		spacers=(os.path.join(workflow.basedir, config['dion_db'])),
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
-		spacer_match_dion=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
+		spacer_match=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
 	message:
 		"Matching microbial spacers with the DION database"
 	conda:
