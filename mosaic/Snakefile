@@ -385,12 +385,12 @@ rule runWorkflow:
 rule microbial:
 	input:
 		# metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
-		checkMoutdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+		# checkMoutdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
 		GTDB_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk"),
 		# DRAM_summary=(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
 		kraken_report_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv", sample=SAMPLES),
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
-		vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
+		# vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
 
 		# defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
 
