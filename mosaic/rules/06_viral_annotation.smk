@@ -5,7 +5,7 @@ rule lifestyle_bacphlip:
 		results_dir=temp(directory(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.BACPHLIP_DIR")),
 		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_bacphlip.csv"),
 	params:
-		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.BACPHLIP_DIR/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.bacphlip")
+		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.bacphlip")
 	message:
 		"Predicting lifecycle with BACPHLIP"
 	conda:
