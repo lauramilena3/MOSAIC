@@ -409,10 +409,7 @@ rule taxonomy_assembly:
 	threads: 64
 	shell:
 		"""
-		mkdir {output.GTDB_temp}/
-		cd {output.GTDB_temp}
-		awk -v OFS="\n" '/^>/ {{getline seq; print $0,seq > substr($1,2)".fasta"}}' {input.derreplicated_microbial_contigs}
-		cd -
+		seqkit split -i {input.derreplicated_microbial_contigs} --out-dir {output.GTDB_temp}
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
