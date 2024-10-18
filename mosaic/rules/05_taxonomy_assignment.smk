@@ -260,7 +260,6 @@ rule single_fasta_filtered:
 		filtered_representatives_dir=temp(directory(dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}")),
 	message:
 		"formating filtered vOTUs into single fasta"
-
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	threads: 1
@@ -268,8 +267,6 @@ rule single_fasta_filtered:
 		"""
 		seqkit split --quiet -i {input.filtered_representatives} --out-dir {output.filtered_representatives_dir}
 	 	"""
-
-
 
 rule match_spacers:
 	input:
@@ -286,8 +283,6 @@ rule match_spacers:
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_rev.{sampling}")),
 		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_mincedSetDB.{sampling}")),
 		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder.{sampling}")),	
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/spacepharer/{sampling}.tsv"
 	threads: 1
@@ -315,8 +310,6 @@ rule match_spacers_dion:
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion_rev.{sampling}")),
 		spacers_dionSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_dionSetDB.{sampling}")),
 		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder_dion.{sampling}")),	
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/spacepharer/{sampling}_dion.tsv"
 	threads: 1
