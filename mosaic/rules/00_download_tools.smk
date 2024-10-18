@@ -630,7 +630,7 @@ rule get_vcontact2:
 
 rule downloadDionSpacers:
 	output:
-		blast=(os.path.join(workflow.basedir,"db/ncbi/NCBI_viral_proteins.faa")),
+		# blast=(os.path.join(workflow.basedir,"db/ncbi/NCBI_viral_proteins.faa")),
 		dion_db=directory(os.path.join(workflow.basedir, config['dion_db'])),
 	message:
 		"Downloading Dion spacer database"
