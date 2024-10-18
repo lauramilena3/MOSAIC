@@ -296,7 +296,7 @@ rule match_spacers:
 		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
 		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
 		spacepharer createsetdb {input.spacers} {params.spacers_mincedSetDB} {params.tmpFolder} --extractorf-spacer 1
-		spacepharer easy-predict {params.spacers_mincedSetDB} {params.viralTargetDB} {output.spacer_match} {params.tmpFolder} -s 7.5 
+		spacepharer predictmatch {params.spacers_mincedSetDB} {params.viralTargetDB} {output.spacer_match} {params.tmpFolder} -s 7.5 
 		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
 	 	"""
 
@@ -313,7 +313,7 @@ rule match_spacers_dion:
 	params:
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion.{sampling}")),
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion_rev.{sampling}")),
-		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_dionSetDB.{sampling}")),
+		spacers_dionSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_dionSetDB.{sampling}")),
 		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder_dion.{sampling}")),	
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
@@ -322,7 +322,7 @@ rule match_spacers_dion:
 	threads: 1
 	shell:
 		"""
-		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB} {params.tmpFolder}
-		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
-		spacepharer easy-predict {params.spacers_mincedSetDB} {params.viralTargetDB} {output.spacer_match} {params.tmpFolder} -s 7.5 
-		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*	 	"""
+		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
+		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
+		spacepharer predictmatch {params.spacers_dionSetDB} {params.viralTargetDB} {output.spacer_match} {params.tmpFolder} -s 7.5 
+		rm -rf {params.spacers_dionSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*	 	"""
