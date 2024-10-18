@@ -7,4 +7,6 @@ dependencies:
   - nextflow =23.04.1
   - singularity =3.7.1
   - gtdbtk =2.3.2
+  - seqkit =2.8.2
+
 
