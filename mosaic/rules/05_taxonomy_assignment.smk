@@ -274,7 +274,7 @@ rule single_fasta_filtered:
 rule match_spacers:
 	input:
 		spacers=config['microbial_spacers'],
-		filtered_representatives_ir=dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
+		filtered_representatives_dir=dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	output:
 		spacer_match=dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
 	message:
@@ -293,8 +293,8 @@ rule match_spacers:
 	threads: 1
 	shell:
 		"""
-		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB} {params.tmpFolder}
-		spacepharer createsetdb {input.filtered_representatives} {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
+		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
+		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
 		spacepharer createsetdb {input.spacers} {params.spacers_mincedSetDB} {params.tmpFolder} --extractorf-spacer 1
 		spacepharer easy-predict {params.spacers_mincedSetDB} {params.viralTargetDB} {output.spacer_match} {params.tmpFolder} -s 7.5 
 		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
