@@ -284,7 +284,7 @@ rule match_spacers:
 
 rule match_spacers_dion:
 	input:
-		spacers=directory(os.path.join(workflow.basedir, config['dion_db'])),
+		spacers=(os.path.join(workflow.basedir, config['dion_db'])),
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
 		spacer_match_dion=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
