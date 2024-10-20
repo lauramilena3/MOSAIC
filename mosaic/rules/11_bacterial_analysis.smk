@@ -467,7 +467,7 @@ rule sourmash_gather_microbial:
 	output:
 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 	message:
-		"Metagenome containtment with sourmash gather"
+		"Genome containtment with sourmash gather"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
@@ -495,8 +495,7 @@ rule sourmash_tax_microbial:
 	threads: 1
 	shell:
 		"""
-		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax} \
-			--output-dir {params.outdir}
+		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax} --output-dir {params.outdir}
 		"""
 		
 # rule defense_finder:
