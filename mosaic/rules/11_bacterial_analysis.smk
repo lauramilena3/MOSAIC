@@ -442,8 +442,8 @@ rule sourmash_sketch_microbial:
 	input:
 		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
-		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
-		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
+		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
 	params: 
 		name="combined_microbial_derreplicated_tot"
 	message:
@@ -462,10 +462,10 @@ rule sourmash_sketch_microbial:
 
 rule sourmash_gather_microbial:
 	input:
-		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
 		sourmash_sig=config['sourmash_sig'],
 	output:
-		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+		gather=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 	message:
 		"Genome containtment with sourmash gather"
 	conda:
@@ -480,12 +480,12 @@ rule sourmash_gather_microbial:
 
 rule sourmash_tax_microbial:
 	input:
-		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+		gather=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 		sourmash_tax=config['sourmash_tax'],
 	output:
-		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.kreport.txt"),
+		kreport=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.kreport.txt"),
 	params:
-		outdir=(dirs_dict["CLEAN_DATA_DIR"]),
+		outdir=(dirs_dict["ANNOTATION"]),
 	message:
 		"Assigning taxonomy with sourmash tax"
 	conda:
