@@ -479,6 +479,7 @@ rule single_fasta_microbial:
 
 rule sourmash_sketch_microbial:
 	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 		derreplicated_microbial_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
 	output:
 		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
@@ -495,11 +496,7 @@ rule sourmash_sketch_microbial:
 	shell:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
-		for file in {input.derreplicated_microbial_contigs_dir}/*fasta; do
-			name=$(basename "$file" .fasta)
-			full_path=$(realpath "$file")
-			echo "$name,$full_path," >> {output.manysketch_csv}
-		done
+		grep "^>" {input.derreplicated_microbial_contigs} | sed 's/^>//' | awk -v dir="{input.derreplicated_microbial_contigs_dir}" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
