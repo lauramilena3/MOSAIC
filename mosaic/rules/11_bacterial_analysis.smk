@@ -496,7 +496,7 @@ rule sourmash_sketch_microbial:
 	shell:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
-		grep "^>" {input.derreplicated_microbial_contigs} | sed 's/^>//' | awk -v dir="{input.derreplicated_microbial_contigs_dir}" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
+		grep "^>" {input.derreplicated_microbial_contigs} | sed 's/^>//' | awk -v dir="{input.derreplicated_microbial_contigs_dir}/" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
