@@ -442,7 +442,7 @@ rule sourmash_sketch_microbial:
 	input:
 		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
-		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_manysketch.csv"),
+		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
 		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
 	params: 
 		name="combined_microbial_derreplicated_tot"
