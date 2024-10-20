@@ -448,7 +448,7 @@ rule sourmash_sketch_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_sketch.tsv"
+		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_sketch.tsv"
 	threads: 8
 	shell:
 		"""
