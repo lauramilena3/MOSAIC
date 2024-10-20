@@ -438,9 +438,48 @@ rule DRAM_microbial_annotation:
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
+
+# rule taxonomy_assembly:
+# 	input:
+# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+# 		gtdbtk_db=(config['gtdbtk_db']),
+# 	output:
+# 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
+# 		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_singlefasta_GTDB-Tk")),
+# 	params:
+# 		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
+# 	message:
+# 		"Assigning microbial taxonomy with GTDB-Tk "
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
+# 	threads: 64
+# 	shell:
+# 		"""
+# 		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.GTDB_temp}
+# 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
+# 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
+# 		"""
+
+rule single_fasta_filtered:
+	input:
+		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+	output:
+		derreplicated_microbial_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
+	message:
+		"formating microbial contigs into single fasta"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	threads: 1
+	shell:
+		"""
+		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.derreplicated_microbial_contigs_dir}
+	 	"""
+
 rule sourmash_sketch_microbial:
 	input:
-		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_microbial_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
 	output:
 		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
 		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
@@ -456,7 +495,11 @@ rule sourmash_sketch_microbial:
 	shell:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
-		echo {params.name},{input.combined_positive_contigs}, >> {output.manysketch_csv}
+		for file in {input.derreplicated_microbial_contigs_dir}/*fasta; do
+			name=$(basename "$file" .fasta)
+			full_path=$(realpath "$file")
+			echo "$name,$full_path," >> {output.manysketch_csv}
+		done
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
