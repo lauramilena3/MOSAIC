@@ -442,7 +442,10 @@ rule sourmash_sketch_microbial:
 	input:
 		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
+		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_manysketch.csv"),
 		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+	params: 
+		name="combined_microbial_derreplicated_tot"
 	message:
 		"Building sketches with sourmash"
 	conda:
@@ -452,7 +455,9 @@ rule sourmash_sketch_microbial:
 	threads: 8
 	shell:
 		"""
-		sourmash sketch dna {input.combined_positive_contigs} -p k=31,abund -o {output.sketch} -c {threads}
+		echo name,genome_filename,protein_filename > {output.manysketch_csv}
+		echo {params.name},{input.combined_positive_contigs}, >> {output.manysketch_csv}
+		sourmash scripts manysketch {input.combined_positive_contigs} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
 rule sourmash_gather_microbial:
