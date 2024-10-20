@@ -319,6 +319,6 @@ rule match_spacers_dion:
 		rm -rf {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*	 	
 		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
 		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
-		spacepharer predictmatch {input.spacers_dion_db}/dionSetDB/ {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} -s 7.5 
+		spacepharer predictmatch {input.spacers_dion_db}/dionSetDB {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} -s 7.5 
 		rm -rf {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*	 	
 		"""
