@@ -457,7 +457,7 @@ rule sourmash_sketch_microbial:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
 		echo {params.name},{input.combined_positive_contigs}, >> {output.manysketch_csv}
-		sourmash scripts manysketch {input.combined_positive_contigs} -p k=31,abund -o {output.sketch} -c {threads}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
 
 rule sourmash_gather_microbial:
