@@ -486,6 +486,7 @@ rule sourmash_tax_microbial:
 		kreport=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.kreport.txt"),
 	params:
 		outdir=(dirs_dict["ANNOTATION"]),
+		name="combined_microbial_derreplicated_tot",
 	message:
 		"Assigning taxonomy with sourmash tax"
 	conda:
@@ -495,7 +496,8 @@ rule sourmash_tax_microbial:
 	threads: 1
 	shell:
 		"""
-		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax} --output-dir {params.outdir}
+		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
+			--output-dir {params.outdir}
 		"""
 		
 # rule defense_finder:
