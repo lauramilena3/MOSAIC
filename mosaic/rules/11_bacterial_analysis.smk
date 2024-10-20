@@ -495,7 +495,7 @@ rule sourmash_tax_microbial:
 	threads: 1
 	shell:
 		"""
-		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax} --output-dir {params.outdir}
+		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax} --output-dir {params.outdir}
 		"""
 		
 # rule defense_finder:
