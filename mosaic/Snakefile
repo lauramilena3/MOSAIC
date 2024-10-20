@@ -286,15 +286,14 @@ def inputAnnotation(wildcards):
 	inputs.append(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv")
 	# inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_bacphlip.csv")
 	inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
-
 	if VCONTACT:
 		inputs.extend(expand(dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
 	if IMGVR_blast:
 		inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv")
 	if DRAM:
 		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_tot"),
-	# if len(config["microbial_spacers"])>0:
-		# inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
+	if len(config["microbial_spacers"])>0:
+		inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
 
 
 	# if TOMBO:
