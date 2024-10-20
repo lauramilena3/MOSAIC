@@ -462,7 +462,7 @@ rule DRAM_microbial_annotation:
 # 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 # 		"""
 
-rule single_fasta_filtered:
+rule single_fasta_microbial:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
 	output:
