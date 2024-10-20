@@ -391,28 +391,28 @@ rule taxonomy_binning_assembly:
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {output.GTDB_outdir}/input_assemblies/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
-rule taxonomy_assembly:
-	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-		gtdbtk_db=(config['gtdbtk_db']),
-	output:
-		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
-		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_singlefasta_GTDB-Tk")),
-	params:
-		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
-	message:
-		"Assigning microbial taxonomy with GTDB-Tk "
-	conda:
-		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
-	threads: 64
-	shell:
-		"""
-		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.GTDB_temp}
-		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
-		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
-		"""
+# rule taxonomy_assembly:
+# 	input:
+# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+# 		gtdbtk_db=(config['gtdbtk_db']),
+# 	output:
+# 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
+# 		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_singlefasta_GTDB-Tk")),
+# 	params:
+# 		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
+# 	message:
+# 		"Assigning microbial taxonomy with GTDB-Tk "
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
+# 	threads: 64
+# 	shell:
+# 		"""
+# 		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.GTDB_temp}
+# 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
+# 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
+# 		"""
 
 rule DRAM_microbial_annotation:
 	input:
@@ -438,6 +438,62 @@ rule DRAM_microbial_annotation:
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
+rule sourmash_sketch_microbial:
+	input:
+		combined_positive_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+	output:
+		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+	message:
+		"Building sketches with sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_sketch.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash sketch dna {input.combined_positive_contigs} -p k=31,abund -o {output.sketch} -c {threads}
+		"""
+
+rule sourmash_gather_microbial:
+	input:
+		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+		sourmash_sig=config['sourmash_sig'],
+	output:
+		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+	message:
+		"Metagenome containtment with sourmash gather"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_gather.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
+		"""
+
+rule sourmash_tax_microbial:
+	input:
+		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+		sourmash_tax=config['sourmash_tax'],
+	output:
+		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/combined_microbial_derreplicated_tot_sourmash.kreport.txt"),
+	params:
+		outdir=(dirs_dict["CLEAN_DATA_DIR"]),
+	message:
+		"Assigning taxonomy with sourmash tax"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_tax.tsv"
+	threads: 1
+	shell:
+		"""
+		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax} \
+			--output-dir {params.outdir}
+		"""
+		
 # rule defense_finder:
 # 	input:
 # 		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
