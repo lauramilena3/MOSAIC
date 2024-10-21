@@ -503,7 +503,7 @@ rule sourmash_sketch_microbial:
 rule sourmash_gather_microbial:
 	input:
 		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
-		sourmash_sig=config['sourmash_sig'],
+		sourmash_rocksdb=config['sourmash_rocksdb'],
 	output:
 		gather=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 	message:
@@ -515,7 +515,7 @@ rule sourmash_gather_microbial:
 	threads: 64
 	shell:
 		"""
-		sourmash scripts fastmultigather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather}
 		"""
 
 rule sourmash_tax_microbial:

@@ -78,6 +78,7 @@ checkv_db: "db/checkv-db-v1.5"
 checkm_db: "db/checkm-db"
 iphop_db: "db/iphop_db"
 sourmash_sig: "/home/lmf/db/SOURMASH/matrix_09_42_sourmash_k31.sig.zip"
+sourmash_rocksdb: "/home/lmf/db/SOURMASH/matrix_09_42_sourmash_k31.sig.rocksdb"
 sourmash_tax: "/home/lmf/db/SOURMASH/taxonomy/taxonomy_matrix_strain.csv"
 
 canu_dir: "tools/canu-2.0/Linux-amd64/bin" #linux

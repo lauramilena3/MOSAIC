@@ -302,6 +302,7 @@ rule match_spacers_dion:
 		filtered_representatives_dir=dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	output:
 		spacer_match=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
+		spacer_match_header=dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + "_header.{sampling}.tsv",
 	message:
 		"Matching microbial spacers with the DION database"
 	conda:
@@ -320,5 +321,6 @@ rule match_spacers_dion:
 		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
 		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
 		spacepharer predictmatch {input.spacers_dion_db}/dionSetDB {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} -s 7.5 
+		grep "^#" {output.spacer_match} > {output.spacer_match_header}
 		rm -rf {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*	 	
 		"""
