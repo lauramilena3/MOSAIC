@@ -480,7 +480,7 @@ rule single_fasta_microbial:
 rule sourmash_sketch_microbial:
 	input:
 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-		# derreplicated_microbial_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
+		derreplicated_microbial_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
 	output:
 		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
 		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
@@ -492,14 +492,13 @@ rule sourmash_sketch_microbial:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_sketch.tsv"
-	threads: 8
+	threads: 32
 	shell:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
-		echo {params.name},{input.derreplicated_microbial_contigs}, >> {output.manysketch_csv}
+		grep "^>" {input.derreplicated_microbial_contigs} | sed 's/^>//' | awk -v dir="{input.derreplicated_microbial_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
 		"""
-		# grep "^>" {input.derreplicated_microbial_contigs} | sed 's/^>//' | awk -v dir="{input.derreplicated_microbial_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
 
 rule sourmash_gather_microbial:
 	input:
@@ -513,10 +512,10 @@ rule sourmash_gather_microbial:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_gather.tsv"
-	threads: 8
+	threads: 32
 	shell:
 		"""
-		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
 		"""
 
 rule sourmash_tax_microbial:
@@ -537,8 +536,8 @@ rule sourmash_tax_microbial:
 	threads: 1
 	shell:
 		"""
-		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
-			--output-dir {params.outdir}
+		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
+			--output-dir {params.outdir} -F human
 		"""
 		
 # rule defense_finder:
