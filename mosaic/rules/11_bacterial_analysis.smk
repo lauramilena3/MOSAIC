@@ -492,7 +492,7 @@ rule sourmash_sketch_microbial:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_sketch.tsv"
-	threads: 32
+	threads: 64
 	shell:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
@@ -512,7 +512,7 @@ rule sourmash_gather_microbial:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_gather.tsv"
-	threads: 32
+	threads: 64
 	shell:
 		"""
 		sourmash scripts fastmultigather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
