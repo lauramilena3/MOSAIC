@@ -523,7 +523,7 @@ rule sourmash_tax_microbial:
 		gather=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 		sourmash_tax=config['sourmash_tax'],
 	output:
-		kreport=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot.summarized.csv"),
+		csv_report=(dirs_dict["ANNOTATION"] + "/sourmash_combined_microbial_derreplicated_tot.classifications.csv"),
 	params:
 		outdir=(dirs_dict["ANNOTATION"]),
 		name="sourmash_combined_microbial_derreplicated_tot",
