@@ -509,7 +509,7 @@ rule sourmash_gather_microbial:
 	message:
 		"Genome containtment with sourmash gather"
 	params:
-		threshold_bp="2000"
+		threshold_bp="0"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
