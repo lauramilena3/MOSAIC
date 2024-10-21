@@ -517,7 +517,7 @@ rule sourmash_gather_microbial:
 	threads: 64
 	shell:
 		"""
-		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp}
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} --num-results 10000000
 		"""
 
 rule sourmash_tax_microbial:
