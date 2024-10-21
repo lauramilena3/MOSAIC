@@ -526,7 +526,7 @@ rule sourmash_tax_microbial:
 		kreport=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot.summarized.csv"),
 	params:
 		outdir=(dirs_dict["ANNOTATION"]),
-		name="combined_microbial_derreplicated_tot",
+		name="sourmash_combined_microbial_derreplicated_tot",
 	message:
 		"Assigning taxonomy with sourmash tax"
 	conda:
@@ -537,7 +537,7 @@ rule sourmash_tax_microbial:
 	shell:
 		"""
 		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
-			--output-dir {params.outdir} -F human
+			--output-dir {params.outdir} -F csv_summary
 		"""
 		
 # rule defense_finder:
