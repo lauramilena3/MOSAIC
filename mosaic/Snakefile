@@ -394,8 +394,7 @@ rule microbial:
 
 rule kraken:
 	input:
-		kraken_report_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv", sample=SAMPLES),
-		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
+		multiqc=dirs_dict["QC_DIR"]+ "/microbial_kraken_multiqc_report.html"
 
 rule trimmomatic:
 	input:
