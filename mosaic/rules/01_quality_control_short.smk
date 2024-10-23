@@ -693,6 +693,27 @@ rule postkrakenMultiQC:
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
 		"""
 
+rule krakenMicrobialMultiQC:
+	input:
+		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv", sample=SAMPLES),
+	output:
+		multiqc=dirs_dict["QC_DIR"]+ "/microbial_kraken_multiqc_report.html"
+		# 		multiqc=dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
+	params:
+		fastqc_dir=dirs_dict["CLEAN_DATA_DIR"],
+		html_name="microbial_kraken_multiqc_report.html",
+		multiqc_dir=dirs_dict["QC_DIR"]
+	message:
+		"Generating MultiQC report kraken pre"
+	priority: 1
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_microbial.tsv"
+	shell:
+		"""
+		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
+		"""
 
 # rule subsampleReadsIllumina_PE:
 # 	input:
