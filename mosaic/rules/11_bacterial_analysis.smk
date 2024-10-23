@@ -483,7 +483,7 @@ rule sourmash_sketch_microbial:
 		derreplicated_microbial_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
 	output:
 		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
-		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+		sketch=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
 	params: 
 		name="combined_microbial_derreplicated_tot"
 	message:
@@ -505,7 +505,7 @@ rule sourmash_gather_microbial:
 		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
 		sourmash_rocksdb=config['sourmash_rocksdb'],
 	output:
-		gather=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+		gather=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 	message:
 		"Genome containtment with sourmash gather"
 	params:
