@@ -387,12 +387,15 @@ rule microbial:
 		# checkMoutdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
 		csv_report=(dirs_dict["ANNOTATION"] + "/sourmash_combined_microbial_derreplicated_tot.classifications.csv"),
 		# DRAM_summary=(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
-		# kraken_report_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv", sample=SAMPLES),
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
 		# vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
 
 		# defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
 
+rule kraken:
+	input:
+		kraken_report_paired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv", sample=SAMPLES),
+		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
 
 rule trimmomatic:
 	input:
