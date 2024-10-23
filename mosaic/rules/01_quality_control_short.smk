@@ -285,30 +285,30 @@ rule contaminants_KRAKEN:
 		# 	-o {output.kraken_report_combined}
 		# ""
 
-# rule contaminants_KRAKEN_microbial:
-# 	input:
-# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
-# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
-# 		kraken_db=(config['kraken_db_nt']),
-# 	output:
-# 		kraken_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_output_paired_microbial.tot.csv"),
-# 		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
-# 	params:
-# 		kraken_db=config['kraken_db_nt'],
-# 	message:
-# 		"Assesing contamination with kraken2"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
-# 	threads: 32
-# 	shell:
-# 		"""
-# 		kraken2 --db {params.kraken_db} --threads {threads} \
-# 			--paired {input.forward_paired} {input.reverse_paired} \
-# 			--output {output.kraken_output_paired} --report {output.kraken_report_paired} \
-# 			--report-minimizer-data
-		# """
+rule contaminants_KRAKEN_microbial:
+	input:
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
+		kraken_db=(config['kraken_db_nt']),
+	output:
+		kraken_output_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_output_paired_microbial.tot.csv"),
+		kraken_report_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_microbial.tot.csv"),
+	params:
+		kraken_db=config['kraken_db_nt'],
+	message:
+		"Assesing contamination with kraken2"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
+	threads: 32
+	shell:
+		"""
+		kraken2 --db {params.kraken_db} --threads {threads} \
+			--paired {input.forward_paired} {input.reverse_paired} \
+			--output {output.kraken_output_paired} --report {output.kraken_report_paired} \
+			--report-minimizer-data
+		"""
 
 rule remove_euk:
 	input:
