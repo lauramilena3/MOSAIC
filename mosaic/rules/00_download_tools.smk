@@ -457,6 +457,19 @@ rule downloadGenomadDB:
 		genomad download-database {params.db_dir}
 		"""
 
+rule downloadTaxmyphageDB:
+	output:
+		taxmyphage_db=directory(config['taxmyphage_db']),
+	message:
+		"Downloading geNomad database"
+	params:
+		db_dir="db/"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	shell:
+		"""
+		taxmyphage install
+		"""
 
 #rule downloadminiKrakenDB:
 #	output:
