@@ -6,4 +6,3 @@ dependencies:
   - checkv =1.0.1
   - seqtk =1.3
   - krakenuniq =1.0.4
-  - taxmyphage =0.3.3
