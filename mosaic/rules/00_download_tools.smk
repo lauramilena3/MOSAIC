@@ -461,14 +461,18 @@ rule downloadTaxmyphageDB:
 	output:
 		taxmyphage_db=directory(config['taxmyphage_db']),
 	message:
-		"Downloading geNomad database"
+		"Downloading taxmyphage database"
 	params:
 		db_dir="db/"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	shell:
 		"""
-		taxmyphage install
+		
+		taxmyphage install -db {output.taxmyphage_db}
+		cd {output.taxmyphage_db} 
+		wget https://ictv.global/sites/default/files/VMR/VMR_MSL39_v1.xlsx
+		mv VMR_MSL39_v1.xlsx VMR.xlsx 
 		"""
 
 #rule downloadminiKrakenDB:

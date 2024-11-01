@@ -48,8 +48,8 @@ rule vOUTclustering:
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
 	output:
 		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}_95-85.clstr",
-		blastout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-blastout.csv",
-		aniout=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-aniout.csv",
+		blastout=temp(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-blastout.csv"),
+		aniout=temp(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-aniout.csv"),
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
@@ -61,7 +61,7 @@ rule vOUTclustering:
 		"""
 		makeblastdb -in {input.derreplicated_positive_contigs} -dbtype nucl -out {input.derreplicated_positive_contigs}
 		blastn -query {input.derreplicated_positive_contigs} -db {input.derreplicated_positive_contigs} -outfmt '6 std qlen slen' \
-			-max_target_seqs 10000 -out {output.blastout} -num_threads {threads}
+			-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
 		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
 		python scripts/aniclust_checkv.py --fna {input.derreplicated_positive_contigs} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
 		"""

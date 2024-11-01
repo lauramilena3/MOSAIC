@@ -418,8 +418,6 @@ rule microdiversity:
 	input: 
 		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa"
 
-
-
 rule find_relatives:
 	input:
 		expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
@@ -428,6 +426,8 @@ rule find_relatives:
 
 rule abundance_from_db_contigs:
 	input:
+		inputReadsCount,
+		inputQC,
 		expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
 		# expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES),
 
