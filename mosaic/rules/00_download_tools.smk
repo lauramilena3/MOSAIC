@@ -468,7 +468,6 @@ rule downloadTaxmyphageDB:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	shell:
 		"""
-		
 		taxmyphage install -db {output.taxmyphage_db}
 		cd {output.taxmyphage_db} 
 		wget https://ictv.global/sites/default/files/VMR/VMR_MSL39_v1.xlsx
