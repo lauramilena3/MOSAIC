@@ -424,12 +424,11 @@ rule find_relatives:
 		(dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv"),
 
 
-rule abundance_from_db_contigs:
-	input:
-		inputReadsCount,
-		inputQC,
-		expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		# expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES),
+# rule abundance_from_db_contigs:
+# 	input:
+
+# 		expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
+# 		# expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES),
 
 rule assembly_vs_reference:
 	input:
@@ -547,6 +546,8 @@ rule runALE:
 rule map_to_reference:
 	input:
 		# expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)
+		inputReadsCount,
+		inputQC,
 		expand(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE),
 
