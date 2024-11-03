@@ -22,6 +22,7 @@ rule derreplicate_assembly:
 	output:
 		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		input_derreplicated_clusters=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_cluster.tsv",
 		derreplicated_tmp=directory(dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp"),
 	params:
 		rep_name="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated",
@@ -48,8 +49,8 @@ rule vOUTclustering:
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
 	output:
 		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}_95-85.clstr",
-		blastout=temp(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-blastout.csv"),
-		aniout=temp(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-aniout.csv"),
+		blastout=(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-blastout.csv"),
+		aniout=(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-aniout.csv"),
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
@@ -102,6 +103,7 @@ rule select_vOTU_representative:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 		cluster_file=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}_95-85.clstr",
+		input_derreplicated_clusters=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_cluster.tsv",
 	output:
 		representatives=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
 		checkv_categories=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list_checkv_per_category.{sampling}.csv",
