@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-#CHECKV SCRIPT
+#CHECKV script #notmyown
 import time, resource, platform, sys, argparse, gzip
 
 def parse_seqs(path):
@@ -50,10 +49,10 @@ def parse_arguments():
 		help="""Path to list of sequence ids to keep from clustering""")
 	parser.add_argument('--min_ani', type=float, metavar='FLOAT', default=95,
 		help="""Minimum average nucleotide identity (0...100, default=95)""")
-	parser.add_argument('--min_qcov', type=float, metavar='FLOAT', default=10,
-		help="""Minimum alignment coverage of longer sequence (0...100, default=10)""")
-	parser.add_argument('--min_tcov', type=float, metavar='FLOAT', default=70,
-		help="""Minimum alignment coverage of shorter sequence (0...100, default=70)""")
+	parser.add_argument('--min_qcov', type=float, metavar='FLOAT', default=0,
+		help="""Minimum alignment coverage of longer sequence (0...100, default=0)""")
+	parser.add_argument('--min_tcov', type=float, metavar='FLOAT', default=85,
+		help="""Minimum alignment coverage of shorter sequence (0...100, default=85)""")
 	parser.add_argument('--min_length', type=float, metavar='INT', default=1,
 		help="""Minimum sequence length (default=1)""")
 	return vars(parser.parse_args())
@@ -136,3 +135,4 @@ out = open(args['out'], 'w')
 for seq_id, mem_ids in clust_to_seqs.items():
 	out.write(seq_id + '\t' + ','.join(mem_ids)+'\n')
 log_time(start)
+
