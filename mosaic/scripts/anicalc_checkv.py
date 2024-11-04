@@ -5,7 +5,6 @@ import Bio.SeqIO, time, gzip
 from operator import itemgetter
 import numpy as np, argparse
 
-
 def parse_blast(handle):
     for line in handle:
         r = line.split()
