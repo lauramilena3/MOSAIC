@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#CHECKV script #notmyown
+#CHECKV script #EDITED! LINE 96-98
 import time, resource, platform, sys, argparse, gzip
 
 def parse_seqs(path):
@@ -93,7 +93,9 @@ for index, line in enumerate(handle):
 		continue
 	elif qname not in edges or tname not in edges:
 		continue
-	elif float(tcov) * float(ani) < args['min_tcov']*args['min_ani'] :
+	# LINE OF CODE EDITED TO REPLACE float(ani) < args['min_ani'] FOR (float(tcov) * float(ani) < args['min_tcov']*args['min_ani']):
+	#elif float(qcov) < args['min_qcov'] or float(tcov) < args['min_tcov'] or float(ani) < args['min_ani']:
+	elif float(qcov) < args['min_qcov'] or float(tcov) < args['min_tcov'] or ( (float(tcov) * float(ani) < args['min_tcov']*args['min_ani']) ):
 		continue
 	edges[qname].append(tname)
 	num_edges += 1
