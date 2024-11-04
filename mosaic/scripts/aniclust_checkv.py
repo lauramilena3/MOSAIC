@@ -93,7 +93,7 @@ for index, line in enumerate(handle):
 		continue
 	elif qname not in edges or tname not in edges:
 		continue
-	elif float(tcov) * float(ani) < 0.95 * 0.85:
+	elif float(tcov) * float(ani) < args['min_tcov']*args['min_ani'] :
 		continue
 	edges[qname].append(tname)
 	num_edges += 1
