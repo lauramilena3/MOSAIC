@@ -121,7 +121,7 @@ rule select_vOTU_representative:
 
 rule vOUTclustering_get_new_references:
 	input:
-		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 		representative_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
 	output:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
@@ -135,7 +135,7 @@ rule vOUTclustering_get_new_references:
 	threads: 1
 	shell:
 		"""
-		seqtk subseq {input.derreplicated_positive_contigs} {input.representative_list} > {output.representatives}
+		seqtk subseq {input.combined_positive_contigs} {input.representative_list} > {output.representatives}
 		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
 			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
 		"""
