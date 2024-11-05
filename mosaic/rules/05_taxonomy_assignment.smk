@@ -65,8 +65,8 @@ rule clusterTaxonomy:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa",
 		clusterONE_dir=config["clusterONE_dir"],
-		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/1Aug2023_gene_to_genome.csv")),
-		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Aug2023_genomes.faa")),
+		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv")),
+		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_refseq_genomes.fa")),
 		# vcontact_dir=config["vcontact_dir"],
 	output:
 		gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
@@ -323,4 +323,26 @@ rule match_spacers_dion:
 		spacepharer predictmatch {input.spacers_dion_db}/dionSetDB {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} -s 7.5 
 		grep "^#" {output.spacer_match} > {output.spacer_match_header}
 		rm -rf {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*	 	
+		"""
+
+
+rule taxmyphage:
+	input:
+		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		taxmyphage_db=(config['taxmyphage_db']),
+	output:
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_restults"),
+	params:
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE ),
+	message:
+		"Assigning taxonomy with taxmyphage"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/taxmyphage/tot.tsv"
+	threads: 32
+	shell:
+		"""
+		taxmyphage run -i {input.representatives} -t {threads} -db {input.taxmyphage_db} 
+		mv {params.results_dir} {output.results_dir}
 		"""

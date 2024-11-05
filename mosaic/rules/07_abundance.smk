@@ -568,25 +568,25 @@ rule mapReads_reference_sub:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
-rule get_norm_RPKM:
-	input:
-		covstats_all=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
-		covstats_toss=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
-	output:
-		rpkm=dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt",
-	params:
-		ambiguous=config['ambiguous_mapping'],
-	message:
-		"Calculating normalised RPKM"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/normalise_RPKM/{sample}_{sampling}.tsv"
-	threads: 1
-	shell:
-		"""
-		perl ./scripts/Make-vOTU-RPKM-Norm.pl {input.covstats_toss} {input.covstats_all} {output.rpkm}
-		"""
+# rule get_norm_RPKM:
+# 	input:
+# 		covstats_all=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",
+# 		covstats_toss=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_toss.txt",
+# 	output:
+# 		rpkm=dirs_dict["MAPPING_DIR"]+ "/norm_RPKM_{sample}_{sampling}.txt",
+# 	params:
+# 		ambiguous=config['ambiguous_mapping'],
+# 	message:
+# 		"Calculating normalised RPKM"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/normalise_RPKM/{sample}_{sampling}.tsv"
+# 	threads: 1
+# 	shell:
+# 		"""
+# 		perl ./scripts/Make-vOTU-RPKM-Norm.pl {input.covstats_toss} {input.covstats_all} {output.rpkm}
+# 		"""
 
 # rule plotWeesam:
 # 	input:
