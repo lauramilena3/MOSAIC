@@ -527,8 +527,8 @@ rule downloadKrakenDB_human:
 # 		"""
 rule downloadVcontact2Files:
 	output:
-		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv")),
-		vcontact_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_proteins.faa")),
+		gene2genome_millard=("db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv"),
+		vcontact_aa_millard=("db/vcontact2/1Sep2024_vConTACT2_proteins.faa"),
 	message:
 		"Downloading vContact2 formatting database"
 	threads: 1
@@ -536,11 +536,11 @@ rule downloadVcontact2Files:
 	shell:
 		"""
 		wget wget https://millardlab-inphared.s3.climb.ac.uk/1Sep2024_vConTACT2_gene_to_genome.csv.gz
-		gunzip -c 1Sep2024_vConTACT2_gene_to_genome.csv.gz > {output.gene2genome}
+		gunzip -c 1Sep2024_vConTACT2_gene_to_genome.csv.gz > {output.gene2genome_millard}
 		wget https://millardlab-inphared.s3.climb.ac.uk/1Sep2024_vConTACT2_proteins.faa.gz
-		gunzip -c 1Sep2024_vConTACT2_proteins.faa.gz > {output.vcontact_format}
-		dos2unix {output.gene2genome}
-		dos2unix {output.vcontact_format}
+		gunzip -c 1Sep2024_vConTACT2_proteins.faa.gz > {output.vcontact_aa_millard}
+		dos2unix {output.gene2genome_millard}
+		dos2unix {output.vcontact_aa_millard}
 		"""
 
 rule downloadBLASTviralProteins:
