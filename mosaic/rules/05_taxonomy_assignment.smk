@@ -332,7 +332,8 @@ rule taxmyphage:
 	output:
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE ),
 	params:
-		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_restults"),
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_results"),
+		annotation_dir=directory(dirs_dict["ANNOTATION"]"),
 	message:
 		"Assigning taxonomy with taxmyphage"
 	conda:
@@ -342,6 +343,6 @@ rule taxmyphage:
 	threads: 32
 	shell:
 		"""
-		taxmyphage run -i {input.representatives} -t {threads} -db {input.taxmyphage_db} 
+		taxmyphage run -i {input.representatives} -t {threads} -db {input.taxmyphage_db} -o {params.annotation_dir}
 		mv {params.results_dir} {output.results_dir}
 		"""
