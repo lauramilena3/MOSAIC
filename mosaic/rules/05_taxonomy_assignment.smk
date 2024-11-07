@@ -330,9 +330,9 @@ rule taxmyphage:
 		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 		taxmyphage_db=(config['taxmyphage_db']),
 	output:
-		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_restults"),
-	params:
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE ),
+	params:
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_restults"),
 	message:
 		"Assigning taxonomy with taxmyphage"
 	conda:
