@@ -527,21 +527,20 @@ rule downloadKrakenDB_human:
 # 		"""
 rule downloadVcontact2Files:
 	output:
-		gene2genome=(os.path.join(workflow.basedir,"db/vcontact2/gene-to-genome.30May2020.csv")),
-		vcontact_format=(os.path.join(workflow.basedir,"db/vcontact2/vcontact_format_30May2020.faa")),
+		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv")),
+		vcontact_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_proteins.faa")),
 	message:
 		"Downloading vContact2 formatting database"
 	threads: 1
 	params:
 	shell:
 		"""
-		wget http://s3.climb.ac.uk/ADM_share/crap/website/gene-to-genome.30May2020.csv.gz
-		gunzip -c gene-to-genome.30May2020.csv.gz > {output.gene2genome}
-		wget http://s3.climb.ac.uk/ADM_share/crap/website/vcontact_format_30May2020.faa.gz
-		gunzip -c vcontact_format_30May2020.faa.gz > {output.vcontact_format}
+		wget wget https://millardlab-inphared.s3.climb.ac.uk/1Sep2024_vConTACT2_gene_to_genome.csv.gz
+		gunzip -c 1Sep2024_vConTACT2_gene_to_genome.csv.gz > {output.gene2genome}
+		wget https://millardlab-inphared.s3.climb.ac.uk/1Sep2024_vConTACT2_proteins.faa.gz
+		gunzip -c 1Sep2024_vConTACT2_proteins.faa.gz > {output.vcontact_format}
 		dos2unix {output.gene2genome}
 		dos2unix {output.vcontact_format}
-		#sed -i "s/None/None_provided/g" {output.gene2genome}
 		"""
 
 rule downloadBLASTviralProteins:
@@ -558,6 +557,7 @@ rule downloadBLASTviralProteins:
 			| efetch -format fasta > {output.blast}
 		makeblastdb -in {output.blast} -dbtype prot
 		"""
+		
 rule getClusterONE:
 	output:
 		clusterONE_dir=directory(config["clusterONE_dir"]),

@@ -66,7 +66,7 @@ rule clusterTaxonomy:
 		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa",
 		clusterONE_dir=config["clusterONE_dir"],
 		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv")),
-		vcontact_format_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_refseq_genomes.fa")),
+		vcontact_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_proteins.faa")),
 		# vcontact_dir=config["vcontact_dir"],
 	output:
 		gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
