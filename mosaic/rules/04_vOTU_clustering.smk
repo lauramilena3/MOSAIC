@@ -214,20 +214,4 @@ rule clustered_with_filter_vOTUs:
 		seqtk subseq {input.derreplicated_positive_contigs} {output.cluster_filtered_representatives_list} > {output.cluster_filtered_representatives_fasta}
 		"""
 
-# rule clustered_with_filter_vOTUs:
-# 	input:
-# 		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-# 	output:
-# 		coords="{fasta}_ORFs.{sampling}.coords",
-# 		aa="{fasta}_ORFs.{sampling}.faa",
-# 	message:
-# 		"Calling ORFs with prodigal"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		prodigal -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -p meta
-
-# 		"""
 
