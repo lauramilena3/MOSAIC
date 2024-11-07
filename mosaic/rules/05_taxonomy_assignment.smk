@@ -65,9 +65,8 @@ rule clusterTaxonomy:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa",
 		clusterONE_dir=config["clusterONE_dir"],
-		gene2genome_format_csv=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv")),
-		vcontact_aa=(os.path.join(workflow.basedir,"db/vcontact2/1Sep2024_vConTACT2_proteins.faa")),
-		# vcontact_dir=config["vcontact_dir"],
+		gene2genome_millard=("db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv"),
+		vcontact_aa_millard=("db/vcontact2/1Sep2024_vConTACT2_proteins.faa"),
 	output:
 		gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
 		merged_gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
@@ -92,8 +91,8 @@ rule clusterTaxonomy:
 		rm -rf {params.out_dir}
 		mkdir {params.out_dir}
 		vcontact2_gene2genome -p {input.aa} -s Prodigal-FAA -o {output.gene2genome}
-		cat {output.gene2genome} {input.gene2genome_format_csv}  > {output.merged_gene2genome}
-		cat {input.aa} {input.vcontact_format_aa} > {output.merged_ORFs}
+		cat {output.gene2genome} {input.gene2genome_millard}  > {output.merged_gene2genome}
+		cat {input.aa} {input.vcontact_aa_millard} > {output.merged_ORFs}
 		dos2unix {output.merged_gene2genome}
 		vcontact2 --raw-proteins {output.merged_ORFs} --rel-mode 'Diamond' --proteins-fp {output.merged_gene2genome} \
 		--db {params.reference_genomes} --pcs-mode MCL --vcs-mode ClusterONE --c1-bin {input.clusterONE_dir}/cluster_one-1.0.jar \
