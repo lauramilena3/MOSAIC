@@ -229,15 +229,15 @@ rule annotate_VIGA:
 		modifiers=temp(dirs_dict["ANNOTATION"] + "/modifiers_{contigs}.txt"),
 		temp_symlink=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot.fasta_symlink"),
 		temp_viga_dir=temp(directory(dirs_dict["ANNOTATION"] + "/{contigs}_tempVIGA")),
-		GenBank_file=dirs_dict["ANNOTATION"] + "/{contigs}.tot_annotated.gbk",
-		GenBank_table_temp1=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.tbl"),
-		GenBank_table_temp2=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.tbl2"),
-		GenBank_table=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + ".tbl",
-		GenBank_fasta=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.fasta",
-		csv=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.csv",
+		GenBank_file=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.gbk",
+		GenBank_table_temp1=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot_annotated.tbl"),
+		GenBank_table_temp2=temp(dirs_dict["ANNOTATION"] + "/{contigs}.tot_annotated.tbl2"),
+		GenBank_table=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.tbl",
+		GenBank_fasta=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA__annotated.fasta",
+		csv=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.csv",
 		viga_names=temp(dirs_dict["ANNOTATION"] + "/viga_names_{contigs}.tot.txt"),
-		viga_topology_temp=temp(dirs_dict["ANNOTATION"] + "/viga_topology_temp{contigs}tot.txt"),
-		viga_topology=(dirs_dict["ANNOTATION"] + "/viga_topology_{contigs}tot.txt"),
+		viga_topology_temp=temp(dirs_dict["ANNOTATION"] + "/viga_topology_temp_{contigs}_tot.txt"),
+		viga_topology=(dirs_dict["ANNOTATION"] + "/viga_topology_{contigs}_tot.txt"),
 	params:
 		viga_log=dirs_dict["ANNOTATION"] + "/viga_log_{contigs}.tot.txt",
 		representatives_name=dirs_dict["MMSEQS"] + "/" + "representatives",
@@ -355,7 +355,7 @@ rule cluster_proteins:
 
 rule clinker_figure:
 	input:
-		genbank=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.gbk",
+		genbank=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.gbk",
 	output:
 		clinker=(dirs_dict["ANNOTATION"] + "/{contigs}_clinker.html"),
 	conda:
@@ -616,7 +616,7 @@ rule detectNucleotideModifications:
 
 rule gbk_to_faa:
 	input:
-		genbank=dirs_dict["ANNOTATION"] + "/{contigs}.tot" + "_annotated.gbk",
+		genbank=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.gbk",
 	output:
 		faa=dirs_dict["ANNOTATION"] + "/{contigs}_viga_ORFs.tot.faa",
 	conda:
@@ -712,10 +712,10 @@ def aggregate_input_annotation(wildcards):
 
 
 rule merge_annotations:
-	input:
+	input:		
 		blast_output=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv"),
 		hhr=aggregate_input_annotation,
-		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.csv",
+		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv",
 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_viga_cluster.tsv"),
 	output:
 		annotation_table=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotation_table_merged.csv",
@@ -1010,7 +1010,7 @@ rule parse_blastall:
 rule change_start_site_full:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotated.csv",
+		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv",
 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 	output:
 		corrected_start=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
