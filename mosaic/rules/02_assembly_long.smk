@@ -399,22 +399,6 @@ rule scoreALE:
 		{input.ALE_dir}/src/ALE {input.sorted_bam_paired} {input.scaffolds} {output.ale}
 		"""
 
-# rule getORFs_assembly:
-# 	input:
-# 		nuc_fasta="{fasta}.{sampling}.fasta",
-# 	output:
-# 		coords="{fasta}_ORFs.{sampling}.coords",
-# 		aa="{fasta}_ORFs.{sampling}.fasta",
-# 	message:
-# 		"Calling ORFs with prodigal"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		prodigal -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -p meta
-# 		"""
-
 rule mergeAssembliesHYBRID:
 	input:
 		corrected_scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES),

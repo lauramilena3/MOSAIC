@@ -1,29 +1,6 @@
 # ruleorder: gbk_to_faa>getORFs_assembly
 
-# rule getORFs:
-# 	input:
-# 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-# 	output:
-# 		coords=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.coords",
-# 		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.fasta",
-# 	message:
-# 		"Calling ORFs with prodigal"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/getORFs/{sampling}.tsv"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		if [ -s {input.filtered_representatives} ]
-# 		then
-# 			prodigal -i {input.filtered_representatives} -o {output.coords} -a {output.aa} -p meta
-# 		else
-# 			echo "Empty contigs file, no ORFs to detect"
-# 			touch {output.coords} {output.aa}
-# 		fi
-# 		"""
-rule getORFs_pharokka:
+rule getORFs_prodigal_gv:
 	input:
 		nuc_fasta="{fasta}.{sampling}.fasta",
 	output:
@@ -33,10 +10,10 @@ rule getORFs_pharokka:
 		"Calling ORFs with prodigal-gv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 1
+	threads: 8
 	shell:
 		"""
-		prodigal -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -p meta
+		./scripts/parallel-prodigal-gv.py -q -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -p meta -t {threads}
 		"""
 
 rule getORFs_coding_length:
