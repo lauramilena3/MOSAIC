@@ -33,3 +33,4 @@ dependencies:
   - biopython =1.79
   - coverm =0.6.1
   - spacepharer =5.c2e680a
+  - prodigal-gv =2.11.0

@@ -23,14 +23,14 @@
 # 			touch {output.coords} {output.aa}
 # 		fi
 # 		"""
-rule getORFs_assembly:
+rule getORFs_pharokka:
 	input:
 		nuc_fasta="{fasta}.{sampling}.fasta",
 	output:
 		coords="{fasta}_ORFs.{sampling}.coords",
 		aa="{fasta}_ORFs.{sampling}.faa",
 	message:
-		"Calling ORFs with prodigal"
+		"Calling ORFs with prodigal-gv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	threads: 1
