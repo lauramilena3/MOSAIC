@@ -385,15 +385,16 @@ rule runWorkflow:
 
 rule microbial:
 	input:
-		# metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
-		# checkMoutdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+
 		csv_report=(dirs_dict["ANNOTATION"] + "/sourmash_combined_microbial_derreplicated_tot.classifications.csv"),
-		# DRAM_summary=(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
 		satellite_finder=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, model=["cfPICI", "PICI", "P4", "PLE"]),
 		# vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
 		# defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
-
+		# DRAM_summary=(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
+		# metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
+		# checkMoutdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_checkM"),
+		
 rule kraken:
 	input:
 		multiqc=dirs_dict["QC_DIR"]+ "/microbial_kraken_multiqc_report.html"

@@ -542,22 +542,22 @@ rule sourmash_tax_microbial:
 			--output-dir {params.outdir} -F csv_summary
 		"""
 		
-# rule defense_finder:
-# 	input:
-# 		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
-# 	output:
-# 		defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_{sampling}/"),
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/DefenseFinder/{sampling}.tsv"
-# 	message:
-# 		"Detecting defense systems with DefenseFinder"
-# 	threads: 32
-# 	shell:
-# 		"""
-# 		defense-finder run -–db-type gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
-# 		"""
+rule defense_finder:
+	input:
+		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
+	output:
+		defenseFinder_dir=directory(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_{sampling}/"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/DefenseFinder/{sampling}.tsv"
+	message:
+		"Detecting defense systems with DefenseFinder"
+	threads: 32
+	shell:
+		"""
+		defense-finder run -–db-type gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
+		"""
 
 
 # rule getORFs_microbial:
