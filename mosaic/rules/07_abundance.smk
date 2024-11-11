@@ -185,11 +185,11 @@ rule buildBowtieDB_derreplicated:
 	output:
 		contigs_bt2=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.1.bt2",
 	params:
-		prefix=dirs_dict["VIRAL_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}",
+		prefix=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}",
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_bowtie_derreplicated.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sampling}_bowtie_derreplicated.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	threads: 8
