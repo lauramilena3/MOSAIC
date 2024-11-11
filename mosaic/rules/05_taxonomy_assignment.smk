@@ -13,7 +13,7 @@ rule getORFs_prodigal_gv:
 	threads: 8
 	shell:
 		"""
-		./scripts/parallel-prodigal-gv.py -q -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -p meta -t {threads}
+		./scripts/parallel-prodigal-gv.py -q -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -t {threads}
 		"""
 
 rule getORFs_coding_length:
@@ -310,7 +310,7 @@ rule taxmyphage:
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE ),
 	params:
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_results"),
-		annotation_dir=directory(dirs_dict["ANNOTATION"]"),
+		annotation_dir=directory(dirs_dict["ANNOTATION"]),
 	message:
 		"Assigning taxonomy with taxmyphage"
 	conda:
