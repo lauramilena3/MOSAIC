@@ -103,6 +103,7 @@ rule stat_mapReadsToAssembly:
 		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_{sample}_assembled_contigs.{sampling}.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}_covstats.txt",
 	params:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}",
 	message:
@@ -121,6 +122,7 @@ rule stat_mapReadsToAssembly:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		"""
 
 rule buildBowtieDB_viral:
@@ -155,6 +157,7 @@ rule stat_mapReadsToViral:
 		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_viral_contigs_{sampling}_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_{sample}_viral_contigs.{sampling}.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}_covstats.txt",
 	params:
 		prefix=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}",
 	message:
@@ -173,7 +176,63 @@ rule stat_mapReadsToViral:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		"""
+
+rule buildBowtieDB_derreplicated:
+	input:
+		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+	output:
+		contigs_bt2=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.1.bt2",
+	params:
+		prefix=dirs_dict["VIRAL_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}",
+	message:
+		"Creating contig DB with Bowtie2"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_bowtie_derreplicated.tsv"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 8
+	shell:
+		"""
+		bowtie2-build {input.derreplicated_positive_contigs} {params.prefix} --threads {threads}
+		"""
+
+rule stat_mapReadsToDerreplicated:
+	input:
+		contigs_bt2=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.1.bt2",
+		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+	output:
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_derreplicated_contigs_{sampling}.sam"),
+		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_derreplicated_contigs_{sampling}.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_derreplicated_contigs_{sampling}_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_derreplicated_contigs_{sampling}_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_derreplicated_contigs_{sampling}_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_{sample}_derreplicated_contigs.{sampling}.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_derreplicated_contigs.{sampling}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_derreplicated_contigs.{sampling}_covstats.txt",
+	params:
+		prefix=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}",
+	message:
+		"Mapping reads to contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_viral.tsv"
+	threads: 8
+	shell:
+		"""
+		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
+		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+		samtools index {output.sorted_bam}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		"""
+
 
 rule buildBowtieDB_unfiltered:
 	input:
@@ -207,6 +266,7 @@ rule stat_mapReadsToUnfiltered:
 		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_unfiltered_contigs_{sampling}_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_{sample}_unfiltered_contigs.{sampling}.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}_covstats.txt",
 	params:
 		prefix=dirs_dict["MAPPING_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	message:
@@ -225,6 +285,7 @@ rule stat_mapReadsToUnfiltered:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		"""
 
 rule buildBowtieDB_filtered:
