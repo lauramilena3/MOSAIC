@@ -133,6 +133,7 @@ rule satellite_finder_get_fasta:
 	shell:
 		"""
 		grep -v "#" {input.summary} | grep -v "replicon" | awk '$2>0' > {output.summary_positive}
+		sed -i "s/-/_/g" {output.summary_positive} 
 		seqtk subseq {input.scaffolds_spades} {output.summary_positive} > {output.fasta_positive}
 		"""
 
@@ -224,7 +225,6 @@ rule virSorter2:
 				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off  --provirus-off --min-length 0
 		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
 		"""
-
 
 rule genomad_vOTUs:
 	input:
