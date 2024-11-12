@@ -92,13 +92,14 @@ rule satellite_finder:
 	input:
 		genomad_outdir=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/",
 	output:
-		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
+		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/best_solution_summary.tsv"),
 		faa_temp=(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}"),
 		faa_idx_temp=temp(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}.idx"),
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
 		model="{model}",
 		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools",
+		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
 	message:
 		"Identifying viral satellites with satellite_finder"
 	conda:
@@ -109,18 +110,17 @@ rule satellite_finder:
 	shell:
 		"""
 		python scripts/process_fasta_satellite_finder.py {params.faa} {output.faa_temp}
-		apptainer run -H ${{HOME}} {params.satellite_finder_dir}/fixed_satellite_finder.sif --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
+		apptainer run -H ${{HOME}} {params.satellite_finder_dir}/fixed_satellite_finder.sif --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {params.satellite_finder_outdir} --mute
 		"""
 
 rule satellite_finder_get_fasta:
 	input:
 		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
-		satellite_finder_outdir=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
+		summary=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/best_solution_summary.tsv"),
 	output:
 		summary_positive=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/positive_satellites.tsv"),
 		fasta_positive=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/positive_satellites.fasta"),
 	params:
-		summary=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/best_solution_summary.tsv"),
 		model="{model}",
 		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools",
 	message:
@@ -132,7 +132,7 @@ rule satellite_finder_get_fasta:
 	threads: 8
 	shell:
 		"""
-		grep -v "#" {params.summary} | grep -v "replicon" | awk '$2>0' > {output.summary_positive}
+		grep -v "#" {input.summary} | grep -v "replicon" | awk '$2>0' > {output.summary_positive}
 		seqtk subseq {input.scaffolds_spades} {output.summary_positive} > {output.fasta_positive}
 		"""
 
