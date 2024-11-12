@@ -132,7 +132,7 @@ rule satellite_finder_get_fasta:
 	threads: 8
 	shell:
 		"""
-		grep -v "#" {input.summary} | grep -v "replicon" | awk '$2>0' > {output.summary_positive}
+		grep -v "#" {input.summary} | grep -v "replicon" | awk '$2>0' | cut -f1 > {output.summary_positive}
 		sed -i "s/-/_/g" {output.summary_positive} 
 		seqtk subseq {input.scaffolds_spades} {output.summary_positive} > {output.fasta_positive}
 		"""
