@@ -92,14 +92,14 @@ rule satellite_finder:
 	input:
 		genomad_outdir=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/",
 	output:
-		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/best_solution_summary.tsv"),
+		satellite_finder_outdir=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/best_solution_summary.tsv"),
 		faa_temp=(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}"),
 		faa_idx_temp=temp(dirs_dict["VIRAL_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa_fixed_{model}.idx"),
 	params:
 		faa=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_annotate/{sample}_spades_filtered_scaffolds.{sampling}_proteins.faa",
 		model="{model}",
 		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools",
-		satellite_finder_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
+		satellite_finder_outdir=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
 	message:
 		"Identifying viral satellites with satellite_finder"
 	conda:
