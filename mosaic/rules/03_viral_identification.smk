@@ -112,6 +112,47 @@ rule satellite_finder:
 		apptainer run -H ${{HOME}} {params.satellite_finder_dir}/fixed_satellite_finder.sif --db-type gembase --models {params.model} --sequence-db {output.faa_temp} -w {threads} -o {output.satellite_finder_outdir} --mute
 		"""
 
+rule satellite_finder_get_fasta:
+	input:
+		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
+		satellite_finder_outdir=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/"),
+	output:
+		summary_positive=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/positive_satellites.tsv"),
+		fasta_positive=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/positive_satellites.fasta"),
+	params:
+		summary=(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/best_solution_summary.tsv"),
+		model="{model}",
+		satellite_finder_dir="/home/lmf/apps/MOSAIC/mosaic/tools",
+	message:
+		"Identifying viral satellites with satellite_finder"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/satellite_finder/{sample}_{sampling}_{model}.tsv"
+	threads: 8
+	shell:
+		"""
+		grep -v "#" {params.summary} | grep -v "replicon" | awk '$2>0' > {output.summary_positive}
+		seqtk subseq {input.scaffolds_spades} {output.summary_positive} > {output.fasta_positive}
+		"""
+
+rule parse_satellite_finder:
+	input:
+		satellite_finder_positive=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{{model}}/positive_satellites.fasta" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
+	output:
+		satellite_finder_all=(dirs_dict["VIRAL_DIR"] + "/satellite_finder_{sampling}_{model}_positive.fasta"),
+	message:
+		"Identifying viral satellites with satellite_finder"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/satellite_finder/parse_{sampling}_{model}.tsv"
+	threads: 8
+	shell:
+		"""
+		cat {input.satellite_finder_positive} > {output.satellite_finder_all}
+		"""
+		
 rule genomad_viral_id:
 	input:
 		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",

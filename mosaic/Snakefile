@@ -387,8 +387,10 @@ rule microbial:
 	input:
 		csv_report=(dirs_dict["ANNOTATION"] + "/sourmash_combined_microbial_derreplicated_tot.classifications.csv"),
 		spacers=(dirs_dict["ANNOTATION"] + "/minced_predicted_spacers.tsv"),
-		satellite_finder=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, model=["cfPICI", "PICI", "P4", "PLE"]),
-		defenseFinder_dir=(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
+		# satellite_finder=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{model}/" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT, model=["cfPICI", "PICI", "P4", "PLE"]),
+		satellite_finder_all=expand(dirs_dict["VIRAL_DIR"] + "/satellite_finder_{sampling}_{model}_positive-95-85.fasta", sampling=SAMPLING_TYPE_TOT, model=["cfPICI", "PICI", "P4", "PLE"]),
+
+		# defenseFinder_dir=(dirs_dict["ANNOTATION"]+ "/DefenseFinder_results_tot/"),
 		# vamb_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/"),
 		# DRAM_summary=(dirs_dict["ANNOTATION"]+ "/DRAM_distill_results_tot"),
 		# metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
