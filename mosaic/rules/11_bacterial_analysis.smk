@@ -556,6 +556,7 @@ rule defense_finder:
 	threads: 32
 	shell:
 		"""
+		python scripts/process_fasta_satellite_finder.py {params.faa} {output.faa_temp}
 		defense-finder run -–db-type gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
 		"""
 
