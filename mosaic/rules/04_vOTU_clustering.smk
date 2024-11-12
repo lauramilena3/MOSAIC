@@ -46,25 +46,25 @@ rule derreplicate_assembly:
 
 rule vOUTclustering:
 	input:
-		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
+		fasta="{sequence}.fasta",
 	output:
-		clusters=dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}_95-85.clstr",
-		blastout=(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-blastout.csv"),
-		aniout=(dirs_dict["vOUT_DIR"] + "/combined_"+ VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}-aniout.csv"),
+		clusters="{sequence}_95-85.clstr",
+		blastout="{sequence}-blastout.csv",
+		aniout="{sequence}-aniout.csv",
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sequence}.tsv"
 	threads: 144
 	shell:
 		"""
-		makeblastdb -in {input.derreplicated_positive_contigs} -dbtype nucl -out {input.derreplicated_positive_contigs}
-		blastn -query {input.derreplicated_positive_contigs} -db {input.derreplicated_positive_contigs} -outfmt '6 std qlen slen' \
+		makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
+		blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
 			-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
 		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		python scripts/aniclust_checkv.py --fna {input.derreplicated_positive_contigs} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+		python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
 		"""
 
 def input_getHighQuality(wildcards):
