@@ -136,9 +136,9 @@ rule satellite_finder_get_fasta:
 		seqtk subseq {input.scaffolds_spades} {output.summary_positive} > {output.fasta_positive}
 		"""
 
-rule parse_satellite_finder:
+rule combine_satellite_finder:
 	input:
-		satellite_finder_positive=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{sampling}_satellite_finder_{{model}}/positive_satellites.fasta" ,sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
+		satellite_finder_positive=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{{sampling}}_satellite_finder_{{model}}/positive_satellites.fasta" ,sample=SAMPLES),
 	output:
 		satellite_finder_all=(dirs_dict["VIRAL_DIR"] + "/satellite_finder_{sampling}_{model}_positive.fasta"),
 	message:
@@ -146,7 +146,7 @@ rule parse_satellite_finder:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/satellite_finder/parse_{sampling}_{model}.tsv"
+		dirs_dict["BENCHMARKS"] +"/satellite_finder/combine_{sampling}_{model}.tsv"
 	threads: 8
 	shell:
 		"""
