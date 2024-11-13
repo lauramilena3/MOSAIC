@@ -1018,7 +1018,7 @@ rule parse_diamond:
 	threads: 1
 	shell:
 		"""
-		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {output.diamond} > {output.parsed_diamond}
+		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {input.diamond} > {output.parsed_diamond}
 		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {output.parsed_diamond} > {output.parsed_diamond_first}
 		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {output.parsed_diamond_first} > {output.similarity}
 		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {output.similarity} {output.similarity} > {output.similarity_dup}
