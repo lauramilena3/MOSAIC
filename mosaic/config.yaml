@@ -2,7 +2,7 @@ input_dir: ""
 results_dir: ""
 metagenome: True
 microbial: False
-
+key_sample_list: "key_sample_list.csv"
 operating_system: "linux"
 forward_tag: "R1"
 reverse_tag: "R2"
