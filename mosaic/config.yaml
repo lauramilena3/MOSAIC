@@ -62,7 +62,7 @@ RefSeqViral_db: "/home/lmf/db/RefSeqViral/RefSeq_viral_2024_09_03.fasta"
 # RefSeqViral_protein_db: "/home/lmf/db/RefSeqViral/2022_03_10_ORFs/RefSeq_viral_2022_03_10_ORFs.faa"
 # GenBankViral_db: "/home/lmf/db/GenBankViral/GenBankViral_2022_03_10.fasta"
 # GenBankViral_protein_db: "/home/lmf/db/GenBankViral/ORFs/GenBankViral_2022_03_10_ORFs.faa"
-# blast_db: "db/ncbi/NCBI_viral_proteins.faa"
+blast_db: "db/ncbi/NCBI_viral_proteins.faa"
 
 virSorter_db: "db/VirSorter/virsorter-data"
 #raken_db: "db/NCBI-bacteria-01.04.2019"
