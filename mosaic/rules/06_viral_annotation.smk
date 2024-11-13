@@ -1028,7 +1028,7 @@ rule parse_diamond:
 		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
-		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot_sorted} > {output.pivot_sorted_zero_diagonal}
+		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot} > {output.pivot_sorted_zero_diagonal}
 		"""
 
 rule change_start_site_full:
