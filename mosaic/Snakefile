@@ -129,7 +129,10 @@ if os.path.exists(RESULTS_DIR + "/" + config["key_samples"]):
 	with open(RESULTS_DIR + config["key_samples"]) as f:
 		SAMPLES_key = f.readlines()
 	SAMPLES_key = [x.strip() for x in SAMPLES_key]
+	print("key samples file : "+ RESULTS_DIR + "/" + config["key_samples"])
+
 else:
+	print("no key samples")
 	SAMPLES_key=SAMPLES
 
 SAMPLES_NO_TECHNICAL=[element for element in SAMPLES if "_T" not in element]
