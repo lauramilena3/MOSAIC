@@ -126,7 +126,7 @@ if os.path.exists(dirs_dict["CONTAMINANTS_DIR_POST"]):
 LEVELS_BRACKEN=["S"]
 
 if os.path.exists(RESULTS_DIR + "/" + config["key_samples"]):
-	with open(RESULTS_DIR + config["key_samples"]) as f:
+	with open(RESULTS_DIR + "/" +  config["key_samples"]) as f:
 		SAMPLES_key = f.readlines()
 	SAMPLES_key = [x.strip() for x in SAMPLES_key]
 	print("key samples file : "+ RESULTS_DIR + "/" + config["key_samples"])
