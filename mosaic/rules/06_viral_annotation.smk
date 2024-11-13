@@ -943,7 +943,7 @@ rule makeblastdb:
 rule diamond:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/{fasta_name}_ORFs.{sampling}.faa",
-		orfs_blast_db=dirs_dict["vOUT_DIR"]+ "/{fasta_name}_ORFs.{sampling}.faa.pdb",
+		# orfs_blast_db=dirs_dict["vOUT_DIR"]+ "/{fasta_name}_ORFs.{sampling}.faa.pdb",
 	output:
 		diamond_output=(dirs_dict["ANNOTATION"] + "/{fasta_name}_ORFs_diamond_all.{sampling}.csv"),
 	conda:
