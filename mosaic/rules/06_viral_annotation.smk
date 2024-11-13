@@ -940,37 +940,68 @@ rule makeblastdb:
 		makeblastdb -in {input.aa} -dbtype prot
 		"""
 
-rule blastall:
+rule diamond:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/{fasta_name}_ORFs.{sampling}.faa",
 		orfs_blast_db=dirs_dict["vOUT_DIR"]+ "/{fasta_name}_ORFs.{sampling}.faa.pdb",
 	output:
-		blast_output=(dirs_dict["ANNOTATION"] + "/{fasta_name}_ORFs_blastall.{sampling}.csv"),
+		diamond_output=(dirs_dict["ANNOTATION"] + "/{fasta_name}_ORFs_diamond_all.{sampling}.csv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_blastall_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_diamond_{sampling}.tsv"
 	message:
-		"Performing protein blastall for ORFs"
+		"Performing protein diamond for ORFs"
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
+		dirs_dict["ENVS_DIR"]+ "/env4.yaml",
 	threads: 64
 	shell:
 		"""
-		blastp -num_threads {threads} -db {input.aa} -query {input.aa} -max_target_seqs 1000000000 \
-		    		            -outfmt "6 qseqid sseqid qstart qend qlen slen qcovs qcovhsp length pident evalue positive gaps" > {output.blast_output}
+		diamond makedb -in {input.aa} -dbtype prot
+		diamond blastp --threads {threads} --db {input.aa} --query {input.aa} --max-target-seqs 0 \
+		  --outfmt 6 qseqid sseqid length pident \
+		  --out {output.diamond_output}
 		"""
 
+# awk_command= r"""{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }"""
+awk_command=r"""
+{
+    # Record keys and store the data
+    if (!(($1,$2) in data)) {
+        keys1[$1] = 1;
+        keys2[$2] = 1;
+    }
+    data[$1,$2] = $3;
+}
+END {
+    # Sort keys
+    n = asorti(keys1, sorted_keys1);
+    m = asorti(keys2, sorted_keys2);
 
-awk_command= r"""{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }"""
-rule parse_blastall:
+    # Print header row
+    printf "\t";
+    for (j = 1; j <= m; j++) {
+        printf "%s\t", sorted_keys2[j];
+    }
+    printf "\n";
+
+    # Print data rows
+    for (i = 1; i <= n; i++) {
+        printf "%s\t", sorted_keys1[i];
+        for (j = 1; j <= m; j++) {
+            printf "%s\t", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
+        }
+        printf "\n";
+    }
+}"""
+
+rule parse_diamond:
 	input:
-		blast=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
+		diamond=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
 		cummulative_length=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
 	output:
-		blastall_short=temp(dirs_dict["ANNOTATION"] + "/blastall_short.txt"),
-		parsed_blastall=temp(dirs_dict["ANNOTATION"] + "/parsed_blastall.txt"),
-		parsed_blastall_first=temp(dirs_dict["ANNOTATION"] + "/parsed_blastall_first.txt"),
+		parsed_diamond=temp(dirs_dict["ANNOTATION"] + "/parsed_diamond.txt"),
+		parsed_diamond_first=temp(dirs_dict["ANNOTATION"] + "/parsed_diamond_first.txt"),
 		similarity=temp(dirs_dict["ANNOTATION"] + "/similarity.txt"),
 		similarity_dup=temp(dirs_dict["ANNOTATION"] + "/similarity_dup.txt"),
 		similarity_dup2=temp(dirs_dict["ANNOTATION"] + "/similarity_dup2.txt"),
@@ -979,20 +1010,17 @@ rule parse_blastall:
 		distance_short=temp(dirs_dict["ANNOTATION"] + "/distance_short.txt"),
 		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/distance_short_full.txt"),
 		pivot=temp(dirs_dict["ANNOTATION"] + "/pivot.txt"),
-		pivot_sorted=temp(dirs_dict["ANNOTATION"] + "/pivot_sorted.txt"),
 		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/distance_matrix_AAI.txt",
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/blastall_parsing.tsv"
+		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing.tsv"
 	message:
 		"Parsing blast results to AAI distance matrix"
 	threads: 1
 	shell:
 		"""
-		#cut useful fields
-		time cut -f1,2,9,10 {input.blast} > {output.blastall_short}
-		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {output.blastall_short} > {output.parsed_blastall}
-		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {output.parsed_blastall} > {output.parsed_blastall_first}
-		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {output.parsed_blastall_first} > {output.similarity}
+		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {output.diamond} > {output.parsed_diamond}
+		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {output.parsed_diamond} > {output.parsed_diamond_first}
+		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {output.parsed_diamond_first} > {output.similarity}
 		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {output.similarity} {output.similarity} > {output.similarity_dup}
 		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($1 in a) print $0, a[$1]}}' {input.cummulative_length} {output.similarity_dup} > {output.similarity_dup2}
 		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($2 in a) print $0, a[$2]}}' {input.cummulative_length} {output.similarity_dup2} > {output.similarity_dup3}
@@ -1000,10 +1028,6 @@ rule parse_blastall:
 		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
-		time sort {output.pivot} | awk 'BEGIN{{FS=OFS="\t"}} {{for (i=1; i<=NF; i++) {{if(NR==1) header[i]=$i; else data[i][NR-1]=$i}}}} END{{for (i=1; i<=NF; i++) {{printf "%s%s", header[i], (i==NF?ORS:OFS); for (j=1; j<=NR-1; j++) printf "%s%s", data[i][j], (j==NR-1?ORS:OFS)}}}}' | sort > {output.pivot_sorted}
-		# remove empty lines
-		time sed -i '/^[[:blank:]]*$/d' {output.pivot_sorted}
-		# force diagonals to be 0
 		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot_sorted} > {output.pivot_sorted_zero_diagonal}
 		"""
 
