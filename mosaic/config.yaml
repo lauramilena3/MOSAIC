@@ -46,7 +46,7 @@ min_len: "1000"
 min_cov: "2"
 
 # min_votu_length
-min_votu_length: 4000
+min_votu_length: 5000
 contaminants_list: ""
 adapters_file: "adapters.fa"
 additional_reference_contigs: ""
