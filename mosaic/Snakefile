@@ -125,6 +125,13 @@ if os.path.exists(dirs_dict["CONTAMINANTS_DIR_POST"]):
 # LEVELS_BRACKEN=["K","P","F","O","G","S"]
 LEVELS_BRACKEN=["S"]
 
+if os.file.exists(RESULTS_DIR + config["key_samples"]):
+	with open(RESULTS_DIR + config["key_samples"]) as f:
+		SAMPLES_key = f.readlines()
+	SAMPLES_key = [x.strip() for x in SAMPLES_key]
+else:
+	SAMPLES_key=SAMPLES
+
 SAMPLES_NO_TECHNICAL=[element for element in SAMPLES if "_T" not in element]
 
 print("Input Dir = ")
@@ -140,6 +147,11 @@ print(*READ_TYPES, sep = ", ")
 print("Sample Names = ")
 print(*SAMPLES, sep = ", ")
 print(len(SAMPLES))
+
+print("Key Sample Names = ")
+print(*SAMPLES_key, sep = ", ")
+print(len(SAMPLES_key))
+
 
 print("Contaminants = ")
 print(*CONTAMINANTS, sep = ", ")

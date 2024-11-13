@@ -155,6 +155,8 @@ rule get_list_filtered_vOTUs:
 		genomad_plasmid_summary=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_plasmid_summary.tsv",
 		genomad_viral_fasta=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/formatted_viral_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",										
 		genomad_viral_fasta_conservative=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/formatted_viral_" + REPRESENTATIVE_CONTIGS_BASE + "_conservative.{sampling}.fasta",
+		map_unfiltered=expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+
 	output:
 		summary=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.{sampling}.csv",
 		filtered_list=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_list.{sampling}.txt",
@@ -165,7 +167,8 @@ rule get_list_filtered_vOTUs:
 		mapping_dir=dirs_dict['MAPPING_DIR'],
 		subassembly=SUBASSEMBLY,
 		cross_assembly=CROSS_ASSEMBLY,
-		min_votu_len=config['min_votu_length']
+		min_votu_len=config['min_votu_length'],
+		key_samples=SAMPLES_key,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
 	notebook:
