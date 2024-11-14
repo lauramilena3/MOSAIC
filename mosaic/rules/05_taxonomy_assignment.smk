@@ -13,7 +13,7 @@ rule getORFs_prodigal_gv:
 	threads: 8
 	shell:
 		"""
-		./scripts/parallel-prodigal-gv.py -q -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -t {threads}
+		python ./scripts/parallel-prodigal-gv.py -q -i {input.nuc_fasta} -o {output.coords} -a {output.aa} -t {threads}
 		"""
 
 rule getORFs_coding_length:
