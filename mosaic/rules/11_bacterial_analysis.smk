@@ -71,6 +71,7 @@ rule merge_microbial:
 		mmseqs easy-cluster --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 {output.combined_positive_contigs} {params.rep_name} {params.rep_temp} --threads {threads}
 		seqtk seq -L 2000 {params.rep_name_full} > {output.derreplicated_microbial_contigs}
 		"""
+		
 
 rule buildBowtieDB_microbial:
 	input:
