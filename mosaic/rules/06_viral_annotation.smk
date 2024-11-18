@@ -958,7 +958,7 @@ rule diamond:
 	threads: 64
 	shell:
 		"""
-		diamond makedb --in {input.aa} -dbtype prot
+		diamond makedb --in {input.aa} 
 		diamond blastp --threads {threads} --db {input.aa} --query {input.aa} --max-target-seqs 0 \
 		  --outfmt 6 qseqid sseqid length pident \
 		  --out {output.diamond_output}
