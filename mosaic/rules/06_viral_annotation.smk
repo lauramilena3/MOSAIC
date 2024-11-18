@@ -383,7 +383,6 @@ rule blasToRefSeq:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 		refseq_db=(config['RefSeqViral_db']),
-		refseq_db_indx=(config['RefSeqViral_db']+ "."),
 	output:
 		blast_output=(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv"),
 	conda:
