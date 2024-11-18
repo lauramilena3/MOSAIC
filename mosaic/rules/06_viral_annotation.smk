@@ -292,7 +292,7 @@ rule annotate_VIGA:
 		sed -i "s/tRNA-?(Asp|Gly)(atcc)/tRNA-Xxx/g" {output.GenBank_table}
 		echo "viga.9"
 		"""
-		
+
 rule annotate_BLAST:
 	input:
 		faa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_viga_ORFs.tot.faa",
@@ -383,6 +383,7 @@ rule blasToRefSeq:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 		refseq_db=(config['RefSeqViral_db']),
+		refseq_db_indx=(config['RefSeqViral_db']+ "."),
 	output:
 		blast_output=(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv"),
 	conda:
