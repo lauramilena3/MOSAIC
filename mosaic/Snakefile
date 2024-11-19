@@ -480,7 +480,7 @@ rule assembly_long_only:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		(expand(dirs_dict["vOUT_DIR"] + "/{sample_nanopore}_checkM_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE)),
-		GTDB_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
+		# GTDB_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
 
 rule subsampling_file:
 	input:
