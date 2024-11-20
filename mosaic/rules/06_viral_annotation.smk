@@ -212,7 +212,7 @@ rule DRAMv_annotation:
 		dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
 	message:
 		"Annotate contigs with DRAM"
-	threads: 32
+	threads: 64
 	shell:
 		"""
 		DRAM-v.py annotate -i {input.DRAM_fasta} -v {input.DRAM_tab} -o {output.DRAM_output} --threads 64
