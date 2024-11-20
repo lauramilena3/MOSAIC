@@ -42,8 +42,8 @@ rule clusterTaxonomy:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa",
 		clusterONE_dir=config["clusterONE_dir"],
-		gene2genome_millard=("db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv"),
-		vcontact_aa_millard=("db/vcontact2/1Sep2024_vConTACT2_proteins.faa"),
+		gene2genome_millard=("db/vcontact2/6Nov2024_vConTACT2_gene_to_genome.csv"),
+		vcontact_aa_millard=("db/vcontact2/6Nov2024_vConTACT2_proteins.faa"),
 	output:
 		gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome.csv",
 		merged_gene2genome=dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/gene2genome_merged.csv",
