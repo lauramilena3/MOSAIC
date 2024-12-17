@@ -491,7 +491,7 @@ rule assembly_long_only_phage:
 		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-		expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES)
+		# expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES)
 
 
 rule subsampling_file:
