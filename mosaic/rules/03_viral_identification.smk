@@ -179,7 +179,7 @@ rule genomad_viral_id:
 
 def input_genomad_viral_id_nanopore(wildcards):
 	if NANOPORE_ONLY:
-		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 	else:
 		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
 	return input_genomad
