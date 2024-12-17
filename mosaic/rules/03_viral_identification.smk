@@ -177,17 +177,17 @@ rule genomad_viral_id:
 		"""
 
 
-def input_vgenomad_viral_id_nanopore(wildcards):
+def input_genomad_viral_id_nanopore(wildcards):
 	if NANOPORE_ONLY:
-		input=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 	else:
-		input=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
-	return input
+		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
+	return input_genomad
 
 
 rule genomad_viral_id_nanopore:
 	input:
-		scaffolds=input_vgenomad_viral_id_nanopore
+		scaffolds=input_genomad_viral_id_nanopore
 		genomad_db=(config['genomad_db']),
 	output:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/"),
