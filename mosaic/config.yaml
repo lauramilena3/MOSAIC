@@ -50,7 +50,7 @@ min_votu_length: 5000
 contaminants_list: ""
 adapters_file: "adapters.fa"
 additional_reference_contigs: ""
-ambiguous_mapping: "all"
+ambiguous_mapping: "all" 
 basecalled_dir: "data/basecalled/"
 imgvr_blast: False
 microbial_spacers: ""

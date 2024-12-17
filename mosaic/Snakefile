@@ -470,7 +470,7 @@ rule assembly_long:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES),
 		#corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 
-rule assembly_long_only:
+rule assembly_long_only_bacteria:
 	input:
 		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
 		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES),
@@ -481,6 +481,18 @@ rule assembly_long_only:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		(expand(dirs_dict["vOUT_DIR"] + "/{sample_nanopore}_checkM_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE)),
 		# GTDB_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
+
+rule assembly_long_only_phage:
+	input:
+		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES)
+
 
 rule subsampling_file:
 	input:
