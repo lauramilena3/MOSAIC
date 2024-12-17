@@ -139,7 +139,7 @@ SAMPLES_NO_TECHNICAL=[element for element in SAMPLES if "_T" not in element]
 
 NANOPORE_ONLY=False
 
-if (len(SAMPLES)==0 &) (len(NANOPORE_SAMPLES)>0):
+if (len(SAMPLES)==0 ) & (len(NANOPORE_SAMPLES)>0):
 	NANOPORE_ONLY=True
 
 print("Input Dir = ")
