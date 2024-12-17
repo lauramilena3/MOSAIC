@@ -176,9 +176,18 @@ rule genomad_viral_id:
 		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
 		"""
 
+
+def input_vgenomad_viral_id_nanopore(wildcards):
+	if NANOPORE_ONLY:
+		input=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+	else:
+	input=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
+	return input
+
+
 rule genomad_viral_id_nanopore:
 	input:
-		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"),
+		scaffolds=input_vgenomad_viral_id_nanopore()
 		genomad_db=(config['genomad_db']),
 	output:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/"),
