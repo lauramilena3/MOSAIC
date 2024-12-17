@@ -187,7 +187,7 @@ def input_vgenomad_viral_id_nanopore(wildcards):
 
 rule genomad_viral_id_nanopore:
 	input:
-		scaffolds=input_vgenomad_viral_id_nanopore()
+		scaffolds=input_vgenomad_viral_id_nanopore
 		genomad_db=(config['genomad_db']),
 	output:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/"),
