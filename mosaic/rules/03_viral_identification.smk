@@ -184,6 +184,12 @@ def input_genomad_viral_id_nanopore(wildcards):
 		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
 	return input_genomad
 
+def input_genomad_viral_id_nanopore(wildcards):
+	if NANOPORE_ONLY:
+		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+	else:
+		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
+	return input_genomad
 
 rule genomad_viral_id_nanopore:
 	input:
@@ -193,7 +199,7 @@ rule genomad_viral_id_nanopore:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/"),
 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 	params:
-		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}_summary/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}_virus.fna",
+		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/*summary/*_virus.fna",
 	message:
 		"Identifying viral contigs with geNomad"
 	conda:
