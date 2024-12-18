@@ -38,7 +38,7 @@ rule remove_adapters_quality_nanopore:
 	threads: 16
 	shell:
 		"""
-		porechop -i {input.raw_data} -o {output.porechopped} --threads {threads}
+		porechop -i {input.raw_data} -o {output.porechopped} --threads {threads} --discard_middle
 		gunzip -c {output.porechopped} | NanoFilt -q {params.quality} -l {params.minlen} --maxlength {params.maxlen} \
 				--headcrop {params.headcrop} --tailcrop {params.tailcrop} | gzip > {output.trimmed_data}
 		"""
