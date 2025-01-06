@@ -579,8 +579,8 @@ rule mapReads_reference:
 rule mapReads_reference_sub:
 	input:
 		contigs_bt2=REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2",
-		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/7M_{sample}_forward_paired_clean.tot.fastq.gz"),
-		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/7M_{sample}_reverse_paired_clean.tot.fastq.gz"),
+		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub.sam"),
 		bam=(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_" + REFERENCE + "_{sample}_sub.bam"),
