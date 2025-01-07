@@ -181,6 +181,8 @@ rule errorCorrectMedaka:
 	output:
 		corrected_medaka=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 		#temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_temp_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}")),
+		fai=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.fai",
+		mmi=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.map-ont.mmi",
 		medaka_dir1=directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}"),
 		medaka_dir2=directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}"),
 	params:
@@ -200,7 +202,6 @@ rule errorCorrectMedaka:
 		medaka_consensus -i {input.nanopore} -d {params.medaka_fasta1} -o {output.medaka_dir2} -m {params.medaka_model} -f
 		cp {params.medaka_fasta2} {output.corrected_medaka}
 		sed "s/>/>medaka_/g" -i {output.corrected_medaka}
-
 		"""
 		
 rule errorCorrectRacon_2rounds:
