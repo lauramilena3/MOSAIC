@@ -422,24 +422,24 @@ rule mergeAssembliesHYBRID:
 		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.merged_assembly_len}
 		"""
 
-rule mergeAssembliesHYBRID:
-	input:
-		corrected_scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES),
-		hybrid_contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES),
-	output:
-		corrected_scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/merged_"+ LONG_ASSEMBLER + "_corrected_scaffolds.{{sampling}}.fasta"),
-		merged_assembly=(dirs_dict["VIRAL_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
-		merged_assembly_len=dirs_dict["VIRAL_DIR"] + "/merged_scaffolds_lengths.{sampling}.txt",
-	message:
-		"Merging assembled contigs"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 1
-	shell:
-		"""
-		cat {input.corrected_scaffolds} > {output.corrected_scaffolds}
-		sed -i "s/=/_/g" {output.corrected_scaffolds}
-		cat {input.hybrid_contigs} {output.corrected_scaffolds} > {output.merged_assembly}
-		cat {output.merged_assembly} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
-		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.merged_assembly_len}
-		"""
+# rule mergeAssembliesLong:
+# 	input:
+# 		corrected_scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES),
+# 		hybrid_contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES),
+# 	output:
+# 		corrected_scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/merged_"+ LONG_ASSEMBLER + "_corrected_scaffolds.{{sampling}}.fasta"),
+# 		merged_assembly=(dirs_dict["VIRAL_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
+# 		merged_assembly_len=dirs_dict["VIRAL_DIR"] + "/merged_scaffolds_lengths.{sampling}.txt",
+# 	message:
+# 		"Merging assembled contigs"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	threads: 1
+# 	shell:
+# 		"""
+# 		cat {input.corrected_scaffolds} > {output.corrected_scaffolds}
+# 		sed -i "s/=/_/g" {output.corrected_scaffolds}
+# 		cat {input.hybrid_contigs} {output.corrected_scaffolds} > {output.merged_assembly}
+# 		cat {output.merged_assembly} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
+# 		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.merged_assembly_len}
+# 		"""
