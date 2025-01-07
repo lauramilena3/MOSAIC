@@ -199,6 +199,8 @@ rule errorCorrectMedaka:
 		medaka_consensus -i {input.nanopore} -d {input.scaffolds} -o {output.medaka_dir1} -m {params.medaka_model} -f
 		medaka_consensus -i {input.nanopore} -d {params.medaka_fasta1} -o {output.medaka_dir2} -m {params.medaka_model} -f
 		cp {params.medaka_fasta2} {output.corrected_medaka}
+		sed "s/>/>medaka_/g" -i {output.corrected_medaka}
+
 		"""
 		
 rule errorCorrectRacon_2rounds:
@@ -222,9 +224,12 @@ rule errorCorrectRacon_2rounds:
 		#Racon round 1
 		minimap2 -t {threads} {input.corrected_medaka} {input.nanopore} > {output.overlap1}
 		racon -m 8 -x -6 -g -8 -w 500 -t {threads}  {input.nanopore} {output.overlap1} {input.corrected_medaka} > {output.corrected1}
+		sed "s/>/>racon_1_/g" -i {output.corrected1}
+
 		#Racon round 2
 		minimap2 -t {threads} {output.corrected1} {input.nanopore} > {output.overlap2}
 		racon -m 8 -x -6 -g -8 -w 500 -t {threads}  {input.nanopore} {output.overlap2} {output.corrected1} > {output.corrected2}
+		sed "s/>/>racon_2_/g" -i {output.corrected2}
 		"""
 
 
