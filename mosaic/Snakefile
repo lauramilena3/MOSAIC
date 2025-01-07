@@ -499,8 +499,11 @@ rule assembly_long_only_phage:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample_nanopore}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv", sampling=SAMPLING_TYPE_TOT, sample_nanopore=NANOPORE_SAMPLES),
-		# (dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}_clinker.html"),
-
+		(dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta")
+		(dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt"),
+		(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
+		(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
+		(dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
 
 rule subsampling_file:
 	input:
