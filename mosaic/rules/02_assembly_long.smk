@@ -170,6 +170,7 @@ rule asemblyFlye:
 		"""
 		flye --nano-raw {input.nanopore} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} {params.metagenomic_flag}
 		cp {output.scaffolds} {output.scaffolds_final}
+		sed "s/>/>{wildcards.sample}_/g" -i {output.scaffolds_final}
 		"""
 
 rule errorCorrectMedaka:
@@ -397,6 +398,28 @@ rule scoreALE:
 	shell:
 		"""
 		{input.ALE_dir}/src/ALE {input.sorted_bam_paired} {input.scaffolds} {output.ale}
+		"""
+
+rule mergeAssembliesHYBRID:
+	input:
+		corrected_scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES),
+		hybrid_contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES),
+	output:
+		corrected_scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/merged_"+ LONG_ASSEMBLER + "_corrected_scaffolds.{{sampling}}.fasta"),
+		merged_assembly=(dirs_dict["VIRAL_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
+		merged_assembly_len=dirs_dict["VIRAL_DIR"] + "/merged_scaffolds_lengths.{sampling}.txt",
+	message:
+		"Merging assembled contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 1
+	shell:
+		"""
+		cat {input.corrected_scaffolds} > {output.corrected_scaffolds}
+		sed -i "s/=/_/g" {output.corrected_scaffolds}
+		cat {input.hybrid_contigs} {output.corrected_scaffolds} > {output.merged_assembly}
+		cat {output.merged_assembly} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
+		$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.merged_assembly_len}
 		"""
 
 rule mergeAssembliesHYBRID:
