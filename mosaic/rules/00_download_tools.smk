@@ -474,6 +474,20 @@ rule downloadTaxmyphageDB:
 		mv VMR_MSL39_v1.xlsx VMR.xlsx 
 		"""
 
+rule downloadPharokkaDB:
+	output:
+		pharokka_db=directory(config['pharokka_db']),
+	message:
+		"Downloading pharokka database"
+	params:
+		db_dir="db/"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	shell:
+		"""
+		install_databases.py -o {params.db_dir}
+		"""
+		
 #rule downloadminiKrakenDB:
 #	output:
 #		kraken_db=directory(config['kraken_db']),

@@ -219,6 +219,28 @@ rule DRAMv_annotation:
 		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
+rule pharokka_annotation:
+	input:
+		fasta="{contigs}.fasta",
+		pharokka_db=config["pharokka_db"]
+	output:
+		pharokka_output=directory("{contigs}_pharokka"),
+	# params:
+		# DRAM_annotations=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/annotations.tsv",
+		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
+		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	# benchmark:
+	# 	dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
+	message:
+		"Annotate contigs with pharokka"
+	threads: 16
+	shell:
+		"""
+		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f
+		"""
+
 rule annotate_VIGA:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/{contigs}.tot.fasta",
@@ -356,27 +378,28 @@ rule cluster_proteins:
 
 rule clinker_figure:
 	input:
-		genbank=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.gbk",
+		pharokka_output=("{contigs}_pharokka"),
 	output:
-		clinker=(dirs_dict["ANNOTATION"] + "/{contigs}_clinker.html"),
+		clinker=("{contigs}_clinker.html"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	# benchmark:
 	# 	dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{sampling}.tsv"
 	message:
-		"Clustering proteins with mmseqs"
+		"Creating genome visualization with clinker"
 	params:
 		rep_name=REPRESENTATIVE_CONTIGS_BASE,
 		dir=dirs_dict["ANNOTATION"],
-		gb="{contigs}_genbank*.gb"
+		gb="{contigs}_genbank*.gbk"
 	threads: 16
 	shell:
 		"""
-		cd {params.dir}
-		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' {input.genbank}
-		rename "s/$/.gb/g" {wildcards.contigs}_genbank*
-		find . -maxdepth 1 -type f -empty -print -delete
-		clinker {params.gb} -p {output.clinker} -j 64
+		mkdir -f clinker
+		cd clinker
+		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' ../pharokka.gbk
+		find . -type f -size -10c -delete
+		rename "s/$/.gbk/g" {wildcards.contigs}_genbank*
+		clinker {params.gb} -p {output.clinker} -j {threads}
 		"""
 
 rule blasToRefSeq:

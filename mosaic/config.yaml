@@ -59,6 +59,7 @@ reference_databases: "IMGVR GenBankViral RefSeqViral"
 IMGVR_db: "/home/lmf/db/IMG_VR_2022-12-19_7/"
 # IMGVR_protein_db: "/home/lmf/db/IMG_VR_09_2020/ORFs/IMGVR_ORF.faa"
 RefSeqViral_db: "/home/lmf/db/RefSeqViral/RefSeq_viral_2024_09_03.fasta"
+pharokka_db: 
 # RefSeqViral_protein_db: "/home/lmf/db/RefSeqViral/2022_03_10_ORFs/RefSeq_viral_2022_03_10_ORFs.faa"
 # GenBankViral_db: "/home/lmf/db/GenBankViral/GenBankViral_2022_03_10.fasta"
 # GenBankViral_protein_db: "/home/lmf/db/GenBankViral/ORFs/GenBankViral_2022_03_10_ORFs.faa"
