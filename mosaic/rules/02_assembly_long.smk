@@ -181,10 +181,10 @@ rule errorCorrectMedaka:
 	output:
 		corrected_medaka=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 		#temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_temp_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}")),
-		fai=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.fai",
-		mmi=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.map-ont.mmi",
-		medaka_dir1=directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}"),
-		medaka_dir2=directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}"),
+		fai=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.fai"),
+		mmi=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.map-ont.mmi"),
+		medaka_dir1=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}")),
+		medaka_dir2=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}")),
 	params:
 		medaka_model="r941_min_high_g360", # TODO
 		medaka_fasta1=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}/consensus.fasta",

@@ -50,7 +50,7 @@ rule remove_contaminants_nanopore:
 		contaminants_fasta=expand(dirs_dict["CONTAMINANTS_DIR"] +"/{contaminants}.fasta",contaminants=CONTAMINANTS),
 	output:
 		fastq=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.fastq.gz"),
-		size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.txt",
+		size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean_read_count.tot.txt",
 		phix_contaminants_fasta=dirs_dict["CONTAMINANTS_DIR"] +"/{sample_nanopore}_nanopore_contaminants.fasta",
 	message:
 		"Remove contamination with Minimap"
@@ -74,7 +74,7 @@ if CONTAMINANTS==["GCF_000819615.1"]:
 			trimmed_data=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_nanofilt.fastq.gz",
 		output:
 			fastq=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.fastq.gz"),
-			size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.txt",
+			size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean_read_count.tot.txt",
 		message:
 			"Calculating number of reads"
 		conda:
@@ -127,11 +127,11 @@ rule qualityStatsNanopore:
 
 rule subsampleReadsNanopore:
 	input:
-		nano_sizes=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.txt", sample_nanopore=NANOPORE_SAMPLES),
+		nano_sizes=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean_read_count.tot.txt", sample_nanopore=NANOPORE_SAMPLES),
 		nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.fastq",
 	output:
 		nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.sub.fastq",
-		size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.sub.txt",
+		size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean_read_count.sub.txt",
 	message:
 		"Subsampling Nanopore reads with BBtools"
 	conda:
@@ -139,7 +139,7 @@ rule subsampleReadsNanopore:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/subsampleReadsNanopore/{sample_nanopore}.tsv"
 	params:
-		sizes=dirs_dict["CLEAN_DATA_DIR"] + "/*_nanopore_clean.tot.txt"
+		sizes=dirs_dict["CLEAN_DATA_DIR"] + "/*_nanopore_clean_read_count.tot.txt"
 	threads: 1
 	resources:
 		mem_mb=4000
