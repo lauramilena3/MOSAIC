@@ -426,22 +426,22 @@ rule blasToRefSeq:
 
 rule blasToIMGVR:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 		img_vr_db=(config['IMGVR_db']),
 	output:
-		blast_output=(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_IMG_VR.tot.csv"),
+		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_{sequence}.csv"),
 	params:
 			img_vr_db=(config['IMGVR_db'] + "IMGVR_all_nucleotides"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/blasToIMGVR/tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/blasToIMGVR/{sequence}.tsv"
 	message:
 		"Blast contigs agaist IMG/VR database"
 	threads: 32
 	shell:
 		"""
-		blastn -num_threads {threads} -db {params.img_vr_db} -query {input.representatives} \
+		blastn -num_threads {threads} -db {params.img_vr_db} -query {input.fasta} \
 		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
 		"""
 
