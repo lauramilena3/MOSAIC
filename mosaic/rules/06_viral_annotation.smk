@@ -1238,11 +1238,20 @@ rule change_start_site_full:
 
 		f.close()
 
+
+rule blasToIMGVR:
+	input:
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
+		img_vr_db=(config['IMGVR_db']),
+	output:
+		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_{sequence}.csv"),
+
+
 rule get_composition:
 	input:
-		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 	output:
-		composition=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_nucleotide_content.{sampling}.tsv",
+		composition=dirs_dict["ANNOTATION"]+ "/nucleotide_content_{sequence}.tsv",
 	message:
 		"Getting vOTUs nucleotide composition"
 	conda:
@@ -1250,5 +1259,5 @@ rule get_composition:
 	threads: 1
 	shell:
 		"""
-		seqtk comp {input.cluster_filtered_representatives_fasta} > {output.composition}
+		seqtk comp {input.fasta} > {output.composition}
 		"""

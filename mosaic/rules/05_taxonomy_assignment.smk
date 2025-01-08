@@ -12,6 +12,7 @@ def input_representative(wildcards):
 		input_list.append(dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
 	return input_list
 
+
 rule getORFs_prodigal_gv:
 	input:
 		nuc_fasta="{fasta}.{sampling}.fasta",
