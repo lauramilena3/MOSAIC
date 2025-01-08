@@ -227,10 +227,10 @@ rule PhaGCNTaxonomy:
 
 rule hostID_iphop:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 		iphop_db=(config['iphop_db']),
 	output:
-		results_dir=directory(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir"),
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/iphop_hostID_{sequence}_resultsDir"),
 	message:
 		"Host finding with iphop"
 	conda:
@@ -240,7 +240,7 @@ rule hostID_iphop:
 	threads: 64
 	shell:
 		"""
-		iphop predict --fa_file {input.representatives} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
+		iphop predict --fa_file {input.fasta} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
 		"""
 
 rule single_fasta_filtered:
