@@ -198,12 +198,40 @@ rule parseVcontact:
 # 		mmseqs taxonomyreport {params.refDB} {params.taxonomyResultDB} {output.html} --report-mode 1
 # 	 	"""
 
+
+rule vOUTclustering:
+    input:
+        fasta="{basedir}/{sequence}.fasta",
+    output:
+        clusters=dirs_dict["vOUT_DIR"] + "/{sequence}_95-85.clstr",
+        blastout=dirs_dict["vOUT_DIR"] + "/{sequence}-blastout.csv",
+        aniout=dirs_dict["vOUT_DIR"] + "/{sequence}-aniout.csv",
+    message:
+        "Creating vOUTs with CheckV aniclust"
+    conda:
+        dirs_dict["ENVS_DIR"] + "/env6.yaml"
+    benchmark:
+        dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
+    threads: 144
+    wildcard_constraints:
+        sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
+    shell:
+        """
+        makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
+        blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
+            -max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+        python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+        python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+        """
+
+#		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+
 rule PhaGCNTaxonomy:
 	input:
 		PhaGCN_newICTV_dir=config['PhaGCN_newICTV_dir'],
-		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+      fasta="{basedir}/{sequence}.fasta",
 	output:
-		taxonomy_table=dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",
+		taxonomy_table=dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_{sequence}.csv",
 	message:
 		"Taxonomy Assignment with PhaGCN"
 	conda:
@@ -213,13 +241,15 @@ rule PhaGCNTaxonomy:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/PhaGCN_Taxonomy/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/PhaGCN_Taxonomy/{sequence}.tsv"
 	threads: 32
+   wildcard_constraints:
+        sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
 		#analyse
 		cd {input.PhaGCN_newICTV_dir}
-		python run_Speed_up.py --contigs {input.filtered_representatives} --len 2000 --threads {threads}
+		python run_Speed_up.py --contigs {input.fasta} --len 2000 --threads {threads}
 		mv {params.taxonomy_table_temp} {output.taxonomy_table}
 	 	"""
 

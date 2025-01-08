@@ -298,8 +298,8 @@ def inputAbundance(wildcards):
 
 def inputAnnotation(wildcards):
 	inputs=[]
-	inputs.extend(expand(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
-	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
+	inputs.extend(expand(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
+	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv")
 	# inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv"),
@@ -504,7 +504,7 @@ rule assembly_long_only_phage:
 		(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
 		(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
 		# (dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
-		(expand(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
+		(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv"),
 		(dirs_dict["ANNOTATION"] + "/iphop_hostID_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir"),
 		(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv"),
 		(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
