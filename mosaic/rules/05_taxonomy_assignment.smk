@@ -201,7 +201,7 @@ rule parseVcontact:
 rule PhaGCNTaxonomy:
 	input:
 		PhaGCN_newICTV_dir=config['PhaGCN_newICTV_dir'],
-		fasta="{basedir}/{sequence}.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 	output:
 		taxonomy_table=dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_{sequence}.csv",
 	message:
