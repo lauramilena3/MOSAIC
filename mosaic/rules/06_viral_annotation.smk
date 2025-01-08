@@ -424,7 +424,7 @@ rule blasToRefSeq:
 		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
 		"""
 
-rule blasToIMGVR:
+rule blastToIMGVR:
 	input:
 		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 		img_vr_db=(config['IMGVR_db']),
@@ -1237,14 +1237,6 @@ rule change_start_site_full:
 		    print("b")
 
 		f.close()
-
-
-rule blasToIMGVR:
-	input:
-		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
-		img_vr_db=(config['IMGVR_db']),
-	output:
-		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_{sequence}.csv"),
 
 
 rule get_composition:
