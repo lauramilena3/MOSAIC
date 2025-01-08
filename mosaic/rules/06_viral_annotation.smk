@@ -407,10 +407,10 @@ rule clinker_figure:
 
 rule blasToRefSeq:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 		refseq_db=(config['RefSeqViral_db']),
 	output:
-		blast_output=(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv"),
+		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_{sequence}.csv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
@@ -420,7 +420,7 @@ rule blasToRefSeq:
 	threads: 32
 	shell:
 		"""
-		blastn -num_threads {threads} -db {input.refseq_db} -query {input.representatives} \
+		blastn -num_threads {threads} -db {input.refseq_db} -query {input.fasta} \
 		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
 		"""
 

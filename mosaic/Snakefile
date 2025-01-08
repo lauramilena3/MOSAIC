@@ -300,7 +300,7 @@ def inputAnnotation(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
 	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_resultsDir")
-	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv")
+	inputs.append(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot.csv")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv")
 	# inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt")
@@ -506,7 +506,7 @@ rule assembly_long_only_phage:
 		# (dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
 		(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv"),
 		(dirs_dict["ANNOTATION"] + "/iphop_hostID_combined_positive_viral_contigs.tot_resultsDir"),
-		(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_output_ViralRefSeq.tot.csv"),
+		(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.tot.csv"),
 		(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
 		(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt"),
 		(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
