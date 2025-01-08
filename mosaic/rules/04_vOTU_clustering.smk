@@ -47,7 +47,7 @@ rule derreplicate_assembly:
 
 rule vOUTclustering:
     input:
-        fasta="{basedir}/{sequence}.fasta",
+        fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
     output:
         clusters=dirs_dict["vOUT_DIR"] + "/{sequence}_95-85.clstr",
         blastout=dirs_dict["vOUT_DIR"] + "/{sequence}-blastout.csv",
