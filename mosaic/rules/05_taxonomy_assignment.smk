@@ -334,7 +334,7 @@ rule taxmyphage:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxmyphage/tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/taxmyphage/{sequence}.tsv"
 	threads: 32
 	shell:
 		"""
