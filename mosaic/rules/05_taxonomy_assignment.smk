@@ -236,7 +236,7 @@ rule hostID_iphop:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/iphop/tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/iphop/{sequence}.tsv"
 	threads: 64
 	shell:
 		"""
