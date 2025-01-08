@@ -322,10 +322,10 @@ rule match_spacers_dion:
 
 rule taxmyphage:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 		taxmyphage_db=(config['taxmyphage_db']),
 	output:
-		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE ),
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_{sequence}"),
 	params:
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_results"),
 		annotation_dir=directory(dirs_dict["ANNOTATION"]),
@@ -338,6 +338,6 @@ rule taxmyphage:
 	threads: 32
 	shell:
 		"""
-		taxmyphage run -i {input.representatives} -t {threads} -db {input.taxmyphage_db} -o {params.results_dir}
+		taxmyphage run -i {input.fasta} -t {threads} -db {input.taxmyphage_db} -o {params.results_dir}
 		mv {params.results_dir} {output.results_dir}
 		"""
