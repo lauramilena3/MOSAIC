@@ -199,23 +199,6 @@ rule parseVcontact:
 # 	 	"""
 
 
-rule vOUTclustering:
-	 input:
-		  fasta="{basedir}/{sequence}.fasta",
-	 output:
-		  clusters=dirs_dict["vOUT_DIR"] + "/{sequence}_95-85.clstr",
-		  blastout=dirs_dict["vOUT_DIR"] + "/{sequence}-blastout.csv",
-		  aniout=dirs_dict["vOUT_DIR"] + "/{sequence}-aniout.csv",
-	 message:
-		  "Creating vOUTs with CheckV aniclust"
-	 conda:
-		  dirs_dict["ENVS_DIR"] + "/env6.yaml"
-	 benchmark:
-		  dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
-	 threads: 144
-	 wildcard_constraints:
-		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
-	 shell:
 		  """
 		  makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
 		  blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
