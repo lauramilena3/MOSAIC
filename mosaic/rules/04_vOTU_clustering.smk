@@ -49,9 +49,9 @@ rule vOUTclustering:
     input:
         fasta="{basedir}/{sequence}.fasta",
     output:
-        clusters="{basedir}/{sequence}_95-85.clstr",
-        blastout="{basedir}/{sequence}-blastout.csv",
-        aniout="{basedir}/{sequence}-aniout.csv",
+        clusters=dirs_dict["vOUT_DIR"] + "/{sequence}_95-85.clstr",
+        blastout=dirs_dict["vOUT_DIR"] + "/{sequence}-blastout.csv",
+        aniout=dirs_dict["vOUT_DIR"] + "/{sequence}-aniout.csv",
     message:
         "Creating vOUTs with CheckV aniclust"
     conda:
