@@ -46,27 +46,29 @@ rule derreplicate_assembly:
 		"""
 
 rule vOUTclustering:
-	input:
-		fasta="{sequence}.fasta",
-	output:
-		clusters="{sequence}_95-85.clstr",
-		blastout="{sequence}-blastout.csv",
-		aniout="{sequence}-aniout.csv",
-	message:
-		"Creating vOUTs with CheckV aniclust"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env6.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sequence}.tsv"
-	threads: 144
-	shell:
-		"""
-		makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
-		blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
-			-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
-		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
-		"""
+    input:
+        fasta="{basedir}/{sequence}.fasta",
+    output:
+        clusters="{basedir}/{sequence}_95-85.clstr",
+        blastout="{basedir}/{sequence}-blastout.csv",
+        aniout="{basedir}/{sequence}-aniout.csv",
+    message:
+        "Creating vOUTs with CheckV aniclust"
+    conda:
+        dirs_dict["ENVS_DIR"] + "/env6.yaml"
+    benchmark:
+        lambda wildcards: f"{dirs_dict['BENCHMARKS']}/vOUTclustering/{wildcards.sequence}.tsv",
+    threads: 144
+    wildcard_constraints:
+        sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
+    shell:
+        """
+        makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
+        blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
+            -max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+        python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+        python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+        """
 
 def input_getHighQuality(wildcards):
 	input_list=[]

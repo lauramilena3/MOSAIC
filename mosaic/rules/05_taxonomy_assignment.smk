@@ -1,4 +1,16 @@
 # ruleorder: gbk_to_faa>getORFs_assembly
+def input_representative(wildcards):
+	if METAGENOME:
+		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{{sampling}}/quality_summary.tsv",sample=SAMPLES)),
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{{sampling}}/quality_summary.tsv", sample=NANOPORE_SAMPLES)),
+	if CROSS_ASSEMBLY:
+		input_list.append(dirs_dict["vOUT_DIR"] + "/ALL_checkV_{sampling}/quality_summary.tsv"),
+	if SUBASSEMBLY:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_" + VIRAL_ID_TOOL + "_checkV_{{sampling}}/quality_summary.tsv", sample=SAMPLES, subsample=subsample_test)),
+	if len(config['additional_reference_contigs'])>0:
+		input_list.append(dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
+	return input_list
 
 rule getORFs_prodigal_gv:
 	input:
