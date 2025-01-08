@@ -198,17 +198,6 @@ rule parseVcontact:
 # 		mmseqs taxonomyreport {params.refDB} {params.taxonomyResultDB} {output.html} --report-mode 1
 # 	 	"""
 
-
-		  """
-		  makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
-		  blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
-				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
-		  python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		  python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
-		  """
-
-#		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-
 rule PhaGCNTaxonomy:
 	input:
 		PhaGCN_newICTV_dir=config['PhaGCN_newICTV_dir'],
