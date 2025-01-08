@@ -57,7 +57,7 @@ rule vOUTclustering:
     conda:
         dirs_dict["ENVS_DIR"] + "/env6.yaml"
     benchmark:
-        lambda wildcards: f"{dirs_dict['BENCHMARKS']}/vOUTclustering/{wildcards.sequence}.tsv",
+        dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
     threads: 144
     wildcard_constraints:
         sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
