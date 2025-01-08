@@ -1,25 +1,28 @@
 rule lifestyle_bacphlip:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 	output:
-		results_dir=temp(directory(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.BACPHLIP_DIR")),
-		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_bacphlip.csv"),
+		results_dir=temp(directory(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.BACPHLIP_DIR")),
+		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/{sequence}_bacphlip.csv"),
 	params:
-		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta.bacphlip")
+		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.bacphlip")
 	message:
 		"Predicting lifecycle with BACPHLIP"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/bacphlip/tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/bacphlip/{sequence}.tsv"
 	threads: 1
+	wildcard_constraints:
+		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
 		mkdir {output.results_dir}
 		cd {output.results_dir}
-		bacphlip -i {input.representatives} --multi_fasta -f
+		bacphlip -i {input.fasta} --multi_fasta -f
 		mv {params.results_bacphlip} {output.results_bacphlip_final}
 		"""
+
 
 rule estimateGenomeCompletness_long:
 	input:

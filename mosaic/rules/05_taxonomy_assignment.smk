@@ -238,6 +238,8 @@ rule hostID_iphop:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/iphop/{sequence}.tsv"
 	threads: 64
+	wildcard_constraints:
+		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
 		iphop predict --fa_file {input.fasta} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
