@@ -414,7 +414,7 @@ rule blasToRefSeq:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/blasToRefSeq/tot.tsv"
+		dirs_dict["BENCHMARKS"] +"/blasToRefSeq/{sequence}.tsv"
 	message:
 		"Blast contigs agaist RefSeq database"
 	threads: 32
