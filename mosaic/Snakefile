@@ -299,7 +299,7 @@ def inputAbundance(wildcards):
 def inputAnnotation(wildcards):
 	inputs=[]
 	inputs.extend(expand(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",sampling=SAMPLING_TYPE_TOT)),
-	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_resultsDir")
+	inputs.append(dirs_dict["ANNOTATION"] + "/iphop_hostID_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_resultsDir")
 	inputs.append(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot.csv")
 	inputs.append(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv")
 	# inputs.append(dirs_dict["ANNOTATION"] + "/filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv"),
