@@ -87,6 +87,7 @@ rule metaspadesPE_test_depth:
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
 		sed "s/>/>{wildcards.sample}_{wildcards.subsample}_/g" -i {output.scaffolds}
+		rm {params.assembly_dir}
 		"""
 
 rule assemblyStatsILLUMINA_test_depth:
