@@ -36,6 +36,7 @@ dependencies:
   # - dram
   - jsonschema-specifications ==2023.7.1
   - jsonschema ==4.19.0
+  - zipp ==3.16.2
   - pip =19.3.1
   - pip:
     - git+https://github.com/jiarong/VirSorter2.git@v2.2.4
