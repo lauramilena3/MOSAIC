@@ -34,7 +34,8 @@ dependencies:
   - ruby ==2.1.7
   - parallel ==20160622
   # - dram
-  - python-fastjsonschema ==2.18.0
+  - jsonschema-specifications ==2023.7.1
+  - jsonschema ==4.19.0
   - pip =19.3.1
   - pip:
     - git+https://github.com/jiarong/VirSorter2.git@v2.2.4
