@@ -2,7 +2,9 @@ channels:
   - bioconda
   - biobuilds
   - conda-forge
+  - anaconda
   - r
+  # - defaults#
 dependencies:
   - seqtk =1.3
   # - vcontact2 =0.9.19
