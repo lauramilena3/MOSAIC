@@ -6,7 +6,7 @@ def input_error_correction(wildcards):
 	return params_ecc
 
 def input_threads_assembler(wildcards):
-	use_threads=8
+	use_threads=12
 	if wildcards.sample=="ALL":
 		use_threads=64
 	return use_threads
@@ -41,8 +41,9 @@ rule shortReadAsemblySpadesPE:
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
-		ln -s {params.assembly_graph} {output.assembly_graph}
+		cp {params.assembly_graph} {output.assembly_graph}
 		sed "s/>/>{wildcards.sample}_/g" -i {output.scaffolds}
+		rm -rf {params.assembly_dir}
 		"""
 # rule shortReadAsemblySpadesSE:
 # 	input:

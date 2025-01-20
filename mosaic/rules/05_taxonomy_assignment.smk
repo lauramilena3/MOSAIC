@@ -244,6 +244,7 @@ rule hostID_iphop:
 	shell:
 		"""
 		iphop predict --fa_file {input.fasta} --db_dir {input.iphop_db}/Aug_2023_pub_rw --out_dir {output.results_dir} --num_threads {threads}
+		rm -rf {output.results_dir}/Wdir
 		"""
 
 rule single_fasta_filtered:
