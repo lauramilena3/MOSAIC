@@ -4,7 +4,6 @@ channels:
   - biobuilds
   - agbiome
   - asmeurer
-  - fastchan
 dependencies:
   - snakemake =7.18.2
   - python = 3.9
