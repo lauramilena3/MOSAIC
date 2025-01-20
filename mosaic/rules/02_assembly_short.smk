@@ -36,6 +36,7 @@ rule shortReadAsemblySpadesPE:
 	priority: 1
 	shell:
 		"""
+		rm -rf {params.assembly_dir}
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
 		{params.metagenomic_flag} -t {threads} --memory 350 {params.error_correction}
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
