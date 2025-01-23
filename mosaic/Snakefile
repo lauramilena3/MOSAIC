@@ -25,6 +25,7 @@ ASSEMLY_STATS=config['assembly_stats']
 CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
 MICROBIAL=config['microbial']
+SOURMASH=config['sourmash']
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
@@ -185,6 +186,7 @@ print(NANOPORE_SAMPLES)
 print("Sampling= ")
 print(SAMPLING_TYPE)
 
+
 if VCONTACT:
 	print("RUN VCONTACT= ")
 	print(VCONTACT)
@@ -231,7 +233,7 @@ def inputQC(wildcards):
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
-	if MICROBIAL:
+	if MICROBIAL or SOURMASH:
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_S_report_paired_tot.csv", sample=SAMPLES)),
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz", sample=SAMPLES))
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz", sample=SAMPLES))

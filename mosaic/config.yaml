@@ -2,6 +2,8 @@ input_dir: ""
 results_dir: ""
 metagenome: True
 microbial: False
+sourmash: False
+
 key_samples: "key_samples_list.csv"
 operating_system: "linux"
 forward_tag: "R1"
