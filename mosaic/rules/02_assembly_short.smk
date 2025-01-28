@@ -34,7 +34,7 @@ rule shortReadAsemblySpadesPE:
 		dirs_dict["BENCHMARKS"] +"/shortReadAsemblySpadesPE/{sample}_{sampling}.tsv"
 	threads: input_threads_assembler
 	resources:
-		mem_gb=400
+		mem_gb=450
 	priority: 1
 	shell:
 		"""
