@@ -68,26 +68,27 @@ rule metaspadesPE_test_depth:
 		unpaired=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_unpaired_norm.{sampling}.fastq.gz"),
 	output:
 		scaffolds=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.{sampling}.fasta"),
-		filtered_list=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}/filtered_list.txt"),
 	params:
 		raw_scaffolds=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}/scaffolds.fasta",
 		assembly_dir=directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}"),
+		filtered_list=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}/filtered_list.txt"),
 	message:
 		"Assembling PE reads with metaSpades"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/metaspadesPE_test_depth/{sample}_{subsample}_{sampling}.tsv",
-	threads: 16
+	threads: 12
 	shell:
 		"""
+		rm -rf {params.assembly_dir}
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
 		--meta -t {threads} --memory 350
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
-		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
-		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
+		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {params.filtered_list}
+		seqtk subseq {params.raw_scaffolds} {params.filtered_list} > {output.scaffolds}
 		sed "s/>/>{wildcards.sample}_{wildcards.subsample}_/g" -i {output.scaffolds}
-		rm {params.assembly_dir}
+		rm -rf {params.assembly_dir}
 		"""
 
 rule assemblyStatsILLUMINA_test_depth:
