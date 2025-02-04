@@ -249,7 +249,6 @@ def inputAssembly(wildcards):
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
 		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.tot.txt"),
 		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report_viral.tot.txt"),
-
 	if NANOPORE:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))
@@ -537,6 +536,8 @@ rule assembly_phage:
 		(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 		(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv"),
 		(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),	
+		(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
 		# (dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt"),
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
