@@ -90,11 +90,21 @@ rule buildBowtieDB_assembly:
 		bowtie2-build {input.scaffolds} {params.prefix} --threads {threads}
 		"""
 
+def input_vOTU_clustering(wildcards):
+	input_list=[]
+	if METAGENOME:
+		input_list.append(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
+		input_list.append(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+	else:
+		input_list.append(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		input_list.append(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+	return input_list
+	
 rule stat_mapReadsToAssembly:
 	input:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.1.bt2",
-		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
-		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
+		forward_paired=input_vOTU_clustering[0],
+		reverse_paired=input_vOTU_clustering[1],
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.bam"),
