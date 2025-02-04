@@ -104,7 +104,7 @@ rule stat_mapReadsToAssembly:
 	input:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.1.bt2",
 		forward_paired=lambda wildcards: input_mapping(wildcards)[0],
-   	reverse_paired=lambda wildcards: input_mapping(wildcards)[1],
+		reverse_paired=lambda wildcards: input_mapping(wildcards)[1],
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.bam"),
