@@ -90,7 +90,7 @@ rule buildBowtieDB_assembly:
 		bowtie2-build {input.scaffolds} {params.prefix} --threads {threads}
 		"""
 
-def input_vOTU_clustering(wildcards):
+def input_mapping(wildcards):
 	input_list=[]
 	if METAGENOME:
 		input_list.append(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
@@ -103,8 +103,8 @@ def input_vOTU_clustering(wildcards):
 rule stat_mapReadsToAssembly:
 	input:
 		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.1.bt2",
-		forward_paired=lambda wildcards: input_vOTU_clustering(wildcards)[0],
-   	reverse_paired=lambda wildcards: input_vOTU_clustering(wildcards)[1],
+		forward_paired=lambda wildcards: input_mapping(wildcards)[0],
+   	reverse_paired=lambda wildcards: input_mapping(wildcards)[1],
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.bam"),
