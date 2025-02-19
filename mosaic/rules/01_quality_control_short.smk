@@ -821,7 +821,6 @@ rule normalizeReads_PE:
 		histogram_pre=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram_pre.{sampling}.txt"),
 		histogram_post=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_histogram_post.{sampling}.txt"),
 		peaks=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_count_peaks.{sampling}.txt"),
-
 	message:
 		"Normalizing reads with BBtools"
 	conda:

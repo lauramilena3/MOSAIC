@@ -39,6 +39,9 @@ rule normalizeReads_test_depth:
 		forward_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_forward_paired_norm.{sampling}.fastq.gz"),
 		reverse_paired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_reverse_paired_norm.{sampling}.fastq.gz"),
 		unpaired=temp(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_unpaired_norm.{sampling}.fastq.gz"),
+		histogram_pre=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_kmer_count_histogram_pre.{sampling}.txt"),
+		histogram_post=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_kmer_count_histogram_post.{sampling}.txt"),
+		peaks=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_kmer_count_peaks.{sampling}.txt"),
 	message:
 		"Normalizing reads with BBtools"
 	conda:
@@ -56,7 +59,7 @@ rule normalizeReads_test_depth:
 		#PE
 		#paired
 		bbnorm.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
-		target={params.max_depth} mindepth={params.min_depth} t={threads}
+		target={params.max_depth} mindepth={params.min_depth} t={threads} khist={output.histogram_pre} peaks={output.peaks} khistout={output.histogram_post}
 		#unpaired
 		bbnorm.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth} t={threads}
 		"""
