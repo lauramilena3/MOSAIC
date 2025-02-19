@@ -32,7 +32,7 @@ rule estimateGenomeCompletness_long:
 		quality_summary=dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{sampling}/quality_summary.tsv",
 		completeness=dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{sampling}/completeness.tsv",
 		contamination=dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{sampling}/contamination.tsv",
-		tmp=directory(dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{sampling}/tmp"),
+		tmp=temp(directory(dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{sampling}/tmp")),
 	params:
 		checkv_outdir=dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{sampling}",
 	message:
@@ -68,7 +68,7 @@ rule estimateGenomeCompletness:
 		quality_summary=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/quality_summary.tsv",
 		completeness=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/completeness.tsv",
 		contamination=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/contamination.tsv",
-		tmp=directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/tmp"),
+		tmp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/tmp")),
 	params:
 		checkv_outdir=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
 		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
