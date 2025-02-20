@@ -99,7 +99,7 @@ rule assemblyStats:
 	message:
 		"Creating assembly stats with quast"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/assemblyStats/{sampling}.tsv"
 	threads: 1
