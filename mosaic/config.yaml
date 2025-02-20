@@ -28,7 +28,7 @@ subassembly: False
 VirSorter: False
 assembly_stats: False
 cross_assembly: False
-
+long_index: False
 ecc_memory: 6000
 representative_contigs: ""
 sra_list: ""

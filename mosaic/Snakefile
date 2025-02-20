@@ -26,6 +26,8 @@ CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
 MICROBIAL=config['microbial']
 SOURMASH=config['sourmash']
+SOURMASH=config['sourmash']
+LONG_INDEX=config['long_index']
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")

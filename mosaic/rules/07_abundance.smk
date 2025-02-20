@@ -533,9 +533,34 @@ rule buildBowtieDB_reference:
 		bowtie2-build {input.contaminants} {params.prefix} --threads {threads}
 		"""
 
+rule buildBowtieDB_reference_long:
+	input:
+		contaminants=REFERENCE_DIR+ "/" + REFERENCE + ".fasta",
+	output:
+		contigs_bt2=REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2l",
+	params:
+		prefix=REFERENCE_DIR+ "/" + REFERENCE + "",
+	message:
+		"Creating contig DB with Bowtie2"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/" + REFERENCE + "_bowtie_contaminants.tsv"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 32
+	shell:
+		"""
+		bowtie2-build {input.contaminants} {params.prefix} --threads {threads} --large-index
+		"""
+
+def input_bowtie_reference(wildcards):
+   if LONG_INDEX:
+		return(REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2l")
+   else:
+		return(REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2")
+
 rule mapReads_reference:
 	input:
-		contigs_bt2=REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2",
+		contigs_bt2=input_bowtie_reference,
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
