@@ -91,14 +91,14 @@ rule buildBowtieDB_assembly:
 		"""
 
 def input_mapping(wildcards):
-   input_list = []
-   if METAGENOME:
-      input_list.append(dirs_dict["ASSEMBLY_TEST"] + f"/2M_{wildcards.sample}_forward_paired_clean.{wildcards.sampling}.fastq.gz")
-      input_list.append(dirs_dict["ASSEMBLY_TEST"] + f"/2M_{wildcards.sample}_reverse_paired_clean.{wildcards.sampling}.fastq.gz")
-   else:
-      input_list.append(dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_forward_paired_clean.tot.fastq.gz")
-      input_list.append(dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_reverse_paired_clean.tot.fastq.gz")
-   return input_list
+	input_list = []
+	if METAGENOME:
+		input_list.append(dirs_dict["ASSEMBLY_TEST"] + f"/2M_{wildcards.sample}_forward_paired_clean.{wildcards.sampling}.fastq.gz")
+		input_list.append(dirs_dict["ASSEMBLY_TEST"] + f"/2M_{wildcards.sample}_reverse_paired_clean.{wildcards.sampling}.fastq.gz")
+	else:
+		input_list.append(dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_forward_paired_clean.tot.fastq.gz")
+		input_list.append(dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_reverse_paired_clean.tot.fastq.gz")
+	return input_list
 	
 rule stat_mapReadsToAssembly:
 	input:
@@ -555,7 +555,7 @@ rule buildBowtieDB_reference_long:
 def input_bowtie_reference(wildcards):
 	if LONG_INDEX:
 		return(REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2l")
-   else:
+	else:
 		return(REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2")
 
 rule mapReads_reference:
