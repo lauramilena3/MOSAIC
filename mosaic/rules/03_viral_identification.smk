@@ -176,7 +176,6 @@ rule genomad_viral_id:
 		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
 		"""
 
-
 def input_genomad_viral_id_nanopore(wildcards):
 	if NANOPORE_ONLY:
 		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",

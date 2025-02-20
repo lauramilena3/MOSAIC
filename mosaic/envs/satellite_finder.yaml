@@ -1,5 +1,7 @@
 channels:
   - conda-forge
   - bioconda
+  - anaconda
+  - defaults
 dependencies:
   - apptainer =1.1.2
