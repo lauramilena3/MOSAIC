@@ -553,7 +553,7 @@ rule buildBowtieDB_reference_long:
 		"""
 
 def input_bowtie_reference(wildcards):
-   if LONG_INDEX:
+	if LONG_INDEX:
 		return(REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2l")
    else:
 		return(REFERENCE_DIR+ "/" + REFERENCE + ".1.bt2")
