@@ -81,7 +81,7 @@ rule metaspadesPE_test_depth:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/metaspadesPE_test_depth/{sample}_{subsample}_{sampling}.tsv",
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		rm -rf {params.assembly_dir}
