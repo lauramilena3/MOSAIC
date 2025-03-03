@@ -29,6 +29,9 @@ VirSorter: False
 assembly_stats: False
 cross_assembly: False
 long_index: False
+run_vcontact: False
+run_DRAM: False
+imgvr_blast: False
 ecc_memory: 6000
 representative_contigs: ""
 sra_list: ""
@@ -54,7 +57,6 @@ adapters_file: "adapters.fa"
 additional_reference_contigs: ""
 ambiguous_mapping: "all" 
 basecalled_dir: "data/basecalled/"
-imgvr_blast: False
 microbial_spacers: ""
 
 reference_databases: "IMGVR GenBankViral RefSeqViral"
@@ -93,8 +95,6 @@ WTP_dir: "tools/WTP"
 virFinder_dir: "tools/VirFinder"
 clusterONE_dir: "tools/clusterONE"
 vcontact_dir: "tools/vcontact2"
-run_vcontact: False
-run_DRAM: False
 reference_genomes_vcontact: "None"
 taxonomy_file: "db/vcontact2/formatting_taxonomy_affiliations.csv"
 genomad_db: "db/genomad_db"
