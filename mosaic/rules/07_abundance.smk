@@ -670,9 +670,9 @@ rule extract_mapped_reads:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
-		mapped_reads=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_mapped_reads.tot.txt"),
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_mapped.tot.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_mapped.tot.fastq.gz"),
+		mapped_reads=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_mapped_reads.txt"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_mapped.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_mapped.fastq.gz"),
 	message:
 		"Extracting mapped reads"
 	conda:
