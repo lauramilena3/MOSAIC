@@ -666,7 +666,7 @@ rule mapReads_reference_sub:
 
 rule extract_mapped_reads:
 	input:
-		bam=(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam"),
+		bam=(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_tot.bam"),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
