@@ -26,8 +26,8 @@ CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
 MICROBIAL=config['microbial']
 SOURMASH=config['sourmash']
-SOURMASH=config['sourmash']
 LONG_INDEX=config['long_index']
+EXTRACT_MAPPED=config['extract_mapped']
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
@@ -298,6 +298,9 @@ def inputAbundance(wildcards):
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		# inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_derreplicated_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
+	if EXTRACT_MAPPED:
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_mapped.fastq.gz", sample=SAMPLES))
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_mapped.fastq.gz", sample=SAMPLES))
 	return inputs
 
 def inputAnnotation(wildcards):

@@ -225,7 +225,7 @@ rule DRAMv_distill:
 		DRAM_tab=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
 		DRAM_fasta=dirs_dict["ANNOTATION"] + "/VirSorter2_DRAM_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",		
 		DRAM_db=config['DRAM_db'],
-		DRAM_output=directory(dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}"),
+		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
 	output:
 		DRAM_summary=directory(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_{sampling}"),
 	params:

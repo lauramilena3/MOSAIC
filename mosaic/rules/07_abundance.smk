@@ -664,6 +664,29 @@ rule mapReads_reference_sub:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
+rule mapReads_reference:
+	input:
+		bam=(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+	output:
+		mapped_reads=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_mapped_reads.tot.txt"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_mapped.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_mapped.tot.fastq.gz"),
+	message:
+		"Extracting mapped reads"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_tot_extract_mapped.tsv"
+	threads: 16
+	shell:
+		"""
+ 		samtools view -F 4 {input.bam} | cut -f1 | sort | uniq > {output.mapped_reads}
+		seqtk subseq {input.forward_paired} {output.mapped_reads} | gzip > {output.forward_paired}
+		seqtk subseq {input.reverse_paired} {output.mapped_reads} | gzip > {output.reverse_paired}
+		"""
+
 # rule get_norm_RPKM:
 # 	input:
 # 		covstats_all=dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}_all.txt",

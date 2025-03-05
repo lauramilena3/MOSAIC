@@ -35,6 +35,7 @@ imgvr_blast: False
 ecc_memory: 6000
 representative_contigs: ""
 sra_list: ""
+extract_mapped: False
 
 #species
 p_ident: "95"
