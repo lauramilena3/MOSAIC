@@ -682,7 +682,7 @@ rule extract_mapped_reads:
 	threads: 16
 	shell:
 		"""
- 		samtools view -F 4 {input.bam} | cut -f1 | sort | uniq > {output.mapped_reads}
+ 		samtools view -f 3 {input.bam} | cut -f1 | sort | uniq > {output.mapped_reads}
 		seqtk subseq {input.forward_paired} {output.mapped_reads} | gzip > {output.forward_paired}
 		seqtk subseq {input.reverse_paired} {output.mapped_reads} | gzip > {output.reverse_paired}
 		"""
