@@ -4,7 +4,7 @@ rule lifestyle_bacphlip:
 	output:
 		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/{sequence}_bacphlip.csv"),
 	params:
-		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.bacphlip")
+		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.bacphlip"),
 		results_dir=((dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.BACPHLIP_DIR")),
 	message:
 		"Predicting lifecycle with BACPHLIP"
