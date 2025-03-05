@@ -2,10 +2,10 @@ rule lifestyle_bacphlip:
 	input:
 		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
 	output:
-		results_dir=temp(directory(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.BACPHLIP_DIR")),
 		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/{sequence}_bacphlip.csv"),
 	params:
 		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.bacphlip")
+		results_dir=((dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.BACPHLIP_DIR")),
 	message:
 		"Predicting lifecycle with BACPHLIP"
 	conda:
@@ -17,10 +17,11 @@ rule lifestyle_bacphlip:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
-		mkdir {output.results_dir}
+		mkdir {params.results_dir}
 		cd {output.results_dir}
 		bacphlip -i {input.fasta} --multi_fasta -f
 		mv {params.results_bacphlip} {output.results_bacphlip_final}
+		rm {params.results_dir}
 		"""
 
 
