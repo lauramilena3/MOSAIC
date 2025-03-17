@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - agbiome
+  - bioconda
+  - biobuilds
+dependencies:
+  - bakta ==1.11.0
