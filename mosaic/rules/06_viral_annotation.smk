@@ -17,11 +17,12 @@ rule lifestyle_bacphlip:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
+		rm -rf {params.results_dir}
 		mkdir {params.results_dir}
 		cd {params.results_dir}
 		bacphlip -i {input.fasta} --multi_fasta -f
 		mv {params.results_bacphlip} {output.results_bacphlip_final}
-		rm {params.results_dir}
+		rm -rf {params.results_dir}
 		"""
 
 
