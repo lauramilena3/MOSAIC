@@ -352,7 +352,13 @@ def inputAnnotation(wildcards):
 	# inputs.extend(expand(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv", sampling=SAMPLING_TYPE_TOT))
 
 	return inputs
-
+def get_clinker_outputs(wildcards):
+    ckpt = checkpoints.getHighQuality_clusters_fasta.get(sampling=wildcards.sampling)
+    fasta_dir = ckpt.output["fasta_dir"]
+    reps = glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
+    contigs = [os.path.join(fasta_dir, rep) for rep in reps]
+    return expand("{contigs}_clinker.html", contigs=contigs)
+	 
 rule all:
 	input:
 		inputReadsCount,
@@ -665,12 +671,7 @@ rule map_to_reference:
 # /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/racon_WEC_contigs_1_canu.tot.fasta
 # /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/WEC_canu_corrected_scaffolds.tot.fasta
 
-def get_clinker_outputs(wildcards):
-    ckpt = checkpoints.getHighQuality_clusters_fasta.get(sampling=wildcards.sampling)
-    fasta_dir = ckpt.output["fasta_dir"]
-    reps = glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
-    contigs = [os.path.join(fasta_dir, rep) for rep in reps]
-    return expand("{contigs}_clinker.html", contigs=contigs)
+
 
 include: os.path.join(RULES_DIR, '00_download_tools.smk')
 include: os.path.join(RULES_DIR, '01_quality_control_short.smk')
