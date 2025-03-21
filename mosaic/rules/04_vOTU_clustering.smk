@@ -126,10 +126,12 @@ checkpoint getHighQuality_clusters_fasta:
 
 		awk '{{print $2 >> "{output.fasta_dir}/" $1 ".list"}}' {output.complete_clusters}
 
-		for listfile in {output.fasta_dir}/*.list; do \
-			rep=$(basename "$listfile" .list); \
-			seqtk subseq {input.combined_positive_contigs} "$listfile" > {output.fasta_dir}/"$rep".fasta; \
-			rm "$listfile"; \
+		for listfile in {output.fasta_dir}/*.list; do
+			rep=$(basename "$listfile" .list)
+			if [ "$(wc -l < "$list file")" -gt 1 ]; then
+				seqtk subseq {input.representatives} "$listfile" > {output.fasta_dir}/"$rep".fasta
+			fi
+			rm "$listfile"
 		done
 		"""
 
