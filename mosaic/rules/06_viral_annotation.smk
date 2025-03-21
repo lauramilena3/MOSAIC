@@ -246,21 +246,21 @@ rule DRAMv_distill:
 		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
-rule pharokka_annotation:
-	input:
-		fasta="{contigs}.fasta",
-		pharokka_db = config["pharokka_db"]
-	output:
-		pharokka_output = directory("{contigs}_pharokka")
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env7.yaml"
-	message:
-		"Annotate contigs with pharokka"
-	threads: 16
-	shell:
-		"""
-		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f
-		"""
+# rule pharokka_annotation:
+# 	input:
+# 		fasta="{contigs}.fasta",
+# 		pharokka_db = config["pharokka_db"]
+# 	output:
+# 		pharokka_output = directory("{contigs}_pharokka")
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+# 	message:
+# 		"Annotate contigs with pharokka"
+# 	threads: 16
+# 	shell:
+# 		"""
+# 		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f
+# 		"""
 
 rule annotate_VIGA:
 	input:
