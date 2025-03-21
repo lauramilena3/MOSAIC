@@ -415,7 +415,7 @@ rule clinker_figure:
 		rm -rf {params.clinker_dir}
 		mkdir {params.clinker_dir}
 		cd {params.clinker_dir}
-		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' ../pharokka.gbk
+		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' {input.pharokka_output}/pharokka.gbk
 		find . -type f -size -10c -delete
 		rename "s/$/.gbk/g" {wildcards.contigs}_genbank*
 		clinker {params.gb} -p {output.clinker} -j {threads}
