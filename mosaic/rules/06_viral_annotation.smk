@@ -407,7 +407,7 @@ rule clinker_figure:
 	message:
 		"Creating genome visualization with clinker"
 	params:
-		clinker_dir="{contigs}_clinker"",
+		clinker_dir="{contigs}_clinker",
 	threads: 16
 	shell:
 		"""
