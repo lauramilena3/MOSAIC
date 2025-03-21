@@ -530,6 +530,7 @@ rule assembly_phage:
 		inputQC,
 		inputAssembly,
 		inputViralID,
+		get_clinker_outputs,
 		(dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta"),
 		(dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt"),
 		(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),

@@ -246,27 +246,21 @@ rule DRAMv_distill:
 		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
-# rule pharokka_annotation:
-# 	input:
-# 		fasta="{contigs}.fasta",
-# 		pharokka_db=config["pharokka_db"]
-# 	output:
-# 		pharokka_output=directory("{contigs}_pharokka"),
-# 	# params:
-# 		# DRAM_annotations=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/annotations.tsv",
-# 		# trna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/trnas.tsv"),
-# 		# rrna=directory(dirs_dict["vOUT_DIR"]+ "/DRAM_combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq_{sampling}/rrnas.tsv"),
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
-# 	# benchmark:
-# 	# 	dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
-# 	message:
-# 		"Annotate contigs with pharokka"
-# 	threads: 16
-# 	shell:
-# 		"""
-# 		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f
-# 		"""
+rule pharokka_annotation:
+	input:
+		fasta="{contigs}.fasta",
+		pharokka_db=config["pharokka_db"]
+	output:
+		pharokka_output=directory("{contigs}_pharokka"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	message:
+		"Annotate contigs with pharokka"
+	threads: 16
+	shell:
+		"""
+		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f
+		"""
 
 rule annotate_VIGA:
 	input:
@@ -409,9 +403,7 @@ rule clinker_figure:
 	output:
 		clinker=("{contigs}_clinker.html"),
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env4.yaml"
-	# benchmark:
-	# 	dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{sampling}.tsv"
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	message:
 		"Creating genome visualization with clinker"
 	params:

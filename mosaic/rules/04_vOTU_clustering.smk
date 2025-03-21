@@ -46,29 +46,29 @@ rule derreplicate_assembly:
 		"""
 
 rule vOUTclustering:
-    input:
-        fasta="{basedir}/{sequence}.fasta",
-    output:
-        clusters="{basedir}/{sequence}_95-85.clstr",
-        blastout="{basedir}/{sequence}-blastout.csv",
-        aniout="{basedir}/{sequence}-aniout.csv",
-    message:
-        "Creating vOUTs with CheckV aniclust"
-    conda:
-        dirs_dict["ENVS_DIR"] + "/env6.yaml"
-   #  benchmark:
-   #      dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
-    threads: 144
-    wildcard_constraints:
-        sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
-    shell:
-        """
-        makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
-        blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
-            -max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
-        python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-        python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
-        """
+	input:
+		fasta="{basedir}/{sequence}.fasta",
+	output:
+		clusters="{basedir}/{sequence}_95-85.clstr",
+		blastout="{basedir}/{sequence}-blastout.csv",
+		aniout="{basedir}/{sequence}-aniout.csv",
+	message:
+		"Creating vOUTs with CheckV aniclust"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	#  benchmark:
+	#		dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
+	threads: 144
+	wildcard_constraints:
+		sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
+	shell:
+		"""
+		makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
+		blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
+				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+		python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+		"""
 
 def input_getHighQuality(wildcards):
 	input_list=[]
@@ -102,6 +102,43 @@ rule getHighQuality:
 		awk 'FNR>1' {input} > {output.quality_summary_concat}
 		grep "High-quality" {output.quality_summary_concat} | cut -f1 > {output.high_qualty_list}
 		"""
+
+checkpoint getHighQuality_clusters_fasta:
+	input:
+		new_clusters = dirs_dict["vOUT_DIR"] + "/new_references_clusters.{sampling}.csv",
+		high_quality_list = dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
+		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+	output:
+		complete_clusters = dirs_dict["vOUT_DIR"] + "/new_references_complete_clusters.{sampling}.csv",
+		fasta_dir = directory(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.{sampling}")
+	message:
+		"Filtering clusters and extracting high-quality vOTUs FASTA sequences"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/filter_vOTUs/{sampling}.tsv"
+	threads: 1
+	shell:
+		"""
+		mkdir -p {output.fasta_dir}
+
+		awk 'NR==FNR {{a[$1]; next}} $1 in a' {input.high_quality_list} {input.new_clusters} > {output.complete_clusters}
+
+		awk '{{print $2 >> "{output.fasta_dir}/" $1 ".list"}}' {output.complete_clusters}
+
+		for listfile in {output.fasta_dir}/*.list; do \
+			rep=$(basename "$listfile" .list); \
+			seqtk subseq {input.fasta_db} "$listfile" > {output.fasta_dir}/"$rep".fasta; \
+			rm "$listfile"; \
+		done
+		"""
+
+def get_clinker_outputs(wildcards):
+    ckpt = checkpoints.getHighQuality_clusters_fasta.get(sampling=wildcards.sampling)
+    fasta_dir = ckpt.output["fasta_dir"]
+    reps = glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
+    contigs = [os.path.join(fasta_dir, rep) for rep in reps]
+    return expand("{contigs}_clinker.html", contigs=contigs)
 
 
 rule select_vOTU_representative:
