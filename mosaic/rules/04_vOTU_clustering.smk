@@ -132,10 +132,7 @@ checkpoint getHighQuality_clusters_fasta:
 			rm "$listfile"; \
 		done
 		"""
-
-
-
-
+		
 rule select_vOTU_representative:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
