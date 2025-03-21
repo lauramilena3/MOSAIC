@@ -403,7 +403,7 @@ rule clinker_figure:
 	output:
 		clinker=("{contigs}_clinker.html"),
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+		dirs_dict["ENVS_DIR"] + "/clinker.yaml"
 	message:
 		"Creating genome visualization with clinker"
 	params:
