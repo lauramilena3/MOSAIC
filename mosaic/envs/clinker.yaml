@@ -2,5 +2,5 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - clinker-py =1.33
+  - clinker-py =0.0.31
   - rename =1.601
