@@ -485,7 +485,7 @@ rule downloadPharokkaDB:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	shell:
 		"""
-		install_databases.py -o {params.db_dir}
+		install_databases.py -o {output.pharokka_db}
 		"""
 		
 #rule downloadminiKrakenDB:
