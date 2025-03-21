@@ -419,7 +419,7 @@ rule clinker_figure:
 		find . -type f -size -10c -delete
 		rename "s/$/.gbk/g" {wildcards.contigs}_genbank*
 		clinker {params.gb} -p {output.clinker} -j {threads}
-		rm {wildcards.contigs}_genbank* {params.clinker_dir}
+		rm -rf {wildcards.contigs}_genbank* {params.clinker_dir}
 		"""
 
 rule blasToRefSeq:
