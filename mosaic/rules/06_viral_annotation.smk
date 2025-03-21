@@ -1099,7 +1099,7 @@ rule parse_diamond_isolates:
 		pivot=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_pivot.txt"),
 		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing.tsv"
+		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing_combined.tsv"
 	message:
 		"Parsing blast results to AAI distance matrix"
 	threads: 1
