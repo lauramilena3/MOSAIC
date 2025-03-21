@@ -408,6 +408,7 @@ rule clinker_figure:
 		"Creating genome visualization with clinker"
 	params:
 		clinker_dir="{contigs}_clinker",
+		gb="{contigs}_genbank*.gbk"
 	threads: 16
 	shell:
 		"""
