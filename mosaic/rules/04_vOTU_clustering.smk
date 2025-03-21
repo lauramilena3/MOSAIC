@@ -129,7 +129,7 @@ checkpoint getHighQuality_clusters_fasta:
 		for listfile in {output.fasta_dir}/*.list; do
 			rep=$(basename "$listfile" .list)
 			if [ "$(wc -l < "$list file")" -gt 1 ]; then
-				seqtk subseq {input.representatives} "$listfile" > {output.fasta_dir}/"$rep".fasta
+				seqtk subseq {input.combined_positive_contigs} "$listfile" > {output.fasta_dir}/"$rep".fasta
 			fi
 			rm "$listfile"
 		done
