@@ -249,9 +249,9 @@ rule DRAMv_distill:
 rule pharokka_annotation:
 	input:
 		fasta="{contigs}.fasta",
-		pharokka_db=config["pharokka_db"]
+		pharokka_db = config["pharokka_db"]
 	output:
-		pharokka_output=directory("{contigs}_pharokka")
+		pharokka_output = directory("{contigs}_pharokka")
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	message:
