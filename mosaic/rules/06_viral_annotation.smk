@@ -412,7 +412,7 @@ rule clinker_figure:
 	threads: 16
 	shell:
 		"""
-		rm -rf {params.clinker_dir}
+		rm -rf {params.clinker_dir} {wildcards.contigs}_genbank*
 		mkdir {params.clinker_dir}
 		cd {params.clinker_dir}
 		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' {input.pharokka_output}/pharokka.gbk
