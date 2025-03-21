@@ -128,11 +128,11 @@ checkpoint getHighQuality_clusters_fasta:
 
 		for listfile in {output.fasta_dir}/*.list; do \
 			rep=$(basename "$listfile" .list); \
-			seqtk subseq {input.fasta_db} "$listfile" > {output.fasta_dir}/"$rep".fasta; \
+			seqtk subseq {input.representatives} "$listfile" > {output.fasta_dir}/"$rep".fasta; \
 			rm "$listfile"; \
 		done
 		"""
-		
+
 rule select_vOTU_representative:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
