@@ -3,3 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - clinker =1.33
+  - rename =1.601
