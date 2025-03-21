@@ -1082,6 +1082,42 @@ rule parse_diamond:
 		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot} > {output.pivot_sorted_zero_diagonal}
 		"""
 
+rule parse_diamond_isolates:
+	input:
+		diamond=(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_ORFs_diamond_all.tot.csv"),
+		cummulative_length=(dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_ORFs_coding_lengths.tot.txt")
+	output:
+		parsed_diamond=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_parsed_diamond.txt"),
+		parsed_diamond_first=(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_parsed_diamond_first.txt"),
+		similarity=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_similarity.txt"),
+		similarity_dup=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_similarity_dup.txt"),
+		similarity_dup2=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_similarity_dup2.txt"),
+		similarity_dup3=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_similarity_dup3.txt"),
+		distance=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance.txt"),
+		distance_short=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short.txt"),
+		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short_full.txt"),
+		pivot=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_pivot.txt"),
+		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing.tsv"
+	message:
+		"Parsing blast results to AAI distance matrix"
+	threads: 1
+	shell:
+		"""
+		time awk 'BEGIN{{OFS="\t"}} {{split($1, a, "_"); split($2, b, "_"); $5 = substr($1, 1, length($1) - length(a[length(a)]) - 1); $6 = substr($2, 1, length($2) - length(b[length(b)]) - 1); $17 = ($3 * $4) / 100; print}}' {input.diamond} > {output.parsed_diamond}
+		time awk -F'\t' '!seen[$1,$5,$6]++ {{print}}' {output.parsed_diamond} > {output.parsed_diamond_first}
+		time awk 'BEGIN{{OFS="\t"}} {{key=$5 "\t" $6; sum[key]+=$7; count[key]++}} END{{for (key in sum) print key, sum[key], count[key]}}' {output.parsed_diamond_first} > {output.similarity}
+		time awk 'NR==FNR{{a[$1,$2]=$3 FS $4; next}} {{if(($2,$1) in a) print $0, a[$2,$1]}}' {output.similarity} {output.similarity} > {output.similarity_dup}
+		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($1 in a) print $0, a[$1]}}' {input.cummulative_length} {output.similarity_dup} > {output.similarity_dup2}
+		time awk 'NR==FNR{{a[$1]=$2; next}} {{if($2 in a) print $0, a[$2]}}' {input.cummulative_length} {output.similarity_dup2} > {output.similarity_dup3}
+		time awk '{{ col9 = ( ($3 + $5) * 100 ) / ($7 + $8); col10 = 100 - col9; print $0, col9, col10 }}' {output.similarity_dup3}  | sed 's/\t/ /g' > {output.distance}
+		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
+		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
+		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
+		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot} > {output.pivot_sorted_zero_diagonal}
+		"""
+
 rule change_start_site_full:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",

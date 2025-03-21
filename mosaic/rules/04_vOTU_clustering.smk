@@ -103,6 +103,7 @@ rule getHighQuality:
 		grep "High-quality" {output.quality_summary_concat} | cut -f1 > {output.high_qualty_list}
 		"""
 
+
 rule select_vOTU_representative:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
