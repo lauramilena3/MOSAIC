@@ -141,6 +141,7 @@ def get_clinker_outputs(wildcards):
     return expand("{contigs}_clinker.html", contigs=contigs)
 
 
+
 rule select_vOTU_representative:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
