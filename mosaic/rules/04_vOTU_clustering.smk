@@ -107,7 +107,7 @@ checkpoint getHighQuality_clusters_fasta:
 	input:
 		new_clusters = dirs_dict["vOUT_DIR"] + "/new_references_clusters.{sampling}.csv",
 		high_quality_list = dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
 		complete_clusters = dirs_dict["vOUT_DIR"] + "/new_references_complete_clusters.{sampling}.csv",
 		fasta_dir = directory(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.{sampling}")
@@ -128,7 +128,7 @@ checkpoint getHighQuality_clusters_fasta:
 
 		for listfile in {output.fasta_dir}/*.list; do \
 			rep=$(basename "$listfile" .list); \
-			seqtk subseq {input.representatives} "$listfile" > {output.fasta_dir}/"$rep".fasta; \
+			seqtk subseq {input.combined_positive_contigs} "$listfile" > {output.fasta_dir}/"$rep".fasta; \
 			rm "$listfile"; \
 		done
 		"""
