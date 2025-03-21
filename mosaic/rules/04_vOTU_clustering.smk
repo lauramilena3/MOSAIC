@@ -133,12 +133,6 @@ checkpoint getHighQuality_clusters_fasta:
 		done
 		"""
 
-def get_clinker_outputs(wildcards):
-    ckpt = checkpoints.getHighQuality_clusters_fasta.get(sampling=wildcards.sampling)
-    fasta_dir = ckpt.output["fasta_dir"]
-    reps = glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
-    contigs = [os.path.join(fasta_dir, rep) for rep in reps]
-    return expand("{contigs}_clinker.html", contigs=contigs)
 
 
 
