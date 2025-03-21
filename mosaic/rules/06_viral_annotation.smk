@@ -47,17 +47,17 @@ rule estimateGenomeCompletness_long:
 	shell:
 		"""
 		if [ -s {input.positive_contigs} ]; then
-		    		            	checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
-		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
+			 							checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
+			 							checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
 		else
-		    		            	echo "The FASTA file {input.positive_contigs} is empty"
-		    		            	mkdir -p {params.checkv_outdir}
-		    		            	touch {output.quality_summary}
-		    		            	touch {output.completeness}
-		    		            	touch {output.contamination}
-		    		            	mkdir -p {output.tmp}
+			 							echo "The FASTA file {input.positive_contigs} is empty"
+			 							mkdir -p {params.checkv_outdir}
+			 							touch {output.quality_summary}
+			 							touch {output.completeness}
+			 							touch {output.contamination}
+			 							mkdir -p {output.tmp}
 		fi
 
 		"""
@@ -84,17 +84,17 @@ rule estimateGenomeCompletness:
 	shell:
 		"""
 		if [ -s {input.positive_contigs} ]; then
-		    		            	checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
-		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
+			 							checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
+			 							checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
 		else
-		    		            	echo "The FASTA file {input.positive_contigs} is empty"
-		    		            	mkdir -p {params.checkv_outdir}
-		    		            	touch {output.quality_summary}
-		    		            	touch {output.completeness}
-		    		            	touch {output.contamination}
-		    		            	mkdir -p {output.tmp}
+			 							echo "The FASTA file {input.positive_contigs} is empty"
+			 							mkdir -p {params.checkv_outdir}
+			 							touch {output.quality_summary}
+			 							touch {output.completeness}
+			 							touch {output.contamination}
+			 							mkdir -p {output.tmp}
 		fi
 
 		"""
@@ -120,16 +120,16 @@ rule estimateGenomeCompletness_reference:
 		"""
 		rm -rf {params.checkv_outdir} || true
 		if [ -s {input.reference_contigs} ]; then
-		    		            	checkv contamination {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv completeness {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv complete_genomes {input.reference_contigs} {params.checkv_outdir}
-		    		            	checkv quality_summary {input.reference_contigs} {params.checkv_outdir}
+			 							checkv contamination {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv completeness {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv complete_genomes {input.reference_contigs} {params.checkv_outdir}
+			 							checkv quality_summary {input.reference_contigs} {params.checkv_outdir}
 		else
-		    		            	echo "The FASTA file {input.reference_contigs} is empty"
-		    		            	mkdir -p {params.checkv_outdir}
-		    		            	touch {output.quality_summary}
-		    		            	touch {output.completeness}
-		    		            	touch {output.contamination}
+			 							echo "The FASTA file {input.reference_contigs} is empty"
+			 							mkdir -p {params.checkv_outdir}
+			 							touch {output.quality_summary}
+			 							touch {output.completeness}
+			 							touch {output.contamination}
 		fi
 		"""
 
@@ -155,16 +155,16 @@ rule estimateGenomeCompletness_reference:
 # 		"""
 # 		rm -rf {params.checkv_outdir} || true
 # 		if [ -s {input.filtered_representatives} ]; then
-# 		    		            	checkv contamination {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		    		            	checkv completeness {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		    		            	checkv complete_genomes {input.filtered_representatives} {params.checkv_outdir}
-# 		    		            	checkv quality_summary {input.filtered_representatives} {params.checkv_outdir}
+# 			 							checkv contamination {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+# 			 							checkv completeness {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+# 			 							checkv complete_genomes {input.filtered_representatives} {params.checkv_outdir}
+# 			 							checkv quality_summary {input.filtered_representatives} {params.checkv_outdir}
 # 		else
-# 		    		            	echo "The FASTA file {input.filtered_representatives} is empty"
-# 		    		            	mkdir -p {params.checkv_outdir}
-# 		    		            	touch {output.quality_summary}
-# 		    		            	touch {output.completeness}
-# 		    		            	touch {output.contamination}
+# 			 							echo "The FASTA file {input.filtered_representatives} is empty"
+# 			 							mkdir -p {params.checkv_outdir}
+# 			 							touch {output.quality_summary}
+# 			 							touch {output.completeness}
+# 			 							touch {output.contamination}
 # 		fi
 
 # 		"""
@@ -316,14 +316,14 @@ rule annotate_VIGA:
 		echo "viga.4"
 		cat {output.viga_names} | while read line
 		do
-		    		            stringarray=($line)
-		    		            new=${{stringarray[-1]}}
-		    		            old=${{stringarray[1]}}
-		    		            sed -i -e "s/${{new}}\t/${{old}}\t/g" -e "s/${{new}}_/${{old}}_/g" {output.csv}
-		    		            sed -i -e "s/${{new}}$/${{old}}/g" -e "s/${{new}} /${{old}} /g" -e "s/${{new}}_/${{old}}_/g" {output.GenBank_file}
-		    		            sed -i -e "s/${{new}}$/${{old}}/g" -e "s/${{new}} /${{old}} /g" -e "s/${{new}}_/${{old}}_/g" {output.GenBank_table_temp1}
-		    		            sed -i "s/>${{new}} $/>${{old}}/g" {output.GenBank_fasta}
-		    		            sed -i -e "s/${{new}} /${{old}} /g" {output.viga_topology_temp}
+			 						stringarray=($line)
+			 						new=${{stringarray[-1]}}
+			 						old=${{stringarray[1]}}
+			 						sed -i -e "s/${{new}}\t/${{old}}\t/g" -e "s/${{new}}_/${{old}}_/g" {output.csv}
+			 						sed -i -e "s/${{new}}$/${{old}}/g" -e "s/${{new}} /${{old}} /g" -e "s/${{new}}_/${{old}}_/g" {output.GenBank_file}
+			 						sed -i -e "s/${{new}}$/${{old}}/g" -e "s/${{new}} /${{old}} /g" -e "s/${{new}}_/${{old}}_/g" {output.GenBank_table_temp1}
+			 						sed -i "s/>${{new}} $/>${{old}}/g" {output.GenBank_fasta}
+			 						sed -i -e "s/${{new}} /${{old}} /g" {output.viga_topology_temp}
 		done
 		echo "viga.5"
 		awk  '{{print $1 "\t" $6}}'  {output.viga_topology_temp} > {output.viga_topology}
@@ -740,11 +740,11 @@ rule hh_annotation:
 		"""
 		perl ./scripts/reformat.pl fas a2m {input.fa} {output.a2m}
 		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
-		    		            -norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
+			 						-norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
 		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
 									-d {params.uniref} -d {params.phrogs} 
-		    		            -o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
-		    		            -norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
+			 						-o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
+			 						-norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
 		grep "^  [0-9] " {output.hhr} > {output.txt}
 		"""
 
@@ -790,19 +790,19 @@ rule merge_annotations:
 		length=[]
 
 		with open(input.blast_output) as f:
-		    content = f.readlines()
+			 content = f.readlines()
 
 		for line in content:
-		    qseqid.append((line.strip().split("\t")[0]))
-		    sseqid.append((line.strip().split("\t")[1].split(":")[-1]))
-		    sname.append((line.strip().split("\t")[2]))
-		    qstart.append(int(line.strip().split("\t")[3]))
-		    qend.append(int(line.strip().split("\t")[4]))
-		    qlen.append(int(line.strip().split("\t")[5]))
-		    slen.append(int(line.strip().split("\t")[6]))
-		    qcovs.append(int(line.strip().split("\t")[7]))
-		    evalue.append(float(line.strip().split("\t")[8]))
-		    length.append(int(line.strip().split("\t")[9]))
+			 qseqid.append((line.strip().split("\t")[0]))
+			 sseqid.append((line.strip().split("\t")[1].split(":")[-1]))
+			 sname.append((line.strip().split("\t")[2]))
+			 qstart.append(int(line.strip().split("\t")[3]))
+			 qend.append(int(line.strip().split("\t")[4]))
+			 qlen.append(int(line.strip().split("\t")[5]))
+			 slen.append(int(line.strip().split("\t")[6]))
+			 qcovs.append(int(line.strip().split("\t")[7]))
+			 evalue.append(float(line.strip().split("\t")[8]))
+			 length.append(int(line.strip().split("\t")[9]))
 
 		blast_df=pd.DataFrame()
 		blast_df["qseqid"]=qseqid
@@ -841,8 +841,8 @@ rule merge_annotations:
 
 		viga_df = pd.read_csv(tbl_file, sep="\t")
 		viga_df=viga_df[(viga_df["Description"]!="Hypothetical protein") &
-		               (~viga_df["Description"].str.contains('^PHIKZ')) &
-		               (~viga_df["Description"].str.contains('kDa protein'))]
+							(~viga_df["Description"].str.contains('^PHIKZ')) &
+							(~viga_df["Description"].str.contains('kDa protein'))]
 		viga_df.set_index('Protein ID', inplace=True)
 		viga_df["Method"]='VIGA'
 		viga_df=viga_df.add_prefix('VIGA_')
@@ -862,25 +862,25 @@ rule merge_annotations:
 		print(params.hhpred_dir)
 
 		for filename in os.listdir(params.hhpred_dir):
-		     if filename.endswith("hhr"):
-		        print(filename)
-		        with open(params.hhpred_dir + filename,"r", encoding='latin-1') as fi:
-		            for ln in fi:
-		                if ln.startswith("Match_columns"):
-		                    len_prot=ln.split()[1]
-		                if ln.startswith(">"):
-		                    descr=ln.strip()
-		                if ln.startswith("Probab"):
-		                    description.append(descr)
-		#                    print(filename.rsplit(".",1)[0])
-		                    protein.append(filename.rsplit(".",1)[0])
-		                    length.append(int(len_prot))
-		                    prob.append(float(ln.strip().split(" ")[0].split("=")[1]))
-		                    evalue.append(float(ln.strip().split(" ")[2].split("=")[1]))
-		                    score.append(float(ln.strip().split(" ")[4].split("=")[1]))
-		                    cols.append(int(ln.strip().split(" ")[6].split("=")[1]))
-		                    identities.append(float(ln.strip().split(" ")[8].split("=")[1][:-1]))
-		                    similarity.append(float(ln.strip().split(" ")[10].split("=")[1]))
+			  if filename.endswith("hhr"):
+				  print(filename)
+				  with open(params.hhpred_dir + filename,"r", encoding='latin-1') as fi:
+						for ln in fi:
+							 if ln.startswith("Match_columns"):
+								  len_prot=ln.split()[1]
+							 if ln.startswith(">"):
+								  descr=ln.strip()
+							 if ln.startswith("Probab"):
+								  description.append(descr)
+		#						  print(filename.rsplit(".",1)[0])
+								  protein.append(filename.rsplit(".",1)[0])
+								  length.append(int(len_prot))
+								  prob.append(float(ln.strip().split(" ")[0].split("=")[1]))
+								  evalue.append(float(ln.strip().split(" ")[2].split("=")[1]))
+								  score.append(float(ln.strip().split(" ")[4].split("=")[1]))
+								  cols.append(int(ln.strip().split(" ")[6].split("=")[1]))
+								  identities.append(float(ln.strip().split(" ")[8].split("=")[1][:-1]))
+								  similarity.append(float(ln.strip().split(" ")[10].split("=")[1]))
 		hh_df["protein"]=protein
 		hh_df["length"]=length
 		hh_df["description"]=description
@@ -906,9 +906,9 @@ rule merge_annotations:
 		hh_df.to_csv(output.annotation_table_hhpred, sep="\t")
 		#CONFIDENCE 1
 		hh_df1=hh_df[(hh_df["description"].str.contains("phage")) |
-		      (hh_df["description"].str.contains("Phage")) |
-		      (hh_df["description"].str.contains("virus")) |
-		      (hh_df["description"].str.contains("Virus"))]
+				(hh_df["description"].str.contains("Phage")) |
+				(hh_df["description"].str.contains("virus")) |
+				(hh_df["description"].str.contains("Virus"))]
 
 		#hh_df1=hh_df1[(~hh_df1["description"].str.contains("DUF"))]
 
@@ -922,10 +922,10 @@ rule merge_annotations:
 		#CONFIDENCE 2
 
 		# hh_df2=hh_df[~(hh_df["description"].str.contains("phage")) &
-		#       (~hh_df["description"].str.contains("Phage")) &
-		#       (~hh_df["description"].str.contains("virus")) &
-		#       (~hh_df["description"].str.contains("Virus")) &
-		#       (hh_df["description"].str.contains("DUF")) ]
+		#		 (~hh_df["description"].str.contains("Phage")) &
+		#		 (~hh_df["description"].str.contains("virus")) &
+		#		 (~hh_df["description"].str.contains("Virus")) &
+		#		 (hh_df["description"].str.contains("DUF")) ]
 		hh_df2=hh_df[(hh_df["description"].str.contains("DUF"))]
 		hh_df2["confidence"] = "2 DUF"
 
@@ -1009,33 +1009,33 @@ rule diamond:
 # awk_command= r"""{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }"""
 awk_command=r"""
 {
-    # Record keys and store the data
-    if (!(($1,$2) in data)) {
-        keys1[$1] = 1;
-        keys2[$2] = 1;
-    }
-    data[$1,$2] = $3;
+	 # Record keys and store the data
+	 if (!(($1,$2) in data)) {
+		  keys1[$1] = 1;
+		  keys2[$2] = 1;
+	 }
+	 data[$1,$2] = $3;
 }
 END {
-    # Sort keys
-    n = asorti(keys1, sorted_keys1);
-    m = asorti(keys2, sorted_keys2);
+	 # Sort keys
+	 n = asorti(keys1, sorted_keys1);
+	 m = asorti(keys2, sorted_keys2);
 
-    # Print header row
-    printf "\t";
-    for (j = 1; j <= m; j++) {
-        printf "%s\t", sorted_keys2[j];
-    }
-    printf "\n";
+	 # Print header row
+	 printf "\t";
+	 for (j = 1; j <= m; j++) {
+		  printf "%s\t", sorted_keys2[j];
+	 }
+	 printf "\n";
 
-    # Print data rows
-    for (i = 1; i <= n; i++) {
-        printf "%s\t", sorted_keys1[i];
-        for (j = 1; j <= m; j++) {
-            printf "%s\t", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
-        }
-        printf "\n";
-    }
+	 # Print data rows
+	 for (i = 1; i <= n; i++) {
+		  printf "%s\t", sorted_keys1[i];
+		  for (j = 1; j <= m; j++) {
+				printf "%s\t", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
+		  }
+		  printf "\n";
+	 }
 }"""
 
 rule parse_diamond:
@@ -1132,13 +1132,13 @@ rule change_start_site_full:
 		from operator import itemgetter
 
 		def intercalate_lists(list1,list2):
-		    intercalated = []
-		    for i in range(max(len(list1), len(list2))):
-		        if i<len(list1):
-		            intercalated.append(list1[i])
-		        if i<len(list2):
-		            intercalated.append(list2[i])
-		    return intercalated
+			 intercalated = []
+			 for i in range(max(len(list1), len(list2))):
+				  if i<len(list1):
+						intercalated.append(list1[i])
+				  if i<len(list2):
+						intercalated.append(list2[i])
+			 return intercalated
 
 
 		tbl_file=input.csv
@@ -1164,8 +1164,8 @@ rule change_start_site_full:
 		viga_df["VIGA_Description_short"] = viga_df["VIGA_Description"].str.split("[").str[0]
 		viga_df_full=viga_df
 		viga_df=viga_df[(viga_df["VIGA_Description"]!="Hypothetical protein") &
-		               (~viga_df["VIGA_Description"].str.contains('^PHIKZ')) &
-		               (~viga_df["VIGA_Description"].str.contains('kDa protein'))]
+							(~viga_df["VIGA_Description"].str.contains('^PHIKZ')) &
+							(~viga_df["VIGA_Description"].str.contains('kDa protein'))]
 
 
 		cluster_df = pd.read_csv(cluster_file, sep="\t", names=["cluster", "protein"])
@@ -1183,110 +1183,110 @@ rule change_start_site_full:
 		fasta_sequences = SeqIO.parse(open(input_file),'fasta')
 		seq_dict={}
 		for record in fasta_sequences:
-		        seq_dict[record.id]=record.seq
+				  seq_dict[record.id]=record.seq
 
 
 		for phage in viga_df.groupby(["VIGA_Contig"]).first().index.to_list():
-		    reverse=False
-		    phage_annotation=viga_df_full[viga_df_full["VIGA_Contig"]==phage].reset_index()
+			 reverse=False
+			 phage_annotation=viga_df_full[viga_df_full["VIGA_Contig"]==phage].reset_index()
 
-		    positive_list=phage_annotation[phage_annotation["VIGA_Strand"]==1].index.to_list()
-		    positive_groups=[]
-		    for k, g in groupby(enumerate(positive_list), lambda i_x: i_x[0] - i_x[1]):
-		        positive_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
+			 positive_list=phage_annotation[phage_annotation["VIGA_Strand"]==1].index.to_list()
+			 positive_groups=[]
+			 for k, g in groupby(enumerate(positive_list), lambda i_x: i_x[0] - i_x[1]):
+				  positive_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
 
-		    if 0 in (positive_list):
-		        start="Positive"
-		        if len(phage_annotation)-1 in positive_list:
-		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
-		                positive_groups_fixed=[]
-		                for n in range(len(positive_groups)-1):
-		                    if n==0:
-		                        positive_groups_fixed.append(pd.concat([positive_groups[len(positive_groups)-1],positive_groups[0]]))
-		                    else:
-		                        positive_groups_fixed.append(positive_groups[n])
-		        else:
-		            positive_groups_fixed=positive_groups
-		    else:
-		        positive_groups_fixed=positive_groups
+			 if 0 in (positive_list):
+				  start="Positive"
+				  if len(phage_annotation)-1 in positive_list:
+						if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
+							 positive_groups_fixed=[]
+							 for n in range(len(positive_groups)-1):
+								  if n==0:
+										positive_groups_fixed.append(pd.concat([positive_groups[len(positive_groups)-1],positive_groups[0]]))
+								  else:
+										positive_groups_fixed.append(positive_groups[n])
+				  else:
+						positive_groups_fixed=positive_groups
+			 else:
+				  positive_groups_fixed=positive_groups
 
-		    negative_list=phage_annotation[phage_annotation["VIGA_Strand"]==-1].index.to_list()
-		    negative_groups=[]
-		    for k, g in groupby(enumerate(negative_list), lambda i_x: i_x[0] - i_x[1]):
-		        negative_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
+			 negative_list=phage_annotation[phage_annotation["VIGA_Strand"]==-1].index.to_list()
+			 negative_groups=[]
+			 for k, g in groupby(enumerate(negative_list), lambda i_x: i_x[0] - i_x[1]):
+				  negative_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
 
-		    if 0 in (negative_list):
-		        start="Negative"
-		        if len(phage_annotation)-1 in negative_list:
-		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
-		                negative_groups_fixed=[]
-		                for n in range(len(negative_groups)-1):
-		                    if n==0:
-		                        negative_groups_fixed.append(pd.concat([negative_groups[len(negative_groups)-1],negative_groups[0]]))
-		                    else:
-		                        negative_groups_fixed.append(negative_groups[n])
-		        else:
-		            negative_groups_fixed=negative_groups
-		    else:
-		        negative_groups_fixed=negative_groups
+			 if 0 in (negative_list):
+				  start="Negative"
+				  if len(phage_annotation)-1 in negative_list:
+						if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
+							 negative_groups_fixed=[]
+							 for n in range(len(negative_groups)-1):
+								  if n==0:
+										negative_groups_fixed.append(pd.concat([negative_groups[len(negative_groups)-1],negative_groups[0]]))
+								  else:
+										negative_groups_fixed.append(negative_groups[n])
+				  else:
+						negative_groups_fixed=negative_groups
+			 else:
+				  negative_groups_fixed=negative_groups
 
 
-		    if start=="Positive":
-		        intercalated=intercalate_lists(positive_groups_fixed, negative_groups_fixed)
-		    else:
-		        intercalated=intercalate_lists(negative_groups_fixed, positive_groups_fixed)
+			 if start=="Positive":
+				  intercalated=intercalate_lists(positive_groups_fixed, negative_groups_fixed)
+			 else:
+				  intercalated=intercalate_lists(negative_groups_fixed, positive_groups_fixed)
 
-		    n=0
-		    print(phage)
-		    for df in intercalated:
-		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
-		            print("Polymerase", n)
-		            polymerase_n=int(n)
-		            n=n+1
-		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
-		            print("Capsid", n)
-		            capsid_n=int(n)
-		            n=n+1
-		        else:
-		            n=n+1
-		    a=(max(polymerase_n, capsid_n)-min(polymerase_n, capsid_n))
-		    b=((len(intercalated)-max(polymerase_n, capsid_n))+(min(polymerase_n, capsid_n)))
-		    if a<b:
-		        intercalated_a=intercalated[capsid_n:]
-		        intercalated_b=intercalated[:capsid_n]
+			 n=0
+			 print(phage)
+			 for df in intercalated:
+				  if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
+						print("Polymerase", n)
+						polymerase_n=int(n)
+						n=n+1
+				  if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
+						print("Capsid", n)
+						capsid_n=int(n)
+						n=n+1
+				  else:
+						n=n+1
+			 a=(max(polymerase_n, capsid_n)-min(polymerase_n, capsid_n))
+			 b=((len(intercalated)-max(polymerase_n, capsid_n))+(min(polymerase_n, capsid_n)))
+			 if a<b:
+				  intercalated_a=intercalated[capsid_n:]
+				  intercalated_b=intercalated[:capsid_n]
 
-		        fix_intercalated=intercalated_a+intercalated_b
-		        start=fix_intercalated[-1].iloc[-1]["VIGA_Stop"]
+				  fix_intercalated=intercalated_a+intercalated_b
+				  start=fix_intercalated[-1].iloc[-1]["VIGA_Stop"]
 
-		    else:
-		        intercalated_a=intercalated[capsid_n+1:]
-		        intercalated_b=intercalated[:capsid_n+1]
-		        fix_intercalated=intercalated_a+intercalated_b
-		        start=fix_intercalated[-1].iloc[-1]["VIGA_Start"]
+			 else:
+				  intercalated_a=intercalated[capsid_n+1:]
+				  intercalated_b=intercalated[:capsid_n+1]
+				  fix_intercalated=intercalated_a+intercalated_b
+				  start=fix_intercalated[-1].iloc[-1]["VIGA_Start"]
 
-		    n=0
-		    for df in fix_intercalated:
-		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
-		            print("Polymerase", n)
-		            polymerase_n=int(n)
-		            n=n+1
-		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
-		            print("Capsid", n)
-		            capsid_n=int(n)
-		            n=n+1
-		        else:
-		            n=n+1
-		    print("a")
-		    name, sequence = phage, seq_dict[phage]
-		    f.write(">" + name + "\n")
-		    print("a")
+			 n=0
+			 for df in fix_intercalated:
+				  if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
+						print("Polymerase", n)
+						polymerase_n=int(n)
+						n=n+1
+				  if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
+						print("Capsid", n)
+						capsid_n=int(n)
+						n=n+1
+				  else:
+						n=n+1
+			 print("a")
+			 name, sequence = phage, seq_dict[phage]
+			 f.write(">" + name + "\n")
+			 print("a")
 
-		    if reverse:
-		        f.write(str(Seq(sequence[start:]+sequence[:start]).reverse_complement()) + "\n")
-		    else:
-		        print(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
-		        f.write(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
-		    print("b")
+			 if reverse:
+				  f.write(str(Seq(sequence[start:]+sequence[:start]).reverse_complement()) + "\n")
+			 else:
+				  print(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
+				  f.write(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
+			 print("b")
 
 		f.close()
 
