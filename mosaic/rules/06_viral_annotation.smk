@@ -407,14 +407,13 @@ rule clinker_figure:
 	message:
 		"Creating genome visualization with clinker"
 	params:
-		rep_name=REPRESENTATIVE_CONTIGS_BASE,
-		dir=dirs_dict["ANNOTATION"],
-		gb="{contigs}_genbank*.gbk"
+		clinker_dir="{contigs}_clinker"",
 	threads: 16
 	shell:
 		"""
-		mkdir -f clinker
-		cd clinker
+		rm -rf {params.clinker_dir}
+		mkdir {params.clinker_dir}
+		cd {params.clinker_dir}
 		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' ../pharokka.gbk
 		find . -type f -size -10c -delete
 		rename "s/$/.gbk/g" {wildcards.contigs}_genbank*
