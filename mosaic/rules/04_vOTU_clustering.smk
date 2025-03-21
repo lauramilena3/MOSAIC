@@ -128,7 +128,8 @@ checkpoint getHighQuality_clusters_fasta:
 
 		for listfile in {output.fasta_dir}/*.list; do
 			rep=$(basename "$listfile" .list)
-			if [ "$(wc -l < "$list file")" -gt 1 ]; then
+			n_lines=$(wc -l < "$listfile" | tr -d '[:space:]')  # make sure to strip spaces
+			if [ "$n_lines" -gt 1 ]; then
 				seqtk subseq {input.combined_positive_contigs} "$listfile" > {output.fasta_dir}/"$rep".fasta
 			fi
 			rm "$listfile"
