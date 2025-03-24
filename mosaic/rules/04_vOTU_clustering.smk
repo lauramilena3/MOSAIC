@@ -139,7 +139,7 @@ rule combine_with_taxmyphage:
 		ref_fasta =dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}.fasta",
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),
 	output:
-		combined = "{contig}_with_references.fasta"
+		combined = dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_with_references.fasta"
 	params:
 		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contig)}/query.fasta"
 	message:
