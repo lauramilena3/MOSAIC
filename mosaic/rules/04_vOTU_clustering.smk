@@ -139,14 +139,29 @@ rule combine_with_taxmyphage:
 		ref_fasta =dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}.fasta",
 		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),
 	output:
-		combined = dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_with_references.fasta"
+		blastout = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.blastout"),
+		aniout = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.aniout"),
+		clusters = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.clusters"),
+		cluster_rep = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references_cluster_rep.txt"),
+		tax_fasta_rep = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references_cluster_rep.fasta"),
+		combined = dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_with_references.fasta",
 	params:
 		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contig)}/query.fasta"
 	message:
 		  "Combining {input.ref_fasta} with taxmyphage result: {params.tax_fasta}"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	threads: 4
 	shell:
 		"""
-		cat {input.ref_fasta} {params.tax_fasta} > {output.combined}
+		makeblastdb -in {params.tax_fasta} -dbtype nucl -out {params.tax_fasta}
+		blastn -query {params.tax_fasta} -db {params.tax_fasta} -outfmt '6 std qlen slen' \
+				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+		python scripts/aniclust_checkv.py --fna {params.tax_fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+		cut -f1 {output.clusters} | sort | uniq > {output.cluster_rep}
+		seqtk subseq {params.tax_fasta} {output.cluster_rep} > {output.tax_fasta_rep}
+		cat {input.ref_fasta} {output.tax_fasta_rep}> {output.combined}
 		"""
 
 
