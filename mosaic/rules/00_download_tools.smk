@@ -470,8 +470,8 @@ rule downloadTaxmyphageDB:
 		"""
 		taxmyphage install -db {output.taxmyphage_db}
 		cd {output.taxmyphage_db} 
-		wget https://ictv.global/sites/default/files/VMR/VMR_MSL39_v1.xlsx
-		mv VMR_MSL39_v1.xlsx VMR.xlsx 
+		# wget https://ictv.global/sites/default/files/VMR/VMR_MSL39_v1.xlsx
+		# mv VMR_MSL39_v1.xlsx VMR.xlsx 
 		"""
 
 rule downloadPharokkaDB:

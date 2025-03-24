@@ -397,6 +397,7 @@ rule cluster_proteins:
 		mmseqs easy-cluster {input.faa} {params.rep_name} tmp --threads {threads}
 		"""
 
+# mmseqs easy-cluster prodigal-gv.faa prodigal-gv tmp --threads 32
 rule clinker_figure:
 	input:
 		pharokka_output=("{contigs}_pharokka"),
@@ -1147,15 +1148,6 @@ rule change_start_site_full:
 		input_file=input.representatives
 
 		f=open(output.corrected_start, 'w')
-
-		# tbl_file="/home/lmf/NANNA/07_ANNOTATION/Ave_species.tot_annotated.csv"
-		# input_file="/home/lmf/NANNA/Ave_species.fasta"
-		# cluster_file="/home/lmf/NANNA/07_ANNOTATION/Ave_species_cluster.tsv"
-		#
-		# f=open('/home/lmf/NANNA/Ave_species_correctstart.tot.fasta', 'w')
-
-
-
 
 		viga_df = pd.read_csv(tbl_file, sep="\t")
 
