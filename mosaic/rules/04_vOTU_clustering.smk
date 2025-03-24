@@ -135,17 +135,19 @@ checkpoint getHighQuality_clusters_fasta:
 		"""
 
 rule combine_with_taxmyphage:
-    input:
-        ref_fasta = "{contigs}.fasta",
-        tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/query.fasta"
-    output:
-        combined = "{contigs}_with_references.fasta"
-    message:
-        "Combining {input.ref_fasta} with taxmyphage result: {input.tax_fasta}"
-    shell:
-        """
-        cat {input.ref_fasta} {input.tax_fasta} > {output.combined}
-        """
+	input:
+		ref_fasta = "{contigs}.fasta",
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_{sequence}"),
+	output:
+		combined = "{contigs}_with_references.fasta"
+	params:
+		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/query.fasta"
+	message:
+		  "Combining {input.ref_fasta} with taxmyphage result: {input.tax_fasta}"
+	shell:
+		"""
+		cat {input.ref_fasta} {input.tax_fasta} > {output.combined}
+		"""
 
 
 rule select_vOTU_representative:
