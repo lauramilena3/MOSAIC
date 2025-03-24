@@ -121,9 +121,7 @@ checkpoint getHighQuality_clusters_fasta:
 	shell:
 		"""
 		mkdir -p {output.fasta_dir}
-
 		awk 'NR==FNR {{a[$1]; next}} $1 in a' {input.high_quality_list} {input.new_clusters} > {output.complete_clusters}
-
 		awk '{{print $2 >> "{output.fasta_dir}/" $1 ".list"}}' {output.complete_clusters}
 
 		for listfile in {output.fasta_dir}/*.list; do
@@ -133,8 +131,23 @@ checkpoint getHighQuality_clusters_fasta:
 				seqtk subseq {input.combined_positive_contigs} "$listfile" > {output.fasta_dir}/"$rep".fasta
 			fi
 			rm "$listfile"
+			 {input.results_dir_taxmyphage}/Results_per_genome/${{rep}}/query.fasta
 		done
 		"""
+
+rule combine_with_taxmyphage:
+    input:
+        ref_fasta = "{contigs}.fasta",
+        tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/query.fasta"
+    output:
+        combined = "{contigs}_with_references.fasta"
+    message:
+        "Combining {input.ref_fasta} with taxmyphage result: {input.tax_fasta}"
+    shell:
+        """
+        cat {input.ref_fasta} {input.tax_fasta} > {output.combined}
+        """
+
 
 rule select_vOTU_representative:
 	input:
