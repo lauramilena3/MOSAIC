@@ -131,7 +131,6 @@ checkpoint getHighQuality_clusters_fasta:
 				seqtk subseq {input.combined_positive_contigs} "$listfile" > {output.fasta_dir}/"$rep".fasta
 			fi
 			rm "$listfile"
-			 {input.results_dir_taxmyphage}/Results_per_genome/${{rep}}/query.fasta
 		done
 		"""
 
