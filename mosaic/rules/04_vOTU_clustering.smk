@@ -146,7 +146,7 @@ rule combine_with_taxmyphage:
 		  "Combining {input.ref_fasta} with taxmyphage result: {input.tax_fasta}"
 	shell:
 		"""
-		cat {input.ref_fasta} {input.tax_fasta} > {output.combined}
+		cat {input.ref_fasta} {params.tax_fasta} > {output.combined}
 		"""
 
 
