@@ -136,12 +136,12 @@ checkpoint getHighQuality_clusters_fasta:
 
 rule combine_with_taxmyphage:
 	input:
-		ref_fasta = "{contigs}.fasta",
-		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_{sequence}"),
+		ref_fasta =dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}.fasta",
+		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),
 	output:
-		combined = "{contigs}_with_references.fasta"
+		combined = "{contig}_with_references.fasta"
 	params:
-		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/query.fasta"
+		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contig)}/query.fasta"
 	message:
 		  "Combining {input.ref_fasta} with taxmyphage result: {input.tax_fasta}"
 	shell:
