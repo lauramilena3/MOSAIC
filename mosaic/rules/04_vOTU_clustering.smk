@@ -143,7 +143,7 @@ rule combine_with_taxmyphage:
 	params:
 		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_tot/Results_per_genome/{os.path.basename(wildcards.contig)}/query.fasta"
 	message:
-		  "Combining {input.ref_fasta} with taxmyphage result: {input.tax_fasta}"
+		  "Combining {input.ref_fasta} with taxmyphage result: {params.tax_fasta}"
 	shell:
 		"""
 		cat {input.ref_fasta} {params.tax_fasta} > {output.combined}
