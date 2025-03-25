@@ -405,7 +405,7 @@ rule correct_start:
 	output:
 		corrected_start=("{contig}_correct_start.fasta"),
 	params:
-		csv="{contig}_pharokka/pharokka_cds_final_merged_output.tsv",
+		csv="{contig}_pharokka/pharokka_cds_final_merged_output.tsv"
 	message:
 		"Correcting start site with terL"
 	threads: 1
