@@ -36,6 +36,8 @@ rule shortReadAsemblySpadesPE:
 	resources:
 		mem_gb=450
 	priority: 1
+	wildcard_constraints:
+		sampling="tot|sub"  
 	shell:
 		"""
 		rm -rf {params.assembly_dir}

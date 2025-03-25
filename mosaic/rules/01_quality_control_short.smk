@@ -833,7 +833,7 @@ rule normalizeReads_PE:
 	threads: 16
 	priority: 1
 	wildcard_constraints:
-		sampling="tot|sub"  # The 'sequence' wildcard cannot contain a slash
+		sampling="tot|sub"  
 	resources:
 		mem_mb=MEMORY_ECORR
 	shell:
