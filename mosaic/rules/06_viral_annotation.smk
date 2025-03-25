@@ -422,9 +422,9 @@ rule clinker_figure:
 		find . -type f -size -10c -delete
 
 		for f in tmp_record_*; do
-			locus=$(awk '/^LOCUS/ {print $2; exit}' "$f")
+			locus=$(awk '/^LOCUS/ {{print $2; exit}}' "$f")
 			if [ -n "$locus" ]; then
-				mv "$f" "${locus}.gbk"
+				mv "$f" "${{locus}}.gbk"
 			else
 				echo "Warning: could not extract LOCUS from $f" >&2
 				rm "$f"
