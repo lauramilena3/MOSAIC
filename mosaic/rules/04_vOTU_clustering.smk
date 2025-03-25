@@ -146,7 +146,7 @@ rule combine_with_taxmyphage:
 		tax_fasta_rep = temp("{contigs}_references_cluster_rep.fasta"),
 		combined = "{contigs}_with_references.fasta"
 	params:
-		tax_fasta = lambda wildcards: (dirs_dict["ANNOTATION"] + f"/taxmyphage_combined_positive_viral_contigs.tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/query.fasta")
+		tax_fasta = lambda wildcards: (dirs_dict["ANNOTATION"] + f"/taxmyphage_combined_positive_viral_contigs.tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/known_taxa.fa")
 	# wildcard_constraints:
 	# 	contigs="(?!.*with_reference)[^/]+"
 	message:
@@ -156,14 +156,20 @@ rule combine_with_taxmyphage:
 	threads: 4
 	shell:
 		"""
-		makeblastdb -in {params.tax_fasta} -dbtype nucl -out {params.tax_fasta}
-		blastn -query {params.tax_fasta} -db {params.tax_fasta} -outfmt '6 std qlen slen' \
-				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
-		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		python scripts/aniclust_checkv.py --fna {params.tax_fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
-		cut -f1 {output.clusters} | sort | uniq > {output.cluster_rep}
-		seqtk subseq {params.tax_fasta} {output.cluster_rep} > {output.tax_fasta_rep}
+		if [ -s {params.tax_fasta} ]; then
+			makeblastdb -in {params.tax_fasta} -dbtype nucl -out {params.tax_fasta}
+			blastn -query {params.tax_fasta} -db {params.tax_fasta} -outfmt '6 std qlen slen' \
+					-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+			python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+			python scripts/aniclust_checkv.py --fna {params.tax_fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+			cut -f1 {output.clusters} | sort | uniq > {output.cluster_rep}
+			seqtk subseq {params.tax_fasta} {output.cluster_rep} > {output.tax_fasta_rep}
+		else
+			touch {output.blastout} {output.aniout} {output.clusters} {output.cluster_rep} {output.tax_fasta_rep}> {output.combined}
+		fi
+		
 		cat {input.ref_fasta} {output.tax_fasta_rep}> {output.combined}
+
 		"""
 
 
