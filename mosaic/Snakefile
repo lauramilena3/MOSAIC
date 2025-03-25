@@ -359,7 +359,10 @@ wildcard_constraints:
 def get_clinker_outputs(wildcards):
 	ckpt = checkpoints.getHighQuality_clusters_fasta.get(sampling="tot")
 	fasta_dir = ckpt.output["fasta_dir"]
-	reps = glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
+	reps = [
+		rep for rep in glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
+		if "with_references" not in rep
+	]
 	contigs = [os.path.join(fasta_dir, rep) + "_with_references" for rep in reps]
 	print(expand("{contigs}_clinker.html", contigs=contigs))
 	return expand("{contigs}_clinker.html", contigs=contigs)
