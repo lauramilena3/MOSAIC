@@ -832,6 +832,8 @@ rule normalizeReads_PE:
 		max_depth=config['max_norm']
 	threads: 16
 	priority: 1
+	wildcard_constraints:
+		sampling="tot|sub"  # The 'sequence' wildcard cannot contain a slash
 	resources:
 		mem_mb=MEMORY_ECORR
 	shell:
