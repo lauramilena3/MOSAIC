@@ -11,43 +11,43 @@ def input_threads_assembler(wildcards):
 		use_threads=64
 	return use_threads
 
-rule shortReadAsemblySpadesPE:
-	input:
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}.fastq.gz"),
-		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq.gz",
-	output:
-		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
-		assembly_graph=dirs_dict["ASSEMBLY_DIR"] +"/{sample}_assembly_graph_spades.{sampling}.fastg",
-	params:
-		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
-		assembly_graph=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/assembly_graph.fastg",
-		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}"),
-		metagenomic_flag=METAGENOME_FLAG,
-		error_correction=input_error_correction,
-		filtered_list=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/filtered_list.txt"),
-	message:
-		"Assembling PE reads with metaSpades"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/shortReadAsemblySpadesPE/{sample}_{sampling}.tsv"
-	threads: input_threads_assembler
-	resources:
-		mem_gb=450
-	priority: 1
-	shell:
-		"""
-		rm -rf {params.assembly_dir}
-		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		{params.metagenomic_flag} -t {threads} --memory {resources.mem_gb} {params.error_correction}
-		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
-		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {params.filtered_list}
-		seqtk subseq {params.raw_scaffolds} {params.filtered_list} > {output.scaffolds}
-		cp {params.assembly_graph} {output.assembly_graph}
-		sed "s/>/>{wildcards.sample}_/g" -i {output.scaffolds}
-		rm -rf {params.assembly_dir}
-		"""
+# rule shortReadAsemblySpadesPE:
+# 	input:
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}.fastq.gz"),
+# 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq.gz",
+# 	output:
+# 		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
+# 		assembly_graph=dirs_dict["ASSEMBLY_DIR"] +"/{sample}_assembly_graph_spades.{sampling}.fastg",
+# 	params:
+# 		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
+# 		assembly_graph=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/assembly_graph.fastg",
+# 		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}"),
+# 		metagenomic_flag=METAGENOME_FLAG,
+# 		error_correction=input_error_correction,
+# 		filtered_list=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/filtered_list.txt"),
+# 	message:
+# 		"Assembling PE reads with metaSpades"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/shortReadAsemblySpadesPE/{sample}_{sampling}.tsv"
+# 	threads: input_threads_assembler
+# 	resources:
+# 		mem_gb=450
+# 	priority: 1
+# 	shell:
+# 		"""
+# 		rm -rf {params.assembly_dir}
+# 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
+# 		{params.metagenomic_flag} -t {threads} --memory {resources.mem_gb} {params.error_correction}
+# 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
+# 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {params.filtered_list}
+# 		seqtk subseq {params.raw_scaffolds} {params.filtered_list} > {output.scaffolds}
+# 		cp {params.assembly_graph} {output.assembly_graph}
+# 		sed "s/>/>{wildcards.sample}_/g" -i {output.scaffolds}
+# 		rm -rf {params.assembly_dir}
+# 		"""
 # rule shortReadAsemblySpadesSE:
 # 	input:
 # 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq"
