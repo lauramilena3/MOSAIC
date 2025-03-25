@@ -1087,10 +1087,9 @@ awk_command=r"""
 		keys1[$1] = 1;
 		keys2[$2] = 1;
 	}
-	data[$1,$2] = $3;
+	data[$1, $2] = $3;
 }
 END {
-	# Sort keys
 	n = asorti(keys1, sorted_keys1);
 	m = asorti(keys2, sorted_keys2);
 
@@ -1106,7 +1105,8 @@ END {
 	for (i = 1; i <= n; i++) {
 		printf "%s", sorted_keys1[i];
 		for (j = 1; j <= m; j++) {
-			printf "\t%s", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
+			key = sorted_keys1[i] SUBSEP sorted_keys2[j];
+			printf "\t%s", ((key in data) ? data[key] : "");
 		}
 		printf "\n";
 	}
