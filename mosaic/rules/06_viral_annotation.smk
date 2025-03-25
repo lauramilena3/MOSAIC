@@ -430,7 +430,7 @@ rule clinker_figure:
 				rm "$f"
 			fi
 		done
-
+		rm pharokka.gbk
 		clinker *.gbk -p {output.clinker} -j {threads}
 
 		rm -rf {params.clinker_dir}
