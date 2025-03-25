@@ -148,7 +148,7 @@ rule combine_with_taxmyphage:
 	params:
 		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_combined_positive_viral_contigs.tot/Results_per_genome/{os.path.basename(wildcards.contig)}/query.fasta"
 	wildcard_constraints:
-   	contig="(?!.*with_reference)[^/]+"
+		contig="(?!.*with_reference)[^/]+"
 	message:
 		  "Combining {input.ref_fasta} with taxmyphage result: {params.tax_fasta}"
 	conda:
