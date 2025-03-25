@@ -414,7 +414,7 @@ rule correct_start:
 		from Bio import SeqIO
 
 		# Load annotation data
-		df = pd.read_csv({params.csv}, sep="\t")
+		df = pd.read_csv(params.csv, sep="\t")
 		df.set_index('gene', inplace=True)
 
 
@@ -425,7 +425,7 @@ rule correct_start:
 		seq_dict = {record.id: record.seq for record in SeqIO.parse(open(input.fasta), 'fasta')}
 
 		# Open output file
-		with open({output.corrected_start}, 'w') as f:
+		with open(output.corrected_start, 'w') as f:
 			for contig in df["contig"].unique():
 				contig_df = df[df["contig"] == contig]
 
