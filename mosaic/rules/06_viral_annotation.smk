@@ -422,10 +422,10 @@ rule correct_start:
 		df["annot_short"] = df["annot"].str.split("[").str[0]
 
 		# Load FASTA sequences into a dictionary
-		seq_dict = {record.id: record.seq for record in SeqIO.parse(open(representatives), 'fasta')}
+		seq_dict = {record.id: record.seq for record in SeqIO.parse(open(input.fasta), 'fasta')}
 
 		# Open output file
-		with open(corrected_start, 'w') as f:
+		with open({output.corrected_start}, 'w') as f:
 			for contig in df["contig"].unique():
 				contig_df = df[df["contig"] == contig]
 
