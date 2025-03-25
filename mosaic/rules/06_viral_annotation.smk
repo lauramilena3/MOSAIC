@@ -432,16 +432,17 @@ rule correct_start:
 				# Find terL gene
 				terL = contig_df[contig_df["annot_short"].str.contains("terminase large subunit", case=False, na=False)]
 				if terL.empty:
-						terL = contig_df[contig_df["annot_short"].str.contains("terminase", case=False, na=False)]
+					terL = contig_df[contig_df["annot_short"].str.contains("terminase", case=False, na=False)]
 					
 				if terL.empty:
-						print(f"No terL found in {contig}, skipping.")
-					
-
+					print(f"No terL found in {contig}, skipping.")
+					start_pos=0
+            	frame=1
+				else:
 				# Pick the first one if multiple
-				terL_row = terL.iloc[0]
-				start_pos = int(terL_row["stop"]) + 1
-				frame = int(terL_row["frame"])
+					terL_row = terL.iloc[0]
+					start_pos = int(terL_row["stop"]) + 1
+					frame = int(terL_row["frame"])
 
 				seq = seq_dict[contig]
 
