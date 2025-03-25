@@ -136,21 +136,21 @@ checkpoint getHighQuality_clusters_fasta:
 
 rule combine_with_taxmyphage:
 	input:
-		ref_fasta =dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}.fasta",
+		ref_fasta = "{contigs}.fasta",
 		results_dir=(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),
 	output:
-		blastout = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.blastout"),
-		aniout = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.aniout"),
-		clusters = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.clusters"),
-		cluster_rep = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references_cluster_rep.txt"),
-		tax_fasta_rep = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references_cluster_rep.fasta"),
-		combined = dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_with_references.fasta",
+		blastout = temp("{contigs}_references.blastout"),
+		aniout = temp("{contigs}_references.aniout"),
+		clusters = temp("{contigs}_references.clusters"),
+		cluster_rep = temp("{contigs}_references_cluster_rep.txt"),
+		tax_fasta_rep = temp("{contigs}_references_cluster_rep.fasta"),
+		combined = "{contigs}_with_references.fasta"
 	params:
-		tax_fasta = lambda wildcards: dirs_dict["ANNOTATION"] + f"/taxmyphage_combined_positive_viral_contigs.tot/Results_per_genome/{os.path.basename(wildcards.contig)}/query.fasta"
-	wildcard_constraints:
-		contig="(?!.*with_reference)[^/]+"
+		tax_fasta = lambda wildcards: (dirs_dict["ANNOTATION"] + f"/taxmyphage_combined_positive_viral_contigs.tot/Results_per_genome/{os.path.basename(wildcards.contigs)}/query.fasta")
+	# wildcard_constraints:
+	# 	contigs="(?!.*with_reference)[^/]+"
 	message:
-		  "Combining {input.ref_fasta} with taxmyphage result: {params.tax_fasta}"
+			"Combining {input.ref_fasta} with taxmyphage result: {params.tax_fasta}"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	threads: 4
