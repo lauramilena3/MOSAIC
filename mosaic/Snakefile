@@ -354,7 +354,7 @@ def inputAnnotation(wildcards):
 	return inputs
 
 global_wildcard_constraints:
-	sampling="tot|sub",
+	sampling="tot|sub"
 
 def get_clinker_outputs(wildcards):
 	ckpt = checkpoints.getHighQuality_clusters_fasta.get(sampling="tot")
