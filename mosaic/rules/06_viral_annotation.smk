@@ -1181,7 +1181,7 @@ rule parse_diamond_isolates:
 		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
-		awk 'NR==1{{for(i=2;i<=NF;i++) col[i]=$i; cols=NF; print; next}} {{row=$1; output=row; for(i=2;i<=cols;i++){{val=(i<=NF ? $i : ""); if(i==NR) val=0; output=output "\t" val}} print output}}' {output.pivot} > {output.pivot_sorted_zero_diagonal}
+		time awk 'NR==1{{header_line=$0; num_fields=NF; print; next}} {{row_id=$1; output=row_id; for(i=2; i<=num_fields; i++) {{value=($(i)=="" ? "" : $(i)); if(NR==i) value=0; output=output "\t" value}} print output}}' {output.pivot} > {output.pivot_sorted_zero_diagonal}
 		"""
 
 # rule change_start_site_full:
