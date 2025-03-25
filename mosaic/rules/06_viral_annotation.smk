@@ -414,13 +414,26 @@ rule clinker_figure:
 	shell:
 		"""
 		rm -rf {params.clinker_dir} {wildcards.contigs}_genbank*
-		mkdir {params.clinker_dir}
+		mkdir -p {params.clinker_dir}
 		cd {params.clinker_dir}
-		awk '{{f="{wildcards.contigs}_genbank" NR; print $0 "//"> f}}' RS='//' {input.pharokka_output}/pharokka.gbk
+		cp {input.pharokka_output}/pharokka.gbk .
+
+		awk '{{f="tmp_record_" NR; print $0 "//" > f}}' RS='//' pharokka.gbk
 		find . -type f -size -10c -delete
-		rename "s/$/.gbk/g" {wildcards.contigs}_genbank*
-		clinker {params.gb} -p {output.clinker} -j {threads}
-		rm -rf {wildcards.contigs}_genbank* {params.clinker_dir}
+
+		for f in tmp_record_*; do
+			locus=$(awk '/^LOCUS/ {print $2; exit}' "$f")
+			if [ -n "$locus" ]; then
+				mv "$f" "${locus}.gbk"
+			else
+				echo "Warning: could not extract LOCUS from $f" >&2
+				rm "$f"
+			fi
+		done
+
+		clinker *.gbk -p {output.clinker} -j {threads}
+
+		rm -rf {params.clinker_dir}
 		"""
 
 rule blasToRefSeq:
