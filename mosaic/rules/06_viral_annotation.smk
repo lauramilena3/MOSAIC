@@ -431,7 +431,9 @@ rule correct_start:
 
 				# Find terL gene
 				terL = contig_df[contig_df["annot_short"].str.contains("terminase large subunit", case=False, na=False)]
-
+				if terL.empty:
+						terL = contig_df[contig_df["annot_short"].str.contains("terminase", case=False, na=False)]
+						continue
 				if terL.empty:
 						print(f"No terL found in {contig}, skipping.")
 						continue
