@@ -451,8 +451,7 @@ rule correct_start:
 				elif frame == -1:
 						reordered_seq = (seq[start_pos:] + seq[:start_pos]).reverse_complement()
 				else:
-						print(f"Invalid frame for {contig}, skipping.")
-						continue
+						print(f"Invalid frame for {contig}")
 
 				# Write to file
 				f.write(f">{contig}\n{str(reordered_seq)}\n")
