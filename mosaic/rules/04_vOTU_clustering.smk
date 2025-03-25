@@ -137,7 +137,7 @@ checkpoint getHighQuality_clusters_fasta:
 rule combine_with_taxmyphage:
 	input:
 		ref_fasta =dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}.fasta",
-		results_dir=directory(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),
+		results_dir=(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),
 	output:
 		blastout = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.blastout"),
 		aniout = temp(dirs_dict["vOUT_DIR"] + "/high_quality_fastas.tot/{contig}_references.aniout"),

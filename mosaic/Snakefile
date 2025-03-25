@@ -358,6 +358,7 @@ def get_clinker_outputs(wildcards):
     fasta_dir = ckpt.output["fasta_dir"]
     reps = glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
     contigs = [os.path.join(fasta_dir, rep) + "_with_references" for rep in reps]
+	 print(contigs)
     return expand("{contigs}_clinker.html", contigs=contigs)
 
 rule all:
