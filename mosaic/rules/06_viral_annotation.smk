@@ -62,42 +62,42 @@ rule estimateGenomeCompletness_long:
 
 		"""
 
-# rule estimateGenomeCompletness:
-# 	input:
-# 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
-# 		checkv_db=(config['checkv_db']),
-# 	output:
-# 		quality_summary=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/quality_summary.tsv",
-# 		completeness=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/completeness.tsv",
-# 		contamination=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/contamination.tsv",
-# 		tmp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/tmp")),
-# 	params:
-# 		checkv_outdir=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
-# 		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
-# 	message:
-# 		"Estimating genome completeness with CheckV "
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}.tsv"
-# 	threads: 4
-# 	shell:
-# 		"""
-# 		if [ -s {input.positive_contigs} ]; then
-# 		    		            	checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
-# 		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
-# 		else
-# 		    		            	echo "The FASTA file {input.positive_contigs} is empty"
-# 		    		            	mkdir -p {params.checkv_outdir}
-# 		    		            	touch {output.quality_summary}
-# 		    		            	touch {output.completeness}
-# 		    		            	touch {output.contamination}
-# 		    		            	mkdir -p {output.tmp}
-# 		fi
+rule estimateGenomeCompletness:
+	input:
+		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+		checkv_db=(config['checkv_db']),
+	output:
+		quality_summary=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/quality_summary.tsv",
+		completeness=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/completeness.tsv",
+		contamination=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/contamination.tsv",
+		tmp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}/tmp")),
+	params:
+		checkv_outdir=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
+		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
+	message:
+		"Estimating genome completeness with CheckV "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}.tsv"
+	threads: 4
+	shell:
+		"""
+		if [ -s {input.positive_contigs} ]; then
+		    		            	checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
+		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
+		else
+		    		            	echo "The FASTA file {input.positive_contigs} is empty"
+		    		            	mkdir -p {params.checkv_outdir}
+		    		            	touch {output.quality_summary}
+		    		            	touch {output.completeness}
+		    		            	touch {output.contamination}
+		    		            	mkdir -p {output.tmp}
+		fi
 
-# 		"""
+		"""
 
 rule estimateGenomeCompletness_reference:
 	input:

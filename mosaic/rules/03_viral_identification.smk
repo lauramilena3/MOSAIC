@@ -154,27 +154,27 @@ rule combine_satellite_finder:
 		cat {input.satellite_finder_positive} > {output.satellite_finder_all}
 		"""
 		
-# rule genomad_viral_id:
-# 	input:
-# 		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
-# 		genomad_db=(config['genomad_db']),
-# 	output:
-# 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
-# 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
-# 	params:
-# 		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_summary/{sample}_spades_filtered_scaffolds.{sampling}_virus.fna",
-# 	message:
-# 		"Identifying viral contigs with geNomad"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_illumina.tsv"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds_spades} {output.genomad_outdir} {input.genomad_db} --relaxed
-# 		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
-# 		"""
+rule genomad_viral_id:
+	input:
+		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
+		genomad_db=(config['genomad_db']),
+	output:
+		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
+		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+	params:
+		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_summary/{sample}_spades_filtered_scaffolds.{sampling}_virus.fna",
+	message:
+		"Identifying viral contigs with geNomad"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_illumina.tsv"
+	threads: 8
+	shell:
+		"""
+		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds_spades} {output.genomad_outdir} {input.genomad_db} --relaxed
+		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
+		"""
 
 def input_genomad_viral_id_nanopore(wildcards):
 	if NANOPORE_ONLY:
