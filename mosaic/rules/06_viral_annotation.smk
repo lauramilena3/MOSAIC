@@ -1080,36 +1080,36 @@ rule diamond:
 		  --out {output.diamond_output}
 		"""
 
-# awk_command= r"""{ if (!(($1,$2) in data)) { keys1[$1] = 1; keys2[$2] = 1; } data[$1,$2] = $3; } END { printf "\t"; for (key2 in keys2) { printf "%s\t", key2; } printf "\n"; for (key1 in keys1) { printf "%s\t", key1; for (key2 in keys2) { printf "%s\t", data[key1,key2]; } printf "\n"; } }"""
 awk_command=r"""
 {
-    # Record keys and store the data
-    if (!(($1,$2) in data)) {
-        keys1[$1] = 1;
-        keys2[$2] = 1;
-    }
-    data[$1,$2] = $3;
+	# Record keys and store the data
+	if (!(($1,$2) in data)) {
+		keys1[$1] = 1;
+		 keys2[$2] = 1;
+	}
+	data[$1,$2] = $3;
 }
 END {
-    # Sort keys
-    n = asorti(keys1, sorted_keys1);
-    m = asorti(keys2, sorted_keys2);
+	# Sort keys
+	n = asorti(keys1, sorted_keys1);
+	m = asorti(keys2, sorted_keys2);
 
-    # Print header row
-    printf "\t";
-    for (j = 1; j <= m; j++) {
-        printf "%s\t", sorted_keys2[j];
-    }
-    printf "\n";
+	# Print header row
+	printf "\t";
+	for (j = 1; j <= m; j++) {
+		printf "%s", sorted_keys2[j];
+		if (j < m) printf "\t";
+	}
+	printf "\n";
 
-    # Print data rows
-    for (i = 1; i <= n; i++) {
-        printf "%s\t", sorted_keys1[i];
-        for (j = 1; j <= m; j++) {
-            printf "%s\t", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
-        }
-        printf "\n";
-    }
+	# Print data rows
+	for (i = 1; i <= n; i++) {
+		 printf "%s\t", sorted_keys1[i];
+		 for (j = 1; j <= m; j++) {
+				printf "%s\t", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
+		 }
+		 printf "\n";
+	}
 }"""
 
 rule parse_diamond:
