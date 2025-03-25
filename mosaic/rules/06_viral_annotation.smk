@@ -1106,7 +1106,7 @@ END {
 	for (j = 1; j <= m; j++) {
 		printf "%s", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
 		if (j < m) printf "\t";
-	}
+		}
 	printf "\n";
 	}
 }"""
