@@ -1161,8 +1161,8 @@ rule parse_diamond_isolates:
 		similarity_dup3=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_similarity_dup3.txt"),
 		distance=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance.txt"),
 		distance_short=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short.txt"),
-		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short_full.txt"),
-		pivot=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_pivot.txt"),
+		distance_short_full=(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short_full.txt"),
+		pivot=(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_pivot.txt"),
 		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing_combined.tsv"
