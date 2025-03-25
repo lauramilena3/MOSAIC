@@ -353,7 +353,7 @@ def inputAnnotation(wildcards):
 
 	return inputs
 
-global_wildcard_constraints:
+wildcard_constraints:
 	sampling="tot|sub"
 
 def get_clinker_outputs(wildcards):
