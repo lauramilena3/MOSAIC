@@ -398,6 +398,63 @@ rule cluster_proteins:
 		"""
 
 # mmseqs easy-cluster prodigal-gv.faa prodigal-gv tmp --threads 32
+rule correct_start:
+	input:
+		fasta=("{contig}.fasta"),
+		pharokka=("{contig}_pharokka"),
+	output:
+		corrected_start=("{contig}_correct_start.fasta"),
+	params:
+		csv="{contig}_pharokka/pharokka_cds_final_merged_output.tsv",
+	message:
+		"Correcting start site with terL"
+	threads: 1
+	run:
+		import pandas as pd
+		from Bio import SeqIO
+
+		# Load annotation data
+		df = pd.read_csv({params.csv}, sep="\t")
+		df.set_index('gene', inplace=True)
+
+
+		df["frame"] = df["frame"].str.replace("+", "1").str.replace("-", "-1").astype(int)
+		df["annot_short"] = df["annot"].str.split("[").str[0]
+
+		# Load FASTA sequences into a dictionary
+		seq_dict = {record.id: record.seq for record in SeqIO.parse(open(representatives), 'fasta')}
+
+		# Open output file
+		with open(corrected_start, 'w') as f:
+			for contig in df["contig"].unique():
+				contig_df = df[df["contig"] == contig]
+
+				# Find terL gene
+				terL = contig_df[contig_df["annot_short"].str.contains("terminase large subunit", case=False, na=False)]
+
+				if terL.empty:
+						print(f"No terL found in {contig}, skipping.")
+						continue
+
+				# Pick the first one if multiple
+				terL_row = terL.iloc[0]
+				start_pos = int(terL_row["stop"]) + 1
+				frame = int(terL_row["frame"])
+
+				seq = seq_dict[contig]
+
+				# Reorder and orient
+				if frame == 1:
+						reordered_seq = seq[start_pos:] + seq[:start_pos]
+				elif frame == -1:
+						reordered_seq = (seq[start_pos:] + seq[:start_pos]).reverse_complement()
+				else:
+						print(f"Invalid frame for {contig}, skipping.")
+						continue
+
+				# Write to file
+				f.write(f">{contig}\n{str(reordered_seq)}\n")
+
 rule clinker_figure:
 	input:
 		pharokka_output=("{contigs}_pharokka"),
@@ -755,11 +812,11 @@ rule hh_annotation:
 		"""
 		perl ./scripts/reformat.pl fas a2m {input.fa} {output.a2m}
 		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
-		    		            -norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
+			 						-norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
 		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
 									-d {params.uniref} -d {params.phrogs} 
-		    		            -o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
-		    		            -norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
+			 						-o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
+			 						-norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
 		grep "^  [0-9] " {output.hhr} > {output.txt}
 		"""
 
@@ -1125,176 +1182,176 @@ rule parse_diamond_isolates:
 		time awk 'NR==1{{print;next}}{{for(i=2;i<=NF;i++){{if(NR==i){{$i=0}}}}print}}' OFS='\t' {output.pivot} > {output.pivot_sorted_zero_diagonal}
 		"""
 
-rule change_start_site_full:
-	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv",
-		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
-	output:
-		corrected_start=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
-	log:
-		out = dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_stdout.log",
-		err = dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_stderr.err"
-	message:
-		"Correcting start"
-	threads: 1
-	run:
-		import pandas as pd
-		from Bio import SeqIO
-		from Bio.Seq import Seq
-		import sys
-		from itertools import groupby
-		from operator import itemgetter
+# rule change_start_site_full:
+# 	input:
+# 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+# 		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv",
+# 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+# 	output:
+# 		corrected_start=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
+# 	log:
+# 		out = dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_stdout.log",
+# 		err = dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_stderr.err"
+# 	message:
+# 		"Correcting start"
+# 	threads: 1
+# 	run:
+# 		import pandas as pd
+# 		from Bio import SeqIO
+# 		from Bio.Seq import Seq
+# 		import sys
+# 		from itertools import groupby
+# 		from operator import itemgetter
 
-		def intercalate_lists(list1,list2):
-		    intercalated = []
-		    for i in range(max(len(list1), len(list2))):
-		        if i<len(list1):
-		            intercalated.append(list1[i])
-		        if i<len(list2):
-		            intercalated.append(list2[i])
-		    return intercalated
-
-
-		tbl_file=input.csv
-		cluster_file=input.mmseqs_out
-		input_file=input.representatives
-
-		f=open(output.corrected_start, 'w')
-
-		viga_df = pd.read_csv(tbl_file, sep="\t")
-
-		viga_df.set_index('Protein ID', inplace=True)
-		viga_df["Method"]='VIGA'
-		viga_df=viga_df.add_prefix('VIGA_')
-		viga_df["VIGA_Description_short"] = viga_df["VIGA_Description"].str.split("[").str[0]
-		viga_df_full=viga_df
-		viga_df=viga_df[(viga_df["VIGA_Description"]!="Hypothetical protein") &
-		               (~viga_df["VIGA_Description"].str.contains('^PHIKZ')) &
-		               (~viga_df["VIGA_Description"].str.contains('kDa protein'))]
+# 		def intercalate_lists(list1,list2):
+# 		    intercalated = []
+# 		    for i in range(max(len(list1), len(list2))):
+# 		        if i<len(list1):
+# 		            intercalated.append(list1[i])
+# 		        if i<len(list2):
+# 		            intercalated.append(list2[i])
+# 		    return intercalated
 
 
-		cluster_df = pd.read_csv(cluster_file, sep="\t", names=["cluster", "protein"])
-		cluster_df["protein_number"]=cluster_df["protein"].str.rsplit("_",1).str[-1]
-		cluster_df["protein_number"] = cluster_df["protein_number"].astype(float)
-		n_contigs=len(viga_df.groupby("VIGA_Contig"))
+# 		tbl_file=input.csv
+# 		cluster_file=input.mmseqs_out
+# 		input_file=input.representatives
 
-		merged_df=viga_df.merge(cluster_df, left_index=True, right_on="protein").groupby(["VIGA_Contig", "VIGA_Description_short"]).first().reset_index().sort_values(by="VIGA_Contig")
-		sizes=merged_df.groupby(["VIGA_Description_short"]).size()
-		merged_df=merged_df.groupby(["VIGA_Description_short"]).first().sort_values(by="protein_number")
-		merged_df["count"]=sizes
-		merged_df[merged_df["count"]==n_contigs]
+# 		f=open(output.corrected_start, 'w')
 
+# 		viga_df = pd.read_csv(tbl_file, sep="\t")
 
-		fasta_sequences = SeqIO.parse(open(input_file),'fasta')
-		seq_dict={}
-		for record in fasta_sequences:
-		        seq_dict[record.id]=record.seq
-
-
-		for phage in viga_df.groupby(["VIGA_Contig"]).first().index.to_list():
-		    reverse=False
-		    phage_annotation=viga_df_full[viga_df_full["VIGA_Contig"]==phage].reset_index()
-
-		    positive_list=phage_annotation[phage_annotation["VIGA_Strand"]==1].index.to_list()
-		    positive_groups=[]
-		    for k, g in groupby(enumerate(positive_list), lambda i_x: i_x[0] - i_x[1]):
-		        positive_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
-
-		    if 0 in (positive_list):
-		        start="Positive"
-		        if len(phage_annotation)-1 in positive_list:
-		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
-		                positive_groups_fixed=[]
-		                for n in range(len(positive_groups)-1):
-		                    if n==0:
-		                        positive_groups_fixed.append(pd.concat([positive_groups[len(positive_groups)-1],positive_groups[0]]))
-		                    else:
-		                        positive_groups_fixed.append(positive_groups[n])
-		        else:
-		            positive_groups_fixed=positive_groups
-		    else:
-		        positive_groups_fixed=positive_groups
-
-		    negative_list=phage_annotation[phage_annotation["VIGA_Strand"]==-1].index.to_list()
-		    negative_groups=[]
-		    for k, g in groupby(enumerate(negative_list), lambda i_x: i_x[0] - i_x[1]):
-		        negative_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
-
-		    if 0 in (negative_list):
-		        start="Negative"
-		        if len(phage_annotation)-1 in negative_list:
-		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
-		                negative_groups_fixed=[]
-		                for n in range(len(negative_groups)-1):
-		                    if n==0:
-		                        negative_groups_fixed.append(pd.concat([negative_groups[len(negative_groups)-1],negative_groups[0]]))
-		                    else:
-		                        negative_groups_fixed.append(negative_groups[n])
-		        else:
-		            negative_groups_fixed=negative_groups
-		    else:
-		        negative_groups_fixed=negative_groups
+# 		viga_df.set_index('Protein ID', inplace=True)
+# 		viga_df["Method"]='VIGA'
+# 		viga_df=viga_df.add_prefix('VIGA_')
+# 		viga_df["VIGA_Description_short"] = viga_df["VIGA_Description"].str.split("[").str[0]
+# 		viga_df_full=viga_df
+# 		viga_df=viga_df[(viga_df["VIGA_Description"]!="Hypothetical protein") &
+# 		               (~viga_df["VIGA_Description"].str.contains('^PHIKZ')) &
+# 		               (~viga_df["VIGA_Description"].str.contains('kDa protein'))]
 
 
-		    if start=="Positive":
-		        intercalated=intercalate_lists(positive_groups_fixed, negative_groups_fixed)
-		    else:
-		        intercalated=intercalate_lists(negative_groups_fixed, positive_groups_fixed)
+# 		cluster_df = pd.read_csv(cluster_file, sep="\t", names=["cluster", "protein"])
+# 		cluster_df["protein_number"]=cluster_df["protein"].str.rsplit("_",1).str[-1]
+# 		cluster_df["protein_number"] = cluster_df["protein_number"].astype(float)
+# 		n_contigs=len(viga_df.groupby("VIGA_Contig"))
 
-		    n=0
-		    print(phage)
-		    for df in intercalated:
-		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
-		            print("Polymerase", n)
-		            polymerase_n=int(n)
-		            n=n+1
-		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
-		            print("Capsid", n)
-		            capsid_n=int(n)
-		            n=n+1
-		        else:
-		            n=n+1
-		    a=(max(polymerase_n, capsid_n)-min(polymerase_n, capsid_n))
-		    b=((len(intercalated)-max(polymerase_n, capsid_n))+(min(polymerase_n, capsid_n)))
-		    if a<b:
-		        intercalated_a=intercalated[capsid_n:]
-		        intercalated_b=intercalated[:capsid_n]
+# 		merged_df=viga_df.merge(cluster_df, left_index=True, right_on="protein").groupby(["VIGA_Contig", "VIGA_Description_short"]).first().reset_index().sort_values(by="VIGA_Contig")
+# 		sizes=merged_df.groupby(["VIGA_Description_short"]).size()
+# 		merged_df=merged_df.groupby(["VIGA_Description_short"]).first().sort_values(by="protein_number")
+# 		merged_df["count"]=sizes
+# 		merged_df[merged_df["count"]==n_contigs]
 
-		        fix_intercalated=intercalated_a+intercalated_b
-		        start=fix_intercalated[-1].iloc[-1]["VIGA_Stop"]
 
-		    else:
-		        intercalated_a=intercalated[capsid_n+1:]
-		        intercalated_b=intercalated[:capsid_n+1]
-		        fix_intercalated=intercalated_a+intercalated_b
-		        start=fix_intercalated[-1].iloc[-1]["VIGA_Start"]
+# 		fasta_sequences = SeqIO.parse(open(input_file),'fasta')
+# 		seq_dict={}
+# 		for record in fasta_sequences:
+# 		        seq_dict[record.id]=record.seq
 
-		    n=0
-		    for df in fix_intercalated:
-		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
-		            print("Polymerase", n)
-		            polymerase_n=int(n)
-		            n=n+1
-		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
-		            print("Capsid", n)
-		            capsid_n=int(n)
-		            n=n+1
-		        else:
-		            n=n+1
-		    print("a")
-		    name, sequence = phage, seq_dict[phage]
-		    f.write(">" + name + "\n")
-		    print("a")
 
-		    if reverse:
-		        f.write(str(Seq(sequence[start:]+sequence[:start]).reverse_complement()) + "\n")
-		    else:
-		        print(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
-		        f.write(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
-		    print("b")
+# 		for phage in viga_df.groupby(["VIGA_Contig"]).first().index.to_list():
+# 		    reverse=False
+# 		    phage_annotation=viga_df_full[viga_df_full["VIGA_Contig"]==phage].reset_index()
 
-		f.close()
+# 		    positive_list=phage_annotation[phage_annotation["VIGA_Strand"]==1].index.to_list()
+# 		    positive_groups=[]
+# 		    for k, g in groupby(enumerate(positive_list), lambda i_x: i_x[0] - i_x[1]):
+# 		        positive_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
+
+# 		    if 0 in (positive_list):
+# 		        start="Positive"
+# 		        if len(phage_annotation)-1 in positive_list:
+# 		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
+# 		                positive_groups_fixed=[]
+# 		                for n in range(len(positive_groups)-1):
+# 		                    if n==0:
+# 		                        positive_groups_fixed.append(pd.concat([positive_groups[len(positive_groups)-1],positive_groups[0]]))
+# 		                    else:
+# 		                        positive_groups_fixed.append(positive_groups[n])
+# 		        else:
+# 		            positive_groups_fixed=positive_groups
+# 		    else:
+# 		        positive_groups_fixed=positive_groups
+
+# 		    negative_list=phage_annotation[phage_annotation["VIGA_Strand"]==-1].index.to_list()
+# 		    negative_groups=[]
+# 		    for k, g in groupby(enumerate(negative_list), lambda i_x: i_x[0] - i_x[1]):
+# 		        negative_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
+
+# 		    if 0 in (negative_list):
+# 		        start="Negative"
+# 		        if len(phage_annotation)-1 in negative_list:
+# 		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
+# 		                negative_groups_fixed=[]
+# 		                for n in range(len(negative_groups)-1):
+# 		                    if n==0:
+# 		                        negative_groups_fixed.append(pd.concat([negative_groups[len(negative_groups)-1],negative_groups[0]]))
+# 		                    else:
+# 		                        negative_groups_fixed.append(negative_groups[n])
+# 		        else:
+# 		            negative_groups_fixed=negative_groups
+# 		    else:
+# 		        negative_groups_fixed=negative_groups
+
+
+# 		    if start=="Positive":
+# 		        intercalated=intercalate_lists(positive_groups_fixed, negative_groups_fixed)
+# 		    else:
+# 		        intercalated=intercalate_lists(negative_groups_fixed, positive_groups_fixed)
+
+# 		    n=0
+# 		    print(phage)
+# 		    for df in intercalated:
+# 		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
+# 		            print("Polymerase", n)
+# 		            polymerase_n=int(n)
+# 		            n=n+1
+# 		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
+# 		            print("Capsid", n)
+# 		            capsid_n=int(n)
+# 		            n=n+1
+# 		        else:
+# 		            n=n+1
+# 		    a=(max(polymerase_n, capsid_n)-min(polymerase_n, capsid_n))
+# 		    b=((len(intercalated)-max(polymerase_n, capsid_n))+(min(polymerase_n, capsid_n)))
+# 		    if a<b:
+# 		        intercalated_a=intercalated[capsid_n:]
+# 		        intercalated_b=intercalated[:capsid_n]
+
+# 		        fix_intercalated=intercalated_a+intercalated_b
+# 		        start=fix_intercalated[-1].iloc[-1]["VIGA_Stop"]
+
+# 		    else:
+# 		        intercalated_a=intercalated[capsid_n+1:]
+# 		        intercalated_b=intercalated[:capsid_n+1]
+# 		        fix_intercalated=intercalated_a+intercalated_b
+# 		        start=fix_intercalated[-1].iloc[-1]["VIGA_Start"]
+
+# 		    n=0
+# 		    for df in fix_intercalated:
+# 		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
+# 		            print("Polymerase", n)
+# 		            polymerase_n=int(n)
+# 		            n=n+1
+# 		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
+# 		            print("Capsid", n)
+# 		            capsid_n=int(n)
+# 		            n=n+1
+# 		        else:
+# 		            n=n+1
+# 		    print("a")
+# 		    name, sequence = phage, seq_dict[phage]
+# 		    f.write(">" + name + "\n")
+# 		    print("a")
+
+# 		    if reverse:
+# 		        f.write(str(Seq(sequence[start:]+sequence[:start]).reverse_complement()) + "\n")
+# 		    else:
+# 		        print(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
+# 		        f.write(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
+# 		    print("b")
+
+# 		f.close()
 
 
 rule get_composition:

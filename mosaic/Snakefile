@@ -363,7 +363,7 @@ def get_clinker_outputs(wildcards):
 		rep for rep in glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
 		if "with_references" not in rep
 	]
-	contigs = [os.path.join(fasta_dir, rep) + "_with_references" for rep in reps]
+	contigs = [os.path.join(fasta_dir, rep) + "_with_references_correct_start" for rep in reps]
 	print(expand("{contigs}_clinker.html", contigs=contigs))
 	return expand("{contigs}_clinker.html", contigs=contigs)
 
@@ -611,12 +611,12 @@ rule annotate_VIGA_phage:
 	input:
 		GenBank_file=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.gbk",
 
-rule correct_start:
-	input:
-		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
-		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
-		representatives_corrected=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
-		clinker_dir_corrected=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_correctstart_clinker.html"),
+# rule correct_start:
+# 	input:
+# 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
+# 		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
+# 		representatives_corrected=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
+# 		clinker_dir_corrected=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_correctstart_clinker.html"),
 
 rule runVirSorter:
 	input:
