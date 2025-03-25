@@ -1126,8 +1126,7 @@ rule parse_diamond:
 		distance=temp(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance.txt"),
 		distance_short=temp(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_short.txt"),
 		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_short_full.txt"),
-		pivot=temp(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_pivot.txt"),
-		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt",
+		pivot=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing.tsv"
 	message:
@@ -1145,7 +1144,6 @@ rule parse_diamond:
 		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
-		time awk 'NR==1{{header_line=$0; num_fields=NF; print; next}} {{row_id=$1; output=row_id; for(i=2; i<=num_fields; i++) {{value=($(i)=="" ? "" : $(i)); if(NR==i) value=0; output=output "\t" value}} print output}}' {output.pivot} > {output.pivot_sorted_zero_diagonal}
 		"""
 
 rule parse_diamond_isolates:
@@ -1161,9 +1159,8 @@ rule parse_diamond_isolates:
 		similarity_dup3=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_similarity_dup3.txt"),
 		distance=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance.txt"),
 		distance_short=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short.txt"),
-		distance_short_full=(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short_full.txt"),
-		pivot=(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_pivot.txt"),
-		pivot_sorted_zero_diagonal=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
+		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short_full.txt"),
+		pivot=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing_combined.tsv"
 	message:
@@ -1181,7 +1178,6 @@ rule parse_diamond_isolates:
 		time cut -d' ' -f1,2,10 {output.distance} > {output.distance_short}
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
-		awk 'NR==1{{num_fields=NF; print; next}} {{output=$1; for(i=2;i<=num_fields;i++){{value=(i<=NF ? $i : ""); if((NR-1)==i) value=0; output=output "\t" value}} print output}}' {output.pivot} > {output.pivot_sorted_zero_diagonal}
 		"""
 
 # rule change_start_site_full:
