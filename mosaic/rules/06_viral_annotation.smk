@@ -437,7 +437,7 @@ rule correct_start:
 				if terL.empty:
 					print(f"No terL found in {contig}, skipping.")
 					start_pos=0
-            	frame=1
+					frame=1
 				else:
 				# Pick the first one if multiple
 					terL_row = terL.iloc[0]
