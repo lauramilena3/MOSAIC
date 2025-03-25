@@ -1085,7 +1085,7 @@ awk_command=r"""
 	# Record keys and store the data
 	if (!(($1,$2) in data)) {
 		keys1[$1] = 1;
-		 keys2[$2] = 1;
+		keys2[$2] = 1;
 	}
 	data[$1,$2] = $3;
 }
@@ -1103,11 +1103,12 @@ END {
 	printf "\n";
 
 	# Print data rows
-	for (j = 1; j <= m; j++) {
-		printf "%s", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
-		if (j < m) printf "\t";
+	for (i = 1; i <= n; i++) {
+		printf "%s", sorted_keys1[i];
+		for (j = 1; j <= m; j++) {
+			printf "\t%s", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
 		}
-	printf "\n";
+		printf "\n";
 	}
 }"""
 
