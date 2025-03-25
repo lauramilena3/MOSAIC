@@ -1103,12 +1103,11 @@ END {
 	printf "\n";
 
 	# Print data rows
-	for (i = 1; i <= n; i++) {
-		 printf "%s\t", sorted_keys1[i];
-		 for (j = 1; j <= m; j++) {
-				printf "%s\t", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
-		 }
-		 printf "\n";
+	for (j = 1; j <= m; j++) {
+		printf "%s", (data[sorted_keys1[i], sorted_keys2[j]] ? data[sorted_keys1[i], sorted_keys2[j]] : "");
+		if (j < m) printf "\t";
+	}
+	printf "\n";
 	}
 }"""
 
