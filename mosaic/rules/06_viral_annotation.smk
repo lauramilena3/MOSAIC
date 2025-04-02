@@ -273,7 +273,7 @@ rule DRAMv_genes:
 		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 0.95 -c 0.85 --cov-mode 1 \
 			{params.DRAM_fna} {params.mmseqs_name} {output.mmseqs_temp}
 		cp {params.DRAM_fna} {output.genes_fna}
-		mv {params.mmseqs_clusters}_rep_seq.fasta {output.NR_fna}
+		mv {params.mmseqs_clusters} {output.NR_fna}
 		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_clusters}
 		"""
 
