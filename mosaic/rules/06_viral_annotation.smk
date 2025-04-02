@@ -265,7 +265,7 @@ rule DRAMv_genes:
 	threads: 64
 	shell:
 		"""
-		cd {params.ANNOTATION}
+		cd {params.annotation_dir}
 		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 0.95 -c 0.85 --cov-mode 1 \
 			{params.DRAM_fna} {params.mmseqs_name} {output.mmseqs_temp}
 		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_fna}
