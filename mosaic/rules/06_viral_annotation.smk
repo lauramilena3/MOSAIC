@@ -257,7 +257,7 @@ rule DRAMv_genes:
 		NR_clusters=dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes_{sampling}_clusters.tsv",
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
-		mmseqs_clusters=(dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes_{sampling}_clusters.tsv"),
+		mmseqs_clusters=(dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes_{sampling}_cluster.tsv"),
 		mmseqs_name="predicted_genes_95_85_{sampling}",
 		annotation_dir=dirs_dict["ANNOTATION"],
 	conda:
