@@ -250,7 +250,7 @@ rule DRAMv_genes:
 	input:
 		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
 	output:
-		mmseqs_temp=temp(dirs_dict["ANNOTATION"]+ "/temp_NR_mmseqs_{sampling}"),
+		mmseqs_temp=temp(directory(dirs_dict["ANNOTATION"]+ "/temp_NR_mmseqs_{sampling}")),
 		NR_fna=dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes_{sampling}.fna"
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
