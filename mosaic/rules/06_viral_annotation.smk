@@ -254,6 +254,7 @@ rule DRAMv_genes:
 		mmseqs_all=temp((dirs_dict["ANNOTATION"]+ "/predicted_genes_95_85_{sampling}_all_seqs.fasta")),
 		genes_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_{sampling}.fna",
 		NR_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}.fna",
+		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp{sampling}.fna",
 		NR_clusters=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}_clusters.tsv",
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
@@ -261,7 +262,7 @@ rule DRAMv_genes:
 		mmseqs_name="predicted_genes_95_85_{sampling}",
 		annotation_dir=dirs_dict["ANNOTATION"],
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+		dirs_dict["ENVS_DIR"] + "/vcontact.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/AMG/{sampling}.tsv"
 	message:
@@ -273,8 +274,9 @@ rule DRAMv_genes:
 		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 0.95 -c 0.85 --cov-mode 1 \
 			{params.DRAM_fna} {params.mmseqs_name} {output.mmseqs_temp}
 		cp {params.DRAM_fna} {output.genes_fna}
-		mv {params.mmseqs_clusters} {output.NR_fna}
-		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_clusters}
+		mv {params.mmseqs_clusters} {output.NR_clusters}
+		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_fna}
+		seqtk seq -L 150 {output.NR_fna} > {output.NR_fna_150}
 		"""
 
 rule pharokka_annotation:
