@@ -254,8 +254,8 @@ rule DRAMv_genes:
 		NR_fna=dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes.fna"
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
-		mmseqs_name="predicted_genes_95id_85cov"
-		annotation_dir=dirs_dict["ANNOTATION"]
+		mmseqs_name="predicted_genes_95id_85cov",
+		annotation_dir=dirs_dict["ANNOTATION"],
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
