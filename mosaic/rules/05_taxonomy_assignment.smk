@@ -44,8 +44,7 @@ rule getORFs_coding_length:
 	threads: 1
 	shell:
 		"""
-		cat {input.aa} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
-			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.length_temp}
+		awk '$0 ~ ">" {{if (NR > 1) print c; c = 0; printf substr($0,2,100) "\t"}} $0 !~ ">" {{c += length($0)}} END {{print c}}' {input.aa} > {output.length_temp}
 		cat {output.length_temp} | cut -f1 | cut -f1 -d' ' | rev | cut -d_ -f2- | rev > {output.names_temp}
 		paste {output.length_temp} {output.names_temp} > {output.length}
 		cat {output.length} | cut -f3,2 | awk '{{arr[$2]+=$1}} END {{for (i in arr) {{print i,arr[i]}}}}' > {output.cummulative_length}

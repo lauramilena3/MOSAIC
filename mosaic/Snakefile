@@ -160,6 +160,12 @@ print("Sample Names = ")
 print(*SAMPLES, sep = ", ")
 print(len(SAMPLES))
 
+print("Nanopore = ")
+print(NANOPORE)
+
+print("Nanopore samples= ")
+print(NANOPORE_SAMPLES)
+
 print("Key Sample Names = ")
 print(*SAMPLES_key, sep = ", ")
 print(len(SAMPLES_key))
@@ -175,16 +181,12 @@ print("Reference contigs = ")
 print(REPRESENTATIVE_CONTIGS_BASE)
 print(REPRESENTATIVE_CONTIGS_DIR)
 
-print("Nanopore = ")
-print(NANOPORE)
+
+
+# print("FAST5 = ")
+# print(TOMBO)
 
 print("Nanopore Only =", NANOPORE_ONLY)
-
-print("FAST5 = ")
-print(TOMBO)
-
-print("Nanopore samples= ")
-print(NANOPORE_SAMPLES)
 
 print("Sampling= ")
 print(SAMPLING_TYPE)
