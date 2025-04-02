@@ -251,6 +251,7 @@ rule DRAMv_genes:
 		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
 	output:
 		mmseqs_temp=temp(directory(dirs_dict["ANNOTATION"]+ "/temp_NR_mmseqs_{sampling}")),
+		genes_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_{sampling}.fna"
 		NR_fna=dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes_{sampling}.fna"
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
@@ -268,6 +269,7 @@ rule DRAMv_genes:
 		cd {params.annotation_dir}
 		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 0.95 -c 0.85 --cov-mode 1 \
 			{params.DRAM_fna} {params.mmseqs_name} {output.mmseqs_temp}
+		cp {params.DRAM_fna} {output.genes_fna}
 		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_fna}
 		"""
 
