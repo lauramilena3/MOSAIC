@@ -254,7 +254,7 @@ rule DRAMv_genes:
 		mmseqs_all=temp((dirs_dict["ANNOTATION"]+ "/predicted_genes_95_85_{sampling}_all_seqs.fasta")),
 		genes_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_{sampling}.fna",
 		NR_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}.fna",
-		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp{sampling}.fna",
+		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_{sampling}.fna",
 		NR_clusters=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}_clusters.tsv",
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
