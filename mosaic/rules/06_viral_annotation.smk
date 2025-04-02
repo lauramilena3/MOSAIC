@@ -246,6 +246,31 @@ rule DRAMv_distill:
 		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
+rule DRAMv_genes:
+	input:
+		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
+	output:
+		mmseqs_temp=temp(dirs_dict["ANNOTATION"]+ "/temp_NR_mmseqs")
+		NR_fna=dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes.fna"
+	params:
+		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
+		mmseqs_name="predicted_genes_95id_85cov"
+		annotation_dir=dirs_dict["ANNOTATION"]
+	conda:
+		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/AMG/{sampling}.tsv"
+	message:
+		"Derreplicate genes with mmseqs"
+	threads: 64
+	shell:
+		"""
+		cd {params.ANNOTATION}
+		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 0.95 -c 0.85 --cov-mode 1 \
+			{params.DRAM_fna} {params.mmseqs_name} {output.mmseqs_temp}
+		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_fna}
+		"""
+
 rule pharokka_annotation:
 	input:
 		fasta="{contigs}.fasta",

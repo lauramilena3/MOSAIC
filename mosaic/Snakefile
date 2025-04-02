@@ -326,6 +326,7 @@ def inputAnnotation(wildcards):
 		inputs.append(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot.csv")
 	if DRAM:
 		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_tot"),
+		inputs.append(dirs_dict["ANNOTATION"]+ "/NR_95_85_predicted_genes.fna")
 	if len(config["microbial_spacers"])>0:
 		inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
 
