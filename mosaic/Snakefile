@@ -153,15 +153,16 @@ print(RAW_DATA_DIR)
 print("Results Dir = ")
 print(RESULTS_DIR)
 
-print("Read Types = " )
+print("Illumina Read Tags = " )
 print(*READ_TYPES, sep = ", ")
+
+print("Nanopore samples detected= ")
+print(NANOPORE)
 
 print("Sample Names = ")
 print(*SAMPLES, sep = ", ")
 print(len(SAMPLES))
 
-print("Nanopore = ")
-print(NANOPORE)
 
 print("Nanopore samples= ")
 print(NANOPORE_SAMPLES)
