@@ -626,7 +626,7 @@ rule Htseq:
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_flagstats_filtered_predicted_genes_NR_95_85_150bp_{sample}.tot.txt",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_covstats.txt",
 	params:
-		prefix=REFERENCE_DIR+ "/" + REFERENCE + "",
+		prefix=REFERENCE_DIR+ "/predicted_genes_NR_95_85_150bp",
 	message:
 		"Mapping reads to NR genes"
 	conda:
@@ -649,7 +649,7 @@ rule Htseq:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 
 		#HTseq
-		--mode=union --stranded=no --type=CDS --idattr=gene_id --nonunique=none --secondary-alignment=ignore --supplementary-alignment =ignore
+		htseq-count --format bam --mode=union --stranded=no --type=CDS --idattr=gene_id --nonunique=none --secondary-alignment=ignore --supplementary-alignment=ignore
 		"""
 
 rule mapReads_reference_sub:
