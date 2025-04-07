@@ -291,9 +291,9 @@ rule estimateGenomeCompletness_test_depth:
 		quality_summary=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/quality_summary.tsv",
 		completeness=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/completeness.tsv",
 		contamination=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/contamination.tsv",
-		tmp=temp(directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/tmp")),
 	params:
 		checkv_outdir=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}",
+		tmp=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_{viral_id_tool}_checkV_{sampling}/tmp",
 #		checkv_db=dirs_dict["ASSEMBLY_TEST"] + "/95-80_merged_positive_virsorter_checkV_{sampling}",
 	message:
 		"Estimating genome completeness with CheckV "
@@ -310,14 +310,15 @@ rule estimateGenomeCompletness_test_depth:
 				checkv completeness {input.final_viral_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 				checkv complete_genomes {input.final_viral_contigs} {params.checkv_outdir}
 				checkv quality_summary {input.final_viral_contigs} {params.checkv_outdir}
+				rm -rf {params.tmp}
 		else
 				echo "The FASTA file {input.final_viral_contigs} is empty"
 				mkdir -p {params.checkv_outdir}
-				mkdir -p {output.tmp}
 				touch {output.quality_summary}
 				touch {output.completeness}
 				touch {output.contamination}
 		fi
+
 		"""
 
 # rule vOUTclustering_test_depth:
