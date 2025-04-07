@@ -247,7 +247,7 @@ rule DRAMv_distill:
 		DRAM-v.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
-rule DRAMv_genes:
+rule DRAMv_extract_genes:
 	input:
 		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
 	output:
