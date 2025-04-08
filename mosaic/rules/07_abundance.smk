@@ -645,7 +645,6 @@ rule Htseq:
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		#covstats
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
 rule mapReads_reference_sub:
