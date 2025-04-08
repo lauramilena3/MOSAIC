@@ -251,7 +251,6 @@ rule DRAMv_extract_genes:
 	input:
 		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
 	output:
-		mmseqs_temp=temp(directory(dirs_dict["ANNOTATION"]+ "/temp_NR_mmseqs_{sampling}")),
 		mmseqs_all=temp((dirs_dict["ANNOTATION"]+ "/predicted_genes_95_85_{sampling}_all_seqs.fasta")),
 		genes_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_{sampling}.fna",
 		NR_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}.fna",
@@ -264,6 +263,7 @@ rule DRAMv_extract_genes:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
 		DRAM_gff=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.gff",
 		mmseqs_clusters=(dirs_dict["ANNOTATION"]+ "/predicted_genes_95_85_{sampling}_cluster.tsv"),
+		mmseqs_temp=((dirs_dict["ANNOTATION"]+ "/temp_NR_mmseqs_{sampling}")),
 		mmseqs_name="predicted_genes_95_85_{sampling}",
 		annotation_dir=dirs_dict["ANNOTATION"],
 	conda:
@@ -277,7 +277,8 @@ rule DRAMv_extract_genes:
 		"""
 		cd {params.annotation_dir}
 		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 0.95 -c 0.85 --cov-mode 1 \
-			{params.DRAM_fna} {params.mmseqs_name} {output.mmseqs_temp}
+			{params.DRAM_fna} {params.mmseqs_name} {params.mmseqs_temp}
+		rm -rf {params.mmseqs_temp}
 		cp {params.DRAM_fna} {output.genes_fna}
 		mv {params.mmseqs_clusters} {output.NR_clusters}
 		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_fna}
