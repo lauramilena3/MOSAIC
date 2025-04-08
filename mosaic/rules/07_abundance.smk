@@ -90,6 +90,25 @@ rule buildBowtieDB_assembly:
 		bowtie2-build {input.scaffolds} {params.prefix} --threads {threads}
 		"""
 
+rule buildBowtieDB_genes:
+	input:
+		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.fna",
+	output:
+		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.bt2",
+	params:
+		prefix=dirs_dict["ASSEMBLY_DIR"] + "/predicted_genes_NR_95_85_150bp_tot",
+	message:
+		"Creating contig DB with Bowtie2"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToGenesPE/bowtie_genes.tsv"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 8
+	shell:
+		"""
+		bowtie2-build {input.NR_fna_150} {params.prefix} --threads {threads}
+		"""
+
 def input_mapping(wildcards):
 	input_list = []
 	if METAGENOME:
@@ -614,6 +633,7 @@ rule mapReads_reference:
 rule Htseq:
 	input:
 		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.fna",
+		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.bt2",
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
@@ -626,7 +646,7 @@ rule Htseq:
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_flagstats_filtered_predicted_genes_NR_95_85_150bp_{sample}.tot.txt",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_covstats.txt",
 	params:
-		prefix=REFERENCE_DIR+ "/predicted_genes_NR_95_85_150bp",
+		prefix=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot",
 	message:
 		"Mapping reads to NR genes"
 	conda:
