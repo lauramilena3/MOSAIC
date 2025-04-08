@@ -96,7 +96,7 @@ rule buildBowtieDB_genes:
 	output:
 		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.1.bt2",
 	params:
-		prefix=dirs_dict["ASSEMBLY_DIR"] + "/predicted_genes_NR_95_85_150bp_tot",
+		prefix=dirs_dict["ANNOTATION"] + "/predicted_genes_NR_95_85_150bp_tot",
 	message:
 		"Creating contig DB with Bowtie2"
 	benchmark:
