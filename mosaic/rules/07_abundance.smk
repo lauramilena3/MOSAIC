@@ -617,11 +617,11 @@ rule Htseq:
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
-		sam=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.sam"),
+		sam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.sam"),
 		bam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.bam"),
-		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam"),
-		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam.bai"),
-		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_filtered.bam"),
+		sorted_bam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam"),
+		sorted_bam_idx=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam.bai"),
+		filtered_bam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_flagstats_predicted_genes_NR_95_85_150bp_{sample}.tot.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_flagstats_filtered_predicted_genes_NR_95_85_150bp_{sample}.tot.txt",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_covstats.txt",
@@ -643,13 +643,9 @@ rule Htseq:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-
 		#covstats
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
-
-		#HTseq
-		htseq-count --format bam --mode=union --stranded=no --type=CDS --idattr=gene_id --nonunique=none --secondary-alignment=ignore --supplementary-alignment=ignore
 		"""
 
 rule mapReads_reference_sub:

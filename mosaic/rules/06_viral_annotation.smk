@@ -255,10 +255,14 @@ rule DRAMv_extract_genes:
 		mmseqs_all=temp((dirs_dict["ANNOTATION"]+ "/predicted_genes_95_85_{sampling}_all_seqs.fasta")),
 		genes_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_{sampling}.fna",
 		NR_fna=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}.fna",
-		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_{sampling}.fna",
 		NR_clusters=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_{sampling}_clusters.tsv",
+		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_{sampling}.fna",
+		NR_fna_150_list=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_list_{sampling}.txt",
+		NR_fna_150_temp_gff=temp(dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_{sampling}.gff_temp"),
+		NR_fna_150_gff=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_{sampling}.gff",
 	params:
 		DRAM_fna=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.fna",
+		DRAM_gff=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genes.gff",
 		mmseqs_clusters=(dirs_dict["ANNOTATION"]+ "/predicted_genes_95_85_{sampling}_cluster.tsv"),
 		mmseqs_name="predicted_genes_95_85_{sampling}",
 		annotation_dir=dirs_dict["ANNOTATION"],
@@ -278,6 +282,25 @@ rule DRAMv_extract_genes:
 		mv {params.mmseqs_clusters} {output.NR_clusters}
 		mv {params.mmseqs_name}_rep_seq.fasta {output.NR_fna}
 		seqtk seq -L 150 {output.NR_fna} > {output.NR_fna_150}
+		grep ">" {output.NR_fna_150} | sed "s/>//g" > {output.NR_fna_150_list}
+		awk -F'\t' '
+		BEGIN {{ OFS = "\t" }}
+		$3 == "CDS" {{
+			split($9, a, ";")
+			for (i in a) {{
+				if (a[i] ~ /^ID=/) {{
+						id = substr(a[i], 4)
+						$1 = id                    # Set seqname = ID
+						len = $5 - $4 + 1          # Calculate feature length
+						$4 = 1                     # Set start to 1
+						$5 = len                   # Set end to length
+						$9 = "ID=" id              # Rewrite attributes to just ID
+						print
+				}}
+			}}
+		}}
+		' {params.DRAM_gff} > {output.NR_fna_150_temp_gff}
+		grep -Ff <(sed 's/$/\t/' {output.NR_fna_150_list}) <(sed 's/$/\t/' {output.NR_fna_150_temp_gff}) > {output.NR_fna_150_gff}
 		"""
 
 rule pharokka_annotation:
