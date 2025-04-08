@@ -250,7 +250,9 @@ rule single_fasta_filtered:
 	input:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
-		filtered_representatives_dir=temp(directory(dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}")),
+		filtered_representatives_checkpoint=temp(dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}/filtered_representatives_dir_checkpoint.txt"),
+	params:
+		filtered_representatives_dir=((dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}")),
 	message:
 		"formating filtered vOTUs into single fasta"
 	conda:
@@ -258,13 +260,14 @@ rule single_fasta_filtered:
 	threads: 1
 	shell:
 		"""
-		seqkit split --quiet -i {input.filtered_representatives} --out-dir {output.filtered_representatives_dir}
+		seqkit split --quiet -i {input.filtered_representatives} --out-dir {params.filtered_representatives_dir}
+		touch {output.filtered_representatives_checkpoint}
 	 	"""
 
 rule match_spacers:
 	input:
 		spacers=config['microbial_spacers'],
-		filtered_representatives_dir=dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
+		filtered_representatives_checkpoint=(dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}/filtered_representatives_dir_checkpoint.txt"),
 	output:
 		spacer_match=dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv",
 	message:
@@ -272,6 +275,7 @@ rule match_spacers:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	params:
+		filtered_representatives_dir=((dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}")),
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB.{sampling}")),
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_rev.{sampling}")),
 		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_mincedSetDB.{sampling}")),
@@ -283,8 +287,8 @@ rule match_spacers:
 		"""
 		ulimit -S -s unlimited
 		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
-		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
-		spacepharer createsetdb {input.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
+		spacepharer createsetdb {params.filtered_representatives_dir}/*fasta {params.viralTargetDB} {params.tmpFolder}
+		spacepharer createsetdb {params.filtered_representatives_dir}/*fasta {params.viralTargetDB_rev} {params.tmpFolder} --reverse-fragments 1
 		spacepharer createsetdb {input.spacers} {params.spacers_mincedSetDB} {params.tmpFolder} --extractorf-spacer 1
 		spacepharer predictmatch {params.spacers_mincedSetDB} {params.viralTargetDB} {params.viralTargetDB_rev} {output.spacer_match} {params.tmpFolder} -s 7.5 
 		rm -rf {params.spacers_mincedSetDB}* {params.viralTargetDB}* {params.viralTargetDB_rev}* {params.tmpFolder}*
