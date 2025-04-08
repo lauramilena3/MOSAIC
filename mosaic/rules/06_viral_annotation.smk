@@ -300,7 +300,7 @@ rule DRAMv_extract_genes:
 			}}
 		}}
 		' {params.DRAM_gff} > {output.NR_fna_150_temp_gff}
-		grep -Ff <(sed 's/$/\t/' {output.NR_fna_150_list}) <(sed 's/$/\t/' {output.NR_fna_150_temp_gff}) > {output.NR_fna_150_gff}
+    	awk 'NR==FNR {{ ids[$1]; next }} $1 in ids' {output.NR_fna_150_list} {output.NR_fna_150_temp_gff} > {output.NR_fna_150_gff}
 		"""
 
 rule pharokka_annotation:
