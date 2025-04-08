@@ -94,7 +94,7 @@ rule buildBowtieDB_genes:
 	input:
 		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.fna",
 	output:
-		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.bt2",
+		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.1.bt2",
 	params:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/predicted_genes_NR_95_85_150bp_tot",
 	message:
@@ -632,7 +632,7 @@ rule mapReads_reference:
 
 rule Htseq:
 	input:
-		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.bt2",
+		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.1.bt2",
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
