@@ -376,9 +376,9 @@ rule mapReadsToContigsPE:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
-		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
-		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
+		samtools view -@ {threads} -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
+		samtools view  -@ {threads} -bS {output.unique_sam}> {output.unique_bam}
+		samtools sort -@ {threads} {output.unique_bam} -o {output.unique_sorted_bam}
 		samtools index {output.unique_sorted_bam}
 		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
 		#genomecov
@@ -428,9 +428,9 @@ rule mapReadsToContigsPE:
 # 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 # 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 # 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-# 		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
-# 		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
-# 		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
+# 		samtools view -@ {threads} -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
+# 		samtools view  -@ {threads} -bS {output.unique_sam}> {output.unique_bam}
+# 		samtools sort -@ {threads} {output.unique_bam} -o {output.unique_sorted_bam}
 # 		samtools index {output.unique_sorted_bam}
 # 		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
 # 		#genomecov
@@ -520,9 +520,9 @@ rule mapReads_contaminants:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
-		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
-		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
+		samtools view -@ {threads} -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
+		samtools view  -@ {threads} -bS {output.unique_sam}> {output.unique_bam}
+		samtools sort -@ {threads} {output.unique_bam} -o {output.unique_sorted_bam}
 		samtools index {output.unique_sorted_bam}
 		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
 		#genomecov
@@ -617,9 +617,9 @@ rule mapReads_reference:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
-		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
-		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
+		samtools view -@ {threads} -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
+		samtools view  -@ {threads} -bS {output.unique_sam}> {output.unique_bam}
+		samtools sort -@ {threads} {output.unique_bam} -o {output.unique_sorted_bam}
 		samtools index {output.unique_sorted_bam}
 		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
 		#genomecov
@@ -630,17 +630,17 @@ rule mapReads_reference:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
-rule Htseq:
+rule gene_Abundance:
 	input:
 		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.1.bt2",
-		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
-		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
-		sam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.sam"),
-		bam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.bam"),
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.sam"),
+		bam=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot.bam"),
 		sorted_bam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam"),
-		sorted_bam_idx=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam.bai"),
-		filtered_bam=(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_filtered.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_flagstats_predicted_genes_NR_95_85_150bp_{sample}.tot.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_flagstats_filtered_predicted_genes_NR_95_85_150bp_{sample}.tot.txt",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_covstats.txt",
@@ -656,14 +656,14 @@ rule Htseq:
 	shell:
 		"""
 		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --very-sensitive
-		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+		samtools view -@ {threads} -h -F 0x900 -bS {output.sam} > {output.bam}
 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
 		samtools index {output.sorted_bam}
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		#covstats
-		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.covstats}
 		"""
 
 rule mapReads_reference_sub:
@@ -706,9 +706,9 @@ rule mapReads_reference_sub:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-		samtools view -@ 144 -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
-		samtools view  -@ 144 -bS {output.unique_sam}> {output.unique_bam}
-		samtools sort -@ 144 {output.unique_bam} -o {output.unique_sorted_bam}
+		samtools view -@ {threads} -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
+		samtools view  -@ {threads} -bS {output.unique_sam}> {output.unique_bam}
+		samtools sort -@ {threads} {output.unique_bam} -o {output.unique_sorted_bam}
 		samtools index {output.unique_sorted_bam}
 		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
 		#genomecov
