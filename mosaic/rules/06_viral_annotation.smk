@@ -316,7 +316,7 @@ rule pharokka_annotation_genbank:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	message:
 		"Annotate contigs with pharokka"
-	threads: 16
+	threads: 64
 	shell:
 		"""
 		pharokka.py -i {params.DRAM_gbk} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f --genbank
