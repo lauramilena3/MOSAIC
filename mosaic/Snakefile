@@ -328,7 +328,7 @@ def inputAnnotation(wildcards):
 		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_tot"),
 		inputs.append(dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_tot.fna")
 		inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/GENES/bowtie2_predicted_genes_NR_95_85_150bp_{sample}_tot_covstats.txt", sample=SAMPLES)),
-		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_results_{sampling}_pharokka"),
+		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_results_tot_pharokka"),
 	if len(config["microbial_spacers"])>0:
 		inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
 
