@@ -319,7 +319,7 @@ rule pharokka_annotation_genbank:
 	threads: 16
 	shell:
 		"""
-		pharokka.py -i {params.DRAM_gbk} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f -genbank
+		pharokka.py -i {params.DRAM_gbk} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f --genbank
 		"""
 
 rule pharokka_annotation:
