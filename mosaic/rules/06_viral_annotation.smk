@@ -309,7 +309,7 @@ rule pharokka_annotation_genbank:
 		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
 		pharokka_db = config["pharokka_db"]
 	output:
-		pharokka_output=dirs_dict["ANNOTATION"]+ "/vDRAM_results_{sampling}_pharokka",
+		pharokka_output=dirctory(dirs_dict["ANNOTATION"]+ "/vDRAM_results_{sampling}_pharokka"),
 	params:
 		DRAM_gbk=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genbank/final-viral-combined-for-dramv.gbk",
 	conda:
