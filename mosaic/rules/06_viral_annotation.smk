@@ -304,6 +304,24 @@ rule DRAMv_extract_genes:
     	awk 'NR==FNR {{ ids[$1]; next }} $1 in ids' {output.NR_fna_150_list} {output.NR_fna_150_temp_gff} > {output.NR_fna_150_gff}
 		"""
 
+rule pharokka_annotation_genbank:
+	input:
+		DRAM_output=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}",
+		pharokka_db = config["pharokka_db"]
+	output:
+		pharokka_output=dirs_dict["ANNOTATION"]+ "/vDRAM_results_{sampling}_pharokka",
+	params:
+		DRAM_gbk=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genbank/final-viral-combined-for-dramv.gbk",
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	message:
+		"Annotate contigs with pharokka"
+	threads: 16
+	shell:
+		"""
+		pharokka.py -i {params.DRAM_gbk} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f -genbank
+		"""
+
 rule pharokka_annotation:
 	input:
 		fasta="{contigs}.fasta",
