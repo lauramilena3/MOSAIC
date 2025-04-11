@@ -328,7 +328,7 @@ rule remove_euk:
 		"Removing eukaryotic reads with Kraken"
 	params:
 		# unclassified_name_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken_paired_R#.tot.fastq",
-		host_taxid=2759
+		host_taxid=config["contaminants_taxid"]
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	threads: 4
