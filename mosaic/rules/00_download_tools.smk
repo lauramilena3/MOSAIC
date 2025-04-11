@@ -360,7 +360,7 @@ rule getPhaGCN_newICTV:
 rule downloadKrakenDB:
 	output:
 		kraken_db=directory(config['kraken_db']),
-		kraken_tar=temp("k2_pluspfp_20220908.tar.gz")
+		kraken_tar=temp("k2_pluspfp_16gb_20241228.tar.gz")
 	message:
 		"Downloading Kraken database"
 	threads: 1
@@ -368,7 +368,7 @@ rule downloadKrakenDB:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	shell:
 		"""
-		wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_20220908.tar.gz
+		wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_16gb_20241228.tar.gz
 		mkdir {output.kraken_db}
 		tar -xvf {output.kraken_tar} -C {output.kraken_db}
 		"""
