@@ -328,7 +328,7 @@ rule remove_euk:
 		"Removing eukaryotic reads with Kraken"
 	params:
 		# unclassified_name_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken_paired_R#.tot.fastq",
-		host_taxid=config["contaminants_taxid"]
+		host_taxid=config["contaminants_taxid"] 
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	threads: 4
@@ -341,9 +341,9 @@ rule remove_euk:
 		python {input.kraken_tools}/extract_kraken_reads.py -k {input.kraken_output_paired} \
 			-s1 {input.forward_paired} -s2 {input.reverse_paired} \
 			-o {output.forward_paired} -o2 {output.reverse_paired} \
-			--exclude --taxid {params.host_taxid} --include-children -r {input.kraken_report_paired} --fastq-output
+			--exclude --taxids {params.host_taxid} --include-children -r {input.kraken_report_paired} --fastq-output
 		python {input.kraken_tools}/extract_kraken_reads.py -k {input.kraken_output_unpaired} \
-			-s {input.merged_unpaired} -o {output.unpaired} --exclude --taxid {params.host_taxid} --include-children \
+			-s {input.merged_unpaired} -o {output.unpaired} --exclude --taxids {params.host_taxid} --include-children \
 			-r {input.kraken_report_unpaired} --fastq-output
 		"""
 

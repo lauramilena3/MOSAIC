@@ -24,7 +24,7 @@ nanopore_quality: "10"
 nanopore_minlen: 1000
 nanopore_maxlen: 10000000
 
-contaminants_taxid: 2759 # metazoa 33208
+contaminants_taxid: 2759 # metazoa and plants "33208 33090"
 
 subsampling: False
 subassembly: False
