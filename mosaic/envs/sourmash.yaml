@@ -11,5 +11,6 @@ dependencies:
   - pytest
   - pandas
   - compilers
+  - patchelf
   - pip:
     - git+https://github.com/sourmash-bio/sourmash_plugin_branchwater.git@v0.9.7
