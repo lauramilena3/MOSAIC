@@ -4,7 +4,7 @@ channels:
   - defaults
   - asmeurer
 dependencies:
-  - sourmash =4.8.12
+  - sourmash =4.8.11
   # - sourmash-minimal =4.8.14
   - pip =24.2
   - rust =1.73.0
