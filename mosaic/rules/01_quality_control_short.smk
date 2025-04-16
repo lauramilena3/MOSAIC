@@ -341,9 +341,9 @@ rule remove_euk:
 		python {input.kraken_tools}/extract_kraken_reads.py -k {input.kraken_output_paired} \
 			-s1 {input.forward_paired} -s2 {input.reverse_paired} \
 			-o {output.forward_paired} -o2 {output.reverse_paired} \
-			--exclude --taxids {params.host_taxid} --include-children -r {input.kraken_report_paired} --fastq-output
+			--exclude -t {params.host_taxid} --include-children -r {input.kraken_report_paired} --fastq-output
 		python {input.kraken_tools}/extract_kraken_reads.py -k {input.kraken_output_unpaired} \
-			-s {input.merged_unpaired} -o {output.unpaired} --exclude --taxids {params.host_taxid} --include-children \
+			-s {input.merged_unpaired} -o {output.unpaired} --exclude -t {params.host_taxid} --include-children \
 			-r {input.kraken_report_unpaired} --fastq-output
 		"""
 

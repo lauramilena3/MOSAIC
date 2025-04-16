@@ -5,9 +5,9 @@ channels:
   - daler
 dependencies:
   - multiqc =1.28      #
-  - nanofilt =2.8.0   #
+  - chopper = 0.9.2 
   - nanostat =1.6.0
-  - fastqc =0.11.9    #Java
+  - fastqc =0.12.1    #Java
 # Sra toolkit
   - perl-xml-libxml =2.0132
   - perl-bioperl =1.7.2
