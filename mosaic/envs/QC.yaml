@@ -5,7 +5,7 @@ channels:
   - daler
   - defaults
 dependencies:
-  - multiqc =1.28      
+  - multiqc #=1.28      
   - chopper = 0.9.2 
   - nanostat =1.6.0
   - fastqc =0.12.1    
