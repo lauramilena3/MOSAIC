@@ -20,6 +20,7 @@ dependencies:
   - mmseqs2 =14.7e284
   - mpfr =4.0.1
   - bcftools
+  - gsl=2.7 
   # - libicu-dev
   # - libgmp-dev
   # - libmpfr-dev
