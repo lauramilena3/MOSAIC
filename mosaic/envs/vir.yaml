@@ -19,6 +19,7 @@ dependencies:
   - scipy =1.6.0
   - mmseqs2 =14.7e284
   - mpfr =4.0.1
+  - bcftools
   # - libicu-dev
   # - libgmp-dev
   # - libmpfr-dev

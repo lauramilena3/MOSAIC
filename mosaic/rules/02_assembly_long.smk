@@ -387,25 +387,6 @@ rule errorCorrectPilonPE:
 		cp {output.scaffolds_pilon4} {output.scaffolds_pilon4_final}
 		"""
 
-rule scoreALE:
-	input:
-		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{contigs}.fasta",
-		sorted_bam_paired=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.{sampling}_to_{contigs}.bam",
-		ALE_dir=(config['ALE_dir']),
-	output:
-		ale=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.{sampling}_to_{contigs}.ale",
-	message:
-		"Creating assembly stats with ALE"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/scoreAle/{sample}_{sampling}_{contigs}.tsv"
-	threads: 1
-	shell:
-		"""
-		{input.ALE_dir}/src/ALE {input.sorted_bam_paired} {input.scaffolds} {output.ale}
-		"""
-
 rule mergeAssembliesHYBRID:
 	input:
 		corrected_scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{{sampling}}.fasta", sample_nanopore=NANOPORE_SAMPLES),
