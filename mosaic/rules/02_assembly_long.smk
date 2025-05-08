@@ -165,7 +165,7 @@ rule asemblyFlye:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/asemblyFlye/{sample}_{sampling}.tsv"
-	threads: 4
+	threads: 32
 	shell:
 		"""
 		flye --nano-raw {input.nanopore} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} {params.metagenomic_flag}
