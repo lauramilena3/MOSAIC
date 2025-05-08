@@ -16,5 +16,5 @@ dependencies:
   - scipy = 1.6.0
   - mmseqs2 = 14.7e284
   - mpfr = 4.0.1
-  # - bcftools = 1.17
-  - gsl < 2.7
+  - bcftools = 1.14
+  - gsl = 2.6
