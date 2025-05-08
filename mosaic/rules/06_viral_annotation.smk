@@ -51,7 +51,7 @@ rule estimateGenomeCompletness_long:
 		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
 		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
-										rm -rf {params.temp}
+										rm -rf {params.tmp}
 		else
 		    		            	echo "The FASTA file {input.positive_contigs} is empty"
 		    		            	mkdir -p {params.checkv_outdir}
