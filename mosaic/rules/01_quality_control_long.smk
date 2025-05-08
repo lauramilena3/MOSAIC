@@ -24,8 +24,8 @@ rule remove_adapters_quality_nanopore:
 		porechopped=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_porechopped.fastq.gz"),
 		trimmed_data=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_nanofilt.fastq.gz"),
 	params:
-		headcrop=50,
-		tailcrop=50,
+		headcrop=config['nanopore_headcrop'],
+		tailcrop=config['nanopore_tailcrop'],
 		quality=config['nanopore_quality'],
 		minlen=config['nanopore_minlen'],
 		maxlen=config['nanopore_maxlen'],
