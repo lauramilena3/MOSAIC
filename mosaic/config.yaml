@@ -25,7 +25,7 @@ nanopore_minlen: 1000
 nanopore_maxlen: 10000000
 nanopore_headcrop: 50
 nanopore_tailcrop: 50
-
+medaka_model: "r941_min_high_g360" # r1041_e82_400bps_sup_g615
 contaminants_taxid: 2759 # metazoa and plants "33208 33090"
 
 subsampling: False
