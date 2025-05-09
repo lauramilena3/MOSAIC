@@ -33,6 +33,11 @@ rule countReads_gz:
 		"Counting reads on fastq file"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	group:
+		"read_counts_gz"
+	resources:
+		runtime_min: 5,
+		mem_mb: 1000,
 	shell:
 		"""
 		echo $(( $(zgrep -Ec "$" {input.fastq}) / 4 )) > {output.counts} 
@@ -47,6 +52,11 @@ rule countReads:
 		"Counting reads on fastq file"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	group:
+		"read_counts"
+	resources:
+		runtime_min: 5,
+		mem_mb: 1000,
 	shell:
 		"""
 		echo $(( $(grep -Ec "$" {input.fastq}) / 4 )) > {output.counts} 
@@ -64,6 +74,9 @@ rule fastQC_pre:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_pre_qc.tsv"
+	resources:
+		runtime_min: 412,
+		mem_mb: 500,
 	shell:
 		"""
 		fastqc {input}
@@ -81,6 +94,9 @@ rule fastQC_post:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_post_qc.tsv"
+	resources:
+		runtime_min: 412,
+		mem_mb: 500,
 	shell:
 		"""
 		fastqc {input}
@@ -100,6 +116,9 @@ rule superDeduper_pcr:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/SuperDeduper/{sample}_pcr_duplicates.tsv"
+	resources:
+		runtime_min: 30,
+		mem_mb: 1000,
 	shell:
 		"""
 		hts_SuperDeduper -L {output.duplicate_stats} -1 {input.forward_file} -2 {input.reverse_file} > {output.deduplicate}
@@ -124,6 +143,9 @@ rule trim_adapters_quality_illumina_PE:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/trim_adapters_quality_illumina_PE/{sample}.tsv"
+	resources:
+		runtime_min: 350,
+		mem_mb: 1500,
 	threads: 8
 	shell:
 		"""
@@ -270,6 +292,9 @@ rule contaminants_KRAKEN:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
 	threads: 16
+	resources:
+		runtime_min: 15,
+		mem_mb: 18000,
 	shell:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \
@@ -335,7 +360,8 @@ rule remove_euk:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/remove_euk_PE/{sample}.tsv"
 	resources:
-		mem_gb=40
+		mem_mb=40000,
+		runtime_min: 1100,
 	shell:
 		"""
 		python {input.kraken_tools}/extract_kraken_reads.py -k {input.kraken_output_paired} \
@@ -367,16 +393,17 @@ rule remove_user_contaminants_PE:
 		dirs_dict["BENCHMARKS"] +"/remove_contaminants_PE/{sample}.tsv"
 	threads: 4
 	resources:
-		mem_gb=40
+		mem_mb=40000,
+		runtime_min: 15,
 	shell:
 		"""
 		cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
 		#PE
 		#PAIRED
-		bbduk.sh -Xmx{resources.mem_gb}g in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
+		bbduk.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
 			ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads} stats={output.stats}
 		#UNPAIRED
-		bbduk.sh -Xmx{resources.mem_gb}g in={input.unpaired} out={output.unpaired} ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads}
+		bbduk.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads}
 		"""
 
 # rule remove_human_PE:
@@ -471,6 +498,9 @@ rule contaminants_KRAKEN_clean:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_clean.tsv"
 	priority: 1
 	threads: 8
+	resources:
+		runtime_min: 15,
+		mem_mb: 18000,
 	shell:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \
@@ -618,6 +648,9 @@ rule preMultiQC:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_pre.tsv"
+	resources:
+		runtime_min: 5,
+		mem_mb: 4000,
 	shell:
 		"""
 		multiqc -f {params.fastqc_dir} -o {params.multiqc_dir} -n {params.html_name}
@@ -645,6 +678,9 @@ rule postMultiQC:
 	priority: 1
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_post.tsv"
+	resources:
+		runtime_min: 5,
+		mem_mb: 4000,
 	shell:
 		"""
 		multiqc -f {params.fastqc_dir}/*zip -o {params.multiqc_dir} -n {params.html_name}
@@ -667,6 +703,9 @@ rule prekrakenMultiQC:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_pre.tsv"
+	resources:
+		runtime_min: 5,
+		mem_mb: 4000,
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
@@ -688,6 +727,9 @@ rule postkrakenMultiQC:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_post.tsv"
+	resources:
+		runtime_min: 5,
+		mem_mb: 4000,
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
@@ -835,7 +877,8 @@ rule normalizeReads_PE:
 	wildcard_constraints:
 		sampling="tot|sub"  
 	resources:
-		mem_mb=MEMORY_ECORR
+		mem_mb=MEMORY_ECORR,
+		runtime_min: 125,
 	shell:
 		"""
 		#PE
@@ -932,7 +975,8 @@ rule kmer_rarefraction:
 		dirs_dict["BENCHMARKS"] +"/kmer_rarefraction/{sample}_{sampling}.tsv"
 	threads: 1
 	resources:
-		mem_mb=MEMORY_ECORR
+		mem_mb=MEMORY_ECORR,
+		runtime_min: 412,
 	shell:
 		"""
 		bbcountunique.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out={output.histogram} interval={config[kmer_window]}
