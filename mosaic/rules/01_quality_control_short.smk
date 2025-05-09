@@ -36,8 +36,8 @@ rule countReads_gz:
 	group:
 		"read_counts_gz"
 	resources:
-		runtime_min: 5,
-		mem_mb: 1000,
+		runtime_min= 5,
+		mem_mb= 1000,
 	shell:
 		"""
 		echo $(( $(zgrep -Ec "$" {input.fastq}) / 4 )) > {output.counts} 
@@ -55,8 +55,8 @@ rule countReads:
 	group:
 		"read_counts"
 	resources:
-		runtime_min: 5,
-		mem_mb: 1000,
+		runtime_min= 5,
+		mem_mb= 1000,
 	shell:
 		"""
 		echo $(( $(grep -Ec "$" {input.fastq}) / 4 )) > {output.counts} 
@@ -75,8 +75,8 @@ rule fastQC_pre:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_pre_qc.tsv"
 	resources:
-		runtime_min: 412,
-		mem_mb: 500,
+		runtime_min= 412,
+		mem_mb= 500,
 	shell:
 		"""
 		fastqc {input}
@@ -95,8 +95,8 @@ rule fastQC_post:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_post_qc.tsv"
 	resources:
-		runtime_min: 412,
-		mem_mb: 500,
+		runtime_min= 412,
+		mem_mb= 500,
 	shell:
 		"""
 		fastqc {input}
@@ -117,8 +117,8 @@ rule superDeduper_pcr:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/SuperDeduper/{sample}_pcr_duplicates.tsv"
 	resources:
-		runtime_min: 30,
-		mem_mb: 1000,
+		runtime_min= 30,
+		mem_mb= 1000,
 	shell:
 		"""
 		hts_SuperDeduper -L {output.duplicate_stats} -1 {input.forward_file} -2 {input.reverse_file} > {output.deduplicate}
@@ -144,8 +144,8 @@ rule trim_adapters_quality_illumina_PE:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/trim_adapters_quality_illumina_PE/{sample}.tsv"
 	resources:
-		runtime_min: 350,
-		mem_mb: 1500,
+		runtime_min= 350,
+		mem_mb= 1500,
 	threads: 8
 	shell:
 		"""
@@ -293,8 +293,8 @@ rule contaminants_KRAKEN:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
 	threads: 16
 	resources:
-		runtime_min: 15,
-		mem_mb: 18000,
+		runtime_min= 15,
+		mem_mb= 18000,
 	shell:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \
@@ -361,7 +361,7 @@ rule remove_euk:
 		dirs_dict["BENCHMARKS"] +"/remove_euk_PE/{sample}.tsv"
 	resources:
 		mem_mb=40000,
-		runtime_min: 1100,
+		runtime_min= 1100,
 	shell:
 		"""
 		python {input.kraken_tools}/extract_kraken_reads.py -k {input.kraken_output_paired} \
@@ -394,7 +394,7 @@ rule remove_user_contaminants_PE:
 	threads: 4
 	resources:
 		mem_mb=40000,
-		runtime_min: 15,
+		runtime_min= 15,
 	shell:
 		"""
 		cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
@@ -499,8 +499,8 @@ rule contaminants_KRAKEN_clean:
 	priority: 1
 	threads: 8
 	resources:
-		runtime_min: 15,
-		mem_mb: 18000,
+		runtime_min= 15,
+		mem_mb= 18000,
 	shell:
 		"""
 		kraken2 --db {params.kraken_db} --threads {threads} \
@@ -649,8 +649,8 @@ rule preMultiQC:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_pre.tsv"
 	resources:
-		runtime_min: 5,
-		mem_mb: 4000,
+		runtime_min= 5,
+		mem_mb= 4000,
 	shell:
 		"""
 		multiqc -f {params.fastqc_dir} -o {params.multiqc_dir} -n {params.html_name}
@@ -679,8 +679,8 @@ rule postMultiQC:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_post.tsv"
 	resources:
-		runtime_min: 5,
-		mem_mb: 4000,
+		runtime_min= 5,
+		mem_mb= 4000,
 	shell:
 		"""
 		multiqc -f {params.fastqc_dir}/*zip -o {params.multiqc_dir} -n {params.html_name}
@@ -704,8 +704,8 @@ rule prekrakenMultiQC:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_pre.tsv"
 	resources:
-		runtime_min: 5,
-		mem_mb: 4000,
+		runtime_min= 5,
+		mem_mb= 4000,
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
@@ -728,8 +728,8 @@ rule postkrakenMultiQC:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_post.tsv"
 	resources:
-		runtime_min: 5,
-		mem_mb: 4000,
+		runtime_min= 5,
+		mem_mb= 4000,
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
@@ -878,7 +878,7 @@ rule normalizeReads_PE:
 		sampling="tot|sub"  
 	resources:
 		mem_mb=MEMORY_ECORR,
-		runtime_min: 125,
+		runtime_min= 125,
 	shell:
 		"""
 		#PE
@@ -976,7 +976,7 @@ rule kmer_rarefraction:
 	threads: 1
 	resources:
 		mem_mb=MEMORY_ECORR,
-		runtime_min: 412,
+		runtime_min= 412,
 	shell:
 		"""
 		bbcountunique.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out={output.histogram} interval={config[kmer_window]}
