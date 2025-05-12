@@ -186,7 +186,7 @@ rule errorCorrectMedaka:
 		medaka_dir1=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}")),
 		medaka_dir2=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}")),
 	params:
-		medaka_model=config["medaka_model"], "r941_min_high_g360", # TODO
+		medaka_model=config["medaka_model"], # "r941_min_high_g360"
 		medaka_fasta1=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}/consensus.fasta",
 		medaka_fasta2=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}/consensus.fasta",
 	message:

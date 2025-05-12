@@ -52,6 +52,7 @@ kmer_window: "25000"
 min_norm: "0"
 max_norm: "100"
 max_subsample: "50000000"
+
 #Spades and canu assembly
 min_len: "1000"
 min_cov: "2"
