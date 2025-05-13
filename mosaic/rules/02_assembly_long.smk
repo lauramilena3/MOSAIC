@@ -168,7 +168,7 @@ rule asemblyFlye:
 	threads: 32
 	shell:
 		"""
-		flye --nano-raw {input.nanopore} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} {params.metagenomic_flag}
+		flye --nano-hq {input.nanopore} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} {params.metagenomic_flag}
 		cp {output.scaffolds} {output.scaffolds_final}
 		sed "s/>/>{wildcards.sample}_/g" -i {output.scaffolds_final}
 		"""
