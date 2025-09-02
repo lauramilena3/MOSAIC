@@ -11,7 +11,7 @@ dependencies:
   - numpy #=1.22.4
   - seaborn #=0.12.2
   - matplotlib #=3.7.1
-  - mamba =0.22.1
+  - mamba #=0.22.1
   - dos2unix =7.4.1
   - biopython #=1.81
   - singularity =3.7.1
