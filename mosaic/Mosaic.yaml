@@ -6,21 +6,21 @@ channels:
   - asmeurer
 dependencies:
   - snakemake =7.18.2
-  - python = 3.9
-  - pandas = 1.1.3
-  - numpy =1.22.4
-  - seaborn =0.12.2
-  - matplotlib =3.7.1
-  - mamba =0.22.1
-  - dos2unix =7.4.1
-  - biopython =1.81
-  - singularity =3.7.1
+  - python = 3.11
+  - pandas =2.3.2 
+  - numpy =2.3.2
+  - seaborn =0.13.2
+  - matplotlib =3.10.5
+  - mamba =1.5.12
+  - dos2unix =7.5.2
+  - biopython =1.85
+  - singularity =2.4.6
   - ruamel.yaml =0.17.21
-  - click =8.1.2
-  - tabulate =0.8.10
-  - scikit-bio =0.5.6
-  - jupyter =1.0
-  - jupyterlab_code_formatter =1.4
+  - click =8.2.1
+  - tabulate =0.9.0
+  - scikit-bio =0.7.0
+  - jupyter =1.1.1
+  - jupyterlab_code_formatter =3.0.2
   - lxml =4.9.2
   - matplotlib-venn =0.11.9
 #   - python_abi =3.10
