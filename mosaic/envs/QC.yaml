@@ -15,4 +15,4 @@ dependencies:
   # - perl-bioperl =1.7.2
   # - matplotlib =2.2.5
   - htstream =1.3.3
-  - libboost #= 1.88.0
+  - libboost <1.85 #= 1.88.0
