@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - taxmyphage =0.3.5
-  - pharokka =1.7.5
+  - pharokka =1.8.1
   - biopython >= 1.81
   - pandas >= 2.1.1
   - seaborn >= 0.13

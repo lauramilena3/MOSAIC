@@ -457,19 +457,19 @@ rule trimmomatic:
 	input:
 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt", sample=SAMPLES),
 
-rule annotate_isolates:
-	input:
-		dirs_dict["vOUT_DIR"] + "/checkV_isolates_tot/quality_summary.tsv",
-		dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
-		dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
-		dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png",
-		#dirs_dict["ANNOTATION"] + "/isolates_blast_IMGVR.tot.csv",
-		#dirs_dict["ANNOTATION"] + "/isolates_blast_RefSeqViral.tot.csv",
-		dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv",
-		#expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
-		#dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_phages.tot.csv",
-		dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_ORFs.tot.csv",
-		#dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.tot/",
+# rule annotate_isolates:
+# 	input:
+# 		dirs_dict["vOUT_DIR"] + "/checkV_isolates_tot/quality_summary.tsv",
+# 		dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
+# 		dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
+# 		dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png",
+# 		#dirs_dict["ANNOTATION"] + "/isolates_blast_IMGVR.tot.csv",
+# 		#dirs_dict["ANNOTATION"] + "/isolates_blast_RefSeqViral.tot.csv",
+# 		dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv",
+# 		#expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
+# 		#dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_phages.tot.csv",
+# 		dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_ORFs.tot.csv",
+# 		#dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.tot/",
 
 rule microdiversity:
 	input: 
