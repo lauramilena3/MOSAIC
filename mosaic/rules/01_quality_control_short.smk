@@ -184,7 +184,7 @@ rule sourmash_sketch_trim:
 rule sourmash_gather:
 	input:
 		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
-		sourmash_sig=config['sourmash_sig'],
+		sourmash_sig=expand(config['sourmash_sig'].split()),
 	output:
 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
 	message:
