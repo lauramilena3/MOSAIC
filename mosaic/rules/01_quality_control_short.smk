@@ -196,7 +196,7 @@ rule sourmash_gather:
 	threads: 8
 	shell:
 		"""
-		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather}
+		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather} -t 50000 -k31 -s1000
 		"""
 
 rule sourmash_tax:
