@@ -178,7 +178,7 @@ rule sourmash_sketch_trim:
 		"""
 		echo name,read1,read2 > {output.manysketch_csv}
 		echo {params.sample},{input.forward_paired},{input.reverse_paired} >> {output.manysketch_csv}
-		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund,scaled=1000 -o {output.sketch} -c {threads}
 		"""
 
 rule sourmash_gather:
@@ -218,7 +218,7 @@ rule sourmash_tax:
 	shell:
 		"""
 		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.sample} \
-			--output-format kreport --rank species -f --output-dir {params.outdir}
+			--output-format kreport --rank strain -f --output-dir {params.outdir}
 		"""
 
 # rule trim_adapters_quality_illumina_SE:
