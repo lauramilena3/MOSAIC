@@ -178,7 +178,7 @@ rule sourmash_sketch_trim:
 		"""
 		echo name,read1,read2 > {output.manysketch_csv}
 		echo {params.sample},{input.forward_paired},{input.reverse_paired} >> {output.manysketch_csv}
-		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund,scaled=1000 -o {output.sketch} -c {threads}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,k=51,abund,scaled=1000 -o {output.sketch} -c {threads}
 		"""
 
 rule sourmash_gather:
@@ -196,7 +196,7 @@ rule sourmash_gather:
 	threads: 8
 	shell:
 		"""
-		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather} -t 50000 -k31 -s1000
+		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather} -t 50000 -k51 -s1000
 		"""
 
 rule sourmash_tax:
