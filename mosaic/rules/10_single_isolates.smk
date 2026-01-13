@@ -459,6 +459,9 @@ rule buildBowtieDB_host:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
 	output:
 		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2"),
+		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.2.bt2"),
+		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.3.bt2"),
+		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.4.bt2"),
 	params:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
@@ -472,7 +475,7 @@ rule buildBowtieDB_host:
 		"""
 		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
 		"""
-		
+
 rule map_to_host:
 	input:
 		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
