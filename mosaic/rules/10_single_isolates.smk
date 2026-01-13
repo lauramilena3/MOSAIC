@@ -482,7 +482,7 @@ rule mask_prophages:
 			start=$((start - 1))
 
 			# Mask the region with 'N'
-			masked_seq=$(echo "$seq" | sed "s/./N/$(($end - $start))s" | sed "s/\(.\{$start\}\)/\1$(echo "$seq" | cut -c$((start + 1))-$((end)))\n/g")
+			masked_seq=$(echo "$seq" | sed "s/./N/$(($end - $start))s" | sed "s/\(.\{{$start\}}\)/\1$(echo "$seq" | cut -c$((start + 1))-$((end)))\n/g")
 
 			# Output the masked sequence to the output file
 			echo ">${seq_name}" >> {output.masked_prophages}
@@ -572,10 +572,10 @@ rule map_to_host:
 
 rule map_to_host_masked_prophages:
 	input:
-		contigs_bt2_1=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
-		contigs_bt2_2=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
-		contigs_bt2_3=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
-		contigs_bt2_4=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+		contigs_bt2_1=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
+		contigs_bt2_2=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
+		contigs_bt2_3=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
+		contigs_bt2_4=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
