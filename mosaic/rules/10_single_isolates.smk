@@ -451,5 +451,7 @@ rule genomad_host:
 	shell:
 		"""
 		genomad end-to-end --cleanup -t {threads} {input.host_fasta} {output.genomad_outdir} {input.genomad_db} 
-		cp {params.viral_fasta} {output.{positive_contigs}
+		cp {params.viral_fasta} {output.positive_contigs}
 		"""
+
+
