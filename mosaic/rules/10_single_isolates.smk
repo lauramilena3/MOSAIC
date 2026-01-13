@@ -463,32 +463,17 @@ rule mask_prophages:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
-	shell:
+    shell:
 		"""
-		# Create an empty output file
-		> {output.masked_prophages}
+		# Convert the TSV file to a BED format file
+		awk 'BEGIN {OFS="\t"} {if (NR>1) print $2, $3-1, $4}' {params.mask_file} > {wildcards.host}_regions.bed
 
-		# Read the TSV file and mask sequences
-		while IFS=$'\\t' read -r seq_name source_seq start end length n_genes v_vs_c_score in_seq_edge integrases; do
-			# Skip header or empty lines
-			if [[ "$seq_name" == "seq_name" || -z "$seq_name" ]]; then
-					continue
-			fi
+		# Mask the sequences using bedtools maskfasta
+		bedtools maskfasta -fi {input.host_fasta} -bed {wildcards.host}_regions.bed -fo {output.masked_prophages}
 
-			# Fetch the sequence for source_seq from the fasta file
-			seq=$(samtools faidx {input.host_fasta} "$source_seq" | tail -n +2)  # Remove the header line
-
-			# Adjust the indices for 0-based indexing (convert to 1-based)
-			start=$((start - 1))
-
-			# Mask the region with 'N'
-			masked_seq=$(echo "$seq" | sed "s/./N/$(($end - $start))s" | sed "s/\(.\{{$start\}}\)/\1$(echo "$seq" | cut -c$((start + 1))-$((end)))\n/g")
-
-			# Output the masked sequence to the output file
-			echo ">${{seq_name}}" >> {output.masked_prophages}
-			echo "$masked_seq" >> {output.masked_prophages}
-		done < {params.mask_file}
-		  """
+		# Clean up the temporary BED file
+		rm {wildcards.host}_regions.bed
+		"""
 
 rule buildBowtieDB_host:
 	input:
