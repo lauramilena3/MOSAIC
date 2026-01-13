@@ -434,13 +434,13 @@ rule viridic_relatives_phages:
 
 rule genomad_host:
 	input:
-		host_fasta = config['host_directory']"/{host}.fasta",
+		host_fasta = config['host_directory'] + "/{host}.fasta",
 		genomad_db= config['genomad_db'],
 	output:
-		genomad_outdir=directory(config['host_directory']"/{host}_geNomad"),
-		positive_contigs=config['host_directory']"/{host}_prophages.fasta",
+		genomad_outdir=directory(config['host_directory'] + "/{host}_geNomad"),
+		positive_contigs=config['host_directory'] + "/{host}_prophages.fasta",
 	params:
-		viral_fasta=config['host_directory']"/{host}_geNomad/{host}_find_proviruses/{host}_provirus.fna",
+		viral_fasta=config['host_directory'] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.fna",
 	message:
 		"Identifying prophages in host genome {host} with geNomad"
 	conda:
