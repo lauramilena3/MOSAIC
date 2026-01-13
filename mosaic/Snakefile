@@ -574,7 +574,7 @@ rule assembly_phage:
 		expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
 		expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE),
 		expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host),
-		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_{host}_covstats.txt", host=glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host, sample=SAMPLES),
+		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host, sample=SAMPLES),
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
 		# (dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt"),
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
