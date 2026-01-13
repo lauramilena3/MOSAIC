@@ -497,7 +497,7 @@ rule map_to_host:
 	message:
 		"Mapping reads to contigs"
 	wildcard_constraints:
-		host = r"[^/]+$" 
+		host = r"[^/]" 
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
