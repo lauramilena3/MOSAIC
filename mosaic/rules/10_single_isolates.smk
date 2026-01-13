@@ -494,8 +494,8 @@ rule map_to_host:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
 		"Mapping reads to contigs"
-    wildcard_constraints:
-        host = r"^[^/]+$"  # Restrict host to match anything except '/' (no path)
+   wildcard_constraints:
+		host = r"^[^/]+$"  # Restrict host to match anything except '/' (no path)
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
