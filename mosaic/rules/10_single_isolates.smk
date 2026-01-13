@@ -463,6 +463,8 @@ rule mask_prophages:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
