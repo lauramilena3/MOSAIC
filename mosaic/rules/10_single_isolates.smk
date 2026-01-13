@@ -442,7 +442,7 @@ rule genomad_host:
 	params:
 		viral_fasta=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.fna",
 	message:
-		"Identifying prophages in host genome {host} with geNomad"
+		"Identifying prophages in host genome {wildcards.host} with geNomad"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
