@@ -454,7 +454,6 @@ rule genomad_host:
 		cp {params.viral_fasta} {output.positive_contigs}
 		"""
 
-
 rule buildBowtieDB_host:
 	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
