@@ -474,7 +474,7 @@ rule buildBowtieDB_host:
 		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
 		"""
 
-rule stat_mapReadsToViral:
+rule map_to_host:
 	input:
 		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{host}_forward_paired_clean.tot.fastq.gz"),
