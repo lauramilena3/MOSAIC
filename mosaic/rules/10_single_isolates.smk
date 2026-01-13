@@ -431,3 +431,25 @@ rule viridic_relatives_phages:
 		"""
 		{input.viridic_singularity_folder}/viridic.bash projdir={output.viridic_out} in={input.cat_isolates_relatives}
 		"""
+
+rule genomad_host:
+	input:
+      host_fasta = config['host_directory']"/{host}.fasta"
+		genomad_db= config['genomad_db'],
+	output:
+		genomad_outdir=directory(config['host_directory']"/{host}_geNomad"),
+		positive_contigs=config['host_directory']"/{host}_prophages".fasta",
+	params:
+		viral_fasta=config['host_directory']"/{host}_geNomad/{host}_find_proviruses/{host}_provirus.fna",
+	message:
+		"Identifying prophages in host genome {host} with geNomad"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_illumina.tsv"
+	threads: 16
+	shell:
+		"""
+		genomad end-to-end --cleanup -t {threads} {input.host_fasta} {output.genomad_outdir} {input.genomad_db} 
+		cp {params.viral_fasta} {output.{positive_contigs}
+		"""
