@@ -62,7 +62,7 @@ min_votu_length: 5000
 contaminants_list: ""
 adapters_file: "adapters.fa"
 additional_reference_contigs: ""
-host_directory: ""
+# host_directory: "HOST"
 
 ambiguous_mapping: "all" 
 basecalled_dir: "data/basecalled/"
