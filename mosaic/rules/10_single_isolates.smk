@@ -454,6 +454,41 @@ rule genomad_host:
 		cp {params.viral_fasta} {output.positive_contigs}
 		"""
 
+
+rule mask_prophages:
+   input:
+		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		genomad_outdir=directory(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
+   output:
+		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
+	params:
+		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
+   shell:
+	"""
+	> {output.masked_fasta}
+
+	# Read the TSV file and mask sequences
+	while IFS=$'\\t' read -r seq_name source_seq start end length n_genes v_vs_c_score in_seq_edge integrases; do
+		# Skip header or empty lines
+		if [[ "$seq_name" == "seq_name" || -z "$seq_name" ]]; then
+				continue
+		fi
+
+		# Fetch the sequence for source_seq from the fasta file
+		seq=$(samtools faidx {input.fasta_file} "$source_seq" | tail -n +2)  # Remove the header line
+
+		# Adjust the indices for 0-based indexing (convert to 1-based)
+		start=$((start - 1))
+
+		# Mask the region with 'N'
+		masked_seq=$(echo "$seq" | sed "s/./N/$(($end - $start))s" | sed "s/\(.\{$start\}\)/\1$(echo "$seq" | cut -c$((start + 1))-$((end)))\n/g")
+
+		# Output the masked sequence to the output file
+		echo ">${seq_name}" >> {output.masked_fasta}
+		echo "$masked_seq" >> {output.masked_fasta}
+	done < {input.tsv_file}
+	"""
+
 rule buildBowtieDB_host:
 	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
@@ -500,6 +535,64 @@ rule map_to_host:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
+	threads: 8
+	shell:
+		"""
+		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
+		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+		samtools index {output.sorted_bam}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
+		"""
+
+rule buildBowtieDB_host_masked:
+	input:
+		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
+	output:
+		contigs_bt2_1=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
+		contigs_bt2_2=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
+		contigs_bt2_3=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
+		contigs_bt2_4=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+	params:
+		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
+	message:
+		"Creating contig DB with Bowtie2"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 8
+	shell:
+		"""
+		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
+		"""
+
+rule map_to_host_masked_prophages:
+	input:
+		contigs_bt2_1=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
+		contigs_bt2_2=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
+		contigs_bt2_3=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
+		contigs_bt2_4=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+	output:
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages.sam"),
+		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_sorted.bam.bai"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}_masked_prophages.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt",
+		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_basecov.txt",
+	params:
+		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
+	message:
+		"Mapping reads to contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host_masked_prophages.tsv"
 	threads: 8
 	shell:
 		"""
