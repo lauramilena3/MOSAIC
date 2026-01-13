@@ -458,10 +458,10 @@ rule buildBowtieDB_host:
 	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
 	output:
-		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2"),
-		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.2.bt2"),
-		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.3.bt2"),
-		temp(contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.4.bt2"),
+		contigs_bt2_1=temp(dirs_dict["HOST_DIR"]+ "/{host}.1.bt2"),
+		contigs_bt2_2=temp(dirs_dict["HOST_DIR"]+ "/{host}.2.bt2"),
+		contigs_bt2_3=temp(dirs_dict["HOST_DIR"]+ "/{host}.3.bt2"),
+		contigs_bt2_4=temp(dirs_dict["HOST_DIR"]+ "/{host}.4.bt2"),
 	params:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
