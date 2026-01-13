@@ -545,27 +545,27 @@ rule map_to_host:
 		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
 		"""
 
-rule buildBowtieDB_host_masked:
-	input:
-		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
-	output:
-		contigs_bt2_1=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
-		contigs_bt2_2=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
-		contigs_bt2_3=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
-		contigs_bt2_4=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
-	params:
-		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
-	message:
-		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 8
-	shell:
-		"""
-		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
-		"""
+# rule buildBowtieDB_host_masked:
+# 	input:
+# 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
+# 	output:
+# 		contigs_bt2_1=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
+# 		contigs_bt2_2=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
+# 		contigs_bt2_3=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
+# 		contigs_bt2_4=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+# 	params:
+# 		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
+# 	message:
+# 		"Creating contig DB with Bowtie2"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	threads: 8
+# 	shell:
+# 		"""
+# 		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
+# 		"""
 
 rule map_to_host_masked_prophages:
 	input:
