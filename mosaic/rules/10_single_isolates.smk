@@ -243,10 +243,10 @@ rule get_relatives_list:
 		phage_B=[]
 		positive=[]
 		for name, group in grouped:
-		    best_hit=group.groupby(by=["qseqid"]).first()
-		    phage_A.append(name[0])
-		    phage_B.append(name[1])
-		    positive.append(best_hit["match_positions"].sum())
+			 best_hit=group.groupby(by=["qseqid"]).first()
+			 phage_A.append(name[0])
+			 phage_B.append(name[1])
+			 positive.append(best_hit["match_positions"].sum())
 
 		similarity_df=pd.DataFrame()
 		similarity_df["Phage_A"]=phage_A
@@ -283,12 +283,12 @@ rule get_relatives_list:
 		print(time.time() - start)
 
 		with open(positive_phages, 'w') as f:
-		    for item in positive_hits_nucleotide:
-		        f.write("%s\n" % item)
+			 for item in positive_hits_nucleotide:
+				  f.write("%s\n" % item)
 
 		with open(positive_orfs, 'w') as f:
-		    for item in positive_hits_protein:
-		        f.write("%s\n" % item)
+			 for item in positive_hits_protein:
+				  f.write("%s\n" % item)
 
 def inputDatabaseExtract(wildcards):
 	if wildcards.type=="ORFs":
@@ -464,12 +464,15 @@ rule mask_prophages:
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
 	shell:
-		"""
-			# Read the TSV file and mask sequences
-			while IFS=$'\\t' read -r seq_name source_seq start end length n_genes v_vs_c_score in_seq_edge integrases; do
+	"""
+		  # Create an empty output file
+		  > {output.masked_prophages}
+
+		  # Read the TSV file and mask sequences
+		  while IFS=$'\\t' read -r seq_name source_seq start end length n_genes v_vs_c_score in_seq_edge integrases; do
 				# Skip header or empty lines
 				if [[ "$seq_name" == "seq_name" || -z "$seq_name" ]]; then
-						continue
+					 continue
 				fi
 
 				# Fetch the sequence for source_seq from the fasta file
@@ -482,10 +485,10 @@ rule mask_prophages:
 				masked_seq=$(echo "$seq" | sed "s/./N/$(($end - $start))s" | sed "s/\(.\{$start\}\)/\1$(echo "$seq" | cut -c$((start + 1))-$((end)))\n/g")
 
 				# Output the masked sequence to the output file
-				echo ">${seq_name}" >> {output.masked_fasta}
-				echo "$masked_seq" >> {output.masked_fasta}
-			done < {input.tsv_file}
-		"""
+				echo ">${seq_name}" >> {output.masked_prophages}
+				echo "$masked_seq" >> {output.masked_prophages}
+		  done < {params.mask_file}
+		  """
 
 rule buildBowtieDB_host:
 	input:
