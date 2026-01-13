@@ -574,7 +574,7 @@ rule map_to_host_masked_prophages:
 		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt",
 		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_basecov.txt",
 	params:
-		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
+		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
 	message:
 		"Mapping reads to contigs"
 	conda:

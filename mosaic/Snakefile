@@ -583,7 +583,7 @@ rule assembly_phage:
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
 
 print(HOSTS)
-print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
+# print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
 
 
 rule subsampling_file:
