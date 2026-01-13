@@ -462,8 +462,8 @@ rule buildBowtieDB_host:
 		contigs_bt2_2=temp(dirs_dict["HOST_DIR"]+ "/{host}.2.bt2"),
 		contigs_bt2_3=temp(dirs_dict["HOST_DIR"]+ "/{host}.3.bt2"),
 		contigs_bt2_4=temp(dirs_dict["HOST_DIR"]+ "/{host}.4.bt2"),
-	wildcard_constraints:
-		host = r"[^/]" 
+	# wildcard_constraints:
+		# host = r"[^/]" 
 	params:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
@@ -484,14 +484,14 @@ rule map_to_host:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
-		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_{host}.sam"),
-		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_{host}.bam"),
-		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_{host}_sorted.bam"),
-		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_{host}_sorted.bam.bai"),
-		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_{host}_filtered.bam"),
-		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_{host}.txt",
-		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_filtered_{sample}_{host}.txt",
-		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_{host}_covstats.txt",
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.sam"),
+		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_filtered_{sample}_vs_{host}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt",
 	params:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
@@ -501,7 +501,7 @@ rule map_to_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{host}_host.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
 	threads: 8
 	shell:
 		"""
