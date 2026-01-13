@@ -458,7 +458,7 @@ rule genomad_host:
 rule mask_prophages:
 	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
-		genomad_outdir=directory(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
+		genomad_outdir=(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
 	output:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 	params:
@@ -466,7 +466,7 @@ rule mask_prophages:
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
-		awk 'BEGIN {OFS="\t"} {if (NR>1) print $2, $3-1, $4}' {params.mask_file} > {wildcards.host}_regions.bed
+		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1, $4}}' {params.mask_file} > {wildcards.host}_regions.bed
 
 		# Mask the sequences using bedtools maskfasta
 		bedtools maskfasta -fi {input.host_fasta} -bed {wildcards.host}_regions.bed -fo {output.masked_prophages}
