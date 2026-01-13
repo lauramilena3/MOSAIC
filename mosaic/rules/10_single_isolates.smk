@@ -462,8 +462,8 @@ rule buildBowtieDB_host:
 		contigs_bt2_2=temp(dirs_dict["HOST_DIR"]+ "/{host}.2.bt2"),
 		contigs_bt2_3=temp(dirs_dict["HOST_DIR"]+ "/{host}.3.bt2"),
 		contigs_bt2_4=temp(dirs_dict["HOST_DIR"]+ "/{host}.4.bt2"),
-	# wildcard_constraints:
-	# 	host = r"[^/]+$" 
+	wildcard_constraints:
+		host = r"[^/]" 
 	params:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
@@ -496,8 +496,8 @@ rule map_to_host:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
 		"Mapping reads to contigs"
-	wildcard_constraints:
-		host = r"[^/]+$" 
+	# wildcard_constraints:
+	# 	host = r"[^/]+$" 
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
