@@ -463,7 +463,7 @@ rule mask_prophages:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
-    shell:
+   shell:
 		"""
 		# Convert the TSV file to a BED format file
 		awk 'BEGIN {OFS="\t"} {if (NR>1) print $2, $3-1, $4}' {params.mask_file} > {wildcards.host}_regions.bed
