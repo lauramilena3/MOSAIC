@@ -456,14 +456,14 @@ rule genomad_host:
 
 
 rule mask_prophages:
-   input:
+	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
 		genomad_outdir=directory(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
-   output:
+	output:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
-   shell:
+	shell:
 	"""
 	> {output.masked_fasta}
 
@@ -475,7 +475,7 @@ rule mask_prophages:
 		fi
 
 		# Fetch the sequence for source_seq from the fasta file
-		seq=$(samtools faidx {input.fasta_file} "$source_seq" | tail -n +2)  # Remove the header line
+		seq=$(samtools faidx {input.host_fasta} "$source_seq" | tail -n +2)  # Remove the header line
 
 		# Adjust the indices for 0-based indexing (convert to 1-based)
 		start=$((start - 1))
