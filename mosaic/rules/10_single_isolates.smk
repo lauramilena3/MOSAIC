@@ -455,3 +455,56 @@ rule genomad_host:
 		"""
 
 
+rule buildBowtieDB_host:
+	input:
+		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
+	output:
+		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
+	params:
+		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
+	message:
+		"Creating contig DB with Bowtie2"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	threads: 8
+	shell:
+		"""
+		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
+		"""
+
+rule stat_mapReadsToViral:
+	input:
+		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{host}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{host}_reverse_paired_clean.tot.fastq.gz"),
+	output:
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{host}.sam"),
+		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{host}.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{host}_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{host}_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{host}_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{host}.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_filtered_{host}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{host}_covstats.txt",
+	params:
+		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
+	message:
+		"Mapping reads to contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_host.tsv"
+	threads: 8
+	shell:
+		"""
+		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
+		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+		samtools index {output.sorted_bam}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		"""
