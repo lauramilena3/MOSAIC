@@ -438,7 +438,7 @@ rule genomad_host:
 		genomad_db= config['genomad_db'],
 	output:
 		genomad_outdir=directory(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
-		positive_contigs=dirs_dict["HOST_DIR"] + "/{host}_prophages.fasta",
+		positive_contigs=dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta",
 	params:
 		viral_fasta=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.fna",
 	message:
