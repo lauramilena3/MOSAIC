@@ -446,7 +446,7 @@ rule genomad_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_illumina.tsv"
+		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{host}_host.tsv"
 	threads: 16
 	shell:
 		"""
