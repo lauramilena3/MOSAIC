@@ -546,11 +546,6 @@ rule assembly_long_only_phage:
 
 HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
 
-# Use the filtered valid hosts in expand
-print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", 
-             host=valid_hosts, 
-             sample=SAMPLES))
-
 rule assembly_phage:
 	input:
 		inputReadsCount,
