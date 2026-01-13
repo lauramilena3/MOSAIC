@@ -485,7 +485,7 @@ rule mask_prophages:
 			masked_seq=$(echo "$seq" | sed "s/./N/$(($end - $start))s" | sed "s/\(.\{{$start\}}\)/\1$(echo "$seq" | cut -c$((start + 1))-$((end)))\n/g")
 
 			# Output the masked sequence to the output file
-			echo ">${seq_name}" >> {output.masked_prophages}
+			echo ">${{seq_name}}" >> {output.masked_prophages}
 			echo "$masked_seq" >> {output.masked_prophages}
 		done < {params.mask_file}
 		  """
