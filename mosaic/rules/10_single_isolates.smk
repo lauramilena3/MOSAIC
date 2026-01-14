@@ -570,7 +570,7 @@ rule map_to_host_masked_prophages:
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
+		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
 		"""
 
 
@@ -611,5 +611,5 @@ rule map_to_host:
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
+		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
 		"""
