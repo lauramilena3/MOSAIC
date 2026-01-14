@@ -28,6 +28,7 @@ MICROBIAL=config['microbial']
 SOURMASH=config['sourmash']
 LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
+ISOLATES=config['isolates']
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
@@ -53,11 +54,16 @@ else:
 
 print("Viral contigs dir" + VIRAL_CONTIGS_DIR)
 
+if ISOLATES:
+	METAGENOME=False
+	METAGENOME_FLAG=""
+
 if METAGENOME:
 	print("metagenomic mode")
 	METAGENOME_FLAG="--meta"
 else:
 	METAGENOME_FLAG=""
+
 
 RULES_DIR = 'rules'
 
