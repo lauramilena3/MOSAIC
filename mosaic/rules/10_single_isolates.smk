@@ -472,7 +472,7 @@ rule mask_prophages:
 		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1, $4}}' {params.mask_file} > {output.mask_regions}
 
 		# Mask the sequences using bedtools maskfasta
-		bedtools maskfasta -fi {input.host_fasta} -bed {wildcards.host}_regions.bed -fo {output.masked_prophages}
+		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
 		"""
 
 rule buildBowtieDB_host:
