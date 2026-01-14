@@ -461,6 +461,7 @@ rule mask_prophages:
 		genomad_outdir=(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
 	output:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
+		mask_regions = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_mask_regions.bed",
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
 	conda:
@@ -468,13 +469,10 @@ rule mask_prophages:
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
-		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1, $4}}' {params.mask_file} > {wildcards.host}_regions.bed
+		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1, $4}}' {params.mask_file} > {output.mask_regions}
 
 		# Mask the sequences using bedtools maskfasta
 		bedtools maskfasta -fi {input.host_fasta} -bed {wildcards.host}_regions.bed -fo {output.masked_prophages}
-
-		# Clean up the temporary BED file
-		rm {wildcards.host}_regions.bed
 		"""
 
 rule buildBowtieDB_host:
@@ -499,62 +497,40 @@ rule buildBowtieDB_host:
 		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
 		"""
 
-rule map_to_host:
-	input:
-		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
-		contigs_bt2_2=dirs_dict["HOST_DIR"]+ "/{host}.2.bt2",
-		contigs_bt2_3=dirs_dict["HOST_DIR"]+ "/{host}.3.bt2",
-		contigs_bt2_4=dirs_dict["HOST_DIR"]+ "/{host}.4.bt2",
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
-	output:
-		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.sam"),
-		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.bam"),
-		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam"),
-		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam.bai"),
-		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}.txt",
-		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt",
-		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_basecov.txt",
-	params:
-		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
-	message:
-		"Mapping reads to contigs"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
-	threads: 8
-	shell:
-		"""
-		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
-		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
-		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
-		samtools index {output.sorted_bam}
-		samtools flagstat {output.sorted_bam} > {output.flagstats}
-		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
-		"""
-
-# rule buildBowtieDB_host_masked:
+# rule map_to_host:
 # 	input:
-# 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
+# 		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
+# 		contigs_bt2_2=dirs_dict["HOST_DIR"]+ "/{host}.2.bt2",
+# 		contigs_bt2_3=dirs_dict["HOST_DIR"]+ "/{host}.3.bt2",
+# 		contigs_bt2_4=dirs_dict["HOST_DIR"]+ "/{host}.4.bt2",
+# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 # 	output:
-# 		contigs_bt2_1=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
-# 		contigs_bt2_2=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
-# 		contigs_bt2_3=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
-# 		contigs_bt2_4=temp(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+# 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.sam"),
+# 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.bam"),
+# 		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam"),
+# 		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam.bai"),
+# 		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}.txt",
+# 		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt",
+# 		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_basecov.txt",
 # 	params:
-# 		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
+# 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 # 	message:
-# 		"Creating contig DB with Bowtie2"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
+# 		"Mapping reads to contigs"
 # 	conda:
 # 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
 # 	threads: 8
 # 	shell:
 # 		"""
-# 		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
+# 		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
+# 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+# 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+# 		samtools index {output.sorted_bam}
+# 		samtools flagstat {output.sorted_bam} > {output.flagstats}
+# 		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+# 		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
 # 		"""
 
 rule map_to_host_masked_prophages:
@@ -591,4 +567,44 @@ rule map_to_host_masked_prophages:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
+		"""
+
+
+rule map_to_host:
+	input:
+		contigs_bt2_1=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
+		contigs_bt2_2=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
+		contigs_bt2_3=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
+		contigs_bt2_4=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+	output:
+		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.sam"),
+		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.bam"),
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_filtered_{sample}_vs_{host}.txt",
+		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt",
+	params:
+		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
+	message:
+		"Mapping reads to contigs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host_masked_prophages.tsv"
+	threads: 8
+	shell:
+		"""
+		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
+		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
+		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+		samtools index {output.sorted_bam}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
+		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
 		"""
