@@ -463,13 +463,14 @@ rule mask_prophages:
 		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 		mask_regions = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_mask_regions.bed",
 	params:
-		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv"
+		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv",
+		mask_additional_bases: 500,
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
-		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1, $4}}' {params.mask_file} > {output.mask_regions}
+		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1-{params.mask_additional_bases}, $4+{params.mask_additional_bases}}}' {params.mask_file} > {output.mask_regions}
 
 		# Mask the sequences using bedtools maskfasta
 		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
