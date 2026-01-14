@@ -13,7 +13,7 @@ def input_vOTU_clustering(wildcards):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_" + VIRAL_ID_TOOL + ".{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test))
 	if len(config['additional_reference_contigs'])>0:
 		input_list.append(config['additional_reference_contigs'])
-	if ISOLATES
+	if ISOLATES:
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS))
 	return input_list
 
