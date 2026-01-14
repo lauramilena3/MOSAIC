@@ -600,13 +600,13 @@ rule map_to_host:
 		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_basecov.txt",
 		basecov_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_filtered_{sample}_vs_{host}_basecov.txt",
 	params:
-		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
+		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
 		"Mapping reads to contigs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host_masked_prophages.tsv"
+		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
 	threads: 8
 	shell:
 		"""
