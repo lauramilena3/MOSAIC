@@ -464,7 +464,7 @@ rule mask_prophages:
 		mask_regions = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_mask_regions.bed",
 	params:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv",
-		mask_additional_bases: 500,
+		mask_additional_bases=500,
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
 	shell:
