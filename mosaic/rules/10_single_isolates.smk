@@ -550,7 +550,9 @@ rule map_to_host_masked_prophages:
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}_masked_prophages.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_filtered_{sample}_vs_{host}_masked_prophages.txt",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt",
+		covstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_filtered_{sample}_vs_{host}_masked_prophages_covstats.txt",
 		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_basecov.txt",
+		basecov_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_filtered_{sample}_vs_{host}_masked_prophages_basecov.txt",
 	params:
 		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
 	message:
@@ -569,10 +571,13 @@ rule map_to_host_masked_prophages:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
-		"""
+		
+		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_filtered}
 
+		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
+		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov_filtered}
+		"""
 
 rule map_to_host:
 	input:
@@ -591,7 +596,9 @@ rule map_to_host:
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_filtered_{sample}_vs_{host}.txt",
 		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt",
+		covstats_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_filtered_{sample}_vs_{host}_covstats.txt",
 		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_basecov.txt",
+		basecov_filtered=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_filtered_{sample}_vs_{host}_basecov.txt",
 	params:
 		prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
 	message:
@@ -610,6 +617,10 @@ rule map_to_host:
 		samtools flagstat {output.sorted_bam} > {output.flagstats}
 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		
+		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_filtered}
+
 		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
+		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov_filtered}
 		"""
