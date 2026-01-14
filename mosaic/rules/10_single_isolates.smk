@@ -581,10 +581,10 @@ rule map_to_host_masked_prophages:
 
 rule map_to_host:
 	input:
-		contigs_bt2_1=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.1.bt2"),
-		contigs_bt2_2=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.2.bt2"),
-		contigs_bt2_3=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.3.bt2"),
-		contigs_bt2_4=(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.4.bt2"),
+		contigs_bt2_1=(dirs_dict["HOST_DIR"] + "/{host}.1.bt2"),
+		contigs_bt2_2=(dirs_dict["HOST_DIR"] + "/{host}.2.bt2"),
+		contigs_bt2_3=(dirs_dict["HOST_DIR"] + "/{host}.3.bt2"),
+		contigs_bt2_4=(dirs_dict["HOST_DIR"] + "/{host}.4.bt2"),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
@@ -614,10 +614,12 @@ rule map_to_host:
 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
 		samtools index {output.sorted_bam}
-		samtools flagstat {output.sorted_bam} > {output.flagstats}
-		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
-		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
 		
+		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
+		
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+
 		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_filtered}
 
