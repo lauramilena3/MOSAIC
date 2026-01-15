@@ -85,7 +85,7 @@ def input_getHighQuality(wildcards):
 	if len(config['additional_reference_contigs'])>0:
 		input_list.append(dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
 	if ISOLATES:
-		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/{host}_checkV/quality_summary.tsv", host=HOSTS))
+		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/quality_summary.tsv", host=HOSTS))
 	return input_list
 
 rule getHighQuality:

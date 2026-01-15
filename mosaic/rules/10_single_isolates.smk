@@ -459,12 +459,12 @@ rule estimateGenomeCompletness_prophages:
 		positive_contigs=dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta",
 		checkv_db=(config['checkv_db']),
 	output:
-		quality_summary=dirs_dict["HOST_DIR"] + "/{host}_checkV/quality_summary.tsv",
-		completeness=dirs_dict["HOST_DIR"] + "/{host}_checkV/completeness.tsv",
-		contamination=dirs_dict["HOST_DIR"] + "/{host}_checkV/contamination.tsv",
+		quality_summary=dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/quality_summary.tsv",
+		completeness=dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/completeness.tsv",
+		contamination=dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/contamination.tsv",
 	params:
-		checkv_outdir=dirs_dict["HOST_DIR"] + "/{host}_checkV",
-		tmp=dirs_dict["HOST_DIR"] + "/{host}_checkV/tmp",
+		checkv_outdir=dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV",
+		tmp=dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/tmp",
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
