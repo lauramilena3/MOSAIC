@@ -592,6 +592,7 @@ print(HOSTS)
 # print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
 
 rule assembly_bacteria:
+	input:
 		inputReadsCount,
 		inputQC,
 		inputAssembly,
