@@ -453,7 +453,42 @@ rule genomad_host:
 		genomad end-to-end --cleanup -t {threads} {input.host_fasta} {output.genomad_outdir} {input.genomad_db} 
 		cp {params.viral_fasta} {output.positive_contigs}
 		"""
-
+		
+rule estimateGenomeCompletness_prophages:
+	input:
+		positive_contigs=dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta",
+		checkv_db=(config['checkv_db']),
+	output:
+		quality_summary=dirs_dict["HOST_DIR"] + "/{host}_checkV/quality_summary.tsv",
+		completeness=dirs_dict["HOST_DIR"] + "/{host}_checkV/completeness.tsv",
+		contamination=dirs_dict["HOST_DIR"] + "/{host}_checkV/contamination.tsv",
+	params:
+		checkv_outdir=dirs_dict["HOST_DIR"] + "/{host}_checkV",
+		tmp=dirs_dict["HOST_DIR"] + "/{host}_checkV/tmp",
+	message:
+		"Estimating genome completeness with CheckV "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{host}_checkV.tsv"
+	threads: 32
+	shell:
+		"""
+		rm -rf {params.checkv_outdir} || true
+		if [ -s {input.reference_contigs} ]; then
+		    		            	checkv contamination {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		    		            	checkv completeness {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		    		            	checkv complete_genomes {input.reference_contigs} {params.checkv_outdir}
+		    		            	checkv quality_summary {input.reference_contigs} {params.checkv_outdir}
+										rm -rf {params.tmp}
+		else
+		    		            	echo "The FASTA file {input.reference_contigs} is empty"
+		    		            	mkdir -p {params.checkv_outdir}
+		    		            	touch {output.quality_summary}
+		    		            	touch {output.completeness}
+		    		            	touch {output.contamination}
+		fi
+		"""
 
 rule mask_prophages:
 	input:
