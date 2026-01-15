@@ -475,14 +475,14 @@ rule estimateGenomeCompletness_prophages:
 	shell:
 		"""
 		rm -rf {params.checkv_outdir} || true
-		if [ -s {input.reference_contigs} ]; then
-		    		            	checkv contamination {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv completeness {input.reference_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv complete_genomes {input.reference_contigs} {params.checkv_outdir}
-		    		            	checkv quality_summary {input.reference_contigs} {params.checkv_outdir}
+		if [ -s {input.positive_contigs} ]; then
+		    		            	checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
+		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
 										rm -rf {params.tmp}
 		else
-		    		            	echo "The FASTA file {input.reference_contigs} is empty"
+		    		            	echo "The FASTA file {input.positive_contigs} is empty"
 		    		            	mkdir -p {params.checkv_outdir}
 		    		            	touch {output.quality_summary}
 		    		            	touch {output.completeness}
