@@ -511,7 +511,7 @@ rule mask_prophages:
 		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
 		"""
 
-rule vOUTclustering:
+rule calculate_ANI_vs_host:
 	input:
 		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta",
 		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
