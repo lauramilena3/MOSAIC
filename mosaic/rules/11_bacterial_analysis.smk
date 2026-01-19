@@ -32,11 +32,11 @@ rule estimateBacterialGenomeCompletness:
 		"""
 
 rule combine_logs_to_csv:
-    input:
-        logs = expand((dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot.log"), sample=SAMPLES)
-    output:
-        csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
-    run:
+   input:
+      logs = expand((dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot.log"), sample=SAMPLES)
+   output:
+      csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
+   run:
 		import pandas as pd
 		dfs = []
 		for log_file in input.logs:
