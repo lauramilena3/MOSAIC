@@ -38,6 +38,8 @@ rule combine_logs_to_csv:
 		csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
 	run:
 		import pandas as pd
+		from io import StringIO
+		import glob
 		dfs = []
 		for log_file in input.logs:
 			with open(log_file, "r") as f:
