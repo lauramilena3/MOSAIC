@@ -513,8 +513,8 @@ rule mask_prophages:
 
 rule vOUTclustering:
 	input:
-		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta"
-		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES)
+		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
 	output:
 		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/{host}_assembly_contigs.fasta")
 		blastout=dirs_dict["ASSEMBLY_DIR"]+ "/{host}_assembly_contigs-blastout.csv",
