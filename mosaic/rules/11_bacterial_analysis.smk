@@ -15,7 +15,7 @@ rule estimateBacterialGenomeCompletness:
 	params:
 		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
 	log:
-		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_log"),
+		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}.log"),
 	message:
 		"Estimating genome completeness with CheckM "
 	conda:
@@ -30,6 +30,42 @@ rule estimateBacterialGenomeCompletness:
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
+
+rule combine_logs_to_csv:
+    input:
+        logs = expand((dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot.log"))
+    output:
+        csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
+    run:
+        dfs = []
+        for log_file in input.logs:
+            with open(log_file, "r") as f:
+                lines = f.readlines()
+
+            # Find the table start and end
+            start_idx = None
+            end_idx = None
+            for i, line in enumerate(lines):
+                if line.strip().startswith("Bin Id"):
+                    start_idx = i
+                elif start_idx and line.strip().startswith("[") and "INFO" in line:
+                    end_idx = i
+                    break
+
+            if start_idx is not None:
+                # Extract the table lines
+                table_lines = lines[start_idx:end_idx]
+                # Remove separator lines (-----)
+                table_lines = [l for l in table_lines if not l.strip().startswith('---')]
+                # Join lines and read with pandas
+                table_str = "".join(table_lines)
+                df = pd.read_csv(StringIO(table_str), sep=r'\s{2,}', engine='python')
+                dfs.append(df)
+
+        # Combine all tables
+        final_df = pd.concat(dfs, ignore_index=True)
+        final_df.to_csv(output.csv, index=False)
+
 
 def input_microbial_merge(wildcards):
 	input_list=[]
