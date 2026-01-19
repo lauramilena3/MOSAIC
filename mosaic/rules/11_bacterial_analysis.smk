@@ -11,11 +11,11 @@ rule estimateBacterialGenomeCompletness:
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
-		checkMoutdir=directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}"),
+		checkMoutdir=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}")),
 	params:
 		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
 	log:
-		checkMoutdir=(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}.log"),
+		checkMoutdir=temp(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}.log"),
 	message:
 		"Estimating genome completeness with CheckM "
 	conda:
