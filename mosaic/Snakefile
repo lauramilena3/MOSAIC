@@ -551,6 +551,7 @@ rule assembly_long_only_phage:
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
 
 HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
+print(HOSTS)
 
 rule assembly_phage:
 	input:
@@ -571,7 +572,7 @@ rule assembly_phage:
 		(dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.tot.tsv"),
 		(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 		(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv"),
-		(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),	
+		# (dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),	
 		(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 		(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt"),
 		expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT),
@@ -584,11 +585,6 @@ rule assembly_phage:
 		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),
 		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt", host=HOSTS, sample=SAMPLES),
 
-		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
-		# (dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt"),
-		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
-
-print(HOSTS)
 # print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
 
 rule assembly_bacteria:
