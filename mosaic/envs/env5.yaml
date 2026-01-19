@@ -19,7 +19,7 @@ dependencies:
   # - pysam # checkM
   # - prodigal # checkM
   # - pplacer # checkM
-  - pip =19.3.1
-  - pip:
+  # - pip =19.3.1
+  # - pip:
     #  - checkm-genome
     #  - mdmparis-defense-finder
