@@ -584,7 +584,7 @@ rule assembly_phage:
 		expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS),
 		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),
 		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt", host=HOSTS, sample=SAMPLES),
-		expand(dirs_dict["ASSEMBLY_DIR"]+ "/{host}_assembly_contigs-aniout.csv", host=HOSTS)
+		expand(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs-aniout_{host}.csv", host=HOSTS)
 
 # print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
 
