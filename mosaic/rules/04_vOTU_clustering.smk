@@ -173,9 +173,7 @@ rule combine_with_taxmyphage:
 		else
 			touch {output.blastout} {output.aniout} {output.clusters} {output.cluster_rep} {output.tax_fasta_rep}> {output.combined}
 		fi
-		
 		cat {input.ref_fasta} {output.tax_fasta_rep}> {output.combined}
-
 		"""
 
 
