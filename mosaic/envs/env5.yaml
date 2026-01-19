@@ -5,11 +5,11 @@ channels:
 dependencies:
   - prodigal =2.6.3
   - biopython =1.74
-  # - pandas =0.25.3
-  - matplotlib
-  # - seaborn =0.10.1
+  - pandas #=0.25.3
+  - matplotlib #
+  - seaborn #=0.10.1
   # - numpy =1.17.3
-  # - scikit-learn =0.23.1
+  - scikit-learn #=0.23.1
   - hmmer =3.3.2
   - wget =1.20.1
   - ont-tombo 1.5.1
