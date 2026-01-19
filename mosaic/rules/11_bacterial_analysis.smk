@@ -1,6 +1,13 @@
+def input_estimateBacterialGenomeCompletness(wildcards):
+	input_list=[]
+	if NANOPORE & (NANOPORE_ONLY):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if ISOLATES:
+		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
+
 rule estimateBacterialGenomeCompletness:
 	input:
-		corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		fasta=input_estimateBacterialGenomeCompletness
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
@@ -19,7 +26,7 @@ rule estimateBacterialGenomeCompletness:
 	shell:
 		"""
 		mkdir -p {output.checkMoutdir_temp}
-		cp {input.corrected2_racon} {output.checkMoutdir_temp}
+		cp {input.fasta} {output.checkMoutdir_temp}
 		cd {output.checkMoutdir_temp}
 		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
