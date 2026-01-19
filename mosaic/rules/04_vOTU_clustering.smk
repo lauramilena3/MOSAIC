@@ -3,7 +3,7 @@
 
 def input_vOTU_clustering(wildcards):
 	input_list=[]
-	if not NANOPORE_ONLY:
+	if (not NANOPORE_ONLY) & (not ISOLATES):
 		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta",sample=SAMPLES))
 	if NANOPORE:
 		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
@@ -15,6 +15,7 @@ def input_vOTU_clustering(wildcards):
 		input_list.append(config['additional_reference_contigs'])
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS))
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES))
 	return input_list
 
 # if len(config['additional_reference_contigs'])==0:
@@ -74,7 +75,7 @@ rule vOUTclustering:
 
 def input_getHighQuality(wildcards):
 	input_list=[]
-	if not NANOPORE_ONLY:
+	if (not NANOPORE_ONLY) & (not ISOLATES):
 		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{{sampling}}/quality_summary.tsv",sample=SAMPLES)),
 	if NANOPORE:
 		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/nanopore_{sample}_" + LONG_ASSEMBLER + "_checkV_{{sampling}}/quality_summary.tsv", sample=NANOPORE_SAMPLES)),
@@ -86,6 +87,7 @@ def input_getHighQuality(wildcards):
 		input_list.append(dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/quality_summary.tsv", host=HOSTS))
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds_checkV/quality_summary.tsv",sample=SAMPLES))
 	return input_list
 
 rule getHighQuality:
