@@ -511,6 +511,30 @@ rule mask_prophages:
 		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
 		"""
 
+rule vOUTclustering:
+	input:
+		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta"
+		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES)
+	output:
+		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/{host}_assembly_contigs.fasta")
+		blastout=dirs_dict["ASSEMBLY_DIR"]+ "/{host}_assembly_contigs-blastout.csv",
+		aniout=dirs_dict["ASSEMBLY_DIR"]+ "/{host}_assembly_contigs-aniout.csv",
+	message:
+		"Calculating ANI with CheckV anicalc"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	threads: 16
+	wildcard_constraints:
+		sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
+	shell:
+		"""
+		cat {input.host_fasta} {input.assembly_fasta} > {output.temp_fasta}
+		makeblastdb -in {output.temp_fasta} -dbtype nucl -out {output.temp_fasta}
+		blastn -query {output.temp_fasta} -db {output.temp_fasta} -outfmt '6 std qlen slen' \
+				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+		"""
+
 rule buildBowtieDB_host:
 	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
