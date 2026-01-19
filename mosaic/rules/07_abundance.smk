@@ -124,10 +124,10 @@ def input_mapping(wildcards):
 	
 rule stat_mapReadsToAssembly:
 	input:
-		contigs_bt2_1=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.1.bt2"),
-		contigs_bt2_2=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.2.bt2"),
-		contigs_bt2_3=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.3.bt2"),
-		contigs_bt2_4=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.4.bt2"),
+		contigs_bt2_1=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.1.bt2"),
+		contigs_bt2_2=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.2.bt2"),
+		contigs_bt2_3=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.3.bt2"),
+		contigs_bt2_4=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.4.bt2"),
 		forward_paired=lambda wildcards: input_mapping(wildcards)[0],
 		reverse_paired=lambda wildcards: input_mapping(wildcards)[1],
 	output:
