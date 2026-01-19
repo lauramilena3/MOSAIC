@@ -7,7 +7,7 @@ def input_estimateBacterialGenomeCompletness(wildcards):
 
 rule estimateBacterialGenomeCompletness:
 	input:
-		fasta=input_estimateBacterialGenomeCompletness
+		fasta=input_estimateBacterialGenomeCompletness,
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
