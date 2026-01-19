@@ -568,7 +568,7 @@ rule assembly_phage:
 		# (dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv"),
 		# (dirs_dict["ANNOTATION"] + "/iphop_hostID_combined_positive_viral_contigs.tot_resultsDir"),
 		(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.tot.csv"),
-		(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_combined_positive_viral_contigs.tot.csv"),
+		# (dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_combined_positive_viral_contigs.tot.csv"),
 		(dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.tot.tsv"),
 		(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 		# (dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv"),
