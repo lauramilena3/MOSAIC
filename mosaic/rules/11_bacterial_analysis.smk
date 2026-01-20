@@ -5,6 +5,7 @@ def input_estimateBacterialGenomeCompletness(wildcards):
 	if ISOLATES:
 		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
 
+
 rule estimateBacterialGenomeCompletness:
 	input:
 		fasta=input_estimateBacterialGenomeCompletness,

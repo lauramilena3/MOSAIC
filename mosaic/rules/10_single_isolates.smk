@@ -686,3 +686,68 @@ rule map_to_host:
 		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
 		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov_filtered}
 		"""
+
+
+rule estimateBacterialGenomeCompletness_host:
+	input:
+		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		checkm_db=(config['checkm_db']),
+	output:
+		checkMoutdir_temp=temp(directory(dirs_dict["HOST_DIR"] + "/{sample}_checkM_temp")),
+		checkMoutdir=temp(directory(dirs_dict["HOST_DIR"] + "/{sample}_checkM")),
+	params:
+		checkv_db=dirs_dict["HOST_DIR"] + "/{sample}_checkV",
+	log:
+		checkMoutdir=temp(dirs_dict["HOST_DIR"] + "/{sample}_checkM.log"),
+	message:
+		"Estimating genome completeness with CheckM "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_host/{sample}_checkm.tsv"
+	threads: 4
+	shell:
+		"""
+		mkdir -p {output.checkMoutdir_temp}
+		cp {input.host_fasta} {output.checkMoutdir_temp}
+		cd {output.checkMoutdir_temp}
+		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		"""
+
+rule combine_logs_to_csv:
+	input:
+		logs = expand((dirs_dict["HOST_DIR"] + "/{sample}_checkM.log"), sample=SAMPLES)
+	output:
+		csv = dirs_dict["HOST_DIR"] + "/checkM_summary.csv"
+	run:
+		import pandas as pd
+		from io import StringIO
+		import glob
+		dfs = []
+		for log_file in input.logs:
+			with open(log_file, "r") as f:
+					lines = f.readlines()
+
+			# Find the table start and end
+			start_idx = None
+			end_idx = None
+			for i, line in enumerate(lines):
+					if line.strip().startswith("Bin Id"):
+						start_idx = i
+					elif start_idx and line.strip().startswith("[") and "INFO" in line:
+						end_idx = i
+						break
+
+			if start_idx is not None:
+					# Extract the table lines
+					table_lines = lines[start_idx:end_idx]
+					# Remove separator lines (-----)
+					table_lines = [l for l in table_lines if not l.strip().startswith('---')]
+					# Join lines and read with pandas
+					table_str = "".join(table_lines)
+					df = pd.read_csv(StringIO(table_str), sep=r'\s{2,}', engine='python')
+					dfs.append(df)
+
+		# Combine all tables
+		final_df = pd.concat(dfs, ignore_index=True)
+		final_df.to_csv(output.csv, index=False)
