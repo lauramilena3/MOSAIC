@@ -1,75 +1,3 @@
-def input_estimateBacterialGenomeCompletness(wildcards):
-	input_list=[]
-	if NANOPORE & (NANOPORE_ONLY):
-		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
-	if ISOLATES:
-		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
-
-
-rule estimateBacterialGenomeCompletness:
-	input:
-		fasta=input_estimateBacterialGenomeCompletness,
-		checkm_db=(config['checkm_db']),
-	output:
-		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
-		checkMoutdir=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}")),
-	params:
-		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
-	log:
-		checkMoutdir=temp(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}.log"),
-	message:
-		"Estimating genome completeness with CheckM "
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env5.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}_checkm.tsv"
-	threads: 4
-	shell:
-		"""
-		mkdir -p {output.checkMoutdir_temp}
-		cp {input.fasta} {output.checkMoutdir_temp}
-		cd {output.checkMoutdir_temp}
-		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
-		"""
-
-rule combine_logs_to_csv:
-	input:
-		logs = expand((dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot.log"), sample=SAMPLES)
-	output:
-		csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
-	run:
-		import pandas as pd
-		from io import StringIO
-		import glob
-		dfs = []
-		for log_file in input.logs:
-			with open(log_file, "r") as f:
-					lines = f.readlines()
-
-			# Find the table start and end
-			start_idx = None
-			end_idx = None
-			for i, line in enumerate(lines):
-					if line.strip().startswith("Bin Id"):
-						start_idx = i
-					elif start_idx and line.strip().startswith("[") and "INFO" in line:
-						end_idx = i
-						break
-
-			if start_idx is not None:
-					# Extract the table lines
-					table_lines = lines[start_idx:end_idx]
-					# Remove separator lines (-----)
-					table_lines = [l for l in table_lines if not l.strip().startswith('---')]
-					# Join lines and read with pandas
-					table_str = "".join(table_lines)
-					df = pd.read_csv(StringIO(table_str), sep=r'\s{2,}', engine='python')
-					dfs.append(df)
-
-		# Combine all tables
-		final_df = pd.concat(dfs, ignore_index=True)
-		final_df.to_csv(output.csv, index=False)
-
 
 def input_microbial_merge(wildcards):
 	input_list=[]
@@ -606,6 +534,160 @@ rule defense_finder:
 		"""
 		python scripts/process_fasta_satellite_finder.py {params.faa} {output.faa_temp}
 		defense-finder run -–db-type gembase -w {threads} --out-dir {output.defenseFinder_dir} {input.aa}
+		"""
+
+def input_estimateBacterialGenomeCompletness(wildcards):
+	input_list=[]
+	if NANOPORE & (NANOPORE_ONLY):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if ISOLATES:
+		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
+
+
+rule estimateBacterialGenomeCompletness:
+	input:
+		fasta=input_estimateBacterialGenomeCompletness,
+		checkm_db=(config['checkm_db']),
+	output:
+		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
+		checkMoutdir=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}")),
+	params:
+		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
+	log:
+		checkMoutdir=temp(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}.log"),
+	message:
+		"Estimating genome completeness with CheckM "
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}_checkm.tsv"
+	threads: 4
+	shell:
+		"""
+		mkdir -p {output.checkMoutdir_temp}
+		cp {input.fasta} {output.checkMoutdir_temp}
+		cd {output.checkMoutdir_temp}
+		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
+		"""
+
+rule combine_logs_to_csv:
+	input:
+		logs = expand((dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot.log"), sample=SAMPLES)
+	output:
+		csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
+	run:
+		import pandas as pd
+		from io import StringIO
+		import glob
+		dfs = []
+		for log_file in input.logs:
+			with open(log_file, "r") as f:
+					lines = f.readlines()
+
+			# Find the table start and end
+			start_idx = None
+			end_idx = None
+			for i, line in enumerate(lines):
+					if line.strip().startswith("Bin Id"):
+						start_idx = i
+					elif start_idx and line.strip().startswith("[") and "INFO" in line:
+						end_idx = i
+						break
+
+			if start_idx is not None:
+					# Extract the table lines
+					table_lines = lines[start_idx:end_idx]
+					# Remove separator lines (-----)
+					table_lines = [l for l in table_lines if not l.strip().startswith('---')]
+					# Join lines and read with pandas
+					table_str = "".join(table_lines)
+					df = pd.read_csv(StringIO(table_str), sep=r'\s{2,}', engine='python')
+					dfs.append(df)
+
+		# Combine all tables
+		final_df = pd.concat(dfs, ignore_index=True)
+		final_df.to_csv(output.csv, index=False)
+
+
+
+rule single_fasta_microbial_isolate:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
+	output:
+		single_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_single_{sampling}")),
+	message:
+		"formating microbial contigs into single fasta"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	threads: 1
+	shell:
+		"""
+		seqkit split --quiet -i {input.fasta} --out-dir {output.single_contigs_dir}
+	 	"""
+
+rule sourmash_sketch_microbial_isolate:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
+		single_contigs_dir=(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_single_{sampling}")),
+	output:
+		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_manysketch.csv"),
+		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_sourmash.sig.zip"),
+	params: 
+		name="{sample}_{sampling}"
+	message:
+		"Building sketches with sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_sketch.tsv"
+	threads: 64
+	shell:
+		"""
+		echo name,genome_filename,protein_filename > {output.manysketch_csv}
+		grep "^>" {input.fasta} | sed 's/^>//' | awk -v dir="{input.single_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
+		"""
+
+rule sourmash_gather_microbial_isolate:
+	input:
+		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_sourmash.sig.zip"),
+		sourmash_rocksdb=config['sourmash_rocksdb'],
+	output:
+		gather=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_gather_sourmash.csv"),
+	message:
+		"Genome containtment with sourmash gather"
+	params:
+		threshold_bp="0"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_gather.tsv"
+	threads: 64
+	shell:
+		"""
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
+		"""
+
+rule sourmash_tax_microbial_isolate:
+	input:
+		gather=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_gather_sourmash.csv"),
+		sourmash_tax=config['sourmash_tax'],
+	output:
+		csv_report=(dirs_dict["ASSEMBLY_DIR"] + "/sourmash_{sample}_{sampling}.classifications.csv"),
+	params:
+		outdir=(dirs_dict["ASSEMBLY_DIR"]),
+		name="{sample}_{sampling}"
+	message:
+		"Assigning taxonomy with sourmash tax"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_tax.tsv"
+	threads: 1
+	shell:
+		"""
+		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
+			--output-dir {params.outdir} -F csv_summary
 		"""
 
 
