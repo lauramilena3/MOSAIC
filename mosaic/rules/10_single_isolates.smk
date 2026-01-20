@@ -693,18 +693,18 @@ rule estimateBacterialGenomeCompletness_host:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
 		checkm_db=(config['checkm_db']),
 	output:
-		checkMoutdir_temp=temp(directory(dirs_dict["HOST_DIR"] + "/{sample}_checkM_temp")),
-		checkMoutdir=temp(directory(dirs_dict["HOST_DIR"] + "/{sample}_checkM")),
+		checkMoutdir_temp=temp(directory(dirs_dict["HOST_DIR"] + "/{host}_checkM_temp")),
+		checkMoutdir=temp(directory(dirs_dict["HOST_DIR"] + "/{host}_checkM")),
 	params:
-		checkv_db=dirs_dict["HOST_DIR"] + "/{sample}_checkV",
+		checkv_db=dirs_dict["HOST_DIR"] + "/{host}_checkV",
 	log:
-		checkMoutdir=temp(dirs_dict["HOST_DIR"] + "/{sample}_checkM.log"),
+		checkMoutdir=temp(dirs_dict["HOST_DIR"] + "/{host}_checkM.log"),
 	message:
 		"Estimating genome completeness with CheckM "
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_host/{sample}_checkm.tsv"
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_host/{host}_checkm.tsv"
 	threads: 4
 	shell:
 		"""
@@ -716,7 +716,7 @@ rule estimateBacterialGenomeCompletness_host:
 
 rule combine_logs_to_csv_hosts:
 	input:
-		logs = expand((dirs_dict["HOST_DIR"] + "/{sample}_checkM.log"), sample=SAMPLES)
+		logs = expand((dirs_dict["HOST_DIR"] + "/{host}_checkM.log"), host=HOSTS)
 	output:
 		csv = dirs_dict["HOST_DIR"] + "/checkM_summary.csv"
 	run:
