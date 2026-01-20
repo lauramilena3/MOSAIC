@@ -639,7 +639,7 @@ rule sourmash_sketch_microbial_isolate:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_sketch.tsv"
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_sketch.tsv"
 	threads: 64
 	shell:
 		"""
