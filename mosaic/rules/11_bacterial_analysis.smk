@@ -666,7 +666,7 @@ rule sourmash_gather_microbial_isolate:
 	shell:
 		"""
 		# sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
-		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -t {params.threshold_bp} -s 1000 > {output.gather}
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -t {params.threshold_bp} -s 1000 -o {output.gather}
 		"""
 
 
