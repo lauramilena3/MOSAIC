@@ -479,7 +479,7 @@ rule sourmash_sketch_microbial:
 rule sourmash_gather_microbial:
 	input:
 		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
-		sourmash_rocksdb=config['sourmash_sig'],
+		sourmash_rocksdb=config['sourmash_rocksdb'],
 	output:
 		gather=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 	message:
@@ -651,7 +651,7 @@ rule sourmash_sketch_microbial_isolate:
 rule sourmash_gather_microbial_isolate:
 	input:
 		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_sourmash.sig.zip"),
-		sourmash_rocksdb=config['sourmash_rocksdb'],
+		sourmash_rocksdb=config['sourmash_sig'],
 	output:
 		gather=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_gather_sourmash.csv"),
 	message:
