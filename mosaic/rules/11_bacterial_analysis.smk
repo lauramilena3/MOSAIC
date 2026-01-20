@@ -479,7 +479,7 @@ rule sourmash_sketch_microbial:
 rule sourmash_gather_microbial:
 	input:
 		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
-		sourmash_rocksdb=config['sourmash_rocksdb'],
+		sourmash_rocksdb=config['sourmash_sig'],
 	output:
 		gather=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
 	message:
