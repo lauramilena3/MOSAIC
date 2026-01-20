@@ -633,7 +633,7 @@ rule sourmash_sketch_microbial_isolate:
 		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_manysketch.csv"),
 		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_sourmash.sig.zip"),
 	params: 
-		name="{sample}_{sampling}"
+		name="{sample}_spades_filtered_scaffolds.{sampling}"
 	message:
 		"Building sketches with sourmash"
 	conda:
