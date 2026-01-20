@@ -651,7 +651,7 @@ rule sourmash_sketch_microbial_isolate:
 rule sourmash_gather_microbial_isolate:
 	input:
 		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_sourmash.sig.zip"),
-		sourmash_rocksdb=config['sourmash_sig'],
+		sourmash_rocksdb=config['sourmash_rocksdb'],
 	output:
 		gather=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_gather_sourmash.csv"),
 	message:
@@ -665,8 +665,7 @@ rule sourmash_gather_microbial_isolate:
 	threads: 16
 	shell:
 		"""
-		# sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
-		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -t {params.threshold_bp} -s 1000 -o {output.gather}
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
 		"""
 
 
