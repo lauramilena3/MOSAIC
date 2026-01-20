@@ -714,7 +714,7 @@ rule estimateBacterialGenomeCompletness_host:
 		checkm lineage_wf -t {threads} -x fasta {output.checkMoutdir_temp} {output.checkMoutdir} 1> {log}
 		"""
 
-rule combine_logs_to_csv:
+rule combine_logs_to_csv_hosts:
 	input:
 		logs = expand((dirs_dict["HOST_DIR"] + "/{sample}_checkM.log"), sample=SAMPLES)
 	output:
