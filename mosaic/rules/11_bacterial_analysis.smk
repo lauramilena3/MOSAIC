@@ -614,13 +614,14 @@ rule fastani_all_vs_all:
 	output:
 		fastANI=dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI.tot.csv",
 		query_list=temp(dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI_query.tot.csv"),
+	threads: 8
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	shell:
 		"""
 		mkdir -p fastani
 		printf "%s\n" {input.fasta} > {output.query_list}
-		fastANI --matrix \
+		fastANI --matrix -t {threads} \
 			--ql {output.query_list} \
 			--rl {output.query_list} \
 			-o {output.fastANI} 
