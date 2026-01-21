@@ -620,10 +620,10 @@ rule fastani_all_vs_all:
 		"""
 		mkdir -p fastani
 		printf "%s\n" {input.fasta} > {output.query_list}
-		fastANI \
+		fastANI --matrix \
 			--ql {output.query_list} \
 			--rl {output.query_list} \
-			-o {output.fastANI} --matrix\ 
+			-o {output.fastANI} 
 			
 		"""
 
