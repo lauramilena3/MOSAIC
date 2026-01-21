@@ -687,6 +687,30 @@ rule map_to_host:
 		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov_filtered}
 		"""
 
+rule clustering_isolates:
+	input:
+		fasta=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs.tot.fasta",
+	output:
+		clusters=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_{identity}-{coverage}.clstr",
+		blastout=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_{identity}-{coverage}_blastout.csv",
+		aniout=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_{identity}-{coverage}.csv",
+	message:
+		"Creating vOUTs with CheckV aniclust"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	#  benchmark:
+	#		dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
+	threads: 144
+	wildcard_constraints:
+		sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
+	shell:
+		"""
+		makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
+		blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
+				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
+		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
+		python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani {wildcards.identity} --min_tcov {wildcards.coverage} --min_qcov 0
+		"""
 
 rule estimateBacterialGenomeCompletness_host:
 	input:
