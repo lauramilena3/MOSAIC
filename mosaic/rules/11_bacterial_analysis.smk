@@ -613,7 +613,6 @@ rule fastani_all_vs_all:
 		fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES),
 	output:
 		fastANI=dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI.tot.csv",
-		fastANI_matrix=dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI_matrix.tot.csv",
 		query_list=temp(dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI_query.tot.csv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
@@ -625,7 +624,7 @@ rule fastani_all_vs_all:
 			--ql {output.query_list} \
 			--rl {output.query_list} \
 			-o {output.fastANI} \ 
-			--matrix {output.fastANI_matrix}
+			--matrix 
 		"""
 
 rule single_fasta_microbial_isolate:
