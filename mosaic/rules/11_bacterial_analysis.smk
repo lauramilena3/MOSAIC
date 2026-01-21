@@ -623,7 +623,7 @@ rule fastani_all_vs_all:
 		fastANI \
 			--ql {output.query_list} \
 			--rl {output.query_list} \
-			-o {output}
+			-o {output.fastANI}
 		"""
 
 rule single_fasta_microbial_isolate:
