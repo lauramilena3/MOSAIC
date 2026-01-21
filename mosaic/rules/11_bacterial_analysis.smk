@@ -628,7 +628,7 @@ rule single_fasta_microbial_isolate:
 rule sourmash_sketch_microbial_isolate:
 	input:
 		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
-		single_contigs_dir=(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_single_{sampling}")),
+		single_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_single_{sampling}")),
 	output:
 		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_manysketch.csv"),
 		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_sourmash.sig.zip"),
