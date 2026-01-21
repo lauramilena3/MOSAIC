@@ -688,7 +688,7 @@ rule sourmash_tax_microbial_isolate:
 	shell:
 		"""
 		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
-			--output-dir {params.outdir} -F csv_summary
+			--output-dir {params.outdir} -F csv_summary --rank strain
 		"""
 
 
