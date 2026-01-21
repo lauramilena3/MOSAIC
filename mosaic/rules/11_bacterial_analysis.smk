@@ -645,7 +645,7 @@ rule sourmash_sketch_microbial_isolate:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
 		grep "^>" {input.fasta} | sed 's/^>//' | awk -v dir="{input.single_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
-		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund -o {output.sketch} -c {threads}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund,DNA -o {output.sketch} -c {threads}
 		"""
 
 rule sourmash_gather_microbial_isolate:
