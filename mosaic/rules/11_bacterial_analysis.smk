@@ -610,7 +610,7 @@ rule combine_logs_to_csv:
 
 rule fastani_all_vs_all:
 	input:
-		fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta"), sample=SAMPLES,
+		fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES),
 	output:
 		fastANI=dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI.tot.csv",
 		query_list=temp(dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI_query.tot.csv"),
