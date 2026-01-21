@@ -588,7 +588,7 @@ rule assembly_phage:
 		dirs_dict["HOST_DIR"] + "/checkM_summary.csv",
 		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_95-85.clstr",
 		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_20-20.clstr",
-		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_10-10.clstr",
+		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_5-0.clstr",
 
 # print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
 
