@@ -691,9 +691,9 @@ rule clustering_isolates:
 	input:
 		fasta=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs.tot.fasta",
 	output:
-		clusters=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_{identity}-{coverage}.clstr",
-		blastout=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_{identity}-{coverage}_blastout.csv",
-		aniout=dirs_dict["vOUT_DIR"] + "/combined_positive_viral_contigs_{identity}-{coverage}.csv",
+		clusters=dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_{identity}-{coverage}.clstr",
+		blastout=temp(dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_{identity}-{coverage}_blastout.csv"),
+		aniout=temp(dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_{identity}-{coverage}.csv"),
 	message:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
