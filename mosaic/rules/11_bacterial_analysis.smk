@@ -608,7 +608,23 @@ rule combine_logs_to_csv:
 		final_df = pd.concat(dfs, ignore_index=True)
 		final_df.to_csv(output.csv, index=False)
 
-
+rule fastani_all_vs_all:
+	input:
+		fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta"),
+	output:
+		fastANI=dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI.tot.csv",
+		query_list=temp(dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI_query.tot.csv"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	shell:
+		"""
+		mkdir -p fastani
+		printf "%s\n" {input.fastANI} > {output.query_list}
+		fastANI \
+			--ql {output.query_list} \
+			--rl {output.query_list} \
+			-o {output}
+		"""
 
 rule single_fasta_microbial_isolate:
 	input:

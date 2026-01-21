@@ -626,6 +626,8 @@ rule assembly_bacteria:
 		# expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot", sample=SAMPLES)
 		dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv",
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_tot.classifications.csv", sample=SAMPLES),
+		dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI.tot.csv",
+
 
 rule subsampling_file:
 	input:
