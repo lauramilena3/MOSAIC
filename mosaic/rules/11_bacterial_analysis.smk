@@ -640,7 +640,7 @@ rule sourmash_sketch_microbial_isolate:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_sketch.tsv"
-	threads: 64
+	threads: 4
 	shell:
 		"""
 		echo name,genome_filename,protein_filename > {output.manysketch_csv}
@@ -662,7 +662,7 @@ rule sourmash_gather_microbial_isolate:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_gather.tsv"
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
@@ -684,7 +684,7 @@ rule sourmash_tax_microbial_isolate:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_tax.tsv"
-	threads: 1
+	threads: 4
 	shell:
 		"""
 		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
