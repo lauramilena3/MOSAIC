@@ -619,7 +619,7 @@ rule fastani_all_vs_all:
 	shell:
 		"""
 		mkdir -p fastani
-		printf "%s\n" {input.fastANI} > {output.query_list}
+		printf "%s\n" {input.fasta} > {output.query_list}
 		fastANI \
 			--ql {output.query_list} \
 			--rl {output.query_list} \
