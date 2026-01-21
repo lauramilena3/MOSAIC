@@ -674,7 +674,7 @@ rule sourmash_tax_microbial_isolate:
 		gather=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_gather_sourmash.csv"),
 		sourmash_tax=config['sourmash_tax'],
 	output:
-		csv_report=(dirs_dict["ASSEMBLY_DIR"] + "/sourmash_{sample}_{sampling}.classifications.csv"),
+		csv_report=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv"),
 	params:
 		outdir=(dirs_dict["ASSEMBLY_DIR"]),
 		name="{sample}_{sampling}"
