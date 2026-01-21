@@ -1,27 +1,53 @@
+# rule estimateGenomeCompletnessIsolates:
+# 	input:
+# 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+# 		checkv_db=(config['checkv_db']),
+# 	output:
+# 		quality_summary=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/quality_summary.tsv",
+# 		completeness=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/completeness.tsv",
+# 		contamination=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/contamination.tsv",
+# 	params:
+# 		checkv_outdir=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}",
+# 		checkv_db=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}",
+# 	message:
+# 		"Estimating genome completeness with CheckV "
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/isolates_{sampling}.tsv"
+# 	threads: 4
+# 	shell:
+# 		"""
+# 		checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+# 		checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+# 		checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
+# 		checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
+# 		"""
+
 rule estimateGenomeCompletnessIsolates:
 	input:
-		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+		assembly_fasta=(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
 		checkv_db=(config['checkv_db']),
 	output:
-		quality_summary=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/quality_summary.tsv",
-		completeness=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/completeness.tsv",
-		contamination=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/contamination.tsv",
+		quality_summary=dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_{sampling}/quality_summary.tsv",
+		completeness=dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_{sampling}/completeness.tsv",
+		contamination=dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_{sampling}/contamination.tsv",
 	params:
-		checkv_outdir=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}",
-		checkv_db=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}",
+		checkv_outdir=dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_{sampling}",
+		checkv_db=dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_{sampling}",
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/isolates_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/isolates_{sample}_{sampling}.tsv"
 	threads: 4
 	shell:
 		"""
-		checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
-		checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
+		checkv contamination {input.assembly_fasta} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		checkv completeness {input.assembly_fasta} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+		checkv complete_genomes {input.assembly_fasta} {params.checkv_outdir}
+		checkv quality_summary {input.assembly_fasta} {params.checkv_outdir}
 		"""
 
 rule filter_isolates:

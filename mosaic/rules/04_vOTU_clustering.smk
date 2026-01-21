@@ -87,7 +87,7 @@ def input_getHighQuality(wildcards):
 		input_list.append(dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv"),
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/quality_summary.tsv", host=HOSTS))
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds_checkV/quality_summary.tsv",sample=SAMPLES))
+		input_list.extend(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/quality_summary.tsv",sample=SAMPLES),
 	return input_list
 
 rule getHighQuality:
