@@ -502,17 +502,17 @@ rule estimateGenomeCompletness_prophages:
 		"""
 		rm -rf {params.checkv_outdir} || true
 		if [ -s {input.positive_contigs} ]; then
-		    		            	checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-		    		            	checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
-		    		            	checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
+			 							checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
+			 							checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
+			 							checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
 										rm -rf {params.tmp}
 		else
-		    		            	echo "The FASTA file {input.positive_contigs} is empty"
-		    		            	mkdir -p {params.checkv_outdir}
-		    		            	touch {output.quality_summary}
-		    		            	touch {output.completeness}
-		    		            	touch {output.contamination}
+			 							echo "The FASTA file {input.positive_contigs} is empty"
+			 							mkdir -p {params.checkv_outdir}
+			 							touch {output.quality_summary}
+			 							touch {output.completeness}
+			 							touch {output.contamination}
 		fi
 		"""
 
@@ -799,5 +799,12 @@ rule combine_logs_to_csv_hosts:
 					dfs.append(df)
 
 		# Combine all tables
-		final_df = pd.concat(dfs, ignore_index=True)
+		if len(dfs) == 0:
+			# Create an empty CSV with no rows
+			final_df = pd.DataFrame()
+		elif len(dfs) == 1:
+			final_df = dfs[0]
+		else:
+			final_df = pd.concat(dfs, ignore_index=True)
+
 		final_df.to_csv(output.csv, index=False)
