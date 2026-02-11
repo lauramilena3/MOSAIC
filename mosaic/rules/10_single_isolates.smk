@@ -583,6 +583,28 @@ rule buildBowtieDB_host:
 		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
 		"""
 
+rule run_BLASTn_host:
+	input:
+		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
+	output:
+		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs_{host}.fasta"),
+		blast_output=(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.tot.csv"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/viga.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_makeblast_{sampling}.tsv"
+	message:
+		"Annotating contigs with BLAST"
+	threads: 8
+	shell:
+		"""
+		cat {input.assembly_fasta} > {output.temp_fasta}
+		makeblastdb -in {input.host_fasta} -dbtype nucl
+		blastn -num_threads {threads} -db {input.host_fasta} -query {output.temp_fasta}\
+			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
+		"""
+
 # rule map_to_host:
 # 	input:
 # 		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
