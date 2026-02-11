@@ -593,7 +593,7 @@ rule run_BLASTn_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_makeblast_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/host_blast_{host}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 8
