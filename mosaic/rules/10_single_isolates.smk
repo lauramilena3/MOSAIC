@@ -531,8 +531,11 @@ rule mask_prophages:
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
-		awk 'BEGIN {{OFS="\t"}} {{if (NR>1) print $2, $3-1-{params.mask_additional_bases}, $4+{params.mask_additional_bases}}}' {params.mask_file} > {output.mask_regions}
-
+		awk 'BEGIN {{OFS="\t"}} 
+			NR>1 {{
+					start = ($3 - 1 - {params.mask_additional_bases} < 0 ? 0 : $3 - 1 - {params.mask_additional_bases});
+					print $2, start, $4 + {params.mask_additional_bases}
+			}}' input.tsv > output.bed
 		# Mask the sequences using bedtools maskfasta
 		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
 		"""
