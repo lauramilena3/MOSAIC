@@ -29,7 +29,7 @@ rule shortReadAsemblySpadesPE:
 	message:
 		"Assembling PE reads with metaSpades"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/shortReadAsemblySpadesPE/{sample}_{sampling}.tsv"
 	threads: input_threads_assembler
@@ -62,7 +62,7 @@ rule shortReadAsemblySpadesPE:
 # 	message:
 # 		"Assembling SE reads with metaSpades"
 # 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 # 	threads: 16
 # 	shell:
 # 		"""
