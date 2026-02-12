@@ -535,7 +535,7 @@ rule mask_prophages:
 			NR>1 {{
 					start = ($3 - 1 - {params.mask_additional_bases} < 0 ? 0 : $3 - 1 - {params.mask_additional_bases});
 					print $2, start, $4 + {params.mask_additional_bases}
-			}}' input.tsv > output.bed
+			}}' {params.mask_file} > {output.mask_regions}
 		# Mask the sequences using bedtools maskfasta
 		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
 		"""
