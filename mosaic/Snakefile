@@ -503,12 +503,12 @@ rule fix:
 
 rule assembly_long:
 	input:
-		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
 		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES),
 		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
 		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
-		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".tot.fasta", sample_nanopore=NANOPORE_SAMPLES),
-		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.tot.fasta", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		expand(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample_nanopore}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		#corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 
 rule assembly_long_only_bacteria:
