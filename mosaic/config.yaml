@@ -15,8 +15,7 @@ nanopore_pooled_name: "raw"
 long_assembler: "flye"
 
 pacbio: True
-LONG_ASSEMBLER_PACBIO: hifiasm
-
+long_assembler_pacbio: hifiasm
 busco_lineage: fungi_odb10
 
 genome_size: "20m"

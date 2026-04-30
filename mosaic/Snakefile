@@ -15,6 +15,8 @@ configfile: "config.yaml"
 RAW_DATA_DIR =config['input_dir']
 RESULTS_DIR=config['results_dir'].rstrip("/")
 LONG_ASSEMBLER=config['long_assembler']
+LONG_ASSEMBLER_PACBIO=config['long_assembler_pacbio']
+
 IMGVR_blast=config['imgvr_blast']
 METAGENOME=config['metagenome']
 VIRSORTER=config['VirSorter']
