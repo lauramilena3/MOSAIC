@@ -213,6 +213,7 @@ print(REPRESENTATIVE_CONTIGS_DIR)
 # print(TOMBO)
 
 print("Nanopore Only =", NANOPORE_ONLY)
+print("Nanopore Only =", PACBIO_ONLY)
 
 print("Sampling= ")
 print(SAMPLING_TYPE)

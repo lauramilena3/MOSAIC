@@ -9,7 +9,7 @@ rule cleanPacbioReads:
 	message:
 		"Filtering PacBio HiFi reads"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/pacbio.yaml"
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/cleanPacbioReads/{sample_pacbio}_{sampling}.tsv"
 	threads: 4
@@ -34,7 +34,7 @@ rule nanoPlotPacbio:
 	message:
 		"Running NanoPlot on PacBio HiFi reads"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/pacbio.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/nanoPlotPacbio/{sample_pacbio}_{sampling}.tsv"
 	threads: 4
