@@ -815,7 +815,7 @@ rule sourmash_sketch_pacbio_hybrid:
 		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_manysketch.csv"),
 		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_sourmash.sig.zip"),
 	params: 
-		name="polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}"
+		name="polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}"
 	message:
 		"Building PacBio hybrid sketches with sourmash"
 	conda:
