@@ -41,7 +41,7 @@ rule errorCorrectPolypolishPacbioPE:
 		bwa index {input.scaffolds}
 		bwa mem -t {threads} -a {input.scaffolds} {input.forward_paired} > {output.sam1}
 		bwa mem -t {threads} -a {input.scaffolds} {input.reverse_paired} > {output.sam2}
-		polypolish {input.scaffolds} {output.sam1} {output.sam2} > {output.scaffolds_polypolish}
+		polypolish polish {input.scaffolds} {output.sam1} {output.sam2} > {output.scaffolds_polypolish}
 		sed "s/>/>polypolish_/g" -i {output.scaffolds_polypolish}
 		"""
 	
