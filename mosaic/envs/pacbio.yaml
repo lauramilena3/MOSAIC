@@ -4,7 +4,7 @@ channels:
  - bioconda
  - defaults
 dependencies:
- - hifiasm
- - gfatools
- - bwa
- - polypolish
+ - hifiasm =0.25.0
+ - gfatools =0.5.5
+ - bwa =0.7.19
+ - polypolish =0.6.1
