@@ -714,7 +714,7 @@ rule sourmash_tax_microbial_isolate:
 
 rule single_fasta_pacbio:
 	input:
-		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta",
 	output:
 		single_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_single_{sampling}")),
 	message:
@@ -729,7 +729,7 @@ rule single_fasta_pacbio:
 
 rule sourmash_sketch_pacbio:
 	input:
-		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta",
 		single_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_single_{sampling}")),
 	output:
 		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_manysketch.csv"),
@@ -794,7 +794,7 @@ rule sourmash_tax_pacbio:
 
 rule single_fasta_pacbio_hybrid:
 	input:
-		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta",
 	output:
 		single_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_hybrid_single_{sampling}")),
 	message:
@@ -809,7 +809,7 @@ rule single_fasta_pacbio_hybrid:
 
 rule sourmash_sketch_pacbio_hybrid:
 	input:
-		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta",
 		single_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_hybrid_single_{sampling}")),
 	output:
 		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_manysketch.csv"),
@@ -871,7 +871,7 @@ rule sourmash_tax_pacbio_hybrid:
 		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
 			--output-dir {params.outdir} -F csv_summary --rank strain
 		"""
-		
+
 # rule getORFs_microbial:
 # 	input:
 # 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
