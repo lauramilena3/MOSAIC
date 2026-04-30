@@ -47,7 +47,7 @@ rule errorCorrectPolypolishPacbioPE:
 	
 rule estimateFungalGenomeCompletnessBUSCO:
 	input:
-		assembly=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta"
+		assembly=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta"
 	output:
 		summary=dirs_dict["vOUT_DIR"] + "/{sample}_BUSCO_{sampling}/short_summary.specific."+ str(config['busco_lineage']) +".{sample}_BUSCO_{sampling}.txt"
 	params:
