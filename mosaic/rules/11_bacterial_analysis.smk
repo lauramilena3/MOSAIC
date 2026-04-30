@@ -543,7 +543,7 @@ def input_estimateBacterialGenomeCompletness(wildcards):
 	if PACBIO & (PACBIO_ONLY):
 		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
 	if PACBIO & (PACBIO_HYBRID):
-		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
 	if ISOLATES:
 		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
 
