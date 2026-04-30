@@ -63,5 +63,5 @@ rule estimateFungalGenomeCompletnessBUSCO:
 	threads: 8
 	shell:
 		"""
-		busco -i {input.assembly} -o {params.out} --out_path {params.out_path} -l {params.lineage} -m genome -c {threads}
+		busco -i {input.assembly} -o {params.out} --out_path {params.out_path} -l {params.lineage} -m genome -c {threads} -f
 		"""
