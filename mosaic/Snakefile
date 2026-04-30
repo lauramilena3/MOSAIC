@@ -573,13 +573,13 @@ rule assembly_pacbio_only_bacteria:
 	input:
 		nanoplot=expand(dirs_dict["QC_DIR"] + "/pacbio_{sample_pacbio}_{sampling}/NanoPlot-report.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
-		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample_pacbio}_checkM_pacbio_{sampling}", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE)
+		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE)
 
 rule assembly_pacbio_hybrid_bacteria:
 	input:
 		nanoplot=expand(dirs_dict["QC_DIR"] + "/pacbio_{sample_pacbio}_{sampling}/NanoPlot-report.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample_pacbio}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
-		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample_pacbio}_checkM_pacbio_hybrid_{sampling}", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE)
+		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE)
 
 		
 HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
