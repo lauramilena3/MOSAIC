@@ -1,0 +1,15 @@
+name: pacbio
+channels:
+ - conda-forge
+ - bioconda
+ - defaults
+dependencies:
+ - hifiasm
+ - gfatools
+ - bwa
+ - polypolish
+ - samtools
+ - seqkit
+ - nanoplot
+ - quast
+ - checkm-genome

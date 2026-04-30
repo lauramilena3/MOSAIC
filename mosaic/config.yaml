@@ -8,10 +8,18 @@ key_samples: "key_samples_list.csv"
 operating_system: "linux"
 forward_tag: "R1"
 reverse_tag: "R2"
+pacbio_tag: pacbio
 nanopore_tag: "nanopore"
 nanopore_pooled: False
 nanopore_pooled_name: "raw"
-long_assembler: "canu"
+long_assembler: "flye"
+
+pacbio: True
+PACBIO_ONLY: True
+PACBIO_HYBRID: True
+
+LONG_ASSEMBLER: hifiasm
+
 
 genome_size: "20m"
 
@@ -20,6 +28,8 @@ trimmomatic_trailing: "20"
 trimmomatic_window_size: "4"
 trimmomatic_window_quality: "20"
 trimmomatic_minlen: "50"
+pacbio_min_length: 1000
+pacbio_min_quality: 20
 nanopore_quality: "10"
 nanopore_minlen: 1000
 nanopore_maxlen: 10000000
