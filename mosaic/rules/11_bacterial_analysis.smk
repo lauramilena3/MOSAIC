@@ -712,7 +712,166 @@ rule sourmash_tax_microbial_isolate:
 			--output-dir {params.outdir} -F csv_summary --rank strain
 		"""
 
+rule single_fasta_pacbio:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+	output:
+		single_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_single_{sampling}")),
+	message:
+		"formating PacBio contigs into single fasta"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	threads: 1
+	shell:
+		"""
+		seqkit split --quiet -i {input.fasta} --out-dir {output.single_contigs_dir}
+	 	"""
 
+rule sourmash_sketch_pacbio:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		single_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_single_{sampling}")),
+	output:
+		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_manysketch.csv"),
+		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_sourmash.sig.zip"),
+	params: 
+		name="{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}"
+	message:
+		"Building PacBio sketches with sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_sketch.tsv"
+	threads: 4
+	shell:
+		"""
+		echo name,genome_filename,protein_filename > {output.manysketch_csv}
+		grep "^>" {input.fasta} | sed 's/^>//' | awk -v dir="{input.single_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund,DNA -o {output.sketch} -c {threads}
+		"""
+
+rule sourmash_gather_pacbio:
+	input:
+		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_sourmash.sig.zip"),
+		sourmash_rocksdb=config['sourmash_rocksdb'],
+	output:
+		gather=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_gather_sourmash.csv"),
+	message:
+		"Genome containment with sourmash gather"
+	params:
+		threshold_bp="0"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_gather.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
+		"""
+
+rule sourmash_tax_pacbio:
+	input:
+		gather=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_gather_sourmash.csv"),
+		sourmash_tax=config['sourmash_tax'],
+	output:
+		csv_report=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv"),
+	params:
+		outdir=(dirs_dict["ASSEMBLY_DIR"]),
+		name="{sample}_{sampling}_pacbio"
+	message:
+		"Assigning PacBio taxonomy with sourmash tax"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_tax.tsv"
+	threads: 4
+	shell:
+		"""
+		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
+			--output-dir {params.outdir} -F csv_summary --rank strain
+		"""
+
+rule single_fasta_pacbio_hybrid:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+	output:
+		single_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_hybrid_single_{sampling}")),
+	message:
+		"formating PacBio hybrid contigs into single fasta"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	threads: 1
+	shell:
+		"""
+		seqkit split --quiet -i {input.fasta} --out-dir {output.single_contigs_dir}
+	 	"""
+
+rule sourmash_sketch_pacbio_hybrid:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		single_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_pacbio_hybrid_single_{sampling}")),
+	output:
+		manysketch_csv=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_manysketch.csv"),
+		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_sourmash.sig.zip"),
+	params: 
+		name="polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}"
+	message:
+		"Building PacBio hybrid sketches with sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_hybrid_sketch.tsv"
+	threads: 4
+	shell:
+		"""
+		echo name,genome_filename,protein_filename > {output.manysketch_csv}
+		grep "^>" {input.fasta} | sed 's/^>//' | awk -v dir="{input.single_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund,DNA -o {output.sketch} -c {threads}
+		"""
+
+rule sourmash_gather_pacbio_hybrid:
+	input:
+		sketch=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_sourmash.sig.zip"),
+		sourmash_rocksdb=config['sourmash_rocksdb'],
+	output:
+		gather=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_gather_sourmash.csv"),
+	message:
+		"Genome containment with sourmash gather"
+	params:
+		threshold_bp="0"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_hybrid_gather.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
+		"""
+
+rule sourmash_tax_pacbio_hybrid:
+	input:
+		gather=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid_gather_sourmash.csv"),
+		sourmash_tax=config['sourmash_tax'],
+	output:
+		csv_report=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid.classifications.csv"),
+	params:
+		outdir=(dirs_dict["ASSEMBLY_DIR"]),
+		name="{sample}_{sampling}_pacbio_hybrid"
+	message:
+		"Assigning PacBio hybrid taxonomy with sourmash tax"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_hybrid_tax.tsv"
+	threads: 4
+	shell:
+		"""
+		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
+			--output-dir {params.outdir} -F csv_summary --rank strain
+		"""
+		
 # rule getORFs_microbial:
 # 	input:
 # 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
@@ -728,3 +887,4 @@ rule sourmash_tax_microbial_isolate:
 # 		"""
 # 		prodigal -i {input.derreplicated_microbial_contigs} -o {output.coords} -a {output.aa} -p meta
 # 		"""
+

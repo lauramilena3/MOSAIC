@@ -44,10 +44,16 @@ rule errorCorrectPolypolishPacbioPE:
 		polypolish polish {input.scaffolds} {output.sam1} {output.sam2} > {output.scaffolds_polypolish}
 		sed "s/>/>polypolish_/g" -i {output.scaffolds_polypolish}
 		"""
-	
+
+def input_estimateFungalGenomeCompletnessBUSCO(wildcards):
+	if PACBIO & (PACBIO_HYBRID):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+	if PACBIO & (PACBIO_ONLY):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+
 rule estimateFungalGenomeCompletnessBUSCO:
 	input:
-		assembly=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta"
+		assembly=input_estimateFungalGenomeCompletnessBUSCO
 	output:
 		summary=dirs_dict["vOUT_DIR"] + "/{sample}_BUSCO_{sampling}/short_summary.specific."+ str(config['busco_lineage']) +".{sample}_BUSCO_{sampling}.txt"
 	params:
