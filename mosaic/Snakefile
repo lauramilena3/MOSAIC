@@ -160,6 +160,13 @@ NANOPORE_ONLY=False
 if (len(SAMPLES)==0 ) & (len(NANOPORE_SAMPLES)>0):
 	NANOPORE_ONLY=True
 
+PACBIO_HYBRID=False
+PACBIO_ONLY=False
+if (len(SAMPLES)==0 ) & (len(PACBIO_SAMPLES)>0):
+	PACBIO_ONLY=True
+if (len(SAMPLES)>0 ) & (len(PACBIO_SAMPLES)>0):
+	PACBIO_HYBRID=True
+
 print("Input Dir = ")
 print(RAW_DATA_DIR)
 #print(glob.glob(RAW_DATA_DIR + "/*" ))

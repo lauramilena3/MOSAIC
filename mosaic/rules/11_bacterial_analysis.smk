@@ -540,9 +540,12 @@ def input_estimateBacterialGenomeCompletness(wildcards):
 	input_list=[]
 	if NANOPORE & (NANOPORE_ONLY):
 		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if PACBIO & (PACBIO_ONLY):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if PACBIO & (PACBIO_HYBRID):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
 	if ISOLATES:
 		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
-
 
 rule estimateBacterialGenomeCompletness:
 	input:
