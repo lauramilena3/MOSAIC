@@ -180,18 +180,22 @@ print(*READ_TYPES, sep = ", ")
 print("Nanopore samples detected= ")
 print(NANOPORE)
 
+print("Nanopore samples detected= ")
+print(PACBIO)
+
 print("Sample Names = ")
 print(*SAMPLES, sep = ", ")
 print(len(SAMPLES))
 
-
 print("Nanopore samples= ")
 print(NANOPORE_SAMPLES)
+
+print("Pacbio samples= ")
+print(PACBIO_SAMPLES)
 
 print("Key Sample Names = ")
 print(*SAMPLES_key, sep = ", ")
 print(len(SAMPLES_key))
-
 
 print("Contaminants = ")
 print(*CONTAMINANTS, sep = ", ")
