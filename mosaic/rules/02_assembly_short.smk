@@ -85,15 +85,15 @@ rule shortReadAsemblySpadesPE:
 def input_Quast(wildcards):
 	input_list=[]
 	if NANOPORE & (NANOPORE_ONLY):
-		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_ONLY):
-		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_HYBRID):
-		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if CROSS_ASSEMBLY:
-		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.{sampling}.fasta")
+		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds."+ wildcards.sampling +".fasta")
 	if ISOLATES:
-		input_list.append(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
 rule assemblyStats:
@@ -115,6 +115,7 @@ rule assemblyStats:
 		{input.quast_dir}/quast.py {input.scaffolds} -o {output.quast_report_dir}
 		cp {output.quast_report_dir}/report.txt {output.quast_txt}
 		"""
+
 
 # rule mergeAssembliesSHORT:
 # 	input:
