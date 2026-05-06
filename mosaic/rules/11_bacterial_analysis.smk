@@ -437,7 +437,7 @@ rule taxonomy_gtdbtk_bacteria:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/{sample}_GTDB-Tk_{sampling}.tsv"
-	threads: 64
+	threads: 4
 	shell:
 		"""
 		mkdir -p {output.GTDB_temp}
