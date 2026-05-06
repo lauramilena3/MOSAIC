@@ -14,7 +14,7 @@ nanopore_pooled: False
 nanopore_pooled_name: "raw"
 long_assembler: "flye"
 
-pacbio: True
+pacbio: False
 long_assembler_pacbio: hifiasm
 busco_lineage: fungi_odb10
 
