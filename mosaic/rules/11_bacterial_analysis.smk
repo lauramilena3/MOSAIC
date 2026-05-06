@@ -414,29 +414,37 @@ rule DRAM_microbial_annotation:
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
+def input_taxonomy_gtdbtk_bacteria(wildcards):
+	if NANOPORE & (NANOPORE_ONLY):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if PACBIO & (PACBIO_ONLY):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+	if PACBIO & (PACBIO_HYBRID):
+		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
 
-# rule taxonomy_assembly:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 		gtdbtk_db=(config['gtdbtk_db']),
-# 	output:
-# 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
-# 		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_singlefasta_GTDB-Tk")),
-# 	params:
-# 		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
-# 	message:
-# 		"Assigning microbial taxonomy with GTDB-Tk "
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
-# 	threads: 64
-# 	shell:
-# 		"""
-# 		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.GTDB_temp}
-# 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
-# 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
-# 		"""
+rule taxonomy_gtdbtk_bacteria:
+	input:
+		assembly=input_taxonomy_gtdbtk_bacteria,
+		gtdbtk_db=config['gtdbtk_db']
+	output:
+		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_GTDB-Tk_{sampling}"),
+		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_singlefasta_GTDB-Tk_{sampling}"))
+	params:
+		mash_outdir=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_GTDB-Tk_mash_{sampling}"
+	message:
+		"Assigning bacterial taxonomy with GTDB-Tk"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/{sample}_GTDB-Tk_{sampling}.tsv"
+	threads: 64
+	shell:
+		"""
+		mkdir -p {output.GTDB_temp}
+		cp {input.assembly} {output.GTDB_temp}/{wildcards.sample}.fasta
+		export GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
+		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
+		"""
 
 rule single_fasta_microbial:
 	input:
