@@ -545,7 +545,7 @@ rule assembly_long_only_bacteria:
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample_nanopore}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		(expand(dirs_dict["vOUT_DIR"] + "/{sample_nanopore}_checkM_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE)),
 		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_GTDB-Tk_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
+		# quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 rule assembly_long_only_phage:
 	input:
 		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
