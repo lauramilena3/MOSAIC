@@ -398,7 +398,7 @@ rule bacterial_results_parsing:
 		quality_taxonomy_png=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_quality_taxonomy.{sampling}.png",
 		quality_taxonomy_svg=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_quality_taxonomy.{sampling}.svg"
 	params:
-		sampling="{sampling}"
+		sampling="{sampling}",
 		long_assembler=LONG_ASSEMBLER,
 		long_assembler_pacbio=LONG_ASSEMBLER_PACBIO,
 	log:
