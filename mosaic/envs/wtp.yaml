@@ -5,8 +5,11 @@ channels:
   - r
 dependencies:
   - nextflow =23.04.1
-  - singularity =3.7.1
+  - singularity =2.4.6
   - gtdbtk =2.3.2
   - seqkit =2.8.2
+  - mash =2.3
+  - gls =2.6
+
 
 
