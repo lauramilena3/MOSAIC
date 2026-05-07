@@ -423,7 +423,7 @@ def input_taxonomy_gtdbtk_bacteria_all(wildcards):
 	if PACBIO & (PACBIO_HYBRID):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
-	
+
 rule taxonomy_gtdbtk_bacteria:
 	input:
 		assemblies=input_taxonomy_gtdbtk_bacteria_all,
@@ -436,7 +436,7 @@ rule taxonomy_gtdbtk_bacteria:
 	message:
 		"Assigning bacterial taxonomy with GTDB-Tk"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/gtdbtk.yaml"
+		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_bacteria_GTDB-Tk_{sampling}.tsv"
 	threads: 64
