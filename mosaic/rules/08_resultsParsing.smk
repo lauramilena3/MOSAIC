@@ -399,6 +399,8 @@ rule bacterial_results_parsing:
 		quality_taxonomy_svg=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_quality_taxonomy.{sampling}.svg"
 	params:
 		sampling="{sampling}"
+		long_assembler=LONG_ASSEMBLER,
+		long_assembler_pacbio=LONG_ASSEMBLER_PACBIO,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/06_bacterial_results.{sampling}.ipynb"
 	notebook:
