@@ -546,7 +546,8 @@ rule assembly_nanopore_only_bacteria:
 		(expand(dirs_dict["vOUT_DIR"] + "/{sample_nanopore}_checkM_{sampling}", sample_nanopore=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE)),
 		gtdbtk=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}", sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
-
+		qc_long_only=expand(dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
+		assembly_long_only=expand(dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 rule assembly_nanopore_hybrid_bacteria:
 	input:
 		inputReadsCount,
@@ -557,7 +558,7 @@ rule assembly_nanopore_hybrid_bacteria:
 		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		gtdbtk=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}", sampling=SAMPLING_TYPE),
-		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE)
+		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 
 rule assembly_long_only_phage:
 	input:
@@ -582,6 +583,8 @@ rule assembly_long_only_phage:
 		(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 		(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv"),
 		(dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),	
+		qc_long_only=expand(dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
+		assembly_long_only=expand(dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),		
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_diamond_all.tot.csv"),
 		# (dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_coding_lengths.tot.txt"),
 		# (dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
@@ -594,7 +597,8 @@ rule assembly_pacbio_only_bacteria:
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		gtdbtk=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}", sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
-
+		qc_long_only=expand(dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
+		assembly_long_only=expand(dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 rule assembly_pacbio_hybrid_bacteria:
 	input:
 		inputReadsCount,

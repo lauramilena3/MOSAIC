@@ -287,3 +287,66 @@ rule normalise_reads_reference:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_" + REFERENCE + ".{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
+
+
+def input_QC_long_only_nanopore_pre(wildcards):
+	input_list=[]
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_preQC_{sampling}/NanoStats.txt", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+
+def input_QC_long_only_nanopore_post(wildcards):
+	input_list=[]
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_postQC_{sampling}/NanoStats.txt", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+
+def input_QC_long_only_pacbio(wildcards):
+	input_list=[]
+	if PACBIO:
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/pacbio_{sample}_{sampling}/NanoStats.txt", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+
+rule QC_long_only_parsing:
+	input:
+		nanopore_pre=input_QC_long_only_nanopore_pre,
+		nanopore_post=input_QC_long_only_nanopore_post,
+		pacbio=input_QC_long_only_pacbio
+	output:
+		summary_html=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html",
+		read_count_png=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_count.{sampling}.png",
+		read_count_svg=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_count.{sampling}.svg",
+		total_bases_png=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_total_bases.{sampling}.png",
+		total_bases_svg=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_total_bases.{sampling}.svg",
+		read_length_png=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_length.{sampling}.png",
+		read_length_svg=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_length.{sampling}.svg",
+		read_quality_png=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_quality.{sampling}.png",
+		read_quality_svg=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_quality.{sampling}.svg"
+	params:
+		sampling="{sampling}",
+		samples_nanopore=NANOPORE_SAMPLES,
+		samples_pacbio=PACBIO_SAMPLES
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_QC_long_only.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/01_QC_long_only.py.ipynb"
+
+rule assembly_long_only_parsing:
+	input:
+		quast_report_dir=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"
+	output:
+		summary_html=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_summary.{sampling}.html",
+		contig_number_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_contig_number.{sampling}.png",
+		contig_number_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_contig_number.{sampling}.svg",
+		total_length_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_total_length.{sampling}.png",
+		total_length_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_total_length.{sampling}.svg",
+		n50_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_N50.{sampling}.png",
+		n50_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_N50.{sampling}.svg"
+	params:
+		input_quast_report=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
+		sampling="{sampling}"
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_only.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long_only.py.ipynb"
+		
