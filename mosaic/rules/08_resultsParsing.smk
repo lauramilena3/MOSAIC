@@ -370,8 +370,10 @@ def input_bacterial_results_checkm(wildcards):
 
 def input_bacterial_results_sourmash(wildcards):
 	input_list=[]
-	if NANOPORE:
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if NANOPORE & NANOPORE_ONLY:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore.classifications.csv", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_hybrid.classifications.csv", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & PACBIO_ONLY:
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & PACBIO_HYBRID:
@@ -379,7 +381,7 @@ def input_bacterial_results_sourmash(wildcards):
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
-			
+
 rule bacterial_results_parsing:
 	input:
 		checkm=input_bacterial_results_checkm,

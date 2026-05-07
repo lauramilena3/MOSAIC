@@ -728,6 +728,7 @@ rule sourmash_tax_microbial_isolate:
 			--output-dir {params.outdir} -F csv_summary --rank strain
 		"""
 
+
 rule single_fasta_pacbio:
 	input:
 		fasta=dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta",
@@ -888,6 +889,57 @@ rule sourmash_tax_pacbio_hybrid:
 			--output-dir {params.outdir} -F csv_summary --rank strain
 		"""
 
+rule sourmash_sketch_nanopore_only_bacteria:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta"
+	output:
+		sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_sourmash.sig.zip")
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_nanopore_sketch.tsv"
+	threads: 4
+	shell:
+		"""
+		sourmash sketch dna -p k=31,abund {input.fasta} -o {output.sketch}
+		"""
+
+rule sourmash_gather_nanopore_only_bacteria:
+	input:
+		sketch=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_sourmash.sig.zip",
+		sourmash_rocksdb=config['sourmash_rocksdb']
+	output:
+		gather=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_gather_sourmash.csv")
+	params:
+		threshold_bp="0"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_nanopore_gather.tsv"
+	threads: 8
+	shell:
+		"""
+		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
+		"""
+		
+rule sourmash_tax_nanopore_only_bacteria:
+	input:
+		gather=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_gather_sourmash.csv",
+		sourmash_tax=config['sourmash_tax']
+	output:
+		csv_report=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore.classifications.csv"
+	params:
+		outdir=dirs_dict["ASSEMBLY_DIR"],
+		name="{sample}_{sampling}_nanopore"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_nanopore_tax.tsv"
+	threads: 4
+	shell:
+		"""
+		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax} -o {params.name} --output-dir {params.outdir} -F csv_summary --rank strain
+		"""
 # rule getORFs_microbial:
 # 	input:
 # 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
