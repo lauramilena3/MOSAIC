@@ -418,11 +418,14 @@ def input_taxonomy_gtdbtk_bacteria_all(wildcards):
 	input_list=[]
 	if NANOPORE & (NANOPORE_ONLY):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_ONLY):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_HYBRID):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
+
 
 rule taxonomy_gtdbtk_bacteria:
 	input:
@@ -550,12 +553,15 @@ def input_estimateBacterialGenomeCompletness(wildcards):
 	input_list=[]
 	if NANOPORE & (NANOPORE_ONLY):
 		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta")
 	if PACBIO & (PACBIO_ONLY):
-		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
 	if PACBIO & (PACBIO_HYBRID):
 		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
 	if ISOLATES:
 		return(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
+
 
 rule estimateBacterialGenomeCompletness:
 	input:
@@ -563,7 +569,7 @@ rule estimateBacterialGenomeCompletness:
 		checkm_db=(config['checkm_db']),
 	output:
 		checkMoutdir_temp=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}_temp")),
-		checkMoutdir=temp(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}")),
+		checkMoutdir=(directory(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}")),
 	params:
 		checkv_db=dirs_dict["vOUT_DIR"] + "/{sample}_checkV_{sampling}",
 	log:

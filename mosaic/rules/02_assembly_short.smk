@@ -50,42 +50,13 @@ rule shortReadAsemblySpadesPE:
 		sed "s/>/>{wildcards.sample}_/g" -i {output.scaffolds}
 		rm -rf {params.assembly_dir}
 		"""
-# rule shortReadAsemblySpadesSE:
-# 	input:
-# 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq"
-# 	output:
-# 		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
-# 		filtered_list=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/filtered_list.txt")
-# 	params:
-# 		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
-# 		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}")
-# 	message:
-# 		"Assembling SE reads with metaSpades"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
-# 	threads: 16
-# 	shell:
-# 		"""
-# 		spades.py -s {input.unpaired} -o {params.assembly_dir} \
-# 		--sc -t {threads} --only-assembler
-# 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
-# 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
-# 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
-# 		"""
-
-# def input_Quast(wildcards):
-# 	input_list=[]
-# 	input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta",sample=SAMPLES))
-# 	if NANOPORE:
-# 		input_list.extend(expand(dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta", sample=NANOPORE_SAMPLES))
-# 	if CROSS_ASSEMBLY:
-# 		input_list.append(dirs_dict["VIRAL_DIR"]+ "/ALL_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.fasta")
-# 	return input_list
 
 def input_Quast(wildcards):
 	input_list=[]
 	if NANOPORE & (NANOPORE_ONLY):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_ONLY):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_HYBRID):
@@ -96,10 +67,10 @@ def input_Quast(wildcards):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
+
 rule assemblyStats:
 	input:
 		scaffolds=input_Quast,
-		# quast_dir=(config["quast_dir"]),
 	output:
 		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
 		quast_txt=dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt",
