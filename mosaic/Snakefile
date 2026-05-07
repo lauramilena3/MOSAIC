@@ -591,7 +591,8 @@ rule assembly_long_only_phage:
 
 rule assembly_pacbio_only_bacteria:
 	input:
-		nanoplot=expand(dirs_dict["QC_DIR"] + "/pacbio_{sample_pacbio}_{sampling}/NanoPlot-report.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
+		pacbio_preqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_preQC.html", sample_pacbio=PACBIO_SAMPLES),
+		pacbio_postqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_postQC_{sampling}.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
@@ -599,11 +600,13 @@ rule assembly_pacbio_only_bacteria:
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 		qc_long_only=expand(dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 		assembly_long_only=expand(dirs_dict["PLOTS_DIR"] + "/03_assembly_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
+
 rule assembly_pacbio_hybrid_bacteria:
 	input:
 		inputReadsCount,
 		inputQC,
-		nanoplot=expand(dirs_dict["QC_DIR"] + "/pacbio_{sample_pacbio}_{sampling}/NanoPlot-report.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
+		pacbio_preqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_preQC.html", sample_pacbio=PACBIO_SAMPLES),
+		pacbio_postqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_postQC_{sampling}.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
@@ -612,8 +615,8 @@ rule assembly_pacbio_hybrid_bacteria:
 
 rule assembly_pacbio_only_fungi:
 	input:
-		nanoplot=expand(dirs_dict["QC_DIR"] + "/pacbio_{sample}_{sampling}/NanoPlot-report.html", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
-		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
+		pacbio_preqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_preQC.html", sample_pacbio=PACBIO_SAMPLES),
+		pacbio_postqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_postQC_{sampling}.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		busco=expand(dirs_dict["vOUT_DIR"] + "/{sample}_BUSCO_{sampling}/short_summary.specific."+ str(config['busco_lineage']) +".{sample}_BUSCO_{sampling}.txt", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
@@ -621,7 +624,8 @@ rule assembly_pacbio_hybrid_fungi:
 	input:
 		inputReadsCount,
 		inputQC,
-		nanoplot=expand(dirs_dict["QC_DIR"] + "/pacbio_{sample_pacbio}_{sampling}/NanoPlot-report.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
+		pacbio_preqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_preQC.html", sample_pacbio=PACBIO_SAMPLES),
+		pacbio_postqc=expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_report_postQC_{sampling}.html", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample_pacbio=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		busco=expand(dirs_dict["vOUT_DIR"] + "/{sample}_BUSCO_{sampling}/short_summary.specific."+ str(config['busco_lineage']) +".{sample}_BUSCO_{sampling}.txt", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
