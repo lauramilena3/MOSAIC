@@ -14,11 +14,11 @@ dependencies:
   - wget =1.25.0
   # - ont-tombo = 1.5.1
   - blast =2.17.0
-  - checkm-genome =1.2.4
+  - checkm-genome =1.2.5
   - defense-finder = 2.0.1
   # - pysam # checkM
   # - prodigal # checkM
-  # - pplacer # checkM
+  # - pplacer = 1.1.alpha19 # checkM
   # - pip =19.3.1
   # - pip:
     #  - checkm-genome

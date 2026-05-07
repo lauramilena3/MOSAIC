@@ -99,7 +99,7 @@ def input_Quast(wildcards):
 rule assemblyStats:
 	input:
 		scaffolds=input_Quast,
-		quast_dir=(config["quast_dir"]),
+		# quast_dir=(config["quast_dir"]),
 	output:
 		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
 		quast_txt=dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt",

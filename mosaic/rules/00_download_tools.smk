@@ -72,21 +72,21 @@ rule get_minced:
 		make
 		"""
 
-rule getQUAST:
-	output:
-		quast_dir=directory(config["quast_dir"])
-	message:
-		"Downloading QUAST"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	threads: 1
-	shell:
-		"""
-		curl -OL https://downloads.sourceforge.net/project/quast/quast-5.0.2.tar.gz
-		tar -xzf quast-5.0.2.tar.gz -C tools
-		cd {config[quast_dir]}
-		./setup.py install
-		"""
+# rule getQUAST:
+# 	output:
+# 		quast_dir=directory(config["quast_dir"])
+# 	message:
+# 		"Downloading QUAST"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	threads: 1
+# 	shell:
+# 		"""
+# 		curl -OL https://downloads.sourceforge.net/project/quast/quast-5.0.2.tar.gz
+# 		tar -xzf quast-5.0.2.tar.gz -C tools
+# 		cd {config[quast_dir]}
+# 		./setup.py install
+# 		"""
 
 rule get_mmseqs:
 	output:
