@@ -112,7 +112,7 @@ rule assemblyStats:
 	threads: 1
 	shell:
 		"""
-		{input.quast_dir}/quast.py {input.scaffolds} -o {output.quast_report_dir}
+		quast.py {input.scaffolds} -o {output.quast_report_dir}
 		cp {output.quast_report_dir}/report.txt {output.quast_txt}
 		"""
 
