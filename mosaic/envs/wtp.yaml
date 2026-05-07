@@ -9,7 +9,6 @@ dependencies:
   - gtdbtk =2.3.2
   - seqkit =2.8.2
   - mash =2.3
-  - gls =2.6
-
+  - gsl =2.6
 
 
