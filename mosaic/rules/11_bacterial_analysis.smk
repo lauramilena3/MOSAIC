@@ -414,34 +414,36 @@ rule DRAM_microbial_annotation:
 		DRAM.py distill -i {params.DRAM_annotations} -o {output.DRAM_summary} 
 		"""
 
-def input_taxonomy_gtdbtk_bacteria(wildcards):
+def input_taxonomy_gtdbtk_bacteria_all(wildcards):
+	input_list=[]
 	if NANOPORE & (NANOPORE_ONLY):
-		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_ONLY):
-		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO & (PACBIO_HYBRID):
-		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
-
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+	
 rule taxonomy_gtdbtk_bacteria:
 	input:
-		assembly=input_taxonomy_gtdbtk_bacteria,
+		assemblies=input_taxonomy_gtdbtk_bacteria_all,
 		gtdbtk_db=config['gtdbtk_db']
 	output:
-		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_GTDB-Tk_{sampling}"),
-		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_singlefasta_GTDB-Tk_{sampling}"))
+		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}"),
+		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_singlefasta_GTDB-Tk_{sampling}"))
 	params:
-		mash_outdir=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_GTDB-Tk_mash_{sampling}"
+		mash_outdir=dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_mash_{sampling}"
 	message:
 		"Assigning bacterial taxonomy with GTDB-Tk"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+		dirs_dict["ENVS_DIR"] + "/gtdbtk.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/{sample}_GTDB-Tk_{sampling}.tsv"
-	threads: 4
+		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_bacteria_GTDB-Tk_{sampling}.tsv"
+	threads: 64
 	shell:
 		"""
 		mkdir -p {output.GTDB_temp}
-		cp {input.assembly} {output.GTDB_temp}/{wildcards.sample}.fasta
+		for assembly in {input.assemblies}; do sample=$(basename "$assembly" .fasta); cp "$assembly" {output.GTDB_temp}/"$sample".fasta; done
 		export GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
