@@ -357,3 +357,25 @@ rule assembly_long_only_parsing:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_only.{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long_only.py.ipynb"
+
+rule bacterial_results_parsing:
+	input:
+		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=SAMPLES, sampling=SAMPLING_TYPE),
+		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=SAMPLES, sampling=SAMPLING_TYPE),
+		gtdbtk=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}", sampling=SAMPLING_TYPE),
+		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv"
+	output:
+		summary_html=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html",
+		summary_csv=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.csv",
+		checkm_png=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_checkm.{sampling}.png",
+		checkm_svg=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_checkm.{sampling}.svg",
+		taxonomy_png=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_taxonomy.{sampling}.png",
+		taxonomy_svg=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_taxonomy.{sampling}.svg",
+		quality_taxonomy_png=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_quality_taxonomy.{sampling}.png",
+		quality_taxonomy_svg=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_quality_taxonomy.{sampling}.svg"
+	params:
+		sampling="{sampling}"
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/06_bacterial_results.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/06_bacterial_results.py.ipynb"

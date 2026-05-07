@@ -50,6 +50,8 @@ def input_estimateFungalGenomeCompletnessBUSCO(wildcards):
 		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
 	if PACBIO & (PACBIO_ONLY):
 		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+	if ISOLATES:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
 
 rule estimateFungalGenomeCompletnessBUSCO:
 	input:
