@@ -107,7 +107,24 @@ rule postQualityCheckNanopore:
 		mv {output.nanoqc_dir}/nanoQC.html {output.nanoqc}
 		"""
 
-rule qualityStatsNanopore:
+rule qualityStatsNanopore_pre:
+	input:
+		raw_data=dirs_dict["RAW_DATA_DIR"] + "/{sample_nanopore}_nanopore.fastq.gz",
+	output:
+		nanostats=dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_preQC.html",
+	message:
+		"Performing nanoQC statistics"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/qualityStatsNanopore/{sample_nanopore}.tsv"
+#	threads: 1
+	shell:
+		"""
+		NanoStat --fastq {input.raw_data} > {output.nanostats}
+		"""
+
+rule qualityStatsNanopore_post:
 	input:
 		fastq=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.fastq.gz"),
 	output:
