@@ -358,11 +358,33 @@ rule assembly_long_only_parsing:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long_only.py.ipynb"
 
+def input_bacterial_results_checkm(wildcards):
+	input_list=[]
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO:
+		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	if ISOLATES:
+		input_list.extend(expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+
+def input_bacterial_results_sourmash(wildcards):
+	input_list=[]
+	if NANOPORE:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO & PACBIO_ONLY:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO & PACBIO_HYBRID:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid.classifications.csv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	if ISOLATES:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+			
 rule bacterial_results_parsing:
 	input:
-		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=SAMPLES, sampling=SAMPLING_TYPE),
-		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=SAMPLES, sampling=SAMPLING_TYPE),
-		gtdbtk=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}", sampling=SAMPLING_TYPE),
+		checkm=input_bacterial_results_checkm,
+		sourmash=input_bacterial_results_sourmash,
+		gtdbtk=dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}",
 		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv"
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html",
