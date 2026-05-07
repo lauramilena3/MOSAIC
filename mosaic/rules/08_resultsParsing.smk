@@ -292,26 +292,34 @@ rule normalise_reads_reference:
 def input_QC_long_only_nanopore_pre(wildcards):
 	input_list=[]
 	if NANOPORE:
-		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_preQC_{sampling}/NanoStats.txt", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_preQC.html", sample_nanopore=NANOPORE_SAMPLES))
 	return(input_list)
 
 def input_QC_long_only_nanopore_post(wildcards):
 	input_list=[]
 	if NANOPORE:
-		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_postQC_{sampling}/NanoStats.txt", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 	return(input_list)
 
-def input_QC_long_only_pacbio(wildcards):
+def input_QC_long_only_pacbio_pre(wildcards):
 	input_list=[]
 	if PACBIO:
-		input_list.extend(expand(dirs_dict["QC_DIR"] + "/pacbio_{sample}_{sampling}/NanoStats.txt", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_nanostats_preQC.html", sample_pacbio=PACBIO_SAMPLES))
 	return(input_list)
+
+def input_QC_long_only_pacbio_post(wildcards):
+	input_list=[]
+	if PACBIO:
+		input_list.extend(expand(dirs_dict["QC_DIR"] + "/{sample_pacbio}_pacbio_nanostats_postQC_{sampling}.html", sample_pacbio=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+
 
 rule QC_long_only_parsing:
 	input:
 		nanopore_pre=input_QC_long_only_nanopore_pre,
 		nanopore_post=input_QC_long_only_nanopore_post,
-		pacbio=input_QC_long_only_pacbio
+		pacbio_pre=input_QC_long_only_pacbio_pre,
+		pacbio_post=input_QC_long_only_pacbio_post
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html",
 		read_count_png=dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_read_count.{sampling}.png",
@@ -349,4 +357,3 @@ rule assembly_long_only_parsing:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_only.{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_long_only.py.ipynb"
-		
