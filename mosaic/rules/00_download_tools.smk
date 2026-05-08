@@ -691,6 +691,21 @@ rule downloadDionSpacers:
 		spacepharer downloaddb spacers_dion_et_al_2021 dionSetDB tmpFolder
 		"""
 
+rule download_bakta_db:
+	output:
+		db=directory(config["bakta_db"])
+	message:
+		"Downloading Bakta database"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bakta.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/bakta/download_bakta_db.tsv"
+	threads: 8
+	shell:
+		"""
+		mkdir -p {output.db}
+		bakta_db download --output {output.db} --threads {threads}
+		"""
 # rule get_satellite_finder:
 # 	output:
 # 		satellite_finder_dir=directory(config['satellite_finder_dir']),
@@ -703,4 +718,5 @@ rule downloadDionSpacers:
 # 		"""
 # 	 	docker pull gempasteur/satellite_finder:0.9.1
 	 	# """
+
 

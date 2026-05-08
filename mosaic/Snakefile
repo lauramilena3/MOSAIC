@@ -549,7 +549,6 @@ rule assembly_short_fungi:
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 		qc=expand(dirs_dict["PLOTS_DIR"] + "/01_post_qc_read_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 		assembly_stats=expand(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.{sampling}.png", sampling=SAMPLING_TYPE),
-		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 
 rule assembly_nanopore:
 	input:
@@ -662,7 +661,6 @@ rule assembly_pacbio_only_fungi:
 		busco=expand(dirs_dict["vOUT_DIR"] + "/{sample}_BUSCO_{sampling}/short_summary.specific."+ str(config['busco_lineage']) +".{sample}_BUSCO_{sampling}.txt", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
-		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 
 rule assembly_pacbio_hybrid_fungi:
 	input:
@@ -674,7 +672,6 @@ rule assembly_pacbio_hybrid_fungi:
 		busco=expand(dirs_dict["vOUT_DIR"] + "/{sample}_BUSCO_{sampling}/short_summary.specific."+ str(config['busco_lineage']) +".{sample}_BUSCO_{sampling}.txt", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
-		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 
 HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
 print(HOSTS)
