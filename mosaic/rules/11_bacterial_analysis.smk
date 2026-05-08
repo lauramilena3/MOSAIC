@@ -971,6 +971,7 @@ def input_bakta_assembly(wildcards):
 rule annotate_bakta:
 	input:
 		assembly=input_bakta_assembly
+		db=directory(config["bakta_db"])
 	output:
 		outdir=directory(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}"),
 		gff=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.gff3",
@@ -979,7 +980,6 @@ rule annotate_bakta:
 		tsv=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.tsv"
 	params:
 		prefix="{sample}",
-		db=config["bakta_db"]
 	message:
 		"Annotating bacterial/fungal assembly with Bakta"
 	conda:
@@ -989,5 +989,5 @@ rule annotate_bakta:
 	threads: 8
 	shell:
 		"""
-		bakta --db {params.db} --threads {threads} --prefix {params.prefix} --output {output.outdir} --force {input.assembly}
+		bakta --db {input.db} --threads {threads} --prefix {params.prefix} --output {output.outdir} --force {input.assembly}
 		"""
