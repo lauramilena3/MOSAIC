@@ -5,3 +5,4 @@ channels:
   - biobuilds
 dependencies:
   - bakta ==1.11.0
+  - pyhmmer=0.11.4
