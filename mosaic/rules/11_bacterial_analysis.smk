@@ -956,3 +956,38 @@ rule sourmash_tax_nanopore_only_bacteria:
 # 		prodigal -i {input.derreplicated_microbial_contigs} -o {output.coords} -a {output.aa} -p meta
 # 		"""
 
+def input_bakta_assembly(wildcards):
+	if NANOPORE & NANOPORE_ONLY:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta")
+	if PACBIO & PACBIO_ONLY:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+	if PACBIO & PACBIO_HYBRID:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
+	if ISOLATES:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta")
+
+rule annotate_bakta:
+	input:
+		assembly=input_bakta_assembly
+	output:
+		outdir=directory(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}"),
+		gff=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.gff3",
+		ffn=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.ffn",
+		faa=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa",
+		tsv=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.tsv"
+	params:
+		prefix="{sample}",
+		db=config["bakta_db"]
+	message:
+		"Annotating bacterial/fungal assembly with Bakta"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/bakta.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/bakta/{sample}_{sampling}.tsv"
+	threads: 8
+	shell:
+		"""
+		bakta --db {params.db} --threads {threads} --prefix {params.prefix} --output {output.outdir} --force {input.assembly}
+		"""
