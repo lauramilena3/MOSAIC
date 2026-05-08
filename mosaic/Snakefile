@@ -548,7 +548,7 @@ rule assembly_short_fungi:
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}.classifications.csv", sample=SAMPLES, sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 		qc=expand(dirs_dict["PLOTS_DIR"] + "/01_post_qc_read_summary.{sampling}.html", sampling=SAMPLING_TYPE),
-		assembly_stats=expand(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.{sampling}.png", sampling=SAMPLING_TYPE)
+		assembly_stats=expand(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.{sampling}.png", sampling=SAMPLING_TYPE),
 		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 
 rule assembly_nanopore:
