@@ -970,8 +970,8 @@ def input_bakta_assembly(wildcards):
 
 rule annotate_bakta:
 	input:
-		assembly=input_bakta_assembly
-		db=directory(config["bakta_db"])
+		assembly=input_bakta_assembly,
+		db=directory(config["bakta_db"]),
 	output:
 		outdir=directory(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}"),
 		gff=dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.gff3",
