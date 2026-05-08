@@ -700,11 +700,11 @@ rule download_bakta_db:
 		dirs_dict["ENVS_DIR"] + "/bakta.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/bakta/download_bakta_db.tsv"
-	threads: 8
+	threads: 1
 	shell:
 		"""
 		mkdir -p {output.db}
-		bakta_db download --output {output.db} --threads {threads}
+		bakta_db download --output {output.db} 
 		"""
 # rule get_satellite_finder:
 # 	output:
