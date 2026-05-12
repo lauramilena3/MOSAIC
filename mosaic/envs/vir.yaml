@@ -6,8 +6,8 @@ channels:
   - anaconda
   - r
 dependencies:
-  - seqtk =1.3
-  - blast =2.12.0
+  - seqtk =1.5
+  - blast =2.17.0
   - pandas #=0.25.3
   - numpy #=1.19.5
   - clusterone =1.0
