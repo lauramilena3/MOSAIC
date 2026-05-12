@@ -1,4 +1,5 @@
 channels:
+  - main
   - conda-forge
   - bioconda
   - biobuilds
