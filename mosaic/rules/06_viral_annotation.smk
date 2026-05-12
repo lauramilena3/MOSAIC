@@ -861,42 +861,42 @@ rule fasta_to_a2m:
 		muscle -in {output.faa} -out {output.aln}
 		"""
 
-rule hh_annotation:
-	input:
-		fa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.aln",
-	output:
-		a2m=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a2m",
-		a3m_msa=dirs_dict["ANNOTATION"] + "/MSA_uniref_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a3m",
-		hhr_temp=temp(dirs_dict["ANNOTATION"] + "/temp_results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.hhr"),
-		hhr=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.hhr",
-		txt=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.txt",
-		a3m_res=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a3m",
-	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
-	message:
-		"Annotating proteins with hhpred"
-	params:
-		context="/home/lmf/db/hh-suite/context_data.crf",
-		pdb_70="/home/lmf/db/hh-suite/pdb70",
-		pfam="/home/lmf/db/hh-suite/pfam",
-		# scop70_1="/opt/hh-suite/data/scop70_1.75",
-		NCBI_CD="/home/lmf/db/hh-suite/NCBI_CD",
-		uniref="/home/lmf/db/hh-suite/UniRef30_2022_02",
-		phrogs="/home/lmf/db/hh-suite/phrogs_v4",
-		# metaclust="/home/lmf/db/hh-suite/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
-		maxres=32000,
-	threads: 4
-	shell:
-		"""
-		perl ./scripts/reformat.pl fas a2m {input.fa} {output.a2m}
-		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
-			 						-norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
-		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
-									-d {params.uniref} -d {params.phrogs} 
-			 						-o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
-			 						-norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
-		grep "^  [0-9] " {output.hhr} > {output.txt}
-		"""
+# rule hh_annotation:
+# 	input:
+# 		fa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.aln",
+# 	output:
+# 		a2m=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a2m",
+# 		a3m_msa=dirs_dict["ANNOTATION"] + "/MSA_uniref_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a3m",
+# 		hhr_temp=temp(dirs_dict["ANNOTATION"] + "/temp_results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.hhr"),
+# 		hhr=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.hhr",
+# 		txt=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.txt",
+# 		a3m_res=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a3m",
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+# 	message:
+# 		"Annotating proteins with hhpred"
+# 	params:
+# 		context="/home/lmf/db/hh-suite/context_data.crf",
+# 		pdb_70="/home/lmf/db/hh-suite/pdb70",
+# 		pfam="/home/lmf/db/hh-suite/pfam",
+# 		# scop70_1="/opt/hh-suite/data/scop70_1.75",
+# 		NCBI_CD="/home/lmf/db/hh-suite/NCBI_CD",
+# 		uniref="/home/lmf/db/hh-suite/UniRef30_2022_02",
+# 		phrogs="/home/lmf/db/hh-suite/phrogs_v4",
+# 		# metaclust="/home/lmf/db/hh-suite/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
+# 		maxres=32000,
+# 	threads: 4
+# 	shell:
+# 		"""
+# 		perl ./scripts/reformat.pl fas a2m {input.fa} {output.a2m}
+# 		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
+# 			 						-norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
+# 		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
+# 									-d {params.uniref} -d {params.phrogs} 
+# 			 						-o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
+# 			 						-norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
+# 		grep "^  [0-9] " {output.hhr} > {output.txt}
+# 		"""
 
 def aggregate_input_annotation(wildcards):
 	checkpoint_output = checkpoints.split_multi_fasta.get(**wildcards).output[0]

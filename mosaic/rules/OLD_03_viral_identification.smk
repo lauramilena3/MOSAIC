@@ -265,45 +265,46 @@ rule parseViralTable:
 
 		final.to_csv(viral_table, sep="\t")
 
-rule hmmCircularContigs:
-	input:
-		circular_unk=dirs_dict["VIRAL_DIR"]+ "/unknown_circular_list.{sampling}.txt",
-		merged_assembly=(dirs_dict["VIRAL_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
-	output:
-		edited_fasta=(dirs_dict["vOUT_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
-		circular_unk_fasta=dirs_dict["VIRAL_DIR"]+ "/unknown_circular.{sampling}.fna",
-		coords=dirs_dict["VIRAL_DIR"] + "/unknown_circular.{sampling}.coords",
-		aa=dirs_dict["VIRAL_DIR"] + "/unknown_circular.{sampling}.faa",
-		hmm_results=dirs_dict["VIRAL_DIR"]+ "/hmm_parsed.{sampling}.out",
-		hmm_out=dirs_dict["VIRAL_DIR"]+ "/hmmsearch.{sampling}.out",
-		hmm_list=dirs_dict["VIRAL_DIR"]+ "/positive_rep_list.{sampling}.txt",
-	params:
-		hmm="db/hmm/ssDNA.hmm",
-		min_score=50,
-		min_eval=0.001,
-	message:
-		"Selecting Viral Circular Contigs with hmmsearch"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/vir.yaml"
-	threads: 1
-	shell:
-		"""
-		sed 's/\./_/g' {input.merged_assembly} > {output.edited_fasta}
-		seqtk subseq {output.edited_fasta} {input.circular_unk} > {output.circular_unk_fasta}
-		if [ -s {output.circular_unk_fasta} ]
-		then
-			prodigal -i {output.circular_unk_fasta} -o {output.coords} -a {output.aa} -p meta
-			hmmsearch --tblout {output.hmm_out} -E {params.min_eval} {params.hmm} {output.aa}
-			cat {output.hmm_out} | grep -v '^#' | awk '{{ if ( $6 > {params.min_score} ) {{print $1,$3,$5,$6}} }}' > {output.hmm_results} || true
-			cut -d' ' -f1 {output.hmm_results} | sort | uniq > {output.hmm_list}
-		else
-			touch {output.hmm_out}
-			touch {output.hmm_results}
-			touch {output.hmm_list}
-			touch {output.coords}
-			touch {output.aa}
-		fi
-		"""
+# rule hmmCircularContigs:
+# 	input:
+# 		circular_unk=dirs_dict["VIRAL_DIR"]+ "/unknown_circular_list.{sampling}.txt",
+# 		merged_assembly=(dirs_dict["VIRAL_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
+# 	output:
+# 		edited_fasta=(dirs_dict["vOUT_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
+# 		circular_unk_fasta=dirs_dict["VIRAL_DIR"]+ "/unknown_circular.{sampling}.fna",
+# 		coords=dirs_dict["VIRAL_DIR"] + "/unknown_circular.{sampling}.coords",
+# 		aa=dirs_dict["VIRAL_DIR"] + "/unknown_circular.{sampling}.faa",
+# 		hmm_results=dirs_dict["VIRAL_DIR"]+ "/hmm_parsed.{sampling}.out",
+# 		hmm_out=dirs_dict["VIRAL_DIR"]+ "/hmmsearch.{sampling}.out",
+# 		hmm_list=dirs_dict["VIRAL_DIR"]+ "/positive_rep_list.{sampling}.txt",
+# 	params:
+# 		hmm="db/hmm/ssDNA.hmm",
+# 		min_score=50,
+# 		min_eval=0.001,
+# 	message:
+# 		"Selecting Viral Circular Contigs with hmmsearch"
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
+# 	threads: 1
+# 	shell:
+# 		"""
+# 		sed 's/\./_/g' {input.merged_assembly} > {output.edited_fasta}
+# 		seqtk subseq {output.edited_fasta} {input.circular_unk} > {output.circular_unk_fasta}
+# 		if [ -s {output.circular_unk_fasta} ]
+# 		then
+# 			prodigal -i {output.circular_unk_fasta} -o {output.coords} -a {output.aa} -p meta
+# 			hmmsearch --tblout {output.hmm_out} -E {params.min_eval} {params.hmm} {output.aa}
+# 			cat {output.hmm_out} | grep -v '^#' | awk '{{ if ( $6 > {params.min_score} ) {{print $1,$3,$5,$6}} }}' > {output.hmm_results} || true
+# 			cut -d' ' -f1 {output.hmm_results} | sort | uniq > {output.hmm_list}
+# 		else
+# 			touch {output.hmm_out}
+# 			touch {output.hmm_results}
+# 			touch {output.hmm_list}
+# 			touch {output.coords}
+# 			touch {output.aa}
+# 		fi
+# 		"""
+
 rule extractViralContigs:
 	input:
 		merged_assembly=(dirs_dict["VIRAL_DIR"] + "/merged_scaffolds.{sampling}.fasta"),
