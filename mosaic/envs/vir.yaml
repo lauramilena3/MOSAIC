@@ -11,7 +11,7 @@ dependencies:
   # - pandas #=0.25.3
   # - numpy #=1.19.5
   # - clusterone =1.0
-  - medaka = 2.2.1
+  - medaka = 2.1.1
   # - hhsuite = 3.3.0
   # - diamond #= 2.1.25
   # - scipy #= 1.6.0
