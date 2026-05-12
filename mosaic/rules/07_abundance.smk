@@ -766,8 +766,8 @@ rule long_read_contig_coverage:
 		assembly=input_long_read_coverage_assembly,
 		reads=input_long_read_coverage_reads
 	output:
-		bam=temp(dirs_dict["MAPPING_DIR"] + "/LONG_READS/{sample}_{sampling}_long_read_sorted.bam"),
-		bai=temp(dirs_dict["MAPPING_DIR"] + "/LONG_READS/{sample}_{sampling}_long_read_sorted.bam.bai"),
+		bam=temp(dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_sorted.bam"),
+		bai=temp(dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_sorted.bam.bai"),
 		coverage=dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_contig_coverage.tsv"
 	params:
 		preset=lambda wildcards: "map-hifi" if PACBIO else "map-ont"

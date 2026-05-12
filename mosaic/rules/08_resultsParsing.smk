@@ -385,9 +385,9 @@ def input_bacterial_results_sourmash(wildcards):
 def input_bacterial_results_coverage(wildcards):
 	input_list=[]
 	if NANOPORE & NANOPORE_ONLY:
-		input_list.extend(expand(dirs_dict["MAPPING_DIR"] + "/LONG_READS/{sample}_{sampling}_long_read_contig_coverage.tsv", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+		input_list.extend(expand(dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_contig_coverage.tsv", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if PACBIO:
-		input_list.extend(expand(dirs_dict["MAPPING_DIR"] + "/LONG_READS/{sample}_{sampling}_long_read_contig_coverage.tsv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+		input_list.extend(expand(dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_contig_coverage.tsv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
 rule bacterial_results_parsing:
