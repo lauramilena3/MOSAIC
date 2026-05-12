@@ -74,6 +74,7 @@ rule assemblyStats:
 	output:
 		quast_report_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}"),
 		quast_txt=dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt",
+		quast_tsv=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
 	message:
 		"Creating assembly stats with quast"
 	conda:
