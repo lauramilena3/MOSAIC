@@ -27,7 +27,7 @@ trimmomatic_window_quality: "20"
 trimmomatic_minlen: "50"
 pacbio_min_length: 1000
 pacbio_min_quality: 20
-nanopore_quality: "10"
+nanopore_quality: 10
 nanopore_minlen: 1000
 nanopore_maxlen: 10000000
 nanopore_headcrop: 50
