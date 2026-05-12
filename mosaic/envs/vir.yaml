@@ -14,7 +14,7 @@ dependencies:
   - hhsuite = 3.3.0
   - diamond = 2.0.15
   - scipy #= 1.6.0
-  - mmseqs2 = 14.7e284
+  - mmseqs2 = 18.8cc5c
   - mpfr = 4.0.1
   - bcftools = 1.14
   - gsl = 2.6
