@@ -7,13 +7,13 @@ channels:
 dependencies:
   - seqtk =1.3
   - blast =2.12.0
-  - pandas=0.25.3
-  - numpy=1.19.5
+  - pandas #=0.25.3
+  - numpy #=1.19.5
   - clusterone =1.0
   - medaka = 2.2.1
   - hhsuite = 3.3.0
   - diamond = 2.0.15
-  - scipy = 1.6.0
+  - scipy #= 1.6.0
   - mmseqs2 = 14.7e284
   - mpfr = 4.0.1
   - bcftools = 1.14
