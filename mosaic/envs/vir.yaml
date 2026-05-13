@@ -9,6 +9,7 @@ dependencies:
   # - numpy #=1.19.5
   # - clusterone =1.0
   - medaka = 2.2.1
+  - conda-forge::samtools
   # - hhsuite = 3.3.0
   # - diamond #= 2.1.25
   # - scipy #= 1.6.0
