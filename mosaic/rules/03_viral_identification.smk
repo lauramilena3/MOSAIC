@@ -176,33 +176,38 @@ rule genomad_viral_id:
 		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
 		"""
 
-def input_genomad_viral_id_nanopore(wildcards):
-	if NANOPORE_ONLY:
-		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
-	else:
-		input_genomad=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
-	return input_genomad
+def input_genomad_viral_id_long(wildcards):
+	if NANOPORE and NANOPORE_ONLY:
+		return dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_" + LONG_ASSEMBLER + ".{sampling}.fasta"
+	if NANOPORE and (not NANOPORE_ONLY) and PAIRED:
+		return dirs_dict["ASSEMBLY_DIR"] + "/{sample}_" + LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
+	if PACBIO and PACBIO_ONLY:
+		return dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_" + LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta"
+	if PACBIO and PACBIO_HYBRID:
+		return dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_" + LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta"
+	raise ValueError("No supported long-read mode detected for geNomad")
 
-rule genomad_viral_id_nanopore:
+
+rule genomad_viral_id_long:
 	input:
-		scaffolds=input_genomad_viral_id_nanopore,
-		genomad_db=(config['genomad_db']),
+		scaffolds=input_genomad_viral_id_long,
+		genomad_db=config["genomad_db"]
 	output:
-		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/"),
-		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_"+ LONG_ASSEMBLER + "_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}/"),
+		positive_contigs=dirs_dict["VIRAL_DIR"] + "/{sample}_long_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta"
 	params:
-		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}_"+ LONG_ASSEMBLER + "/*summary/*_virus.fna",
+		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}/*summary/*_virus.fna"
 	message:
 		"Identifying viral contigs with geNomad"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_nanopore.tsv"
+		dirs_dict["BENCHMARKS"] + "/geNomad_viralID/{sample}_{sampling}_long.tsv"
 	threads: 8
 	shell:
 		"""
 		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
-		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
+		cat {params.viral_fasta} 2>/dev/null | sed "s/|/_/g" > {output.positive_contigs}
 		"""
 
 # VIRAL FILTERING vOTUS
