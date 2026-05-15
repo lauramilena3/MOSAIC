@@ -581,19 +581,21 @@ rule assembly_nanopore_only_bacteria:
 		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 
 rule assembly_nanopore_hybrid_bacteria:
-	input:
-		inputReadsCount,
-		inputQC,
-		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
-		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_preQC.html", sample_nanopore=NANOPORE_SAMPLES),
-		nanoplot_pre=expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_preQC_{sampling}/NanoPlot-report.html", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-		nanoplot_post=expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_postQC_{sampling}/NanoPlot-report.html", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-		contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-		checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_hybrid.classifications.csv", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
-		bacterial_results=expand(dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html", sampling=SAMPLING_TYPE),
-		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
-
+    input:
+        inputReadsCount,
+        inputQC,
+        expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
+        expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_preQC.html", sample_nanopore=NANOPORE_SAMPLES),
+        # nanoplot_pre=expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_preQC_{sampling}/NanoPlot-report.html", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+        # nanoplot_post=expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_postQC_{sampling}/NanoPlot-report.html", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+        contigs=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_" + LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+        checkm=expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_{sampling}", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+        sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_hybrid.classifications.csv", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+        gtdbtk=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}", sampling=SAMPLING_TYPE),
+        quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
+        bacterial_results=expand(dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html", sampling=SAMPLING_TYPE),
+        bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		  
 rule assembly_long_only_phage:
 	input:
 		#expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample_nanopore}_"+ LONG_ASSEMBLER + "_corrected_scaffolds.tot.fasta", sample_nanopore=NANOPORE_SAMPLES)
