@@ -582,7 +582,7 @@ rule assembly_nanopore_only_bacteria:
 		genomad=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_long_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		
 rule assembly_nanopore_hybrid_bacteria:
-   input:
+	input:
 		inputReadsCount,
 		inputQC,
 		expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES),
