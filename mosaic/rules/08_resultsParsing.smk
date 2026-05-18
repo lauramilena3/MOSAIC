@@ -390,16 +390,13 @@ def input_bacterial_results_coverage(wildcards):
 		input_list.extend(expand(dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_contig_coverage.tsv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
+
 def input_bacterial_results_genomad(wildcards):
 	input_list=[]
-	if NANOPORE & NANOPORE_ONLY:
+	if NANOPORE:
 		input_list.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
-	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
-		input_list.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_hybrid_geNomad_{sampling}", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
-	if PACBIO & PACBIO_ONLY:
-		input_list.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_pacbio_geNomad_{sampling}", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
-	if PACBIO & PACBIO_HYBRID:
-		input_list.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_pacbio_hybrid_geNomad_{sampling}", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO:
+		input_list.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
