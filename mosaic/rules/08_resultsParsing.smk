@@ -400,15 +400,15 @@ def input_bacterial_results_genomad(wildcards):
 		input_list.extend(expand(dirs_dict["VIRAL_ID"] + "/{sample}_geNomad_{sampling}", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
-	
+
 rule bacterial_results_parsing:
 	input:
 		checkm=input_bacterial_results_checkm,
 		sourmash=input_bacterial_results_sourmash,
 		gtdbtk=dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}",
 		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
-		coverage=input_bacterial_results_coverage
-		genomad=input_bacterial_results_genomad
+		coverage=input_bacterial_results_coverage,
+		genomad=input_bacterial_results_genomad,
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html",
 		summary_csv=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.csv",
