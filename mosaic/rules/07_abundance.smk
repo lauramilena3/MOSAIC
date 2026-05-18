@@ -750,11 +750,13 @@ rule extract_mapped_reads:
 def input_long_read_coverage_assembly(wildcards):
 	if NANOPORE & NANOPORE_ONLY:
 		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
+	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
+		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta")
 	if PACBIO & PACBIO_ONLY:
 		return(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
 	if PACBIO & PACBIO_HYBRID:
 		return(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta")
-
+		
 def input_long_read_coverage_reads(wildcards):
 	if NANOPORE:
 		return(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nanopore_clean.{sampling}.fastq.gz")
