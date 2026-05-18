@@ -390,6 +390,17 @@ def input_bacterial_results_coverage(wildcards):
 		input_list.extend(expand(dirs_dict["MAPPING_DIR"] + "/{sample}_{sampling}_long_read_contig_coverage.tsv", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
+def input_bacterial_results_genomad(wildcards):
+	input_list=[]
+	if NANOPORE & NANOPORE_ONLY:
+		input_list.extend(expand(dirs_dict["VIRAL_ID"] + "/{sample}_long_geNomad_{sampling}", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO:
+		input_list.extend(expand(dirs_dict["VIRAL_ID"] + "/{sample}_pacbio_geNomad_{sampling}", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	if ISOLATES:
+		input_list.extend(expand(dirs_dict["VIRAL_ID"] + "/{sample}_geNomad_{sampling}", sample=SAMPLES, sampling=wildcards.sampling))
+	return(input_list)
+
+	
 rule bacterial_results_parsing:
 	input:
 		checkm=input_bacterial_results_checkm,
@@ -397,6 +408,7 @@ rule bacterial_results_parsing:
 		gtdbtk=dirs_dict["ASSEMBLY_DIR"] + "/assembly_bacteria_GTDB-Tk_{sampling}",
 		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
 		coverage=input_bacterial_results_coverage
+		genomad=input_bacterial_results_genomad
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html",
 		summary_csv=dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.csv",
