@@ -597,6 +597,7 @@ rule assembly_nanopore_hybrid_bacteria:
 		bacterial_results=expand(dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		genomad=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_long_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
+		qc_long_only=expand(dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 
 rule assembly_long_only_phage:
 	input:
@@ -657,6 +658,7 @@ rule assembly_pacbio_hybrid_bacteria:
 		bacterial_results=expand(dirs_dict["PLOTS_DIR"] + "/06_bacterial_results_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 		bakta=expand(dirs_dict["ANNOTATION"] + "/bakta_{sample}_{sampling}/{sample}.faa", sample=NANOPORE_SAMPLES, sampling=SAMPLING_TYPE),
 		genomad=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_long_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
+		qc_long_only=expand(dirs_dict["PLOTS_DIR"] + "/01_QC_long_only_summary.{sampling}.html", sampling=SAMPLING_TYPE),
 
 rule assembly_pacbio_only_fungi:
 	input:
