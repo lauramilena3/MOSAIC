@@ -194,9 +194,10 @@ rule genomad_viral_id_long:
 		genomad_db=config["genomad_db"]
 	output:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}/"),
-		positive_contigs=dirs_dict["VIRAL_DIR"] + "/{sample}_long_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta"
+		positive_contigs=dirs_dict["VIRAL_DIR"] + "/{sample}_long_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 	params:
-		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}/*summary/*_virus.fna"
+		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_long_geNomad_{sampling}/*summary/*_virus.fna",
+		genomad_filter="--" + config["genomad_filter"],
 	message:
 		"Identifying viral contigs with geNomad"
 	conda:
@@ -206,7 +207,7 @@ rule genomad_viral_id_long:
 	threads: 8
 	shell:
 		"""
-		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} --relaxed
+		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds} {output.genomad_outdir} {input.genomad_db} {params.genomad_filter}
 		cat {params.viral_fasta} 2>/dev/null | sed "s/|/_/g" > {output.positive_contigs}
 		"""
 

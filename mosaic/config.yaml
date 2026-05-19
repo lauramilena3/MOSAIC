@@ -13,6 +13,7 @@ nanopore_tag: "nanopore"
 nanopore_pooled: False
 nanopore_pooled_name: "raw"
 long_assembler: "flye"
+genomad_filter: "relaxed" # "default", "relaxed", or "conservative"
 
 pacbio: False
 long_assembler_pacbio: hifiasm
