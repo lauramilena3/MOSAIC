@@ -53,18 +53,18 @@ rule shortReadAsemblySpadesPE:
 
 def input_Quast(wildcards):
 	input_list=[]
-	if NANOPORE & (NANOPORE_ONLY):
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if NANOPORE & NANOPORE_ONLY:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_" + LONG_ASSEMBLER + ".{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
 	if NANOPORE & (not NANOPORE_ONLY) & PAIRED:
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER +"_corrected_scaffolds_pilon.{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
-	if PACBIO & (PACBIO_ONLY):
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
-	if PACBIO & (PACBIO_HYBRID):
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_" + LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta", sample=NANOPORE_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO & PACBIO_ONLY:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_" + LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
+	if PACBIO & PACBIO_HYBRID:
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample}_contigs_" + LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta", sample=PACBIO_SAMPLES, sampling=wildcards.sampling))
 	if CROSS_ASSEMBLY:
-		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds."+ wildcards.sampling +".fasta")
-	if ISOLATES:
-		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta", sample=SAMPLES, sampling=wildcards.sampling))
+		input_list.append(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds." + wildcards.sampling + ".fasta")
+	if PAIRED & (not CROSS_ASSEMBLY):
+		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
 
