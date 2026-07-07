@@ -158,68 +158,76 @@ rule trim_adapters_quality_illumina_PE:
 		cat {output.forward_unpaired} {output.reverse_unpaired} > {output.merged_unpaired}
 		"""
 
-# rule sourmash_sketch_trim:
-# 	input:
-# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
-# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
-# 	output:
-# 		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_manysketch.csv"),
-# 		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
-# 	params:
-# 		sample="{sample}"
-# 	message:
-# 		"Building sketches with sourmash"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_sketch.tsv"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		echo name,read1,read2 > {output.manysketch_csv}
-# 		echo {params.sample},{input.forward_paired},{input.reverse_paired} >> {output.manysketch_csv}
-# 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,k=51,abund,scaled=1000,DNA -o {output.sketch} -c {threads}
-# 		"""
+rule sourmash_sketch_trim:
+	input:
+		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz"),
+		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
+	output:
+		manysketch_csv=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_manysketch.csv"),
+		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
+	params:
+		sample="{sample}"
+	message:
+		"Building sketches with sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_sketch.tsv"
+	threads: 8
+	shell:
+		"""
+		echo name,read1,read2 > {output.manysketch_csv}
+		echo {params.sample},{input.forward_paired},{input.reverse_paired} >> {output.manysketch_csv}
+		sourmash scripts manysketch {output.manysketch_csv} -p k=31,k=51,abund,scaled=1000,DNA -o {output.sketch} -c {threads}
+		"""
 
-# rule sourmash_gather:
-# 	input:
-# 		sketch=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip"),
-# 		sourmash_sig=config['sourmash_sig'],
-# 	output:
-# 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
-# 	message:
-# 		"Metagenome containtment with sourmash gather"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_gather.tsv"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		sourmash scripts fastgather {input.sketch} {input.sourmash_sig} -c {threads} -o {output.gather} -t 50000 -k51 -s1000
-# 		"""
+rule sourmash_gather:
+    input:
+        sketch=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip",
+        sourmash_rocksdb=config["sourmash_rocksdb"],
+    output:
+        gather=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv",
+    params:
+        threshold_bp=50000,
+    message:
+        "Metagenome containment with sourmash fastmultigather"
+    conda:
+        dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
+    benchmark:
+        dirs_dict["BENCHMARKS"] + "/sourmash/{sample}_gather.tsv"
+    threads: 8
+    shell:
+        """
+        sourmash scripts fastmultigather \
+            {input.sketch} \
+            {input.sourmash_rocksdb} \
+            -c {threads} \
+            -o {output.gather} \
+            -t {params.threshold_bp} \
+            -s 1000
+        """
 
-# rule sourmash_tax:
-# 	input:
-# 		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
-# 		sourmash_tax=config['sourmash_tax'],
-# 	output:
-# 		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
-# 	params:
-# 		sample="{sample}_sourmash",
-# 		outdir=(dirs_dict["CLEAN_DATA_DIR"]),
-# 	message:
-# 		"Assigning taxonomy with sourmash tax"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_tax.tsv"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.sample} \
-# 			--output-format kreport --rank species -f --output-dir {params.outdir}
-# 		"""
+rule sourmash_tax:
+	input:
+		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
+		sourmash_tax=config['sourmash_tax'],
+	output:
+		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
+	params:
+		sample="{sample}_sourmash",
+		outdir=(dirs_dict["CLEAN_DATA_DIR"]),
+	message:
+		"Assigning taxonomy with sourmash tax"
+	conda:
+		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_tax.tsv"
+	threads: 1
+	shell:
+		"""
+		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.sample} \
+			--output-format kreport --rank species -f --output-dir {params.outdir}
+		"""
 
 # rule trim_adapters_quality_illumina_SE:
 # 	input:
