@@ -67,7 +67,6 @@ def input_Quast(wildcards):
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta", sample=SAMPLES, sampling=wildcards.sampling))
 	return(input_list)
 
-
 rule assemblyStats:
 	input:
 		scaffolds=input_Quast,
