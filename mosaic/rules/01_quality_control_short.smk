@@ -381,11 +381,26 @@ rule remove_euk:
 			-r {input.kraken_report_unpaired} --fastq-output
 		"""
 
+def remove_user_contaminants_forward(wildcards):
+	if REMOVE_EUK:
+		return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_forward_paired_noEuk.tot.fastq"
+	return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_forward_paired.fastq.gz"
+
+def remove_user_contaminants_reverse(wildcards):
+	if REMOVE_EUK:
+		return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_reverse_paired_noEuk.tot.fastq"
+	return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_reverse_paired.fastq.gz"
+
+def remove_user_contaminants_unpaired(wildcards):
+	if REMOVE_EUK:
+		return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_unpaired_noEuk.tot.fastq"
+	return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_merged_unpaired.tot.fastq.gz"
+
 rule remove_user_contaminants_PE:
 	input:
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot.fastq"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot.fastq"),
-		unpaired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot.fastq"),
+		forward_paired=remove_user_contaminants_forward,
+		reverse_paired=remove_user_contaminants_reverse,
+		unpaired=remove_user_contaminants_unpaired,
 		contaminants_fasta=expand(dirs_dict["CONTAMINANTS_DIR_DB"] +"/{contaminants}.fasta",contaminants=CONTAMINANTS),
 	output:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
@@ -989,4 +1004,3 @@ rule kmer_rarefraction:
 		"""
 		bbcountunique.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out={output.histogram} interval={config[kmer_window]}
 		"""
-

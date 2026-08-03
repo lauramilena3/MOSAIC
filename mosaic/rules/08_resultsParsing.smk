@@ -53,8 +53,6 @@ rule QC_parsing:
 		read_count_raw_reverse=expand(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['reverse_tag']) + "_read_count.txt", sample=SAMPLES),
 		read_count_trimmed_forward=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_read_count.txt", sample=SAMPLES),
 		read_count_trimmed_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_read_count.txt", sample=SAMPLES),
-		read_count_euk_forward=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot_read_count.txt", sample=SAMPLES),
-		read_count_euk_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot_read_count.txt", sample=SAMPLES),
 		read_count_duk_forward=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt", sample=SAMPLES),
 		read_count_duk_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_read_count.txt", sample=SAMPLES),
     	read_count_norm_forward=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.tot_read_count.txt", sample=SAMPLES),
@@ -95,6 +93,7 @@ rule QC_parsing:
 		reverse_tag=config['reverse_tag'],
 		raw_dir=dirs_dict["RAW_DATA_DIR"],
 		qc_dir=dirs_dict["QC_DIR"],
+		remove_euk=REMOVE_EUK,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.{sampling}.ipynb"
 	notebook:
