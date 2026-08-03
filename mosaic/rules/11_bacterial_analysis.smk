@@ -60,7 +60,7 @@ rule buildBowtieDB_microbial:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/bowtie_microbial.tsv"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	threads: 64
 	shell:
 		"""
@@ -93,7 +93,7 @@ rule mapReadsToContigs_microbial:
 	message:
 		"Mapping microbial reads to assembly"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_microbial.tsv"
 	threads: 8

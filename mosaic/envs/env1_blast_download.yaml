@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - blast =2.17.0
+  - entrez-direct =24.0

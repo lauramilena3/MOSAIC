@@ -60,7 +60,7 @@ rule filter_isolates:
 	message:
 		"Filtering vOTUs "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
 	threads: 4
@@ -343,7 +343,7 @@ rule get_relatives_fasta:
 	message:
 		"Extracting relative sequences FASTA"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	threads: 1
 	shell:
 		"""
@@ -527,7 +527,7 @@ rule mask_prophages:
 		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv",
 		mask_additional_bases=500,
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
@@ -579,7 +579,7 @@ rule buildBowtieDB_host:
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	threads: 8
 	shell:
 		"""
@@ -669,7 +669,7 @@ rule map_to_host_masked_prophages:
 	message:
 		"Mapping reads to contigs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host_masked_prophages.tsv"
 	threads: 8
@@ -715,7 +715,7 @@ rule map_to_host:
 	message:
 		"Mapping reads to contigs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
 	threads: 8

@@ -54,7 +54,7 @@ rule remove_contaminants_nanopore:
 	message:
 		"Remove contamination with Minimap"
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
+		dirs_dict["ENVS_DIR"]+ "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/remove_contaminants_nanopore/{sample_nanopore}.tsv"
 	threads: 2

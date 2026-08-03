@@ -12,6 +12,14 @@ configfile: "config.yaml"
 # Global variables
 #======================================================
 
+def config_bool(name, default):
+	value = config.get(name, default)
+	if isinstance(value, bool):
+		return value
+	if isinstance(value, str):
+		return value.strip().lower() in ["1", "true", "yes", "y"]
+	return bool(value)
+
 RAW_DATA_DIR =config['input_dir']
 RESULTS_DIR=config['results_dir'].rstrip("/")
 LONG_ASSEMBLER=config['long_assembler']
@@ -31,6 +39,7 @@ SOURMASH=config['sourmash']
 LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
 ISOLATES=config['isolates']
+REMOVE_EUK=config_bool('remove_euk', True)
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
@@ -236,9 +245,10 @@ def inputReadsCount(wildcards):
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
-	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot_read_count.txt", sample=SAMPLES))
+	if REMOVE_EUK:
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot_read_count.txt", sample=SAMPLES))
+		inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_read_count.txt", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt", sample=SAMPLES))

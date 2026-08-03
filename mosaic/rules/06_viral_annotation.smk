@@ -736,7 +736,7 @@ rule mapReadstoContigsPE:
 	message:
 		"Mapping reads to contigs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/mapReadstoContigsPE/{sample}_{sampling}_{contigs}.tsv"
 	threads: 8
@@ -768,7 +768,7 @@ rule detectNucleotideModifications:
 	message:
 		"Detecting nucleotide modifications with tombo"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_tombo.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/detectNucleotideModifications/tot.tsv"
 	threads: 16
@@ -1436,7 +1436,7 @@ rule get_composition:
 	message:
 		"Getting vOTUs nucleotide composition"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	threads: 1
 	shell:
 		"""

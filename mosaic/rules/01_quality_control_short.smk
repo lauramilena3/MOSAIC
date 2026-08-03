@@ -296,7 +296,7 @@ rule contaminants_KRAKEN:
 	message:
 		"Assesing contamination with kraken2"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
 	threads: 16
@@ -331,7 +331,7 @@ rule contaminants_KRAKEN_microbial:
 	message:
 		"Assesing contamination with kraken2"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
 	threads: 32
@@ -363,7 +363,7 @@ rule remove_euk:
 		# unclassified_name_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken_paired_R#.tot.fastq",
 		host_taxid=config["contaminants_taxid"] 
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
+		dirs_dict["ENVS_DIR"]+ "/env1_kraken.yaml"
 	threads: 4
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/remove_euk_PE/{sample}.tsv"
@@ -381,11 +381,26 @@ rule remove_euk:
 			-r {input.kraken_report_unpaired} --fastq-output
 		"""
 
+def remove_user_contaminants_forward(wildcards):
+	if REMOVE_EUK:
+		return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_forward_paired_noEuk.tot.fastq"
+	return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_forward_paired.fastq.gz"
+
+def remove_user_contaminants_reverse(wildcards):
+	if REMOVE_EUK:
+		return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_reverse_paired_noEuk.tot.fastq"
+	return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_reverse_paired.fastq.gz"
+
+def remove_user_contaminants_unpaired(wildcards):
+	if REMOVE_EUK:
+		return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_unpaired_noEuk.tot.fastq"
+	return dirs_dict["CLEAN_DATA_DIR"] + f"/{wildcards.sample}_merged_unpaired.tot.fastq.gz"
+
 rule remove_user_contaminants_PE:
 	input:
-		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot.fastq"),
-		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot.fastq"),
-		unpaired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot.fastq"),
+		forward_paired=remove_user_contaminants_forward,
+		reverse_paired=remove_user_contaminants_reverse,
+		unpaired=remove_user_contaminants_unpaired,
 		contaminants_fasta=expand(dirs_dict["CONTAMINANTS_DIR_DB"] +"/{contaminants}.fasta",contaminants=CONTAMINANTS),
 	output:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
@@ -501,7 +516,7 @@ rule contaminants_KRAKEN_clean:
 	message:
 		"Assesing taxonomy with kraken2 on clean reads"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_clean.tsv"
 	priority: 1
@@ -989,4 +1004,3 @@ rule kmer_rarefraction:
 		"""
 		bbcountunique.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out={output.histogram} interval={config[kmer_window]}
 		"""
-

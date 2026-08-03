@@ -1,0 +1,11 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bowtie2 =2.5.5
+  - samtools =1.24
+  - minimap2 =2.31
+  - coverm =0.8.0
+  - bedtools =2.31.1
+  - seqtk =1.5
+  - pilon =1.24
