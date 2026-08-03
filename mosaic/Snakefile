@@ -40,6 +40,12 @@ LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
 ISOLATES=config['isolates']
 REMOVE_EUK=config_bool('remove_euk', True)
+VISUALIZATION_TOOL=str(config.get('visualization_tool', 'lovis4u')).strip().lower()
+if VISUALIZATION_TOOL in ["lovis", "lovis4u"]:
+	VISUALIZATION_TOOL="lovis4u"
+elif VISUALIZATION_TOOL != "clinker":
+	raise ValueError("visualization_tool must be 'lovis4u' or 'clinker'")
+VISUALIZATION_MAX_CONTIGS=int(config.get('visualization_max_contigs', 50))
 
 REFERENCE=config['additional_reference_contigs'].split("/")[-1].rsplit(".", 1)[0]
 REFERENCE_DIR=os.path.dirname(os.path.abspath(config['additional_reference_contigs'])).rstrip("/")
@@ -280,7 +286,7 @@ def inputQC(wildcards):
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanostats_preQC.html", sample_nanopore=NANOPORE_SAMPLES))
 
-	if MICROBIAL or SOURMASH:
+	if SOURMASH:
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nt_bracken_S_report_paired_tot.csv", sample=SAMPLES)),
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz", sample=SAMPLES))
 		# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz", sample=SAMPLES))
@@ -320,7 +326,10 @@ def inputViralID(wildcards):
 
 def inputvOTUClustering(wildcards):
 	inputs=[]
-	inputs.append(dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta")
+	filtered_votu_base=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot"
+	inputs.append(filtered_votu_base + ".fasta")
+	inputs.append(filtered_votu_base + "_phynteny")
+	inputs.append(filtered_votu_base + "_visualization.done")
 	inputs.append(dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
@@ -410,7 +419,7 @@ def get_clinker_outputs(wildcards):
 		rep for rep in glob_wildcards(os.path.join(fasta_dir, "{rep}.fasta")).rep
 		if "with_references" not in rep
 	]
-	contigs = [os.path.join(fasta_dir, rep) + "_with_references_correct_start" for rep in reps]
+	contigs = [os.path.join(fasta_dir, rep) + "_with_references" for rep in reps]
 	print(expand("{contigs}_clinker.html", contigs=contigs))
 	return expand("{contigs}_clinker.html", contigs=contigs)
 
@@ -473,7 +482,7 @@ rule runWorkflow:
 		inputAbundance, 
 		inputAnnotation,
 
-rule microbial:
+rule microbial_metagenome:
 	input:
 		inputReadsCount,
 		inputQC,
@@ -695,7 +704,7 @@ rule assembly_pacbio_hybrid_fungi:
 HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
 print(HOSTS)
 
-rule assembly_phage:
+rule phage_isolates:
 	input:
 		inputReadsCount,
 		inputQC,
@@ -733,6 +742,8 @@ rule assembly_phage:
 		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_20-20.clstr",
 		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_5-0.clstr",
 		expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.tot.csv", host=HOSTS),
+		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.html",
+		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.csv",
 
 # print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
 
@@ -816,13 +827,6 @@ rule annotate_VIGA_contigs:
 rule annotate_VIGA_phage:
 	input:
 		GenBank_file=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.gbk",
-
-# rule correct_start:
-# 	input:
-# 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
-# 		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
-# 		representatives_corrected=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
-# 		clinker_dir_corrected=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_correctstart_clinker.html"),
 
 rule runVirSorter:
 	input:

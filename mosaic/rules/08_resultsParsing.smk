@@ -208,6 +208,107 @@ rule mapping_statistics_parsing:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_mapping_statistics.py.ipynb"
 
+
+def input_phage_isolates_assembled_covstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs.{sampling}_covstats.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_viral_covstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_viral_contigs.{sampling}_covstats.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_unfiltered_covstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_unfiltered_contigs.{sampling}_covstats.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_filtered_covstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_filtered_flagstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.{sampling}.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_assembled_flagstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_viral_flagstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_unfiltered_flagstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=wildcards.sampling)
+
+
+def input_phage_isolates_host_covstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_filtered_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES)
+
+
+def input_phage_isolates_host_masked_covstats(wildcards):
+	return expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_filtered_{sample}_vs_{host}_masked_prophages_covstats.txt", host=HOSTS, sample=SAMPLES)
+
+
+def input_phage_isolates_host_blast(wildcards):
+	return expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.{sampling}.csv", host=HOSTS, sampling=wildcards.sampling)
+
+
+rule phage_isolates_summary:
+	input:
+		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
+		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
+		checkv=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
+		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
+		virsorter_positive=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",
+		viral_refseq_blast=dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.{sampling}.csv",
+		nucleotide_content=dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.{sampling}.tsv",
+		clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv",
+		rpkm=dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",
+		filtered_covstats=input_phage_isolates_filtered_covstats,
+		assembled_covstats=input_phage_isolates_assembled_covstats,
+		viral_covstats=input_phage_isolates_viral_covstats,
+		unfiltered_covstats=input_phage_isolates_unfiltered_covstats,
+		filtered_flagstats=input_phage_isolates_filtered_flagstats,
+		assembled_flagstats=input_phage_isolates_assembled_flagstats,
+		viral_flagstats=input_phage_isolates_viral_flagstats,
+		unfiltered_flagstats=input_phage_isolates_unfiltered_flagstats,
+		host_covstats=input_phage_isolates_host_covstats,
+		host_masked_covstats=input_phage_isolates_host_masked_covstats,
+		host_blast=input_phage_isolates_host_blast
+	output:
+		summary_html=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.html",
+		summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.csv",
+		contig_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_contigs.{sampling}.csv",
+		closest_relatives_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_closest_relatives.{sampling}.csv",
+		host_mapping_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_mapping.{sampling}.csv",
+		decisions_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_decisions.{sampling}.png",
+		decisions_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_decisions.{sampling}.svg",
+		remaining_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.png",
+		remaining_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.svg",
+		host_viral_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_viral_contigs.{sampling}.png",
+		host_viral_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_viral_contigs.{sampling}.svg",
+		completeness_coverage_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_completeness_vs_coverage.{sampling}.png",
+		completeness_coverage_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_completeness_vs_coverage.{sampling}.svg",
+		dominant_signal_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_dominant_signal.{sampling}.png",
+		dominant_signal_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_dominant_signal.{sampling}.svg",
+		rpkm_heatmap_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.png",
+		rpkm_heatmap_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.svg",
+		assembly_fragmentation_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.png",
+		assembly_fragmentation_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.svg"
+	params:
+		samples=SAMPLES,
+		sampling="{sampling}",
+		isolates=ISOLATES,
+		metagenome=METAGENOME,
+		microbial=MICROBIAL,
+		remove_euk=REMOVE_EUK,
+		sourmash=SOURMASH
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_phage_isolates_summary.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_phage_isolates_summary.py.ipynb"
+
+
 rule subsample_reads:
 	input:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.tot.csv",

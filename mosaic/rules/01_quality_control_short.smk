@@ -134,7 +134,6 @@ rule trim_adapters_quality_illumina_PE:
 		forward_unpaired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_unpaired.fastq.gz"),
 		reverse_unpaired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_unpaired.fastq.gz"),
 		merged_unpaired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot.fastq.gz"),
-		trimmomatic_values=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt"),
 	params:
 		adapters=dirs_dict["ADAPTERS_DIR"] + "/" + config['adapters_file']
 	message:
@@ -149,8 +148,6 @@ rule trim_adapters_quality_illumina_PE:
 	threads: 8
 	shell:
 		"""
-		echo leading {config[trimmomatic_leading]} trailing {config[trimmomatic_trailing]} winsize {config[trimmomatic_window_size]} \
-			winqual {config[trimmomatic_window_quality]} minlnth {config[trimmomatic_minlen]} > {output.trimmomatic_values}
 		trimmomatic PE -threads {threads} -phred33 {input.forward_file} {input.reverse_file} \
 			{output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} \
 			ILLUMINACLIP:{params.adapters}:2:30:10:1:true LEADING:{config[trimmomatic_leading]} TRAILING:{config[trimmomatic_trailing]} \

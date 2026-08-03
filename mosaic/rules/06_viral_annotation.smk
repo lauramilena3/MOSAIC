@@ -335,7 +335,7 @@ rule pharokka_annotation:
 	threads: 16
 	shell:
 		"""
-		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f
+		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f --dnaapler
 		"""
 
 rule annotate_VIGA:
@@ -473,69 +473,37 @@ rule cluster_proteins:
 		mmseqs easy-cluster {input.faa} {params.rep_name} tmp --threads {threads}
 		"""
 
-# mmseqs easy-cluster prodigal-gv.faa prodigal-gv tmp --threads 32
-rule correct_start:
+rule phynteny_annotation:
 	input:
-		fasta=("{contig}.fasta"),
-		pharokka=("{contig}_pharokka"),
+		pharokka_output="{contigs}_pharokka",
+		phynteny_db=config["phynteny_db"]
 	output:
-		corrected_start=("{contig}_correct_start.fasta"),
+		phynteny_output=directory("{contigs}_phynteny")
 	params:
-		csv="{contig}_pharokka/pharokka_cds_final_merged_output.tsv"
+		pharokka_gbk="{contigs}_pharokka/pharokka.gbk"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/phynteny.yaml"
 	message:
-		"Correcting start site with terL"
+		"Annotating Pharokka GenBank with Phynteny"
 	threads: 1
-	run:
-		import pandas as pd
-		from Bio import SeqIO
-
-		# Load annotation data
-		df = pd.read_csv(params.csv, sep="\t")
-		df.set_index('gene', inplace=True)
-
-
-		df["frame"] = df["frame"].str.replace("+", "1").str.replace("-", "-1").astype(int)
-		df["annot_short"] = df["annot"].str.split("[").str[0]
-
-		# Load FASTA sequences into a dictionary
-		seq_dict = {record.id: record.seq for record in SeqIO.parse(open(input.fasta), 'fasta')}
-
-		# Open output file
-		with open(output.corrected_start, 'w') as f:
-			for contig in df["contig"].unique():
-				contig_df = df[df["contig"] == contig]
-
-				# Find terL gene
-				terL = contig_df[contig_df["annot_short"].str.contains("terminase large subunit", case=False, na=False)]
-				if terL.empty:
-					terL = contig_df[contig_df["annot_short"].str.contains("terminase", case=False, na=False)]
-					
-				if terL.empty:
-					print(f"No terL found in {contig}, skipping.")
-					start_pos=0
-					frame=1
-				else:
-				# Pick the first one if multiple
-					terL_row = terL.iloc[0]
-					start_pos = int(terL_row["stop"]) + 1
-					frame = int(terL_row["frame"])
-
-				seq = seq_dict[contig]
-
-				# Reorder and orient
-				if frame == 1:
-						reordered_seq = seq[start_pos:] + seq[:start_pos]
-				elif frame == -1:
-						reordered_seq = (seq[start_pos:] + seq[:start_pos]).reverse_complement()
-				else:
-						print(f"Invalid frame for {contig}")
-
-				# Write to file
-				f.write(f">{contig}\n{str(reordered_seq)}\n")
+	shell:
+		"""
+		rm -rf {output.phynteny_output}
+		if [ -d {input.phynteny_db}/models ] && [ -s {input.phynteny_db}/confidence_dict.pkl ]; then
+			phynteny {params.pharokka_gbk} -o {output.phynteny_output} -m {input.phynteny_db}/models -t {input.phynteny_db}/confidence_dict.pkl
+		elif [ -s {input.phynteny_db}/confidence_dict.pkl ]; then
+			phynteny {params.pharokka_gbk} -o {output.phynteny_output} -m {input.phynteny_db} -t {input.phynteny_db}/confidence_dict.pkl
+		else
+			phynteny {params.pharokka_gbk} -o {output.phynteny_output}
+		fi
+		if [ "$(find {output.phynteny_output} -type f \( -name '*.gbk' -o -name '*.gb' \) | wc -l)" -eq 0 ]; then
+			cp {params.pharokka_gbk} {output.phynteny_output}/pharokka.gbk
+		fi
+		"""
 
 rule clinker_figure:
 	input:
-		pharokka_output=("{contigs}_pharokka"),
+		phynteny_output=("{contigs}_phynteny"),
 	output:
 		clinker=("{contigs}_clinker.html"),
 	conda:
@@ -551,9 +519,15 @@ rule clinker_figure:
 		rm -rf {params.clinker_dir} {wildcards.contigs}_genbank*
 		mkdir -p {params.clinker_dir}
 		cd {params.clinker_dir}
-		cp {input.pharokka_output}/pharokka.gbk .
+		find {input.phynteny_output} -type f \( -name "*.gbk" -o -name "*.gb" \) -exec cp {{}} . \;
+		gbk_files=$(find . -maxdepth 1 -type f \( -name "*.gbk" -o -name "*.gb" \) | sort)
+		if [ -z "$gbk_files" ]; then
+			echo "No GenBank files found in {input.phynteny_output}" >&2
+			exit 1
+		fi
 
-		awk '{{f="tmp_record_" NR; print $0 "//" > f}}' RS='//' pharokka.gbk
+		awk '{{f="tmp_record_" NR; print $0 "//" > f}}' RS='//' $gbk_files
+		rm -f $gbk_files
 		find . -type f -size -10c -delete
 
 		for f in tmp_record_*; do
@@ -565,10 +539,104 @@ rule clinker_figure:
 				rm "$f"
 			fi
 		done
-		rm pharokka.gbk
 		clinker *.gbk -p {output.clinker} -j {threads}
 
 		rm -rf {params.clinker_dir}
+		"""
+
+rule lovis4u_figure:
+	input:
+		phynteny_output=("{contigs}_phynteny"),
+	output:
+		lovis4u=directory("{contigs}_lovis4u"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/lovis4u.yaml"
+	message:
+		"Creating genome visualization with LoVis4u"
+	params:
+		output_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u)),
+		work_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u) + "_work")
+	threads: 16
+	shell:
+		"""
+		out_dir="{params.output_dir}"
+		work_dir="{params.work_dir}"
+		gb_dir="$work_dir/genbank"
+
+		rm -rf "$out_dir" "$work_dir"
+		mkdir -p "$gb_dir"
+		find {input.phynteny_output} -type f \( -name "*.gbk" -o -name "*.gb" \) -exec cp {{}} "$gb_dir"/ \;
+		if [ "$(find "$gb_dir" -maxdepth 1 -type f \( -name "*.gbk" -o -name "*.gb" \) | wc -l)" -eq 0 ]; then
+			echo "No GenBank files found in {input.phynteny_output}" >&2
+			exit 1
+		fi
+
+		mkdir -p "$(dirname "$out_dir")"
+		cd "$work_dir"
+		lovis4u --data
+		lovis4u --linux
+		lovis4u -gb "$gb_dir" -hl -smp mmseqs -c A4L -o "$out_dir"
+		rm -rf "$work_dir"
+		"""
+
+checkpoint filtered_vOTU_visualization_decision:
+	input:
+		fasta="{contigs}.fasta",
+	output:
+		summary="{contigs}_visualization.tsv",
+	params:
+		max_contigs=VISUALIZATION_MAX_CONTIGS,
+		tool=VISUALIZATION_TOOL,
+		lovis4u_output="{contigs}_lovis4u/lovis4u.pdf",
+		clinker_output="{contigs}_clinker.html"
+	message:
+		"Checking whether filtered vOTUs are small enough to visualize"
+	shell:
+		"""
+		seq_count=$(grep -c '^>' {input.fasta} || true)
+		status="render"
+		visualization_output="{params.lovis4u_output}"
+		if [ "{params.tool}" = "clinker" ]; then
+			visualization_output="{params.clinker_output}"
+		fi
+		if [ "$seq_count" -eq 0 ]; then
+			status="skipped_empty_fasta"
+			visualization_output=""
+		elif [ "$seq_count" -ge {params.max_contigs} ]; then
+			status="skipped_too_many_contigs"
+			visualization_output=""
+		fi
+		printf "tool\tmax_contigs\tseq_count\tstatus\toutput\n" > {output.summary}
+		printf "{params.tool}\t{params.max_contigs}\t%s\t%s\t%s\n" "$seq_count" "$status" "$visualization_output" >> {output.summary}
+		"""
+
+def filtered_vOTU_visualization_inputs(wildcards):
+	ckpt = checkpoints.filtered_vOTU_visualization_decision.get(contigs=wildcards.contigs)
+	summary = ckpt.output["summary"]
+	inputs = [summary, wildcards.contigs + "_phynteny"]
+
+	with open(summary) as handle:
+		header = handle.readline().strip().split("\t")
+		values = handle.readline().strip().split("\t")
+	row = dict(zip(header, values))
+
+	if row.get("status") == "render":
+		if VISUALIZATION_TOOL == "clinker":
+			inputs.append(wildcards.contigs + "_clinker.html")
+		else:
+			inputs.append(wildcards.contigs + "_lovis4u")
+	return inputs
+
+rule filtered_vOTU_visualization:
+	input:
+		filtered_vOTU_visualization_inputs
+	output:
+		done="{contigs}_visualization.done",
+	message:
+		"Finalizing filtered vOTU annotation and visualization"
+	shell:
+		"""
+		touch {output.done}
 		"""
 
 rule blasToRefSeq:
@@ -1255,178 +1323,6 @@ rule parse_diamond_isolates:
 		time awk 'BEGIN {{OFS=" "}} {{print}} {{matrix[$1][$2]=$3; contigs[$1]; contigs[$2]}} END {{for (i in contigs) {{for (j in contigs) {{if (!(i in matrix) || !(j in matrix[i])) {{print i, j, 100}}}}}}}}' {output.distance_short} > {output.distance_short_full}
 		time awk {awk_command:q} {output.distance_short_full} > {output.pivot}
 		"""
-
-# rule change_start_site_full:
-# 	input:
-# 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-# 		csv=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_VIGA_annotated.csv",
-# 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
-# 	output:
-# 		corrected_start=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_correctstart.tot.fasta",
-# 	log:
-# 		out = dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_stdout.log",
-# 		err = dirs_dict["ANNOTATION"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_stderr.err"
-# 	message:
-# 		"Correcting start"
-# 	threads: 1
-# 	run:
-# 		import pandas as pd
-# 		from Bio import SeqIO
-# 		from Bio.Seq import Seq
-# 		import sys
-# 		from itertools import groupby
-# 		from operator import itemgetter
-
-# 		def intercalate_lists(list1,list2):
-# 		    intercalated = []
-# 		    for i in range(max(len(list1), len(list2))):
-# 		        if i<len(list1):
-# 		            intercalated.append(list1[i])
-# 		        if i<len(list2):
-# 		            intercalated.append(list2[i])
-# 		    return intercalated
-
-
-# 		tbl_file=input.csv
-# 		cluster_file=input.mmseqs_out
-# 		input_file=input.representatives
-
-# 		f=open(output.corrected_start, 'w')
-
-# 		viga_df = pd.read_csv(tbl_file, sep="\t")
-
-# 		viga_df.set_index('Protein ID', inplace=True)
-# 		viga_df["Method"]='VIGA'
-# 		viga_df=viga_df.add_prefix('VIGA_')
-# 		viga_df["VIGA_Description_short"] = viga_df["VIGA_Description"].str.split("[").str[0]
-# 		viga_df_full=viga_df
-# 		viga_df=viga_df[(viga_df["VIGA_Description"]!="Hypothetical protein") &
-# 		               (~viga_df["VIGA_Description"].str.contains('^PHIKZ')) &
-# 		               (~viga_df["VIGA_Description"].str.contains('kDa protein'))]
-
-
-# 		cluster_df = pd.read_csv(cluster_file, sep="\t", names=["cluster", "protein"])
-# 		cluster_df["protein_number"]=cluster_df["protein"].str.rsplit("_",1).str[-1]
-# 		cluster_df["protein_number"] = cluster_df["protein_number"].astype(float)
-# 		n_contigs=len(viga_df.groupby("VIGA_Contig"))
-
-# 		merged_df=viga_df.merge(cluster_df, left_index=True, right_on="protein").groupby(["VIGA_Contig", "VIGA_Description_short"]).first().reset_index().sort_values(by="VIGA_Contig")
-# 		sizes=merged_df.groupby(["VIGA_Description_short"]).size()
-# 		merged_df=merged_df.groupby(["VIGA_Description_short"]).first().sort_values(by="protein_number")
-# 		merged_df["count"]=sizes
-# 		merged_df[merged_df["count"]==n_contigs]
-
-
-# 		fasta_sequences = SeqIO.parse(open(input_file),'fasta')
-# 		seq_dict={}
-# 		for record in fasta_sequences:
-# 		        seq_dict[record.id]=record.seq
-
-
-# 		for phage in viga_df.groupby(["VIGA_Contig"]).first().index.to_list():
-# 		    reverse=False
-# 		    phage_annotation=viga_df_full[viga_df_full["VIGA_Contig"]==phage].reset_index()
-
-# 		    positive_list=phage_annotation[phage_annotation["VIGA_Strand"]==1].index.to_list()
-# 		    positive_groups=[]
-# 		    for k, g in groupby(enumerate(positive_list), lambda i_x: i_x[0] - i_x[1]):
-# 		        positive_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
-
-# 		    if 0 in (positive_list):
-# 		        start="Positive"
-# 		        if len(phage_annotation)-1 in positive_list:
-# 		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
-# 		                positive_groups_fixed=[]
-# 		                for n in range(len(positive_groups)-1):
-# 		                    if n==0:
-# 		                        positive_groups_fixed.append(pd.concat([positive_groups[len(positive_groups)-1],positive_groups[0]]))
-# 		                    else:
-# 		                        positive_groups_fixed.append(positive_groups[n])
-# 		        else:
-# 		            positive_groups_fixed=positive_groups
-# 		    else:
-# 		        positive_groups_fixed=positive_groups
-
-# 		    negative_list=phage_annotation[phage_annotation["VIGA_Strand"]==-1].index.to_list()
-# 		    negative_groups=[]
-# 		    for k, g in groupby(enumerate(negative_list), lambda i_x: i_x[0] - i_x[1]):
-# 		        negative_groups.append(phage_annotation.iloc[list(map(itemgetter(1), g))])
-
-# 		    if 0 in (negative_list):
-# 		        start="Negative"
-# 		        if len(phage_annotation)-1 in negative_list:
-# 		            if phage_annotation.iloc[0]["VIGA_Strand"]== phage_annotation.iloc[len(phage_annotation)-1]["VIGA_Strand"]:
-# 		                negative_groups_fixed=[]
-# 		                for n in range(len(negative_groups)-1):
-# 		                    if n==0:
-# 		                        negative_groups_fixed.append(pd.concat([negative_groups[len(negative_groups)-1],negative_groups[0]]))
-# 		                    else:
-# 		                        negative_groups_fixed.append(negative_groups[n])
-# 		        else:
-# 		            negative_groups_fixed=negative_groups
-# 		    else:
-# 		        negative_groups_fixed=negative_groups
-
-
-# 		    if start=="Positive":
-# 		        intercalated=intercalate_lists(positive_groups_fixed, negative_groups_fixed)
-# 		    else:
-# 		        intercalated=intercalate_lists(negative_groups_fixed, positive_groups_fixed)
-
-# 		    n=0
-# 		    print(phage)
-# 		    for df in intercalated:
-# 		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
-# 		            print("Polymerase", n)
-# 		            polymerase_n=int(n)
-# 		            n=n+1
-# 		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
-# 		            print("Capsid", n)
-# 		            capsid_n=int(n)
-# 		            n=n+1
-# 		        else:
-# 		            n=n+1
-# 		    a=(max(polymerase_n, capsid_n)-min(polymerase_n, capsid_n))
-# 		    b=((len(intercalated)-max(polymerase_n, capsid_n))+(min(polymerase_n, capsid_n)))
-# 		    if a<b:
-# 		        intercalated_a=intercalated[capsid_n:]
-# 		        intercalated_b=intercalated[:capsid_n]
-
-# 		        fix_intercalated=intercalated_a+intercalated_b
-# 		        start=fix_intercalated[-1].iloc[-1]["VIGA_Stop"]
-
-# 		    else:
-# 		        intercalated_a=intercalated[capsid_n+1:]
-# 		        intercalated_b=intercalated[:capsid_n+1]
-# 		        fix_intercalated=intercalated_a+intercalated_b
-# 		        start=fix_intercalated[-1].iloc[-1]["VIGA_Start"]
-
-# 		    n=0
-# 		    for df in fix_intercalated:
-# 		        if len(df[df["VIGA_Description_short"]==("DNA polymerase ")])>0:
-# 		            print("Polymerase", n)
-# 		            polymerase_n=int(n)
-# 		            n=n+1
-# 		        if len(df[df["VIGA_Description_short"]==("major capsid protein ")])>0:
-# 		            print("Capsid", n)
-# 		            capsid_n=int(n)
-# 		            n=n+1
-# 		        else:
-# 		            n=n+1
-# 		    print("a")
-# 		    name, sequence = phage, seq_dict[phage]
-# 		    f.write(">" + name + "\n")
-# 		    print("a")
-
-# 		    if reverse:
-# 		        f.write(str(Seq(sequence[start:]+sequence[:start]).reverse_complement()) + "\n")
-# 		    else:
-# 		        print(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
-# 		        f.write(str(Seq(sequence[start:]+sequence[:start]) + "\n"))
-# 		    print("b")
-
-# 		f.close()
-
 
 rule get_composition:
 	input:

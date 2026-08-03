@@ -487,6 +487,18 @@ rule downloadPharokkaDB:
 		"""
 		install_databases.py -o {output.pharokka_db}
 		"""
+
+rule downloadPhyntenyDB:
+	output:
+		phynteny_db=directory(config['phynteny_db']),
+	message:
+		"Downloading phynteny models"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/phynteny.yaml"
+	shell:
+		"""
+		install_models -o {output.phynteny_db}
+		"""
 		
 #rule downloadminiKrakenDB:
 #	output:
@@ -718,4 +730,3 @@ rule download_bakta_db:
 # 		"""
 # 	 	docker pull gempasteur/satellite_finder:0.9.1
 	 	# """
-
