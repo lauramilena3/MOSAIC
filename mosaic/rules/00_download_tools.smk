@@ -619,40 +619,6 @@ rule downloadCanu:
 		tar -xJf canu-2.0.*.tar.xz -C tools
 		"""
 
-rule get_WIsH:
-	input:
-		representative_list="db/PATRIC/representatives_referece_bacteria_archaea_acc.txt",
-	output:
-		wish_dir=directory(os.path.join(workflow.basedir, (config['wish_dir']))),
-		FNA=directory("db/PATRIC/FNA"),
-	params:
-		patric_dir="db/PATRIC"
-	message:
-		"Downloading WIsH"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/viga.yaml"
-	threads: 16
-	shell:
-		"""
-		wish_dir={output.wish_dir}
-		echo $wish_dir
-		if [ ! -d $wish_dir ]
-		then
-			mkdir -p tools
-			cd tools
-			git clone https://github.com/soedinglab/WIsH.git
-			cd WIsH
-			cmake .
-			make -j {threads}
-		fi
-		cd ../..
-		mkdir {output.FNA}
-		cd {output.FNA}
-		#COUNTER=1
-		#for i in $(cat < ../.{input.representative_list}); do acc="${{i%.*}}"; echo $acc; COUNTER=$[COUNTER + 1]; echo $COUNTER; wget -qN "ftp://ftp.patricbrc.org/genomes/$i/$i.fna" & done;
-		cat ../../../{input.representative_list} | xargs -I {{}} -n 1 -t -P {threads} wget -qN "ftp://ftp.patricbrc.org/genomes/{{}}/{{}}.fna"
-		"""
-
 rule get_WTP:
 	output:
 		WTP_dir=directory(os.path.join(workflow.basedir, config['WTP_dir'])),

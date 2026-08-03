@@ -736,54 +736,6 @@ rule search_contigs_mmseqs2:
 		mmseqs convertalis {params.representatives_name} {params.reference_name} {params.results_name} {output.results_table}
 		"""
 
-rule create_WIsH_models:
-	input:
-		wish_dir=os.path.join(workflow.basedir, (config['wish_dir'])),
-		FNA=("db/PATRIC/FNA"),
-	output:
-		model_dir=directory("db/PATRIC/FNA/wish_modelDir"),
-	params:
-		model_dir_ln="db/PATRIC/FNA/wish_modelDir/wish_modelDir_ln",
-	message:
-		"Create WIsH bacterial DB"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/create_WIsH_models/tot.tsv"
-	threads: 1
-	shell:
-		"""
-		{input.wish_dir}/WIsH -c build -g {input.FNA} -m {output.model_dir}
-		mkdir {params.model_dir_ln}
-		cd {params.model_dir_ln}
-		ln -s ../*.mm .
-		"""
-
-rule hostID_WIsH:
-	input:
-		wish_dir=os.path.join(workflow.basedir, (config['wish_dir'])),
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-		model_dir=("db/PATRIC/FNA/wish_modelDir"),
-	output:
-		results_dir=directory(dirs_dict["VIRAL_DIR"] + "/wish/wish_" + REPRESENTATIVE_CONTIGS_BASE + "_resultsDir"),
-		phages_dir=directory(dirs_dict["VIRAL_DIR"] + "/wish/wish_" + REPRESENTATIVE_CONTIGS_BASE + "_phagesDir"),
-	params:
-		model_dir_ln="db/PATRIC/FNA/wish_modelDir/wish_modelDir_ln",
-		phages_dir=dirs_dict["VIRAL_DIR"] + "/wish_modelDir_ln",
-	message:
-		"Host finding with WIsH"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/hostID_WIsH/tot.tsv"
-	threads: 1
-	shell:
-		"""
-		mkdir {output.phages_dir}
-		cd {output.phages_dir}
-		awk -F '>' '/^>/ {{F=sprintf("%s.fa", $2); print > F;next;}} {{print F; close(F)}}' < {input.representatives}
-		cd {workflow.basedir}
-		mkdir {output.results_dir}
-		{input.wish_dir}/WIsH -c predict -g {output.phages_dir} -m {params.model_dir_ln} -r {output.results_dir} -b
-		"""
-
-
 rule mapReadstoContigsPE:
 	input:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq"),
