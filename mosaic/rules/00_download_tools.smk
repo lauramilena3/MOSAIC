@@ -6,7 +6,7 @@ rule get_SRAToolkit:
 	params:
 		tools="tools",
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
+		dirs_dict["ENVS_DIR"]+ "/env1_entrez.yaml",
 	threads:
 		16
 	shell:
@@ -25,7 +25,7 @@ rule downloadContaminants:
 	params:
 		contaminants_dir=dirs_dict["CONTAMINANTS_DIR_DB"],
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
+		dirs_dict["ENVS_DIR"]+ "/env1_entrez.yaml",
 	threads:
 		16
 	shell:
@@ -399,7 +399,7 @@ rule installBracken:
 		"Downloading Braken"
 	threads: 1
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	shell:
 		"""
 		mkdir -p tools
@@ -419,7 +419,7 @@ rule buildBrackenDB:
 		"Building Braken database"
 	threads: 144
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	shell:
 		"""
     	bracken-build -d {input.kraken_db} -t {threads} -k 35 -l 150
@@ -510,7 +510,7 @@ rule downloadKrakenDB_human:
 		"Downloading human Kraken database"
 	threads: 4
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	shell:
 		"""
 		kraken2-build --download-library human --db {output.kraken_db_human} --threads {threads} --use-ftp
@@ -564,7 +564,7 @@ rule downloadBLASTviralProteins:
 		"Downloading RefSeq viral proteins for blast annotation"
 	threads: 1
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
+		dirs_dict["ENVS_DIR"]+ "/env1_blast_download.yaml",
 	shell:
 		"""
 		esearch -db "protein" -query "txid10239[Organism:exp] AND (viruses[filter] AND refseq[filter])" \
@@ -683,7 +683,7 @@ rule downloadDionSpacers:
 		"Downloading Dion spacer database"
 	threads: 1
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml",
+		dirs_dict["ENVS_DIR"]+ "/env1_spacepharer.yaml",
 	shell:
 		"""
 		mkdir {output.dion_db}
@@ -718,5 +718,4 @@ rule download_bakta_db:
 # 		"""
 # 	 	docker pull gempasteur/satellite_finder:0.9.1
 	 	# """
-
 

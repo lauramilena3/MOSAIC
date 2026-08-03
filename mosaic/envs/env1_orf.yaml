@@ -1,7 +1,6 @@
 channels:
   - conda-forge
   - bioconda
-  - nodefaults
 dependencies:
-  - medaka=2.2.1
-  - bcftools =1.24
+  - python =3.8.6
+  - prodigal-gv =2.11.0

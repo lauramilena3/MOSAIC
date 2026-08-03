@@ -99,7 +99,7 @@ rule getHighQuality:
 	message:
 		"Getting list high-quality vOTUs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
 	threads: 1
@@ -120,7 +120,7 @@ checkpoint getHighQuality_clusters_fasta:
 	message:
 		"Filtering clusters and extracting high-quality vOTUs FASTA sequences"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/filter_vOTUs/{sampling}.tsv"
 	threads: 1
@@ -263,7 +263,7 @@ rule filter_vOTUs:
 	message:
 		"Filtering vOTUs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
 	threads: 2
@@ -285,7 +285,7 @@ rule clustered_with_filter_vOTUs:
 	message:
 		"Filtering vOTUs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/cluster_filtered_representatives_{sampling}.tsv"
 	threads: 2
@@ -294,5 +294,4 @@ rule clustered_with_filter_vOTUs:
 		grep -f {input.filtered_list} {input.new_clusters} | cut -f2 > {output.cluster_filtered_representatives_list}
 		seqtk subseq {input.derreplicated_positive_contigs} {output.cluster_filtered_representatives_list} > {output.cluster_filtered_representatives_fasta}
 		"""
-
 

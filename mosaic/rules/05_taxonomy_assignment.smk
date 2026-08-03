@@ -22,7 +22,7 @@ rule getORFs_prodigal_gv:
 	message:
 		"Calling ORFs with prodigal-gv"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_orf.yaml"
 	threads: 8
 	shell:
 		"""
@@ -40,7 +40,7 @@ rule getORFs_coding_length:
 	message:
 		"Calculating ORFs length"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	threads: 1
 	shell:
 		"""
@@ -273,7 +273,7 @@ rule match_spacers:
 	message:
 		"Matching microbial spacers"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_spacepharer.yaml"
 	params:
 		filtered_representatives_dir=((dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}")),
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB.{sampling}")),
@@ -304,7 +304,7 @@ rule match_spacers_dion:
 	message:
 		"Matching microbial spacers with the DION database"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_spacepharer.yaml"
 	params:
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion.{sampling}")),
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion_rev.{sampling}")),

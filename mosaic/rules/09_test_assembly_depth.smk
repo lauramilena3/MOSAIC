@@ -101,7 +101,7 @@ rule assemblyStatsILLUMINA_test_depth:
 	message:
 		"Creating viral stats with quast"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_quast.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/assemblyStatsILLUMINA_test_depth/{sampling}.tsv"
 	threads: 4
@@ -274,7 +274,7 @@ rule viralStatsILLUMINA_test_depth:
 	message:
 		"Creating viral stats with quast"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_quast.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/assemblyStatsILLUMINA_test_depth_viral/{sampling}.tsv"
 	threads: 4

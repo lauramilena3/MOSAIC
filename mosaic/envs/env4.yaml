@@ -6,6 +6,7 @@ channels:
   - pytorch-lts
 dependencies:
   - java-jdk =8.0.112
+  - python =3.7.12
   - hdf5 =1.10.4
   - numpy =1.17.3
   - pandas =0.25.3 #max for vContact2
@@ -18,8 +19,8 @@ dependencies:
   - psutil =5.7.0
   - mcl =14.137
   - pyparsing =2.4.5
-  - pytorch
-  - blast 2.12.0
+  - pytorch =1.8.0
+  - blast =2.12.0
   - diamond =2.0.13
 #  - biom-format =2.1.7
   - taxonkit =0.6.0

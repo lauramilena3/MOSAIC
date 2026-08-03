@@ -296,7 +296,7 @@ rule contaminants_KRAKEN:
 	message:
 		"Assesing contamination with kraken2"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
 	threads: 16
@@ -331,7 +331,7 @@ rule contaminants_KRAKEN_microbial:
 	message:
 		"Assesing contamination with kraken2"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
 	threads: 32
@@ -363,7 +363,7 @@ rule remove_euk:
 		# unclassified_name_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken_paired_R#.tot.fastq",
 		host_taxid=config["contaminants_taxid"] 
 	conda:
-		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
+		dirs_dict["ENVS_DIR"]+ "/env1_kraken.yaml"
 	threads: 4
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/remove_euk_PE/{sample}.tsv"
@@ -516,7 +516,7 @@ rule contaminants_KRAKEN_clean:
 	message:
 		"Assesing taxonomy with kraken2 on clean reads"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_clean.tsv"
 	priority: 1

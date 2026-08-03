@@ -127,7 +127,7 @@ rule asemblyCanu:
 	params:
 		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/canu_{sample}_{sampling}/{sample}.contigs.fasta",
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_longread.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/asemblyCanu/{sample}_{sampling}.tsv"
 	threads: 4
@@ -162,7 +162,7 @@ rule asemblyFlye:
 		genome_size=config["genome_size"],
 		metagenomic_flag=METAGENOME_FLAG,
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_longread.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/asemblyFlye/{sample}_{sampling}.tsv"
 	threads: 32
@@ -217,7 +217,7 @@ rule errorCorrectRacon_2rounds:
 	message:
 		"Correcting nanopore assembly with long reads using four rounds of Racon "
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_longread.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/errorCorrectRacon/{sample}_{sampling}.tsv"
 	threads: 8
@@ -304,7 +304,7 @@ rule errorCorrectPilonPE:
 	message:
 		"Correcting nanopore assembly using four rounds of Pilon"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/errorCorrectPilon/{sample}_{sampling}.tsv"
 	threads: 8
@@ -399,7 +399,7 @@ rule mergeAssembliesHYBRID:
 	message:
 		"Merging assembled contigs"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	threads: 1
 	shell:
 		"""
