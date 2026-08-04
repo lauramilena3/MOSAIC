@@ -182,15 +182,6 @@ wrapper passes these values explicitly to Snakemake so the run is reproducible.
 - `metagenome` and `isolates`: internal workflow context flags. Users normally
   choose a wrapper mode instead of setting these directly.
 
-For `phage_isolates`, `remove_euk=False` by default. Kraken eukaryotic
-contamination is still calculated, but the next read-cleaning rule receives the
-trimmed reads instead of the Kraken euk-filtered reads.
-
-Filtered vOTUs are annotated with Pharokka and Phynteny after
-`filtered_95-85_positive_viral_contigs.tot.fasta` is created. If that filtered
-FASTA has fewer than `visualization_max_contigs` contigs, MOSAIC also renders a
-genome-organization figure with `visualization_tool`.
-
 ## Passing Extra Snakemake Options
 
 Any extra Snakemake options can be passed after `--`:
@@ -201,11 +192,3 @@ python mosaic.py run phage_isolates \
   --dry-run \
   -- --quiet rules
 ```
-
-## Bioconda Packaging Direction
-
-The wrapper is designed so it can later be exposed as a console command in a
-Bioconda package. The package should ship the workflow files, rules, environment
-YAMLs, scripts, notebooks, and small bundled reference files. Large databases
-should remain external and be supplied by config paths or downloaded with setup
-rules.

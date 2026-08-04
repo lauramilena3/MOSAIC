@@ -195,7 +195,7 @@ rule annotate_VIBRANT:
 		dirs_dict["BENCHMARKS"] +"/annotate_VIBRANT/{sampling}.tsv"
 	message:
 		"Annotating viral contigs with VIBRANT"
-	threads: 64
+	threads: 16
 	shell:
 		"""
 		rm -rf {params.vibrant_outdir} || true

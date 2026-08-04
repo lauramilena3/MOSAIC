@@ -2,5 +2,6 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - python =3.10
+  - python =3.10.8
+  - setuptools =80.9.0
   - phynteny =0.1.13

@@ -253,6 +253,10 @@ def input_phage_isolates_host_blast(wildcards):
 	return expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.{sampling}.csv", host=HOSTS, sampling=wildcards.sampling)
 
 
+def input_phage_isolates_host_fastas(wildcards):
+	return expand(dirs_dict["HOST_DIR"] + "/{host}.fasta", host=HOSTS)
+
+
 rule phage_isolates_summary:
 	input:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
@@ -263,6 +267,8 @@ rule phage_isolates_summary:
 		viral_refseq_blast=dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.{sampling}.csv",
 		nucleotide_content=dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.{sampling}.tsv",
 		clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv",
+		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
+		aai_distance_matrix=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
 		rpkm=dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",
 		filtered_covstats=input_phage_isolates_filtered_covstats,
 		assembled_covstats=input_phage_isolates_assembled_covstats,
@@ -274,13 +280,24 @@ rule phage_isolates_summary:
 		unfiltered_flagstats=input_phage_isolates_unfiltered_flagstats,
 		host_covstats=input_phage_isolates_host_covstats,
 		host_masked_covstats=input_phage_isolates_host_masked_covstats,
-		host_blast=input_phage_isolates_host_blast
+		host_blast=input_phage_isolates_host_blast,
+		host_fastas=input_phage_isolates_host_fastas
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.html",
 		summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.csv",
 		contig_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_contigs.{sampling}.csv",
 		closest_relatives_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_closest_relatives.{sampling}.csv",
 		host_mapping_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_mapping.{sampling}.csv",
+		cluster_members_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_members.{sampling}.csv",
+		cluster_summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_summary.{sampling}.csv",
+		single_contig_samples_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_single_contig_samples.{sampling}.csv",
+		host_blast_summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_summary.{sampling}.csv",
+		cluster_coverage_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage_matrix.{sampling}.csv",
+		host_blast_coverage_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_coverage_matrix.{sampling}.csv",
+		percent_covered_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered_matrix.{sampling}.csv",
+		covstats_rpkm_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm_matrix.{sampling}.csv",
+		aai_cluster_index_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_aai_cluster_index.{sampling}.csv",
+		aai_cluster_dir=directory(dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_aai_clusters.{sampling}"),
 		decisions_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_decisions.{sampling}.png",
 		decisions_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_decisions.{sampling}.svg",
 		remaining_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.png",
@@ -294,10 +311,19 @@ rule phage_isolates_summary:
 		rpkm_heatmap_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.png",
 		rpkm_heatmap_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.svg",
 		assembly_fragmentation_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.png",
-		assembly_fragmentation_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.svg"
+		assembly_fragmentation_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.svg",
+		cluster_coverage_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.{sampling}.png",
+		cluster_coverage_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.{sampling}.svg",
+		host_blast_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.{sampling}.png",
+		host_blast_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.{sampling}.svg",
+		percent_covered_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered.{sampling}.png",
+		percent_covered_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered.{sampling}.svg",
+		covstats_rpkm_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm.{sampling}.png",
+		covstats_rpkm_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm.{sampling}.svg"
 	params:
 		samples=SAMPLES,
 		sampling="{sampling}",
+		results_dir=RESULTS_DIR,
 		isolates=ISOLATES,
 		metagenome=METAGENOME,
 		microbial=MICROBIAL,

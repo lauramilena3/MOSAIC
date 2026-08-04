@@ -439,15 +439,15 @@ rule cluster_proteins:
 rule phynteny_annotation:
 	input:
 		pharokka_output="{contigs}_pharokka",
-		phynteny_db=config["phynteny_db"]
+		phynteny_db=config["phynteny_db"],
 	output:
 		phynteny_output=directory("{contigs}_phynteny")
 	params:
-		pharokka_gbk="{contigs}_pharokka/pharokka.gbk"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/phynteny.yaml"
+		pharokka_gbk="{contigs}_pharokka/pharokka.gbk",
 	message:
 		"Annotating Pharokka GenBank with Phynteny"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/phynteny.yaml"
 	threads: 1
 	shell:
 		"""
@@ -466,16 +466,16 @@ rule phynteny_annotation:
 
 rule clinker_figure:
 	input:
-		phynteny_output=("{contigs}_phynteny"),
+		phynteny_output="{contigs}_phynteny",
 	output:
-		clinker=("{contigs}_clinker.html"),
-	conda:
-		dirs_dict["ENVS_DIR"] + "/clinker.yaml"
-	message:
-		"Creating genome visualization with clinker"
+		clinker="{contigs}_clinker.html",
 	params:
 		clinker_dir="{contigs}_clinker",
-		gb="{contigs}_genbank*.gbk"
+		gb="{contigs}_genbank*.gbk",
+	message:
+		"Creating genome visualization with clinker"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/clinker.yaml"
 	threads: 16
 	shell:
 		"""
@@ -509,16 +509,16 @@ rule clinker_figure:
 
 rule lovis4u_figure:
 	input:
-		phynteny_output=("{contigs}_phynteny"),
+		phynteny_output="{contigs}_phynteny",
 	output:
 		lovis4u=directory("{contigs}_lovis4u"),
-	conda:
-		dirs_dict["ENVS_DIR"] + "/lovis4u.yaml"
-	message:
-		"Creating genome visualization with LoVis4u"
 	params:
 		output_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u)),
-		work_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u) + "_work")
+		work_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u) + "_work"),
+	message:
+		"Creating genome visualization with LoVis4u"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/lovis4u.yaml"
 	threads: 16
 	shell:
 		"""
