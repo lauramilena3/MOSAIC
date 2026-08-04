@@ -159,45 +159,6 @@ rule parseVcontact:
 					for n in node:
 						print(n + "\t" + consensus_tax[1] +" [" + consensus_tax[0] + "]", file=f)
 
-# rule mmseqsTaxonomy:
-# 	input:
-# 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-# 		mmseqs_dir=(os.path.join(workflow.basedir, config['mmseqs_dir'])),
-# 		refseq=(os.path.join(workflow.basedir,"db/ncbi-taxdump/RefSeqViral.fna")),
-# 		refseq_taxid=(os.path.join(workflow.basedir,"db/ncbi-taxdump/RefSeqViral.fna.taxidmapping")),
-# 	output:
-# 		mmseqsdir=directory(dirs_dict["vOUT_DIR"] + "/taxonomy_mmseqs_"+ REPRESENTATIVE_CONTIGS_BASE + ".{sampling}/"),
-# 		html=(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.html"),
-# 		tsv=(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv"),
-# 		table=(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tbl"),
-# 	message:
-# 		"Taxonomy Assignment with MMseqs2"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
-# 	params:
-# 		tmp=(dirs_dict["vOUT_DIR"] + "/taxonomy_mmseqs_"+ REPRESENTATIVE_CONTIGS_BASE + ".{sampling}/tmp"),
-# 		positive_contigsDB=(dirs_dict["vOUT_DIR"] + "/taxonomy_mmseqs_"+ REPRESENTATIVE_CONTIGS_BASE + ".{sampling}/positive_contigsDB"),
-# 		taxonomyResultDB=(dirs_dict["vOUT_DIR"] + "/taxonomy_mmseqs_"+ REPRESENTATIVE_CONTIGS_BASE + ".{sampling}/taxonomyResultDB"),
-# 		taxdump=(os.path.join(workflow.basedir,"db/ncbi-taxdump/")),
-# 		refDB=(os.path.join(workflow.basedir,"db/ncbi-taxdump/RefSeqViral.fnaDB")),
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/mmseqsTaxonomy/{sampling}.tsv"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		#analyse
-# 		mkdir -p {output.mmseqsdir}
-# 		mmseqs createdb {input.filtered_representatives} {params.positive_contigsDB}
-# 		mmseqs taxonomy --threads {threads} {params.positive_contigsDB} {params.refDB} \
-# 			{params.taxonomyResultDB} {params.tmp} --search-type 3 --lca-mode 2 -c 0.3 --cov-mode 2
-# 		#results
-# 		mmseqs createtsv {params.positive_contigsDB} {params.taxonomyResultDB} {output.tsv}
-# 		mmseqs taxonomyreport {params.refDB} {params.taxonomyResultDB} {output.table}
-# 		mmseqs taxonomyreport {params.refDB} {params.taxonomyResultDB} {output.html} --report-mode 1
-# 	 	"""
-
 rule PhaGCNTaxonomy:
 	input:
 		PhaGCN_newICTV_dir=config['PhaGCN_newICTV_dir'],

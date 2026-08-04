@@ -393,59 +393,6 @@ rule mapReadsToContigsPE:
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
-
-# rule mapReadsToContigsPE_sub:
-# 	input:
-# 		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.1.bt2",
-# 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
-# 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
-# 	output:
-# 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub.sam"),
-# 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub.bam"),
-# 		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_sorted.bam"),
-# 		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_sorted.bam.bai"),
-# 		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_filtered.bam"),
-# 		flagstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_{sample}_.sub.txt",
-# 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.sub.txt",
-# 		flagstats_unique=dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_unique_{sample}.sub.txt",
-# 		unique_sam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_unique.sam"),
-# 		unique_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_unique.bam"),
-# 		unique_sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_unique_sorted.bam"),
-# 		covstats=dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_covstats.txt",
-# 		covstats_unique=dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_unique_covstats.txt",
-# 		basecov=dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_basecov.txt",
-# 		unique_basecov=dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_sub_unique_basecov.txt",
-# 	params:
-# 		prefix=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".sub",
-# 	message:
-# 		"Mapping reads to contigs"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_sub.tsv"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
-# 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
-# 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
-# 		samtools index {output.sorted_bam}
-# 		samtools flagstat {output.sorted_bam} > {output.flagstats}
-# 		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
-# 		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
-# 		samtools view -@ {threads} -hf 0x2 {output.filtered_bam} | grep -v "XS:i:" > {output.unique_sam}
-# 		samtools view  -@ {threads} -bS {output.unique_sam}> {output.unique_bam}
-# 		samtools sort -@ {threads} {output.unique_bam} -o {output.unique_sorted_bam}
-# 		samtools index {output.unique_sorted_bam}
-# 		samtools flagstat {output.unique_bam}> {output.flagstats_unique}
-# 		#genomecov
-# 		bedtools genomecov -dz -ibam {output.filtered_bam} > {output.basecov}
-# 		bedtools genomecov -dz -ibam {output.unique_sorted_bam}> {output.unique_basecov}
-# 		#covstats
-# 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-# 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
-# 		"""
-
 rule call_SNPs_sub:
 	input:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",

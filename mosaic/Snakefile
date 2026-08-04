@@ -509,35 +509,11 @@ rule trimmomatic:
 	input:
 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt", sample=SAMPLES),
 
-# rule annotate_isolates:
-# 	input:
-# 		dirs_dict["vOUT_DIR"] + "/checkV_isolates_tot/quality_summary.tsv",
-# 		dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html",
-# 		dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
-# 		dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png",
-# 		#dirs_dict["ANNOTATION"] + "/isolates_blast_IMGVR.tot.csv",
-# 		#dirs_dict["ANNOTATION"] + "/isolates_blast_RefSeqViral.tot.csv",
-# 		dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv",
-# 		#expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
-# 		#dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_phages.tot.csv",
-# 		dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_ORFs.tot.csv",
-# 		#dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.tot/",
-
-rule microdiversity:
-	input: 
-		cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs.{sampling}.faa"
-
 rule find_relatives:
 	input:
 		expand(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.tot.fasta", type=["ORFs", "phages"], db=REFERENCE_DATABASES),
 		(dirs_dict["ANNOTATION"] + "/isolates_blastall.tot.csv"),
 
-
-# rule abundance_from_db_contigs:
-# 	input:
-
-# 		expand(dirs_dict["MAPPING_DIR"]+ "/bbmap_covstats_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-# 		# expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_weeSAM_tot_html_results", sample=SAMPLES),
 
 rule assembly_vs_reference:
 	input:
@@ -745,45 +721,6 @@ rule phage_isolates:
 		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.html",
 		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.csv",
 
-# print(expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),)
-
-rule assembly_bacteria:
-	input:
-		inputReadsCount,
-		inputQC,
-		inputAssembly,
-		# inputViralID,
-		# get_clinker_outputs,
-		# (dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta"),
-		# (dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt"),
-		# (dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
-		# (dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
-		# (dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv"),
-		# (dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv"),
-		# (dirs_dict["ANNOTATION"] + "/iphop_hostID_combined_positive_viral_contigs.tot_resultsDir"),
-		# (dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.tot.csv"),
-		# (dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_combined_positive_viral_contigs.tot.csv"),
-		# (dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.tot.tsv"),
-		# (dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
-		# (dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv"),
-		# (dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot"),	
-		(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-		# (dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt"),
-		# expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT),
-		# expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		# expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		# expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		# expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE),
-		# expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS),
-		# expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),
-		# expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt", host=HOSTS, sample=SAMPLES),
-		# expand(dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot", sample=SAMPLES)
-		dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv",
-		expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_tot.classifications.csv", sample=SAMPLES),
-		dirs_dict["ASSEMBLY_DIR"]+ "/spades_filtered_scaffolds_ANI.tot.csv",
-
-
 rule subsampling_file:
 	input:
 		viral_subsampling=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sub_sampling_reads.txt", sample=SAMPLES),
@@ -793,44 +730,9 @@ rule annotate_VIBRANT_contigs:
 		vibrant=(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".tot"),
 
 
-rule annotation_workflow:
-	input:
-		# aggregate_input_annotation,
-		# dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_blast_viralRefSeq.tot.csv",
-		dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot" + "_annotation_table_merged.csv",
-		blastall=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
-		cummulative_length=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_viga_ORFs_coding_lengths.tot.txt"),
-
 rule checkViralCompletness:
 	input:
 		merged_summary=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt",
-
-#subsample_test=[10,20]
-
-		#quast_txt_assembly=dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.tot.txt",
-		#quast_txt_viral=dirs_dict["ASSEMBLY_TEST"] + "/viral_representatives_quast_report.tot.txt",
-
-rule compare_assembly:
-	input:
-		scaffolds1=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_no_ecc_no_norm.tot.fasta", sample=SAMPLES),
-		scaffolds2=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_no_ecc_yes_norm.tot.fasta", sample=SAMPLES),
-		scaffolds3=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_yes_ecc_no_norm.tot.fasta", sample=SAMPLES),
-		scaffolds4=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_spades_filtered_scaffolds_yes_ecc_yes_norm.tot.fasta", sample=SAMPLES),
-
-rule annotate_VIGA_contigs:
-	input:
-		# viga_log=dirs_dict["ANNOTATION"] + "/viga_log_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.txt",
-		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
-		clinker_dir=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_clinker.html"),
-		blastall=(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_ORFs_blastall.tot.csv"),
-
-rule annotate_VIGA_phage:
-	input:
-		GenBank_file=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot_annotated.gbk",
-
-rule runVirSorter:
-	input:
-		expand(dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}/VIRSorter_global-phage-signal.csv", sampling=SAMPLING_TYPE_TOT)
 
 rule runVcontact2:
 	input:
@@ -856,18 +758,6 @@ rule map_to_reference:
 		inputQC,
 		expand(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE),
-
-# rule get_ORFs_long_assembly:
-# 	input:
-# 		hybrid=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		canu=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER +"_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		medaka=expand(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		racon1=expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		racon2=expand(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		scaffolds_pilon1_final=expand(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		scaffolds_pilon2_final=expand(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		scaffolds_pilon3_final=expand(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + "_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
-# 		scaffolds=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon_ORFs_length.{sampling}.txt", sample=NANOPORE_SAMPLES,sampling=SAMPLING_TYPE_TOT),
 
 # /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/hybrid_assembly.fasta
 # /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/long_read.fasta

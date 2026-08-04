@@ -134,43 +134,6 @@ rule estimateGenomeCompletness_reference:
 		fi
 		"""
 
-
-# rule estimateGenomeCompletness_vOTUs:
-# 	input:
-# 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-# 		checkv_db=(config['checkv_db']),
-# 	output:
-# 		quality_summary=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/quality_summary.tsv",
-# 		completeness=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/completeness.tsv",
-# 		contamination=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV/contamination.tsv",
-# 	params:
-# 		checkv_outdir=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV",
-# 	message:
-# 		"Estimating genome completeness with CheckV "
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/" + REPRESENTATIVE_CONTIGS_BASE + "_checkV.tsv"
-# 	threads: 32
-# 	shell:
-# 		"""
-# 		rm -rf {params.checkv_outdir} || true
-# 		if [ -s {input.filtered_representatives} ]; then
-# 		    		            	checkv contamination {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		    		            	checkv completeness {input.filtered_representatives} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		    		            	checkv complete_genomes {input.filtered_representatives} {params.checkv_outdir}
-# 		    		            	checkv quality_summary {input.filtered_representatives} {params.checkv_outdir}
-# 		else
-# 		    		            	echo "The FASTA file {input.filtered_representatives} is empty"
-# 		    		            	mkdir -p {params.checkv_outdir}
-# 		    		            	touch {output.quality_summary}
-# 		    		            	touch {output.completeness}
-# 		    		            	touch {output.contamination}
-# 		fi
-
-# 		"""
-
-
 rule virSorter2_DRAM:
 	input:
 		# cluster_filtered_representatives_fasta=dirs_dict["vOUT_DIR"]+ "/viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
@@ -800,33 +763,6 @@ rule detectNucleotideModifications:
 		tombo text_output browser_files --fast5-basedirs {input.fast5_dir} --statistics-filename {params.representative_basename}.de_novo.tombo.stats \
 		--genome-fasta {input.representatives} --browser-file-basename {params.representative_basename} --file-types fraction
 		"""
-#
-# rule parseSummary:
-# 	input:
-# 		quality_summary=dirs_dict["vOUT_DIR"] + "/checkV_{sampling}/quality_summary.tsv",
-# 		viral_boundary=dirs_dict["VIRAL_DIR"] + "/virSorter_{sampling}/final-viral-boundary.tsv",
-# 		tsv=(dirs_dict["vOUT_DIR"] + "/taxonomy_report_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.tsv"),
-# 		taxonomy_results=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + "_vcontact2_taxonomy.{sampling}.csv",
-# 		parsed_abundances=dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_DB_70.{sampling}.txt",
-# 	output:
-# 		summary=dirs_dict["ANNOTATION"] + "/summary_information.{sampling}.csv",
-# 	message:
-# 		"Assigning viral taxonomy with vContact2 results"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/parseSummary/{sampling}.tsv"
-# 	threads: 1
-# 	run:
-# 		import pandas as pd
-# 		df1=pd.read_csv(input.quality_summary, sep="\t")
-# 		df1=df1[["contig_id","contig_length","gene_count","viral_genes","host_genes","checkv_quality","provirus","termini"]]
-# 		df2=pd.read_csv(input.viral_boundary, sep="\t")
-# 		df2=df2[["seqname","group"]]
-# 		df3=pd.read_csv(input.tsv, sep="\t",header=None, names=["name", "id", "rank", "taxonomy_mmseqs"])
-# 		df3=df3[["name","rank", "taxonomy_mmseqs"]]
-# 		df4=pd.read_csv(input.taxonomy_results, sep="\t",header=None, names=["name", "taxonomy_vcontact2"])
-# 		df5=pd.read_csv(input.parsed_abundances,sep="\t")
-# 		df1.merge(df2, left_on='contig_id', right_on='seqname', how="outer").merge(df3, left_on='contig_id', right_on='name', how="outer").merge(df4, left_on='contig_id', right_on='name', how="outer").merge(df5, left_on='contig_id', right_on='OTU', how="outer").to_csv(output.summary)
-
 rule gbk_to_faa:
 	input:
 		genbank=dirs_dict["ANNOTATION"] + "/{contigs}.tot_VIGA_annotated.gbk",
@@ -880,44 +816,6 @@ rule fasta_to_a2m:
 		seqtk subseq {input.faa} {input.cluster} > {output.faa}
 		muscle -in {output.faa} -out {output.aln}
 		"""
-
-# rule hh_annotation:
-# 	input:
-# 		fa=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.aln",
-# 	output:
-# 		a2m=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a2m",
-# 		a3m_msa=dirs_dict["ANNOTATION"] + "/MSA_uniref_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a3m",
-# 		hhr_temp=temp(dirs_dict["ANNOTATION"] + "/temp_results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.hhr"),
-# 		hhr=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.hhr",
-# 		txt=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.txt",
-# 		a3m_res=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.a3m",
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
-# 	message:
-# 		"Annotating proteins with hhpred"
-# 	params:
-# 		context="/home/lmf/db/hh-suite/context_data.crf",
-# 		pdb_70="/home/lmf/db/hh-suite/pdb70",
-# 		pfam="/home/lmf/db/hh-suite/pfam",
-# 		# scop70_1="/opt/hh-suite/data/scop70_1.75",
-# 		NCBI_CD="/home/lmf/db/hh-suite/NCBI_CD",
-# 		uniref="/home/lmf/db/hh-suite/UniRef30_2022_02",
-# 		phrogs="/home/lmf/db/hh-suite/phrogs_v4",
-# 		# metaclust="/home/lmf/db/hh-suite/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
-# 		maxres=32000,
-# 	threads: 4
-# 	shell:
-# 		"""
-# 		perl ./scripts/reformat.pl fas a2m {input.fa} {output.a2m}
-# 		hhblits -i {output.a2m} -d {params.uniref} -oa3m {output.a3m_msa} \
-# 			 						-norealign -n 3 -e 1e-3 -qid 0 -cov 20 -cpu {threads} -o {output.hhr_temp}
-# 		hhsearch -i {output.a3m_msa} -d {params.pdb_70} -d {params.pfam} -d {params.NCBI_CD}  \
-# 									-d {params.uniref} -d {params.phrogs} 
-# 			 						-o {output.hhr} -oa3m {output.a3m_res} -p 20 -Z 250 -loc -z 1 -b 1 -B 250 -ssm 2 -sc 1 -seq 1 -dbstrlen 10000 \
-# 			 						-norealign -maxres {params.maxres} -contxt {params.context} -cpu {threads}
-# 		grep "^  [0-9] " {output.hhr} > {output.txt}
-# 		"""
-
 def aggregate_input_annotation(wildcards):
 	checkpoint_output = checkpoints.split_multi_fasta.get(**wildcards).output[0]
 	return expand(dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE  + "_hhpred/" + "cluster_{protein}.txt",
@@ -1125,17 +1023,6 @@ rule merge_annotations:
 		df2=df2.sort_values(by=['phage', 'protein_number'])
 
 		df2.to_csv(output.annotation_table, sep="\t")
-
-
-
-# rule concat:
-#	 input:
-#		 dynamic(dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_faa/" + "{protein}.txt")
-#	 output:
-#		 "bam_files/{FASTQ}.out"
-#	 shell:
-#		 "cat {input} > {output}"
-
 rule makeblastdb:
 	input:
 		aa=dirs_dict["vOUT_DIR"]+ "/{fasta_name}_ORFs.{sampling}.faa",

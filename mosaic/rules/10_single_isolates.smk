@@ -1,29 +1,3 @@
-# rule estimateGenomeCompletnessIsolates:
-# 	input:
-# 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
-# 		checkv_db=(config['checkv_db']),
-# 	output:
-# 		quality_summary=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/quality_summary.tsv",
-# 		completeness=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/completeness.tsv",
-# 		contamination=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}/contamination.tsv",
-# 	params:
-# 		checkv_outdir=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}",
-# 		checkv_db=dirs_dict["vOUT_DIR"] + "/checkV_isolates_{sampling}",
-# 	message:
-# 		"Estimating genome completeness with CheckV "
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/isolates_{sampling}.tsv"
-# 	threads: 4
-# 	shell:
-# 		"""
-# 		checkv contamination {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		checkv completeness {input.positive_contigs} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
-# 		checkv complete_genomes {input.positive_contigs} {params.checkv_outdir}
-# 		checkv quality_summary {input.positive_contigs} {params.checkv_outdir}
-# 		"""
-
 rule estimateGenomeCompletnessIsolates:
 	input:
 		assembly_fasta=(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
@@ -132,25 +106,6 @@ rule blastp_Reference_db:
 		blastp -num_threads {threads} -db {input.blast_database} -query {input.filtered_positive_contigs} \
 			-outfmt "6 qseqid sseqid qstart qend qlen slen qcovs qcovhsp length pident evalue positive gaps" > {output.blast_output}
 		"""
-
-# rule blastp_IMGVR:
-# 	input:
-# 		filtered_positive_contigs=dirs_dict["vOUT_DIR"]+ "/filtered_isolates_ORFs.{sampling}.fasta",
-# 		blast="/home/lmf/db/IMG_VR_09_2020/ORFs/IMGVR_ORF.faa",
-# 	output:
-# 		blast_output=(dirs_dict["ANNOTATION"] + "/isolates_blast_IMGVR.{sampling}.csv"),
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_IMGVR_{sampling}.tsv"
-# 	message:
-# 		"Annotating contigs with BLAST"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		blastp -num_threads {threads} -db {input.blast} -query {input.filtered_positive_contigs} \
-# 			-outfmt "6 qseqid sseqid qstart qend qlen slen qcovs qcovhsp length pident evalue positive gaps" > {output.blast_output}
-# 		"""
 
 rule blastp_database_lengths:
 	input:
@@ -423,25 +378,6 @@ rule cat_relatives_phages:
 		paste {output.length_temp} {output.names_temp} > {output.length}
 		"""
 
-# rule blastall_relatives_phages:
-# 	input:
-# 		cat_isolates_relatives=dirs_dict["ANNOTATION"]+ "/isolates_relatives_phages.{sampling}.fasta",
-# 		orfs_blast_db=dirs_dict["ANNOTATION"]+ "/isolates_relatives_phages.{sampling}.fasta.ndb",
-# 	output:
-# 		isolates_relatives_blastall=(dirs_dict["ANNOTATION"] + "/isolates_relatives_blastall_phages.{sampling}.csv"),
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_blastall_{sampling}.tsv"
-# 	message:
-# 		"Annotating contigs with BLAST"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		blastn -num_threads {threads} -db {input.cat_isolates_relatives} -query {input.cat_isolates_relatives} \
-# 			-outfmt "6 qseqid sseqid qstart qend qlen slen qcovs qcovhsp length pident evalue positive gaps" > {output.isolates_relatives_blastall}
-# 		"""
-
 rule viridic_relatives_phages:
 	input:
 		cat_isolates_relatives=dirs_dict["ANNOTATION"]+ "/isolates_relatives_phages.{sampling}.fasta",
@@ -540,30 +476,6 @@ rule mask_prophages:
 		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
 		"""
 
-# rule calculate_ANI_vs_host:
-# 	input:
-# 		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta",
-# 		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
-# 	output:
-# 		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs_{host}.fasta"),
-# 		blastout=dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs-blastout_{host}.csv",
-# 		aniout=dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs-aniout_{host}.csv",
-# 	message:
-# 		"Calculating ANI with CheckV anicalc"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
-# 	threads: 16
-# 	wildcard_constraints:
-# 		sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
-# 	shell:
-# 		"""
-# 		cat {input.host_fasta} {input.assembly_fasta} > {output.temp_fasta}
-# 		makeblastdb -in {output.temp_fasta} -dbtype nucl -out {output.temp_fasta}
-# 		blastn -query {output.temp_fasta} -db {output.temp_fasta} -outfmt '6 std qlen slen' \
-# 				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
-# 		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-# 		"""
-
 rule buildBowtieDB_host:
 	input:
 		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
@@ -607,42 +519,6 @@ rule run_BLASTn_host:
 		blastn -num_threads {threads} -db {input.host_fasta} -query {output.temp_fasta}\
 			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
 		"""
-
-# rule map_to_host:
-# 	input:
-# 		contigs_bt2=dirs_dict["HOST_DIR"]+ "/{host}.1.bt2",
-# 		contigs_bt2_2=dirs_dict["HOST_DIR"]+ "/{host}.2.bt2",
-# 		contigs_bt2_3=dirs_dict["HOST_DIR"]+ "/{host}.3.bt2",
-# 		contigs_bt2_4=dirs_dict["HOST_DIR"]+ "/{host}.4.bt2",
-# 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
-# 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
-# 	output:
-# 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.sam"),
-# 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.bam"),
-# 		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam"),
-# 		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_sorted.bam.bai"),
-# 		flagstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_flagstats_{sample}_vs_{host}.txt",
-# 		covstats=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt",
-# 		basecov=dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}_basecov.txt",
-# 	params:
-# 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
-# 	message:
-# 		"Mapping reads to contigs"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
-# 	threads: 8
-# 	shell:
-# 		"""
-# 		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --all
-# 		samtools view  -@ {threads} -bS {output.sam}  > {output.bam} 
-# 		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
-# 		samtools index {output.sorted_bam}
-# 		samtools flagstat {output.sorted_bam} > {output.flagstats}
-# 		coverm contig -b {output.sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
-# 		bedtools genomecov -dz -ibam {output.sorted_bam} > {output.basecov}
-# 		"""
 
 rule map_to_host_masked_prophages:
 	input:

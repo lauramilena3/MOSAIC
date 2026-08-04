@@ -72,22 +72,6 @@ rule get_minced:
 		make
 		"""
 
-# rule getQUAST:
-# 	output:
-# 		quast_dir=directory(config["quast_dir"])
-# 	message:
-# 		"Downloading QUAST"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		curl -OL https://downloads.sourceforge.net/project/quast/quast-5.0.2.tar.gz
-# 		tar -xzf quast-5.0.2.tar.gz -C tools
-# 		cd {config[quast_dir]}
-# 		./setup.py install
-# 		"""
-
 rule get_mmseqs:
 	output:
 		mmseqs_dir=directory(os.path.join(workflow.basedir, config['mmseqs_dir'])),
@@ -191,43 +175,6 @@ rule get_VIGA:
 		chmod 744 trf irf
 		"""
 
-# rule downloadViralTools:
-# 	output:
-# 		virSorter_dir=directory(config['virSorter_dir']),
-# 		virFinder_dir=directory(config['virFinder_dir']),
-# 	message:
-# 		"Downloading required VirSorter and VirFinder"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		#VIRSORTER
-# 		VS_dir="{config[virSorter_dir]}"
-# 		echo $VS_dir
-# 		if [ ! -d $VS_dir ]
-# 		then
-# 			mkdir -p tools
-# 			cd tools
-# 			git clone https://github.com/simroux/VirSorter.git
-# 			cd VirSorter/Scripts
-# 			make clean
-# 			make
-# 			cd ../../../
-# 		fi
-# 		#VIRFNDER
-# 		VF_dir="{config[virFinder_dir]}"
-# 		echo $VF_dir
-#			if [ ! -d $VF_dir ]
-# 		then
-# 			if [ ! {config[operating_system]} == "linux" ]
-# 			then
-# 				curl -OL https://raw.github.com/jessieren/VirFinder/blob/master/mac/VirFinder_1.1.tar.gz?raw=true
-# 			else
-# 				curl -OL https://github.com/jessieren/VirFinder/blob/master/linux/VirFinder_1.1.tar.gz?raw=true
-# 			fi
-# 			mkdir -p {output.virFinder_dir}
-# 			mv VirFinder*tar.gz* {output.virFinder_dir}/VirFinder_1.1.tar.gz
-# 		fi
-# 		"""
 rule downloadVirSorterDB:
 	output:
 		virSorter_dir=directory(config['virSorter_db']),
@@ -500,21 +447,6 @@ rule downloadPhyntenyDB:
 		install_models -o {output.phynteny_db}
 		"""
 		
-#rule downloadminiKrakenDB:
-#	output:
-#		kraken_db=directory(config['kraken_db']),
-#	message:
-#		"Downloading miniKraken database"
-#	threads: 4
-#	conda:
-#		dirs_dict["ENVS_DIR"] + "/env4.yaml"
-#	shell:
-#		"""
-#		wget ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken_8GB_202003.tgz
-#		mkdir {output.kraken_db}
-#		tar -xvf minikraken_8GB_202003.tgz -C {output.kraken_db}
-#		"""
-
 rule downloadKrakenDB_human:
 	output:
 		kraken_db_human=directory(config['kraken_db_human']),
@@ -531,26 +463,6 @@ rule downloadKrakenDB_human:
 		kraken2-build --clean --db {output.kraken_db_human}
 		"""
 
-# rule downloadVirSorterDB:
-# 	output:
-# 		virSorter_db=directory(config['virSorter_db']),
-# 	message:
-# 		"Downloading VirSorter database"
-# 	threads: 1
-# 	params:
-# 		virSorter_db="db/VirSorter"
-# 	shell:
-# 		"""
-# 		VS_db="{config[virSorter_db]}"
-# 		echo $VS_db
-# 		if [ ! -d $VS_db ]
-# 		then
-# 			curl -OL https://zenodo.org/record/1168727/files/virsorter-data-v2.tar.gz
-# 			mkdir -p {params.virSorter_db}
-# 			tar -xvzf virsorter-data-v2.tar.gz -C {params.virSorter_db}
-# 			rm virsorter-data-v2.tar.gz
-# 		fi
-# 		"""
 rule downloadVcontact2Files:
 	output:
 		gene2genome_millard=("db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv"),
@@ -684,15 +596,3 @@ rule download_bakta_db:
 		mkdir -p {output.db}
 		bakta_db download --output {output.db} 
 		"""
-# rule get_satellite_finder:
-# 	output:
-# 		satellite_finder_dir=directory(config['satellite_finder_dir']),
-# 	message:
-# 		"Downloading Satellite Finder spacer database"
-# 	threads: 1
-# 	conda:
-# 		dirs_dict["ENVS_DIR"]+ "/satellite_finder.yaml",
-# 	shell:
-# 		"""
-# 	 	docker pull gempasteur/satellite_finder:0.9.1
-	 	# """

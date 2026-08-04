@@ -5,20 +5,6 @@ def input_microbial_merge(wildcards):
 	if len(config['additional_reference_contigs'])>0:
 		input_list.append(config['additional_reference_contigs'])
 	return input_list
-
-# rule merge_assembly:
-# 	input:
-# 		assembled_contigs=input_microbial_merge,
-# 	output:
-#		 combined_microbial=
-# 		merged_assemblies=dirs_dict["ASSEMBLY_DIR"] + "/merged_microbial_assembly.tot.fasta",
-# 	message:
-# 		"Merging microbial assemblies"
-# 	shell:
-# 		"""
-# 		cat {input.assembled_contigs} > {output.merged_assemblies}
-# 		"""
-
 rule merge_microbial:
 	input:
 		assembled_contigs=input_microbial_merge,
@@ -119,100 +105,6 @@ rule mapReadsToContigs_microbial:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
-# rule bacterial_binning_metabat_preprocess:
-# 	input:
-# 		sorted_bam=(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam"),
-# 	output:
-# 		cov=temp(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_coverage.txt"),
-# 		abundance=temp(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_abundance.txt"),
-# 	message:
-# 		"Binning microbial contigs with MetaBAT"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning_{sample}.tsv"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		pileup.sh in={input.sorted_bam} out={output.cov} 32bit=t
-# 		awk '{{print $1"\t"$5}}' {output.cov} | grep -v '^#' > {output.abundance}
-# 		"""
-
-# rule bacterial_binning_metabat:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
-# 	output:
-# 		metabat_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
-# 	message:
-# 		"Binning microbial contigs with MetaBAT"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/MetaBAT/binning.tsv"
-# 	threads: 32
-# 	shell:
-# 		"""
-# 		mkdir -p {output.metabat_outdir}
-# 		cd {output.metabat_outdir}
-# 		runMetaBat.sh -t {threads} {input.derreplicated_microbial_contigs} {input.sorted_bam}
-# 		"""
-
-# rule bacterial_binning_MaxBin2:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 		abundances=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted_bam_pileup_abundance.txt", sample=SAMPLES),
-# 	output:
-# 		maxbin_outdir=directory(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
-# 		abund_list=temp(dirs_dict["MAPPING_DIR"] + "/MaxBin2_abundance_list.txt"),
-# 	message:
-# 		"Binning microbial contigs with MaxBin2"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/MaxBin2/binning.tsv"
-# 	threads: 32
-# 	shell:
-# 		"""
-# 		mkdir -p {output.maxbin_outdir}
-# 		cd {output.maxbin_outdir}
-# 		ls {input.abundances} > {output.abund_list}
-# 		run_MaxBin.pl -contig {input.derreplicated_microbial_contigs} -abund_list {output.abund_list} -out {output.maxbin_outdir} -thread {threads}
-# 		"""
-
-# rule bacterial_binning_CONCOCT:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 		sorted_bam=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam", sample=SAMPLES),
-# 		sorted_bam_index=expand(dirs_dict["MAPPING_DIR"]+ "/MICROBIAL/bowtie2_{sample}_tot_sorted.bam.bai", sample=SAMPLES),
-# 	output:
-# 		CONCOCT_10k_fasta=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.fasta"),
-# 		CONCOCT_10k_bed=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_10K_contigs.bed"),
-# 		CONCOCT_coverage=temp(dirs_dict["MAPPING_DIR"] + "/CONCOCT_coverage.txt"),
-# 		# CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "CONCOCT_results/"),
-# 		CONCOCT_fasta=directory(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/CONCOCT_fasta_bins"),
-# 		CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
-# 	params:
-# 		CONCOCT_outdir=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/"),
-# 	message:
-# 		"Binning microbial contigs with CONCOCT"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/CONCOCT_outdir/binning.tsv"
-# 	threads: 32
-# 	shell:
-# 		"""
-# 		mkdir -p {params.CONCOCT_outdir}
-# 		cd {params.CONCOCT_outdir}
-# 		cut_up_fasta.py {input.derreplicated_microbial_contigs} -c 10000 -o 0 --merge_last -b {output.CONCOCT_10k_bed} > {output.CONCOCT_10k_fasta}
-# 		concoct_coverage_table.py {output.CONCOCT_10k_bed} {input.sorted_bam} > {output.CONCOCT_coverage}
-# 		concoct --composition_file {output.CONCOCT_10k_fasta} --coverage_file {output.CONCOCT_coverage} -b {params.CONCOCT_outdir} -t {threads}
-# 		merge_cutup_clustering.py {params.CONCOCT_outdir}/clustering_gt1000.csv > {output.CONCOCT_clustering}
-# 		mkdir {output.CONCOCT_fasta}
-# 		extract_fasta_bins.py {input.derreplicated_microbial_contigs}  {output.CONCOCT_clustering} --output_path  {output.CONCOCT_fasta}
-# 		"""
-
 rule bacterial_binning_VAMB:
 	input:
 		combined_positive_contigs_2k=dirs_dict["ASSEMBLY_DIR"]+ "/2K_combined_microbial.tot.fasta",
@@ -241,38 +133,6 @@ rule bacterial_binning_VAMB:
 		rm -rf {params.vamb_outdir_temp}
 		for d in {params.vamb_outdir}/bins/*/ ; do cp ${{d}}*fna {output.vamb_bins} & done
 		"""
-
-# rule polish_bins:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 		metabat_outdir=(dirs_dict["MAPPING_DIR"] + "/MetaBAT_results/"),
-# 		CONCOCT_clustering=(dirs_dict["MAPPING_DIR"] + "/CONCOCT_results/clustering_merged.csv"),
-# 		maxbin_outdir=(dirs_dict["MAPPING_DIR"] + "/MaxBin2_results/"),
-# 	output:
-# 		scaffolds2bin_concoct=(dirs_dict["MAPPING_DIR"] + "/concoct_scaffolds2bin.tsv"),
-# 		scaffolds2bin_metabat=(dirs_dict["MAPPING_DIR"] + "/metabat_scaffolds2bin.tsv"),
-# 		scaffolds2bin_maxbin=(dirs_dict["MAPPING_DIR"] + "/maxbin_scaffolds2bin.tsv"),
-# 		DAS_Tool_results=directory(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/"),
-# 	params:
-# 		DAS_Tool_results=(dirs_dict["MAPPING_DIR"] + "/DAS_Tool_results/DAS_Tool_results"),
-# 	message:
-# 		"Binning microbial contigs with MaxBin2"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/DAS_Tool/binning.tsv"
-# 	threads: 64
-# 	shell:
-# 		"""
-# 		perl -pe "s/,/\tconcoct./g;" {input.CONCOCT_clustering} | tail -n +2 > {output.scaffolds2bin_concoct}
-# 		Fasta_to_Contig2Bin.sh -i {input.metabat_outdir}/*metabat-bins*/ -e fa > {output.scaffolds2bin_metabat}
-# 		Fasta_to_Contig2Bin.sh -i {input.maxbin_outdir} -e fasta > {output.scaffolds2bin_maxbin}
-# 		mkdir {output.DAS_Tool_results} 
-# 		cd {output.DAS_Tool_results} 
-# 		DAS_Tool -i {output.scaffolds2bin_concoct},{output.scaffolds2bin_metabat},{output.scaffolds2bin_maxbin} \
-# 			-l concoct,metabat,maxbin -c {input.derreplicated_microbial_contigs} -o {params.DAS_Tool_results} \
-# 			--search_engine diamond --threads {threads} --write_bins --write_bin_evals --score_threshold 0
-# 		"""
 
 rule predict_spacers:
 	input:
@@ -367,29 +227,6 @@ rule taxonomy_binning_assembly:
 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
 		gtdbtk classify_wf --genome_dir {output.GTDB_outdir}/input_assemblies/ --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
 		"""
-# rule taxonomy_assembly:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 		gtdbtk_db=(config['gtdbtk_db']),
-# 	output:
-# 		GTDB_outdir=directory(dirs_dict["ASSEMBLY_DIR"] + "/assembly_microbial_GTDB-Tk"),
-# 		GTDB_temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_singlefasta_GTDB-Tk")),
-# 	params:
-# 		mash_outdir=(dirs_dict["ASSEMBLY_DIR"] + "/microbial_GTDB-Tk_mash"),
-# 	message:
-# 		"Assigning microbial taxonomy with GTDB-Tk "
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
-# 	benchmark:
-# 		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
-# 	threads: 64
-# 	shell:
-# 		"""
-# 		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.GTDB_temp}
-# 		conda env config vars set GTDBTK_DATA_PATH={input.gtdbtk_db}/release214/
-# 		gtdbtk classify_wf --genome_dir {output.GTDB_temp} --out_dir {output.GTDB_outdir} --cpus {threads} --mash_db {params.mash_outdir} --extension fasta
-# 		"""
-
 rule DRAM_microbial_annotation:
 	input:
 		vamb_bins=(dirs_dict["ASSEMBLY_DIR"] + "/vamb_binning_results/all_bins/"),
@@ -940,22 +777,6 @@ rule sourmash_tax_nanopore_only_bacteria:
 		"""
 		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax} -o {params.name} --output-dir {params.outdir} -F csv_summary --rank strain
 		"""
-# rule getORFs_microbial:
-# 	input:
-# 		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-# 	output:
-# 		coords=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.coords",
-# 		aa=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_ORFs_tot.faa",
-# 	message:
-# 		"Calling ORFs with prodigal"
-# 	conda:
-# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-# 	threads: 1
-# 	shell:
-# 		"""
-# 		prodigal -i {input.derreplicated_microbial_contigs} -o {output.coords} -a {output.aa} -p meta
-# 		"""
-
 def input_bakta_assembly(wildcards):
 	if NANOPORE & NANOPORE_ONLY:
 		return(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta")
