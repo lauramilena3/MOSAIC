@@ -5,3 +5,4 @@ dependencies:
   - python =3.10
   - lovis4u =0.2.0
   - mmseqs2 =17.b804f
+  - biopython =1.81

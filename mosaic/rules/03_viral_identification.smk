@@ -170,6 +170,7 @@ rule genomad_vOTUs:
 	threads: 32
 	shell:
 		"""
+		rm -rf {params.genomad_outdir}
 		genomad end-to-end --cleanup --splits 8 -t {threads} {input.representatives} {params.genomad_outdir} {input.genomad_db} --conservative  
 		cat {output.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs_conservative}
 		genomad end-to-end --cleanup --splits 8 -t {threads} {input.representatives} {params.genomad_outdir} {input.genomad_db}  

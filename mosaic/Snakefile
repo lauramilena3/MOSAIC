@@ -326,10 +326,9 @@ def inputViralID(wildcards):
 
 def inputvOTUClustering(wildcards):
 	inputs=[]
-	filtered_votu_base=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot"
-	inputs.append(filtered_votu_base + ".fasta")
-	inputs.append(filtered_votu_base + "_phynteny")
-	inputs.append(filtered_votu_base + "_visualization.done")
+	inputs.append(dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta")
+	inputs.append(dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_phynteny")
+	inputs.append(dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_visualization.done")
 	inputs.append(dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv"),
 	inputs.append(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt"),
@@ -719,25 +718,8 @@ rule phage_isolates:
 		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_5-0.clstr",
 		expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.tot.csv", host=HOSTS),
 		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.html",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_members.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_summary.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_single_contig_samples.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_summary.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage_matrix.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_coverage_matrix.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered_matrix.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm_matrix.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_aai_cluster_index.tot.csv",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_aai_clusters.tot",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.tot.png",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.tot.svg",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.tot.png",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.tot.svg",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered.tot.png",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered.tot.svg",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm.tot.png",
-		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm.tot.svg",
+		dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_visualization.done",
+
 
 rule subsampling_file:
 	input:

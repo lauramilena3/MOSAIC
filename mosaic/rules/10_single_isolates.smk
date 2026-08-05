@@ -18,6 +18,7 @@ rule estimateGenomeCompletnessIsolates:
 	threads: 4
 	shell:
 		"""
+		rm -rf {params.checkv_outdir}
 		checkv contamination {input.assembly_fasta} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 		checkv completeness {input.assembly_fasta} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 		checkv complete_genomes {input.assembly_fasta} {params.checkv_outdir}

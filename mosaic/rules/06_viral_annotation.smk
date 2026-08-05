@@ -283,6 +283,7 @@ rule pharokka_annotation_genbank:
 	shell:
 		"""
 		pharokka.py -i {params.DRAM_gbk} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f --genbank
+
 		"""
 
 rule pharokka_annotation:
@@ -299,6 +300,7 @@ rule pharokka_annotation:
 	shell:
 		"""
 		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f --dnaapler
+		python scripts/genbank_cleanup.py {output.pharokka_output}
 		"""
 
 rule annotate_VIGA:
@@ -451,17 +453,8 @@ rule phynteny_annotation:
 	threads: 1
 	shell:
 		"""
-		rm -rf {output.phynteny_output}
-		if [ -d {input.phynteny_db}/models ] && [ -s {input.phynteny_db}/confidence_dict.pkl ]; then
-			phynteny {params.pharokka_gbk} -o {output.phynteny_output} -m {input.phynteny_db}/models -t {input.phynteny_db}/confidence_dict.pkl
-		elif [ -s {input.phynteny_db}/confidence_dict.pkl ]; then
-			phynteny {params.pharokka_gbk} -o {output.phynteny_output} -m {input.phynteny_db} -t {input.phynteny_db}/confidence_dict.pkl
-		else
-			phynteny {params.pharokka_gbk} -o {output.phynteny_output}
-		fi
-		if [ "$(find {output.phynteny_output} -type f \( -name '*.gbk' -o -name '*.gb' \) | wc -l)" -eq 0 ]; then
-			cp {params.pharokka_gbk} {output.phynteny_output}/pharokka.gbk
-		fi
+		phynteny {params.pharokka_gbk} -o {output.phynteny_output} -m {input.phynteny_db}
+		python scripts/genbank_cleanup.py {output.phynteny_output}
 		"""
 
 rule clinker_figure:
@@ -511,10 +504,10 @@ rule lovis4u_figure:
 	input:
 		phynteny_output="{contigs}_phynteny",
 	output:
-		lovis4u=directory("{contigs}_lovis4u"),
+		lovis4u=("{contigs}_lovis4u/lovis4u.pdf"),
 	params:
-		output_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u)),
-		work_dir=lambda wildcards, output: os.path.abspath(str(output.lovis4u) + "_work"),
+		output_dir=lambda wildcards: os.path.abspath(f"{wildcards.contigs}_lovis4u"),
+		work_dir=lambda wildcards: os.path.abspath(f"{wildcards.contigs}_lovis4u_work"),
 	message:
 		"Creating genome visualization with LoVis4u"
 	conda:
@@ -525,22 +518,42 @@ rule lovis4u_figure:
 		out_dir="{params.output_dir}"
 		work_dir="{params.work_dir}"
 		gb_dir="$work_dir/genbank"
+		tmp_dir="$work_dir/tmp"
 
 		rm -rf "$out_dir" "$work_dir"
-		mkdir -p "$gb_dir"
-		find {input.phynteny_output} -type f \( -name "*.gbk" -o -name "*.gb" \) -exec cp {{}} "$gb_dir"/ \;
-		if [ "$(find "$gb_dir" -maxdepth 1 -type f \( -name "*.gbk" -o -name "*.gb" \) | wc -l)" -eq 0 ]; then
+		mkdir -p "$gb_dir" "$tmp_dir"
+
+		find {input.phynteny_output} -type f \( -name "*.gbk" -o -name "*.gb" \) -exec cp {{}} "$tmp_dir"/ \;
+		gbk_files=$(find "$tmp_dir" -maxdepth 1 -type f \( -name "*.gbk" -o -name "*.gb" \) | sort)
+
+		if [ -z "$gbk_files" ]; then
 			echo "No GenBank files found in {input.phynteny_output}" >&2
 			exit 1
 		fi
 
+		awk '{{f="'$gb_dir'/tmp_record_" NR; print $0 "//" > f}}' RS='//' $gbk_files
+		find "$gb_dir" -type f -size -10c -delete
+
+		for f in "$gb_dir"/tmp_record_*; do
+			locus=$(awk '/^LOCUS/ {{print $2; exit}}' "$f")
+			if [ -n "$locus" ]; then
+					mv "$f" "$gb_dir/${{locus}}.gbk"
+			else
+					rm "$f"
+			fi
+		done
+
+		rm -rf "$tmp_dir"
 		mkdir -p "$(dirname "$out_dir")"
 		cd "$work_dir"
+
 		lovis4u --data
 		lovis4u --linux
-		lovis4u -gb "$gb_dir" -hl -smp mmseqs -c A4L -o "$out_dir"
+		lovis4u -gb "$gb_dir" -hl -c A4L -o "$out_dir" --parsing-debug --debug
+
 		rm -rf "$work_dir"
 		"""
+
 
 checkpoint filtered_vOTU_visualization_decision:
 	input:
@@ -587,7 +600,7 @@ def filtered_vOTU_visualization_inputs(wildcards):
 		if VISUALIZATION_TOOL == "clinker":
 			inputs.append(wildcards.contigs + "_clinker.html")
 		else:
-			inputs.append(wildcards.contigs + "_lovis4u")
+			inputs.append(wildcards.contigs + "_lovis4u/lovis4u.pdf")
 	return inputs
 
 rule filtered_vOTU_visualization:
