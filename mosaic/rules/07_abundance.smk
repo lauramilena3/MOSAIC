@@ -587,8 +587,8 @@ rule buildBowtieDB_all_assembled:
 rule mapReads_all_assembled:
 	input:
 		index=ALL_ASSEMBLED_INDEX_FILES,
-		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
-		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
+		forward_paired=dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz",
+		reverse_paired=dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
 		sam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot.sam"),
 		bam=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot.bam",
@@ -607,7 +607,7 @@ rule mapReads_all_assembled:
 	params:
 		prefix=ALL_ASSEMBLED_INDEX_PREFIX,
 	message:
-		"Mapping cleaned paired-end reads to all assembled contigs"
+		"Mapping the 2M cleaned paired-end read subset to all assembled contigs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:

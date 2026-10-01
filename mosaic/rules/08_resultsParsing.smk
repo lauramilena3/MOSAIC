@@ -671,12 +671,13 @@ rule all_assembled_mapping_summary:
 			cleaned_reads={row["sample"]: int(float(row["bbduk"])) for row in csv.DictReader(handle)}
 		with open(output.tsv, "w") as handle:
 			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
-			writer.writerow(["sample", "cleaned_read_pairs", "properly_mapped_pairs", "properly_mapped_percent"])
+			writer.writerow(["sample", "cleaned_read_pairs", "subsampled_read_pairs", "properly_mapped_pairs", "properly_mapped_percent"])
 			for sample, path in zip(params.samples, input.mapped_pairs):
 				with open(path) as counts:
 					mapped=int(counts.read().strip())
 				cleaned=cleaned_reads[sample]
-				writer.writerow([sample, cleaned, mapped, round(100 * mapped / cleaned, 2) if cleaned else 0])
+				subsampled=min(2000000, cleaned)
+				writer.writerow([sample, cleaned, subsampled, mapped, round(100 * mapped / subsampled, 2) if subsampled else 0])
 
 
 if MAP_TO_REFSEQ:
