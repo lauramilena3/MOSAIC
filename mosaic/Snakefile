@@ -464,6 +464,7 @@ def inputMicrodiversity(wildcards):
 	if not SAMPLES:
 		raise ValueError("Microdiversity requires paired-end samples in input_dir")
 	inputs=expand(MICRO_DIR + "/{sample}/summary.tsv", sample=SAMPLES)
+	inputs.append(dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot.html")
 	return inputs
 
 def inputRNA(wildcards):
@@ -547,6 +548,15 @@ rule runWorkflow:
 		inputAbundance,
 		inputAnnotation,
 		inputOptionalRNA,
+		dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot.html",
+
+rule runAbundanceSummary:
+	input:
+		dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot.html",
+
+rule runMicrodiversitySummary:
+	input:
+		inputMicrodiversity,
 
 rule runRNAAssembly:
 	input:

@@ -1,3 +1,75 @@
+rule abundance_lifestyle_summary:
+	input:
+		fasta=dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		summary=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv",
+		rpkm=dirs_dict["MAPPING_DIR"] + "/filtered_RPKM_normalised_tot.txt",
+		counts=dirs_dict["MAPPING_DIR"] + "/filtered_counts_normalised_tot.txt",
+		coverage=dirs_dict["MAPPING_DIR"] + "/breadth_coverage_percent_tot.txt",
+		composition=dirs_dict["ANNOTATION"] + "/nucleotide_content_viral_contigs_clustered_with_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv",
+		bacphlip=dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_bacphlip.csv",
+		phagcn=dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.csv",
+		taxmyphage=dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot",
+		iphop=dirs_dict["ANNOTATION"] + "/iphop_hostID_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_resultsDir",
+		refseq=dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.csv",
+		metavr=[dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.tot/vOTU_summary.tsv"] if METAVR_blast else [],
+		crispr=[dirs_dict["ANNOTATION"] + "/spacepharer_minced_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"] if config["microbial_spacers"] else [],
+		crispr_hosts=[config["abundance_crispr_host_metadata"]] if config.get("abundance_crispr_host_metadata", "") else [],
+		sample_metadata=[config["abundance_sample_metadata"]] if config.get("abundance_sample_metadata", "") else [],
+	output:
+		html=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot.html",
+		metadata=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/vOTU_metadata_polished.csv",
+		samples=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/sample_summary.csv",
+		relative=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/relative_abundance.csv",
+		presence=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/presence_absence.csv",
+		prevalence=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/vOTU_prevalence.csv",
+		categories=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/category_summary.csv",
+		genomes=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/genome_summary.csv",
+		accumulation=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/sample_accumulation.csv",
+		groups=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/group_summary.csv",
+		group_presence=dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/group_ubiquitous_vOTUs.csv",
+		figures=directory(dirs_dict["PLOTS_DIR"] + "/10_abundance_lifestyle_summary.tot/figures"),
+	params:
+		samples=SAMPLES,
+		group_column=config.get("abundance_group_column", ""),
+		common_prevalence=float(config.get("abundance_common_prevalence", 0.2)),
+		core_prevalence=float(config.get("abundance_core_prevalence", 0.5)),
+	message:
+		"Summarizing final vOTU abundance, quality, lifestyle, hosts and prevalence"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/abundance_lifestyle_summary/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/10_abundance_lifestyle_summary.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/10_abundance_lifestyle_summary.py.ipynb"
+
+rule microdiversity_summary:
+	input:
+		fasta=dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
+		summaries=expand(MICRO_DIR + "/{sample}/summary.tsv", sample=SAMPLES),
+	output:
+		html=dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot.html",
+		combined=dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot/vOTU_sample_microdiversity.csv",
+		samples=dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot/sample_summary.csv",
+		pi=dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot/pi_callable.csv",
+		callable_fraction=dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot/callable_fraction.csv",
+		figures=directory(dirs_dict["PLOTS_DIR"] + "/11_microdiversity_summary.tot/figures"),
+	params:
+		samples=SAMPLES,
+	message:
+		"Summarizing callable-site nucleotide diversity across samples"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/microdiversity_summary/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=4000,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/11_microdiversity_summary.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/11_microdiversity_summary.py.ipynb"
+
 rule plot_assemblies:
 	input:
 		aa="{fasta}_ORFs.{sampling}.fasta",
