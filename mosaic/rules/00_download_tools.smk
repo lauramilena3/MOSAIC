@@ -199,16 +199,16 @@ rule downloadIphopDB:
 		iphop_db=directory(config['iphop_db']),
 	message:
 		"Downloading iphop database"
-	threads: 4
+	threads: 1
+	params:
+		db_dir="db/iphop_db/"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	shell:
 		"""
-		mkdir {output.iphop_db} || true
-		cd {output.iphop_db}
-		wget https://portal.nersc.gov/cfs/m342/iphop/db/iPHoP_db_Aug23_rw.tar.gz
-		tar xzvf iPHoP_db_Aug23_rw.tar.gz
-		rm iPHoP_db_Aug23_rw.tar.gz
+		mkdir -p {params.db_dir}
+		iphop download --db_dir {params.db_dir} --db_version iPHoP_db_Jun25_rw --split --no_prompt
+		iphop download --db_dir {output.iphop_db} --full_verify
 		"""
 
 rule downloadDRAMDB:
@@ -316,7 +316,7 @@ rule downloadKrakenDB:
 	shell:
 		"""
 		wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_08_GB_20260626.tar.gz
-		mkdir {output.kraken_db}
+		mkdir -p {output.kraken_db:q}
 		tar -xvf {output.kraken_tar} -C {output.kraken_db}
 		"""
 
@@ -465,20 +465,50 @@ rule downloadKrakenDB_human:
 
 rule downloadVcontact2Files:
 	output:
-		gene2genome_millard=("db/vcontact2/1Sep2024_vConTACT2_gene_to_genome.csv"),
-		vcontact_aa_millard=("db/vcontact2/1Sep2024_vConTACT2_proteins.faa"),
-	message:
-		"Downloading vContact2 formatting database"
-	threads: 1
+		archive="db/vcontact2/GenomesDB_Aug_2026.tar.gz",
+		gene2genome_millard="db/vcontact2/GenomesDB_Aug_2026_vConTACT2_gene_to_genome.csv",
+		vcontact_aa_millard="db/vcontact2/GenomesDB_Aug_2026_vConTACT2_proteins.faa",
 	params:
+		url=config["millard_genomesdb_url"],
+	message:
+		"Downloading Millard GenomesDB and preparing vConTACT2 reference inputs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	threads: 1
 	shell:
 		"""
-		wget wget https://millardlab-inphared.s3.climb.ac.uk/1Sep2024_vConTACT2_gene_to_genome.csv.gz
-		gunzip -c 1Sep2024_vConTACT2_gene_to_genome.csv.gz > {output.gene2genome_millard}
-		wget https://millardlab-inphared.s3.climb.ac.uk/1Sep2024_vConTACT2_proteins.faa.gz
-		gunzip -c 1Sep2024_vConTACT2_proteins.faa.gz > {output.vcontact_aa_millard}
-		dos2unix {output.gene2genome_millard}
-		dos2unix {output.vcontact_aa_millard}
+		set -euo pipefail
+		mkdir -p db/vcontact2
+		wget --continue --tries=3 --output-document={output.archive:q} {params.url:q}
+		python - {output.archive:q} {output.gene2genome_millard:q} {output.vcontact_aa_millard:q} <<'PYCODE'
+import csv
+import sys
+import tarfile
+
+with tarfile.open(sys.argv[1], "r|gz") as archive, \
+        open(sys.argv[2], "w", newline="") as mapping, \
+        open(sys.argv[3], "wb") as proteins:
+    writer = csv.writer(mapping)
+    writer.writerow(["protein_id", "contig_id", "keywords"])
+    count = 0
+    for member in archive:
+        parts = member.name.split("/")
+        if not member.isfile() or len(parts) != 3 or parts[0] != "GenomesDB" or not parts[2].endswith(".faa"):
+            continue
+        with archive.extractfile(member) as source:
+            last_line = b""
+            for line in source:
+                if line.startswith(b">"):
+                    protein_id = line[1:].split(None, 1)[0].decode("utf-8")
+                    writer.writerow([protein_id, parts[1], "none"])
+                    count += 1
+                proteins.write(line)
+                last_line = line
+            if last_line and not last_line.endswith(b"\n"):
+                proteins.write(b"\n")
+    if count == 0:
+        raise ValueError("No protein sequences found in the Millard GenomesDB archive")
+PYCODE
 		"""
 
 rule downloadBLASTviralProteins:
