@@ -119,6 +119,12 @@ MODES: Dict[str, Dict[str, str]] = {
         "reads": "illumina",
         "description": "Within-sample nucleotide variation against the final vOTU catalogue",
     },
+    "refseq_mapping": {
+        "target": "map_to_RefSeq",
+        "preset": "viral_metagenome",
+        "reads": "illumina",
+        "description": "Cleaned paired-end read mapping and abundance against RefSeq Viral",
+    },
     "qc": {
         "target": "runQC",
         "preset": "viral_metagenome",
@@ -661,6 +667,7 @@ def unlock(snakefile: Path, workflow_dir: Path, print_only: bool) -> None:
 @click.option("--vcontact/--no-vcontact", default=None, help="Override config run_vcontact.")
 @click.option("--dram/--no-dram", default=None, help="Override config run_DRAM.")
 @click.option("--imgvr-blast/--no-imgvr-blast", default=None, help="Override config imgvr_blast.")
+@click.option("--map-to-refseq/--no-map-to-refseq", default=None, help="Also map cleaned paired-end reads to RefSeqViral_db.")
 @click.option("--virsorter/--no-virsorter", default=None, help="Override config VirSorter.")
 @click.option("--extract-mapped/--no-extract-mapped", default=None, help="Override config extract_mapped.")
 @click.option("--rna-enriched/--no-rna-enriched", default=None, help="Run additional RNA assemblers for all paired-end samples.")
@@ -711,6 +718,7 @@ def run(
     vcontact: Optional[bool],
     dram: Optional[bool],
     imgvr_blast: Optional[bool],
+    map_to_refseq: Optional[bool],
     virsorter: Optional[bool],
     extract_mapped: Optional[bool],
     rna_enriched: Optional[bool],
@@ -765,6 +773,7 @@ def run(
     set_optional_bool(config_values, "run_vcontact", vcontact)
     set_optional_bool(config_values, "run_DRAM", dram)
     set_optional_bool(config_values, "imgvr_blast", imgvr_blast)
+    set_optional_bool(config_values, "map_to_RefSeq", map_to_refseq)
     set_optional_bool(config_values, "VirSorter", virsorter)
     set_optional_bool(config_values, "extract_mapped", extract_mapped)
     set_optional_bool(config_values, "RNA_enriched", rna_enriched)

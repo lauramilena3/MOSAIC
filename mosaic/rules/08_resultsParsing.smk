@@ -447,6 +447,90 @@ rule normalise_reads_reference:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
 
 
+rule normalise_reads_RefSeq:
+	input:
+		postqc_txt=dirs_dict["QC_DIR"] + "/postQC_illumina_report_data/multiqc_fastqc.txt",
+		covstats=expand(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_covstats.txt", sample=SAMPLES),
+		covstats_unique=expand(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
+	output:
+		raw_RPKM_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_RPKM_raw_tot.txt",
+		norm_RPKM_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_RPKM_normalised_tot.txt",
+		raw_count_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_counts_raw_tot.txt",
+		norm_count_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_counts_normalised_tot.txt",
+		coverage_RPKM_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_breadth_coverage_percent_tot.txt",
+		coverage_bases_RPKM_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_breadth_coverage_bases_tot.txt",
+		mean_coverage_file=REFSEQ_MAPPING_DIR + "/RefSeqViral_mean_depth_tot.txt",
+		filtered_raw_RPKM_file=REFSEQ_MAPPING_DIR + "/filtered_RefSeqViral_RPKM_raw_tot.txt",
+		filtered_norm_RPKM_file=REFSEQ_MAPPING_DIR + "/filtered_RefSeqViral_RPKM_normalised_tot.txt",
+		filtered_raw_count_file=REFSEQ_MAPPING_DIR + "/filtered_RefSeqViral_counts_raw_tot.txt",
+		filtered_norm_count_file=REFSEQ_MAPPING_DIR + "/filtered_RefSeqViral_counts_normalised_tot.txt",
+		filtered_75_raw_RPKM_file=REFSEQ_MAPPING_DIR + "/filtered_75_RefSeqViral_RPKM_raw_tot.txt",
+		filtered_75_norm_RPKM_file=REFSEQ_MAPPING_DIR + "/filtered_75_RefSeqViral_RPKM_normalised_tot.txt",
+	params:
+		samples=SAMPLES,
+		mapping_dir=REFSEQ_MAPPING_DIR,
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		sampling="tot",
+		threshold_bases=200,
+		threshold_RPKM=0.1,
+		reference="RefSeqViral",
+		index_label="RefSeq_accession",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/normalise_reads_RefSeq/tot.tsv"
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_RefSeqViral.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
+
+if MAP_TO_REFSEQ:
+	rule refseq_detection:
+		input:
+			fasta=config["RefSeqViral_db"],
+			covstats=expand(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_covstats.txt", sample=SAMPLES),
+			unique_covstats=expand(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
+			basecov=expand(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_basecov.txt", sample=SAMPLES),
+			unique_basecov=expand(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_basecov.txt", sample=SAMPLES),
+			rpkm=REFSEQ_MAPPING_DIR + "/RefSeqViral_RPKM_raw_tot.txt",
+			counts=REFSEQ_MAPPING_DIR + "/RefSeqViral_counts_raw_tot.txt",
+			breadth=REFSEQ_MAPPING_DIR + "/RefSeqViral_breadth_coverage_percent_tot.txt",
+			depth=REFSEQ_MAPPING_DIR + "/RefSeqViral_mean_depth_tot.txt",
+		output:
+			long=REFSEQ_MAPPING_DIR + "/RefSeqViral_detection_long_tot.tsv",
+			matrix=REFSEQ_MAPPING_DIR + "/RefSeqViral_detection_matrix_tot.tsv",
+			metadata=REFSEQ_MAPPING_DIR + "/RefSeqViral_detection_metadata_tot.tsv",
+			high=REFSEQ_MAPPING_DIR + "/RefSeqViral_detected_high_confidence_tot.tsv",
+			candidates=REFSEQ_MAPPING_DIR + "/RefSeqViral_detected_candidates_tot.tsv",
+			contaminants=REFSEQ_MAPPING_DIR + "/RefSeqViral_detected_contaminants_tot.tsv",
+			figures=directory(dirs_dict["PLOTS_DIR"] + "/07_RefSeq_detection"),
+		params:
+			samples=SAMPLES,
+			metadata_cache=REFSEQ_MAPPING_DIR + "/RefSeqViral_NCBI_metadata_cache.sqlite",
+			metadata_refresh=config_bool("refseq_metadata_refresh", False),
+			negative_control=str(config.get("negative_control", "")).strip(),
+			high_min_length_bp=int(config.get("refseq_high_min_length_bp", 6667)),
+			high_min_covered_bases=int(config.get("refseq_high_min_covered_bases", 5000)),
+			high_min_breadth_percent=float(config.get("refseq_high_min_breadth_percent", 75)),
+			high_min_unique_reads=int(config.get("refseq_high_min_unique_reads", 5)),
+			candidate_min_unique_reads=int(config.get("refseq_candidate_min_unique_reads", 10)),
+			candidate_min_breadth_percent=float(config.get("refseq_candidate_min_breadth_percent", 25)),
+			ambiguous_min_reads=int(config.get("refseq_ambiguous_min_reads", 5)),
+			ambiguous_max_unique_ratio=float(config.get("refseq_ambiguous_max_unique_ratio", 0.2)),
+			negative_control_min_reads=int(config.get("refseq_negative_control_min_reads", 5)),
+			negative_control_max_enrichment=float(config.get("refseq_negative_control_max_enrichment", 2)),
+			enrichment_pseudocount=float(config.get("refseq_enrichment_pseudocount", 0.01)),
+			plot_max_accessions=int(config.get("refseq_plot_max_accessions", 60)),
+		message:
+			"Classifying RefSeq viral read-mapping evidence"
+		benchmark:
+			dirs_dict["BENCHMARKS"] + "/refseq_detection/tot.tsv"
+		threads: 1
+		resources:
+			mem_mb=8000,
+		log:
+			notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_RefSeq_detection.py.ipynb"
+		notebook:
+			dirs_dict["RAW_NOTEBOOKS"] + "/07_RefSeq_detection.py.ipynb"
+
 def input_QC_long_only_nanopore_pre(wildcards):
 	input_list=[]
 	if NANOPORE:

@@ -511,6 +511,62 @@ with tarfile.open(sys.argv[1], "r|gz") as archive, \
 PYCODE
 		"""
 
+rule downloadRefSeqViral:
+	output:
+		fasta="db/RefSeqViral/RefSeq_viral.fasta",
+		manifest="db/RefSeqViral/RefSeq_viral.download_info.tsv",
+	params:
+		url=config.get("refseq_viral_download_url", "https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.1.genomic.fna.gz"),
+	message:
+		"Downloading and dating the viral RefSeq nucleotide database"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadRefSeqViral/tot.tsv"
+	threads: 1
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p db/RefSeqViral
+		stamp=$(date -u +%Y-%m-%dT%H%M%SZ)
+		stage=$(mktemp -d db/RefSeqViral/.download_XXXXXX)
+		trap 'rm -r -- "$stage"' EXIT
+		wget --tries=3 --server-response --output-document="$stage/source.fna.gz" \
+			{params.url:q} 2> "$stage/http_headers.txt"
+		gzip -t "$stage/source.fna.gz"
+		gzip -dc "$stage/source.fna.gz" > "$stage/RefSeq_viral.fasta"
+		test -s "$stage/RefSeq_viral.fasta"
+		makeblastdb -in "$stage/RefSeq_viral.fasta" -dbtype nucl -parse_seqids
+		test -s "$stage/RefSeq_viral.fasta.nhr"
+		test -s "$stage/RefSeq_viral.fasta.nin"
+		test -s "$stage/RefSeq_viral.fasta.nsq"
+		printf 'download_started_utc\t%s\n' "$stamp" > "$stage/download_info.tsv"
+		printf 'download_completed_utc\t%s\n' "$(date -u +%Y-%m-%dT%H%M%SZ)" >> "$stage/download_info.tsv"
+		printf 'source_url\t%s\n' {params.url:q} >> "$stage/download_info.tsv"
+		printf 'archive_sha256\t%s\n' "$(sha256sum "$stage/source.fna.gz" | cut -d' ' -f1)" >> "$stage/download_info.tsv"
+		printf 'fasta_sha256\t%s\n' "$(sha256sum "$stage/RefSeq_viral.fasta" | cut -d' ' -f1)" >> "$stage/download_info.tsv"
+		for existing in {output.fasta:q} {output.manifest:q} db/RefSeqViral/RefSeq_viral.fasta.n*; do
+			if [ -e "$existing" ] && [ ! -L "$existing" ]; then
+				printf 'Refusing to replace existing non-symlink: %s\n' "$existing" >&2
+				exit 1
+			fi
+		done
+		snapshot="db/RefSeqViral/$stamp"
+		if [ -e "$snapshot" ]; then
+			printf 'Dated RefSeq directory already exists: %s\n' "$snapshot" >&2
+			exit 1
+		fi
+		mv "$stage" "$snapshot"
+		trap - EXIT
+		for index in "$snapshot"/RefSeq_viral.fasta.n*; do
+			[ -f "$index" ] || continue
+			name=$(basename "$index")
+			ln -sfn "$stamp/$name" "db/RefSeqViral/$name"
+		done
+		ln -sfn "$stamp/RefSeq_viral.fasta" {output.fasta:q}
+		ln -sfn "$stamp/download_info.tsv" {output.manifest:q}
+		"""
+
 rule downloadBLASTviralProteins:
 	output:
 		blast=(os.path.join(workflow.basedir,"db/ncbi/NCBI_viral_proteins.faa")),

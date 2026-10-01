@@ -42,6 +42,7 @@ ISOLATES=config['isolates']
 REMOVE_EUK=config_bool('remove_euk', True)
 RNA_MODE=config_bool('RNA_enriched', False)
 RUN_MICRODIVERSITY=config_bool('microdiversity', False)
+MAP_TO_REFSEQ=config_bool('map_to_RefSeq', False)
 VISUALIZATION_TOOL=str(config.get('visualization_tool', 'lovis4u')).strip().lower()
 if VISUALIZATION_TOOL in ["lovis", "lovis4u"]:
 	VISUALIZATION_TOOL="lovis4u"
@@ -366,6 +367,8 @@ def inputvOTUClustering(wildcards):
 
 def inputAbundance(wildcards):
 	inputs=[]
+	if MAP_TO_REFSEQ:
+		inputs.extend(inputRefSeqMapping(wildcards))
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	# # inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv", sample=SAMPLES, sampling=SAMPLING_TYPE)),
@@ -470,6 +473,11 @@ def inputRNA(wildcards):
 		inputs.extend(inputMicrodiversity(wildcards))
 	return inputs
 
+def inputOptionalRefSeq(wildcards):
+	if MAP_TO_REFSEQ:
+		return inputRefSeqMapping(wildcards)
+	return []
+
 def inputOptionalRNA(wildcards):
 	if RNA_MODE:
 		return inputRNA(wildcards)
@@ -483,6 +491,7 @@ rule all:
 		inputQC,
 		inputAssembly,
 		inputAnnotation,
+		inputOptionalRefSeq,
 		inputOptionalRNA,
 
 rule runQC:
@@ -754,6 +763,7 @@ rule phage_isolates:
 		inputReadsCount,
 		inputQC,
 		inputAssembly,
+		inputOptionalRefSeq,
 		inputViralID,
 		# get_clinker_outputs,
 		dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
@@ -828,6 +838,28 @@ rule map_to_reference:
 		inputQC,
 		expand(dirs_dict["MAPPING_DIR"]+ "/REFERENCES/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE),
 		expand(dirs_dict["MAPPING_DIR"] + "/REFERENCES/" + REFERENCE + "_RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE),
+
+def inputRefSeqMapping(wildcards):
+	if not SAMPLES:
+		raise ValueError("RefSeq mapping requires paired-end samples in input_dir.")
+	negative_control=str(config.get("negative_control", "")).strip()
+	if negative_control and negative_control not in SAMPLES:
+		raise ValueError(f"negative_control '{negative_control}' must match a paired-end sample in input_dir: {SAMPLES}")
+	if not str(config.get("RefSeqViral_db", "")).strip():
+		raise ValueError("Set RefSeqViral_db to the viral nucleotide FASTA for RefSeq mapping.")
+	inputs=expand(dirs_dict["MAPPING_DIR"] + "/REFSEQ_VIRAL/bowtie2_flagstats_filtered_RefSeqViral_{sample}.tot.txt", sample=SAMPLES)
+	inputs.append(dirs_dict["MAPPING_DIR"] + "/REFSEQ_VIRAL/RefSeqViral_RPKM_normalised_tot.txt")
+	inputs.append(dirs_dict["MAPPING_DIR"] + "/REFSEQ_VIRAL/RefSeqViral_detection_long_tot.tsv")
+	return inputs
+
+rule map_to_RefSeq:
+	input:
+		inputRefSeqMapping,
+
+rule map_raw_to_reference:
+	input:
+		expand(dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.raw.txt", sample=SAMPLES),
+		expand(dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw_covstats.txt", sample=SAMPLES),
 
 # /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/hybrid_assembly.fasta
 # /home/lmf/04_MOSAIC/WARWICK/WEC/03_CONTIGS/long_read.fasta

@@ -485,6 +485,83 @@ rule mapReads_contaminants:
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
 		"""
 
+# RefSeq mapping is separate from both the vOTU catalogue and user references.
+# Keep the index in the results directory, not beside the shared source database.
+REFSEQ_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/REFSEQ_VIRAL"
+REFSEQ_INDEX_PREFIX=REFSEQ_MAPPING_DIR + "/INDEX/RefSeqViral"
+REFSEQ_INDEX_FILES=expand(REFSEQ_INDEX_PREFIX + ".{part}.bt2l", part=["1", "2", "3", "4", "rev.1", "rev.2"])
+
+rule buildBowtieDB_RefSeq:
+	input:
+		fasta=lambda wildcards: config["RefSeqViral_db"],
+	output:
+		index=REFSEQ_INDEX_FILES,
+	params:
+		prefix=REFSEQ_INDEX_PREFIX,
+	message:
+		"Creating the RefSeq Viral Bowtie2 index"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_RefSeq/tot.tsv"
+	threads: 16
+	shell:
+		"""
+		bowtie2-build --large-index --threads {threads} {input.fasta:q} {params.prefix:q}
+		"""
+
+rule mapReads_RefSeq:
+	input:
+		index=REFSEQ_INDEX_FILES,
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
+	output:
+		sam=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot.sam"),
+		bam=REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot.bam",
+		sorted_bam=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_sorted.bam"),
+		sorted_bam_idx=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_sorted.bam.bai"),
+		filtered_bam=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_filtered.bam"),
+		flagstats=REFSEQ_MAPPING_DIR + "/bowtie2_flagstats_RefSeqViral_{sample}.tot.txt",
+		flagstats_filtered=REFSEQ_MAPPING_DIR + "/bowtie2_flagstats_filtered_RefSeqViral_{sample}.tot.txt",
+		flagstats_unique=REFSEQ_MAPPING_DIR + "/bowtie2_flagstats_unique_RefSeqViral_{sample}.tot.txt",
+		unique_bam=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique.bam"),
+		unique_sorted_bam=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_sorted.bam"),
+		unique_sorted_bam_idx=temp(REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_sorted.bam.bai"),
+		covstats=REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_covstats.txt",
+		covstats_unique=REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_covstats.txt",
+		basecov=REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_basecov.txt",
+		unique_basecov=REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot_unique_basecov.txt",
+	params:
+		prefix=REFSEQ_INDEX_PREFIX,
+	message:
+		"Mapping cleaned paired-end reads to RefSeq Viral"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/mapReads_RefSeq/sample={sample}.tsv"
+	log:
+		bowtie2=REFSEQ_MAPPING_DIR + "/bowtie2_RefSeqViral_{sample}_tot.log",
+	threads: 16
+	shell:
+		"""
+		bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.sam:q} --threads {threads} --no-unal --fast 2> {log.bowtie2:q}
+		samtools view -@ {threads} -bS {output.sam:q} -o {output.bam:q}
+		samtools sort -@ {threads} {output.bam:q} -o {output.sorted_bam:q}
+		samtools index {output.sorted_bam:q}
+		samtools flagstat {output.sorted_bam:q} > {output.flagstats:q}
+		coverm filter -b {output.sorted_bam:q} -o {output.filtered_bam:q} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		samtools flagstat {output.filtered_bam:q} > {output.flagstats_filtered:q}
+		# Same proper-pair/no-XS heuristic used by mapReads_reference; retain headers for zero-hit samples.
+		samtools view -@ {threads} -hf 0x2 {output.filtered_bam:q} | awk '/^@/ || !/XS:i:/' | samtools view -@ {threads} -b -o {output.unique_bam:q} -
+		samtools sort -@ {threads} {output.unique_bam:q} -o {output.unique_sorted_bam:q}
+		samtools index {output.unique_sorted_bam:q}
+		samtools flagstat {output.unique_bam:q} > {output.flagstats_unique:q}
+		bedtools genomecov -dz -ibam {output.filtered_bam:q} > {output.basecov:q}
+		bedtools genomecov -dz -ibam {output.unique_sorted_bam:q} > {output.unique_basecov:q}
+		coverm contig -b {output.filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats:q}
+		coverm contig -b {output.unique_sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats_unique:q}
+		"""
+
 rule buildBowtieDB_reference:
 	input:
 		contaminants=REFERENCE_DIR+ "/" + REFERENCE + ".fasta",
@@ -580,6 +657,43 @@ rule mapReads_reference:
 		#covstats
 		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats}
 		coverm contig -b {output.unique_sorted_bam} -m mean length covered_bases count variance trimmed_mean rpkm  -o {output.covstats_unique}
+		"""
+
+rule mapReads_raw_reference:
+	input:
+		contigs_bt2=input_bowtie_reference,
+		forward_paired=(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config["forward_tag"]) + ".fastq.gz"),
+		reverse_paired=(dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config["reverse_tag"]) + ".fastq.gz"),
+	output:
+		sam=temp(dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw.sam"),
+		bam=dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw.bam",
+		sorted_bam=temp(dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw_sorted.bam"),
+		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw_sorted.bam.bai"),
+		filtered_bam=temp(dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw_filtered.bam"),
+		flagstats=dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_flagstats_" + REFERENCE + "_{sample}.raw.txt",
+		flagstats_filtered=dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_flagstats_filtered_" + REFERENCE + "_{sample}.raw.txt",
+		covstats=dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW/bowtie2_" + REFERENCE + "_{sample}_raw_covstats.txt",
+	params:
+		prefix=REFERENCE_DIR + "/" + REFERENCE,
+		outdir=dirs_dict["MAPPING_DIR"] + "/REFERENCES/RAW",
+	message:
+		"Mapping raw paired-end reads to the reference"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/mapReads_raw_reference/" + REFERENCE + "/sample={sample}.tsv"
+	threads: 16
+	shell:
+		"""
+		mkdir -p {params.outdir}
+		bowtie2 -x {params.prefix} -1 {input.forward_paired} -2 {input.reverse_paired} -S {output.sam} --threads {threads} --no-unal --fast
+		samtools view -@ {threads} -bS {output.sam} > {output.bam}
+		samtools sort -@ {threads} {output.bam} -o {output.sorted_bam}
+		samtools index {output.sorted_bam}
+		samtools flagstat {output.sorted_bam} > {output.flagstats}
+		coverm filter -b {output.sorted_bam} -o {output.filtered_bam} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		samtools flagstat {output.filtered_bam} > {output.flagstats_filtered}
+		coverm contig -b {output.filtered_bam} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.covstats}
 		"""
 
 rule gene_Abundance:

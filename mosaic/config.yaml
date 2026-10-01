@@ -15,6 +15,21 @@ rna_viral_groups: "RNA" # optionally dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae
 circularity_min_repeat_bp: 30 # minimum exact terminal repeat reported as evidence
 circularity_max_repeat_bp: 5000 # maximum sequence examined at each contig end
 microdiversity: False # independent of RNA_enriched; map every sample to the final catalogue
+map_to_RefSeq: False # independent branch: full cleaned paired-end reads against RefSeqViral_db
+negative_control: "" # optional sample ID in input_dir, e.g. NT202_MSV_NC_10
+refseq_metadata_refresh: False # re-download cached NCBI accession metadata on the next report run
+refseq_high_min_length_bp: 6667
+refseq_high_min_covered_bases: 5000 # strictly greater for genomes >= refseq_high_min_length_bp
+refseq_high_min_breadth_percent: 75 # strictly greater for shorter genomes
+refseq_high_min_unique_reads: 5
+refseq_candidate_min_unique_reads: 10
+refseq_candidate_min_breadth_percent: 25
+refseq_ambiguous_min_reads: 5
+refseq_ambiguous_max_unique_ratio: 0.2
+refseq_negative_control_min_reads: 5
+refseq_negative_control_max_enrichment: 2
+refseq_enrichment_pseudocount: 0.01
+refseq_plot_max_accessions: 60
 microdiversity_min_depth: 100
 microdiversity_min_base_quality: 30
 microdiversity_min_mapping_quality: 30
@@ -102,8 +117,9 @@ microbial_spacers: ""
 
 reference_databases: "IMGVR GenBankViral RefSeqViral"
 IMGVR_db: "/home/lmf/db/IMG_VR_2022-12-19_7/"
-# IMGVR_protein_db: "/home/lmf/db/IMG_VR_09_2020/ORFs/IMGVR_ORF.faa"
-RefSeqViral_db: "/home/lmf/db/RefSeqViral/RefSeq_viral_2025_08_29.fasta"
+# Missing RefSeq FASTA triggers downloadRefSeqViral, which keeps dated snapshots.
+RefSeqViral_db: "db/RefSeqViral/RefSeq_viral.fasta"
+refseq_viral_download_url: "https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.1.genomic.fna.gz"
 pharokka_db: "db/pharokka"
 phynteny_db: "db/phynteny"
 visualization_tool: "lovis4u"
