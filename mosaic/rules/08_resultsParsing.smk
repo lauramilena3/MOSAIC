@@ -680,6 +680,250 @@ rule all_assembled_mapping_summary:
 				writer.writerow([sample, cleaned, subsampled, mapped, round(100 * mapped / subsampled, 2) if subsampled else 0])
 
 
+rule select_all_assembled_top_contigs:
+	input:
+		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
+		clusters=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
+		provenance=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_provenance.tot.tsv",
+		rpkm=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_raw_tot.txt",
+		counts=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_raw_tot.txt",
+		breadth=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
+		depth=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mean_depth_tot.txt",
+		unique=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
+	output:
+		fasta=ALL_ASSEMBLED_TOP_PREFIX + ".fasta",
+		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
+		membership=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_membership_tot.tsv",
+	params:
+		samples=SAMPLES,
+		top_n=int(config.get("all_assembled_top_n", 100)),
+		negative_control=str(config.get("negative_control", "")).strip(),
+	message:
+		"Selecting the most abundant assembled contigs by mean raw RPKM"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/select_all_assembled_top_contigs/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=16000,
+	run:
+		import pandas as pd
+
+		rpkm=pd.read_csv(input.rpkm, index_col=0).reindex(columns=params.samples).fillna(0)
+		ranking_samples=[sample for sample in params.samples if sample != params.negative_control]
+		ranked=rpkm[ranking_samples]
+		top=pd.DataFrame(index=rpkm.index)
+		top["mean_RPKM_raw"]=ranked.mean(axis=1).fillna(0)
+		top["max_RPKM_raw"]=ranked.max(axis=1).fillna(0)
+		top["highest_abundance_sample"]=ranked.idxmax(axis=1) if ranking_samples else "not reported"
+		top["contig_id"]=top.index
+		top=top.loc[top["mean_RPKM_raw"] > 0].sort_values(
+			["mean_RPKM_raw", "contig_id"], ascending=[False, True], kind="stable").head(max(0, params.top_n))
+		top.insert(0, "rank", range(1, len(top) + 1))
+		provenance=pd.read_csv(input.provenance, sep="\t")
+		origins=provenance.set_index("contig_id")
+		for field in ["sample", "assembler", "original_id", "length_bp"]:
+			top["assembly_sample" if field == "sample" else field]=origins[field].reindex(top.index)
+		clusters=pd.read_csv(input.clusters, sep="\t", header=None, names=["representative_id", "member_id"])
+		clusters=clusters.drop_duplicates()
+		top["cluster_size"]=clusters.groupby("representative_id").size().reindex(top.index).fillna(1).astype(int)
+		for path, prefix in [(input.rpkm, "RPKM_raw"), (input.counts, "mapped_reads"),
+				(input.breadth, "breadth_percent"), (input.depth, "mean_depth")]:
+			matrix=pd.read_csv(path, index_col=0).reindex(index=top.index, columns=params.samples).fillna(0)
+			for sample in params.samples:
+				top[prefix + "_" + sample]=matrix[sample]
+		for sample, path in zip(params.samples, input.unique):
+			unique=pd.read_csv(path, sep="\t", usecols=[0, 4]).set_index("Contig")
+			top["unique_mapped_reads_" + sample]=unique.iloc[:, 0].reindex(top.index).fillna(0)
+			top["unique_mapping_ratio_" + sample]=(top["unique_mapped_reads_" + sample] /
+				top["mapped_reads_" + sample].replace(0, float("nan"))).fillna(0)
+		membership=clusters.loc[clusters["representative_id"].isin(top.index)].merge(
+			provenance.rename(columns={"contig_id": "member_id", "sample": "assembly_sample"}), on="member_id", how="left")
+		membership["rank"]=membership["representative_id"].map(top["rank"])
+		membership=membership.sort_values(["rank", "member_id"], kind="stable")
+		membership.to_csv(output.membership, sep="\t", index=False)
+
+		def records(path):
+			name, chunks=None, []
+			with open(path) as handle:
+				for line in handle:
+					if line.startswith(">"):
+						if name is not None:
+							yield name, "".join(chunks)
+						name, chunks=line[1:].split()[0], []
+					else:
+						chunks.append(line.strip())
+			if name is not None:
+				yield name, "".join(chunks)
+
+		selected={name: sequence for name, sequence in records(input.fasta) if name in top.index}
+		with open(output.fasta, "w") as handle:
+			for name in top.index:
+				sequence=selected[name]
+				handle.write(f">{name}\n{sequence}\n")
+				top.loc[name, "gc_percent"]=100 * sum(sequence.upper().count(base) for base in "GC") / len(sequence)
+		top.to_csv(output.ranking, sep="\t", index=False)
+
+rule collect_all_assembled_top_evidence:
+	input:
+		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
+		genomad_dna=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_tot", sample=SAMPLES),
+		genomad_rna=expand(RNA_DIR + "/{sample}/{assembler}_genomad", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE else [],
+		circularity=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv", sample=SAMPLES, assembler=["spades"] + (RNA_ASSEMBLERS if RNA_MODE else [])),
+	output:
+		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_existing_annotations_tot.tsv",
+	params:
+		viral_dir=dirs_dict["VIRAL_DIR"],
+		rna_dir=RNA_DIR,
+	message:
+		"Collecting original-assembly geNomad and terminal-repeat evidence without reclassifying"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/collect_all_assembled_top_evidence/tot.tsv"
+	threads: 1
+	run:
+		import csv
+		from pathlib import Path
+
+		def rows(path):
+			if path.is_file() and path.stat().st_size:
+				with path.open() as handle:
+					return list(csv.DictReader(handle, delimiter="\t"))
+			return []
+
+		circles={}
+		for path in input.circularity:
+			for row in rows(Path(path)):
+				circles[(row["sample"], row["assembler"], row["contig_id"])]=row
+		circle_fields=["dtr_bp", "itr_bp", "dtr_sequence", "dtr_left_start", "dtr_left_end", "dtr_right_start", "dtr_right_end",
+			"itr_left_sequence", "itr_right_sequence", "itr_left_start", "itr_left_end", "itr_right_start", "itr_right_end",
+			"terminal_repeat_type", "repeat_warning"]
+		fields=["contig_id", "genomad_assessed", "genomad_classification", "genomad_virus_score", "genomad_plasmid_score",
+			"genomad_taxonomy", "genomad_topology", "genomad_evidence_scope", "genomad_reported_sequence", "genomad_source"] + circle_fields
+		cache={}
+		with open(output.tsv, "w") as handle:
+			writer=csv.DictWriter(handle, fieldnames=fields, delimiter="\t", lineterminator="\n")
+			writer.writeheader()
+			for origin in rows(Path(input.ranking)):
+				name, sample, assembler=origin["original_id"], origin["assembly_sample"], origin["assembler"]
+				if assembler == "spades":
+					folder=Path(params.viral_dir) / (sample + "_geNomad_tot")
+					prefix=sample + "_spades_filtered_scaffolds.tot"
+				else:
+					folder=Path(params.rna_dir) / sample / (assembler + "_genomad")
+					prefix=assembler
+				if folder not in cache:
+					summary=folder / (prefix + "_summary")
+					virus=summary / (prefix + "_virus_summary.tsv")
+					plasmid=summary / (prefix + "_plasmid_summary.tsv")
+					cache[folder]=(virus.is_file(), rows(virus), rows(plasmid))
+				assessed, viruses, plasmids=cache[folder]
+				exact=[row for row in viruses if row["seq_name"] == name]
+				regional=[row for row in viruses if row["seq_name"].split("|provirus_", 1)[0] == name and row["seq_name"] != name]
+				plasmids=[row for row in plasmids if row["seq_name"] == name]
+				hits=exact or regional or plasmids
+				result=dict.fromkeys(fields, "not reported")
+				result.update(contig_id=origin["contig_id"], genomad_assessed="yes" if assessed else "not reported", genomad_source=str(folder))
+				if hits:
+					result["genomad_classification"]="virus" if exact or regional else "plasmid"
+					result["genomad_evidence_scope"]="provirus region" if regional and not exact else "whole contig"
+					for column, source in [("genomad_virus_score", "virus_score"), ("genomad_plasmid_score", "plasmid_score"),
+							("genomad_taxonomy", "taxonomy"), ("genomad_topology", "topology"), ("genomad_reported_sequence", "seq_name")]:
+						values=[row[source] for row in hits if row.get(source)]
+						result[column]=" | ".join(values) if values else "not reported"
+				circle=circles.get((sample, assembler, name), {})
+				for column in circle_fields:
+					result[column]=circle.get(column) or "not reported"
+				writer.writerow(result)
+
+rule all_assembled_top_metadata:
+	input:
+		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
+		existing=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_existing_annotations_tot.tsv",
+		virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + ALL_ASSEMBLED_TOP_NAME + "_tot/final-viral-score.tsv",
+		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + ALL_ASSEMBLED_TOP_NAME + "_positive_quality.tot.csv",
+		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + ALL_ASSEMBLED_TOP_NAME + "_summary_results.tot.csv",
+		checkv=ALL_ASSEMBLED_TOP_PREFIX + "_checkV/quality_summary.tsv",
+		refseq=dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_" + ALL_ASSEMBLED_TOP_NAME + ".tot.csv",
+		metavr=dirs_dict["ANNOTATION"] + "/blast_output_METAVR_" + ALL_ASSEMBLED_TOP_NAME + ".tot.csv",
+		metavr_metadata=dirs_dict["PLOTS_DIR"] + "/" + ALL_ASSEMBLED_TOP_NAME + "_METAVR.tot/METAVR_main_table_for_hits.tsv",
+		pharokka=ALL_ASSEMBLED_TOP_PREFIX + "_pharokka",
+	output:
+		metadata=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_metadata_tot.tsv",
+		pharokka_cds=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_pharokka_cds_tot.tsv",
+	message:
+		"Combining abundance, classification and annotation of the top assembled contigs"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/all_assembled_top_metadata/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	run:
+		import pandas as pd
+		from pathlib import Path
+
+		def table(path, **kwargs):
+			path=Path(path)
+			return pd.read_csv(path, sep="\t", **kwargs) if path.is_file() and path.stat().st_size else pd.DataFrame()
+
+		metadata=table(input.ranking).set_index("contig_id")
+		existing=table(input.existing).set_index("contig_id")
+		metadata=metadata.join(existing)
+		for path, key, prefix in [(input.virsorter, "seqname", "VirSorter2"), (input.checkv, "contig_id", "CheckV")]:
+			frame=table(path)
+			if key in frame:
+				frame=frame.drop_duplicates(key).set_index(key).add_prefix(prefix + "_")
+				metadata=metadata.join(frame.reindex(metadata.index))
+
+		def original_name(name):
+			if name in metadata.index:
+				return name
+			for separator in ["_fragment_", "|provirus_", "_provirus_"]:
+				if name.split(separator, 1)[0] in metadata.index:
+					return name.split(separator, 1)[0]
+			return name
+
+		for path, prefix in [(input.vibrant_quality, "VIBRANT"), (input.vibrant_summary, "VIBRANT_summary")]:
+			frame=table(path)
+			if "scaffold" in frame:
+				frame["contig_id"]=frame["scaffold"].map(original_name)
+				frame["evidence_scope"]=frame.apply(lambda row: "whole contig" if row["scaffold"] == row["contig_id"] else "region", axis=1)
+				frame=frame.groupby("contig_id", sort=False).agg(lambda values: " | ".join(dict.fromkeys(values.dropna().astype(str))))
+				frame.columns=[prefix + "_" + column.replace(" ", "_") for column in frame.columns]
+				metadata=metadata.join(frame.reindex(metadata.index))
+
+		blast_columns=["qseqid", "sseqid", "description", "qstart", "qend", "qlen", "slen", "qcovs", "evalue", "alignment_length", "pident"]
+		for path, prefix in [(input.refseq, "RefSeq"), (input.metavr, "METAVR")]:
+			frame=table(path, header=None, names=blast_columns)
+			frame=frame.loc[frame["qseqid"] != "qseqid"] if "qseqid" in frame else pd.DataFrame(columns=blast_columns)
+			for field in blast_columns[3:]:
+				frame[field]=pd.to_numeric(frame[field], errors="coerce")
+			frame=frame.sort_values(["evalue", "qcovs", "pident", "alignment_length", "sseqid"], ascending=[True, False, False, False, True], kind="stable")
+			frame=frame.drop_duplicates("qseqid").set_index("qseqid").add_prefix(prefix + "_")
+			metadata=metadata.join(frame.reindex(metadata.index))
+		metavr=table(input.metavr_metadata)
+		if "uvig" in metavr:
+			metavr=metavr.drop_duplicates("uvig").set_index("uvig")
+			for field in metavr.columns:
+				metadata["METAVR_" + field]=metadata["METAVR_sseqid"].fillna("").str.split("|").str[0].map(metavr[field])
+
+		cds=table(Path(input.pharokka) / "pharokka_cds_final_merged_output.tsv")
+		if "contig" in cds:
+			cds=cds.loc[cds["contig"].isin(metadata.index)].copy()
+			metadata["Pharokka_CDS_count"]=cds.groupby("contig").size().reindex(metadata.index, fill_value=0)
+			if "annot" in cds:
+				known=cds.loc[cds["annot"].notna() & ~cds["annot"].str.contains("hypothetical|unknown", case=False, na=False)]
+				metadata["Pharokka_annotated_CDS_count"]=known.groupby("contig").size().reindex(metadata.index, fill_value=0)
+			if "category" in cds:
+				metadata["Pharokka_function_categories"]=cds.groupby("contig")["category"].agg(lambda values: "; ".join(sorted(set(values.dropna()))))
+		else:
+			cds=pd.DataFrame(columns=["contig", "gene", "annot", "category"])
+			metadata["Pharokka_CDS_count"]="not reported"
+			metadata["Pharokka_annotated_CDS_count"]="not reported"
+			metadata["Pharokka_function_categories"]="not reported"
+		cds.to_csv(output.pharokka_cds, sep="\t", index=False)
+		metadata=metadata.replace("", "not reported").fillna("not reported")
+		metadata.reset_index().to_csv(output.metadata, sep="\t", index=False)
+
+
 if MAP_TO_REFSEQ:
 	rule refseq_detection:
 		input:
@@ -848,17 +1092,20 @@ def input_bacterial_results_genomad(wildcards):
 
 rule selectMetaVRMetadata:
 	input:
-		blast=dirs_dict["ANNOTATION"] + "/blast_output_METAVR_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",
+		blast=lambda wc: dirs_dict["ANNOTATION"] + "/blast_output_METAVR_" + ("filtered_" + REPRESENTATIVE_CONTIGS_BASE if wc.report == "08_METAVR_analysis" else wc.report.removesuffix("_METAVR")) + "." + wc.sampling + ".csv",
 		metadata=os.path.join(config["METAVR_db"], "METAVR_main_table.parquet"),
 	output:
-		selected=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/METAVR_main_table_for_hits.tsv",
+		selected=dirs_dict["PLOTS_DIR"] + "/{report}.{sampling}/METAVR_main_table_for_hits.tsv",
 	message:
 		"Selecting MetaVR metadata for the matched viral genomes"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/selectMetaVRMetadata/sampling={sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/selectMetaVRMetadata/report={report}__sampling={sampling}.tsv"
 	threads: 1
+	wildcard_constraints:
+		report="[^/]+",
+		sampling="tot|sub"
 	resources:
 		mem_mb=8000,
 	shell:

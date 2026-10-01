@@ -17,6 +17,8 @@ circularity_max_repeat_bp: 5000 # maximum sequence examined at each contig end
 microdiversity: False # independent of RNA_enriched; map every sample to the final catalogue
 map_to_RefSeq: False # independent branch: full cleaned paired-end reads against RefSeqViral_db
 map_to_all_assembled: False # map the existing 2M cleaned read subset to a dereplicated catalogue of all retained assemblies
+all_assembled_top_n: 100 # rank by mean raw RPKM across samples, excluding negative_control
+annotation_fastas: {} # optional dataset-to-FASTA paths, e.g. custom.tot: /path/to/contigs.fasta
 negative_control: "" # optional sample ID in input_dir, e.g. NT202_MSV_NC_10
 refseq_metadata_refresh: False # re-download cached NCBI accession metadata on the next report run
 refseq_high_min_length_bp: 6667

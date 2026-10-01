@@ -100,21 +100,21 @@ rule estimateGenomeCompletness:
 
 rule estimateGenomeCompletness_reference:
 	input:
-		reference_contigs=config['additional_reference_contigs'],
+		reference_contigs=lambda wc: config['additional_reference_contigs'] if os.path.abspath(wc.contigs) == os.path.abspath(dirs_dict["vOUT_DIR"] + "/user_reference_contigs") else wc.contigs + ".fasta",
 		checkv_db=(config['checkv_db']),
 	output:
-		quality_summary=dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/quality_summary.tsv",
-		completeness=dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/completeness.tsv",
-		contamination=dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/contamination.tsv",
+		quality_summary="{contigs}_checkV/quality_summary.tsv",
+		completeness="{contigs}_checkV/completeness.tsv",
+		contamination="{contigs}_checkV/contamination.tsv",
 	params:
-		checkv_outdir=dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV",
-		tmp=dirs_dict["vOUT_DIR"] + "/user_reference_contigs_checkV/tmp",
+		checkv_outdir="{contigs}_checkV",
+		tmp="{contigs}_checkV/tmp",
 	message:
 		"Estimating genome completeness with CheckV "
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness_reference/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness_reference/contigs={contigs}.tsv"
 	threads: 32
 	shell:
 		"""
@@ -128,7 +128,7 @@ rule estimateGenomeCompletness_reference:
 		else
 		    		            	echo "The FASTA file {input.reference_contigs} is empty"
 		    		            	mkdir -p {params.checkv_outdir}
-		    		            	touch {output.quality_summary}
+										printf 'contig_id\tcontig_length\tcheckv_quality\tcompleteness\tcontamination\n' > {output.quality_summary}
 		    		            	touch {output.completeness}
 		    		            	touch {output.contamination}
 		fi
@@ -305,6 +305,7 @@ rule pharokka_annotation:
 	threads: 16
 	shell:
 		r"""
+		if [ -s {input.fasta:q} ]; then
 		pharokka.py -i {input.fasta} -o {output.pharokka_output} -d {input.pharokka_db} -t {threads} -m -f {params.dnnapler_flag}
 		python - {output.pharokka_output:q} <<-'PYTHON'
 		from __future__ import annotations
@@ -525,6 +526,9 @@ rule pharokka_annotation:
 		repaired_count = clean_genbank(gbk_path)
 		print(f"Cleaned {{gbk_path}}: repaired {{repaired_count}} CDS identifiers without shortening them.")
 		PYTHON
+		else
+			mkdir -p {output.pharokka_output:q}
+		fi
 		"""
 
 rule annotate_VIGA:
@@ -1073,7 +1077,7 @@ rule filtered_vOTU_visualization:
 
 rule blasToRefSeq:
 	input:
-		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
+		fasta=lambda wc: annotation_fasta_path(wc.sequence),
 		refseq_db=(config['RefSeqViral_db']),
 	output:
 		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_{sequence}.csv"),
@@ -1086,14 +1090,18 @@ rule blasToRefSeq:
 	threads: 32
 	shell:
 		"""
-		blastn -num_threads {threads} -db {input.refseq_db} -query {input.fasta} \
-		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
+		if [ -s {input.fasta:q} ]; then
+			blastn -num_threads {threads} -db {input.refseq_db:q} -query {input.fasta:q} \
+			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output:q}
+		else
+			: > {output.blast_output:q}
+		fi
 		"""
 
 rule blastToMETAVR:
 	input:
-		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
-		metavr_db=directory(os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb")),
+		fasta=lambda wc: annotation_fasta_path(wc.sequence),
+		metavr_db=os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb"),
 	output:
 		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_METAVR_{sequence}.csv"),
 	params:
@@ -1107,8 +1115,12 @@ rule blastToMETAVR:
 	threads: 32
 	shell:
 		"""
-		blastn -num_threads {threads} -db {params.metavr_db} -query {input.fasta} \
-		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
+		if [ -s {input.fasta:q} ]; then
+			blastn -num_threads {threads} -db {params.metavr_db:q} -query {input.fasta:q} \
+			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output:q}
+		else
+			: > {output.blast_output:q}
+		fi
 		"""
 
 rule create_dbs_mmseqs2:

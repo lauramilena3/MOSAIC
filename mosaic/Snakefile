@@ -165,6 +165,16 @@ RNA_DIR=dirs_dict["ASSEMBLY_DIR"] + "/RNA"
 MICRO_DIR=dirs_dict["MAPPING_DIR"] + "/MICRODIVERSITY"
 ALL_ASSEMBLED_DIR=dirs_dict["ASSEMBLY_DIR"] + "/ALL_ASSEMBLED"
 ALL_ASSEMBLED_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ALL_ASSEMBLED"
+ALL_ASSEMBLED_TOP_NAME="AllAssembled_top_contigs"
+ALL_ASSEMBLED_TOP_PREFIX=ALL_ASSEMBLED_DIR + "/" + ALL_ASSEMBLED_TOP_NAME + "_tot"
+
+def annotation_fasta_path(sequence):
+	if sequence in config.get("annotation_fastas", {}):
+		return config["annotation_fastas"][sequence]
+	if sequence == ALL_ASSEMBLED_TOP_NAME + ".tot":
+		return ALL_ASSEMBLED_TOP_PREFIX + ".fasta"
+	return dirs_dict["vOUT_DIR"] + "/" + sequence + ".fasta"
+
 RNA_ASSEMBLERS=config.get("rna_assemblers", "rnaviralspades megahit trinity")
 if isinstance(RNA_ASSEMBLERS, str):
 	RNA_ASSEMBLERS=RNA_ASSEMBLERS.split()
@@ -493,7 +503,9 @@ def inputAllAssembledMapping(wildcards):
 		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_normalised_tot.txt",
 		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_normalised_tot.txt",
 		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mapping_summary_tot.tsv"]
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mapping_summary_tot.tsv",
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_metadata_tot.tsv",
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_membership_tot.tsv"]
 	inputs.extend(expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES))
 	return inputs
 

@@ -231,29 +231,38 @@ rule genomad_viral_id_long:
 # VIRAL FILTERING vOTUS
 rule virSorter2:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		representatives=lambda wc: annotation_fasta_path(wc.sequence + "." + wc.sampling),
 		virSorter_db=config['virSorter_db'],
 	output:
-		positive_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-combined.fa",
-		table_virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/final-viral-score.tsv",
-		positive_list=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",
+		positive_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_{sequence}_{sampling}/final-viral-combined.fa",
+		table_virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_{sequence}_{sampling}/final-viral-score.tsv",
+		positive_list=dirs_dict["vOUT_DIR"] + "/VirSorter2_{sequence}_{sampling}/positive_VS_list_{sampling}.txt",
 		# DRAM_tab=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/viral-affi-contigs-for-dramv.tab",
 		# DRAM_fasta=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/for-dramv/final-viral-combined-for-dramv.fa",
-		iter=directory(dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/iter-0"),
+		iter=directory(dirs_dict["vOUT_DIR"] + "/VirSorter2_{sequence}_{sampling}/iter-0"),
 	params:
-		out_folder=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}"
+		out_folder=dirs_dict["vOUT_DIR"] + "/VirSorter2_{sequence}_{sampling}"
 	message:
 		"Classifing contigs with VirSorter"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/virSorter2/sampling={sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/virSorter2/sequence={sequence}__sampling={sampling}.tsv"
 	threads: 64
+	wildcard_constraints:
+		sequence="[^/]+",
+		sampling="tot|sub"
 	shell:
 		"""
-		virsorter run -w {params.out_folder} -i {input.representatives} -j {threads} --db-dir {input.virSorter_db} \
+		if [ -s {input.representatives:q} ]; then
+		virsorter run -w {params.out_folder:q} -i {input.representatives:q} -j {threads} --db-dir {input.virSorter_db:q} \
 				--include-groups dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae --seqname-suffix-off  --provirus-off --min-length 0
-		grep ">" {output.positive_fasta} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list} || true
+		else
+			mkdir -p {output.iter:q}
+			: > {output.positive_fasta:q}
+			printf 'seqname\tmax_score\tmax_score_group\n' > {output.table_virsorter:q}
+		fi
+		grep ">" {output.positive_fasta:q} | cut -f1 -d\| | sed "s/>//g" > {output.positive_list:q} || true
 		"""
 
 rule genomad_vOTUs:
@@ -288,29 +297,47 @@ rule genomad_vOTUs:
 
 rule annotate_VIBRANT:
 	input:
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		representatives=lambda wc: annotation_fasta_path(wc.sequence + "." + wc.sampling),
 		VIBRANT_dir=os.path.join(workflow.basedir, config['vibrant_dir']),
 	output:
-		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_circular.{sampling}.csv",
-		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
-		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_quality.{sampling}.csv",
-		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_summary_results.{sampling}.csv",
+		vibrant_circular=dirs_dict["vOUT_DIR"] + "/VIBRANT_{sequence}_circular.{sampling}.csv",
+		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_{sequence}_positive_list.{sampling}.csv",
+		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_{sequence}_positive_quality.{sampling}.csv",
+		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_{sequence}_summary_results.{sampling}.csv",
 	params:
-		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
+		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT_{sequence}.{sampling}",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vibrant.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/annotate_VIBRANT/sampling={sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/annotate_VIBRANT/sequence={sequence}__sampling={sampling}.tsv"
 	message:
 		"Annotating viral contigs with VIBRANT"
 	threads: 16
+	wildcard_constraints:
+		sequence="[^/]+",
+		sampling="tot|sub"
 	shell:
 		"""
-		rm -rf {params.vibrant_outdir} || true
-		mkdir {params.vibrant_outdir} ; cd {params.vibrant_outdir}
-		{input.VIBRANT_dir}/VIBRANT_run.py -i {input.representatives} -t {threads} -virome
-		cut -f1 {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/*complete_circular*tsv > {output.vibrant_circular}
-		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_phages_*/*phages_combined.txt {output.vibrant_positive}
-		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/VIBRANT_genome_quality*.tsv {output.vibrant_quality}
-		cp {params.vibrant_outdir}/VIBRANT_*/VIBRANT_results*/VIBRANT_summary_results*.tsv {output.vibrant_summary}
+		rm -rf -- {params.vibrant_outdir:q}
+		mkdir -p {params.vibrant_outdir:q}
+		if [ -s {input.representatives:q} ]; then
+			{input.VIBRANT_dir:q}/VIBRANT_run.py -i {input.representatives:q} -t {threads} -virome -folder {params.vibrant_outdir:q}
+		fi
+		: > {output.vibrant_circular:q}
+		: > {output.vibrant_positive:q}
+		printf 'scaffold\ttype\tQuality\n' > {output.vibrant_quality:q}
+		printf 'scaffold\n' > {output.vibrant_summary:q}
+		shopt -s nullglob
+		for path in {params.vibrant_outdir:q}/VIBRANT_*/VIBRANT_results*/*complete_circular*tsv; do
+			cut -f1 "$path" > {output.vibrant_circular:q}
+		done
+		for path in {params.vibrant_outdir:q}/VIBRANT_*/VIBRANT_phages_*/*phages_combined.txt; do
+			cp "$path" {output.vibrant_positive:q}
+		done
+		for path in {params.vibrant_outdir:q}/VIBRANT_*/VIBRANT_results*/VIBRANT_genome_quality*.tsv; do
+			cp "$path" {output.vibrant_quality:q}
+		done
+		for path in {params.vibrant_outdir:q}/VIBRANT_*/VIBRANT_results*/VIBRANT_summary_results*.tsv; do
+			cp "$path" {output.vibrant_summary:q}
+		done
 		"""
