@@ -86,6 +86,113 @@ rule genomad_viral_id:
 		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
 		"""
 
+rule report_assembly_circularity:
+	input:
+		assembly=lambda wc: (
+			dirs_dict["ASSEMBLY_DIR"] + f"/{wc.sample}_spades_filtered_scaffolds.tot.fasta"
+			if wc.assembler == "spades" else RNA_DIR + f"/{wc.sample}/{wc.assembler}.fasta"
+		),
+		genomad=lambda wc: (
+			dirs_dict["VIRAL_DIR"] + f"/{wc.sample}_geNomad_tot/"
+			if wc.assembler == "spades" else RNA_DIR + f"/{wc.sample}/{wc.assembler}_genomad"
+		),
+	output:
+		tsv=dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv",
+	params:
+		min_repeat=int(config.get("circularity_min_repeat_bp", 30)),
+		max_repeat=int(config.get("circularity_max_repeat_bp", 5000)),
+	message:
+		"Reporting terminal-repeat evidence for every assembled contig"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/report_assembly_circularity/sample={sample}__assembler={assembler}.tsv"
+	threads: 1
+	wildcard_constraints:
+		assembler="spades|rnaviralspades|megahit|trinity"
+	run:
+		import csv
+
+		def fasta_records(path):
+			name, chunks = None, []
+			with open(path) as handle:
+				for line in handle:
+					if line.startswith(">"):
+						if name is not None:
+							yield name, "".join(chunks).upper().replace("U", "T")
+						name, chunks = line[1:].split()[0], []
+					else:
+						chunks.append(line.strip())
+			if name is not None:
+				yield name, "".join(chunks).upper().replace("U", "T")
+
+		prefix = os.path.splitext(os.path.basename(input.assembly))[0]
+		summary = os.path.join(input.genomad, prefix + "_summary", prefix + "_virus_summary.tsv")
+		viruses = {}
+		with open(summary) as handle:
+			for row in csv.DictReader(handle, delimiter="\t"):
+				name = row["seq_name"].split("|provirus_", 1)[0]
+				viruses.setdefault(name, []).append(row)
+
+		complement = str.maketrans("ACGTN", "TGCAN")
+		os.makedirs(os.path.dirname(output.tsv), exist_ok=True)
+		with open(output.tsv, "w") as handle:
+			writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+			writer.writerow([
+				"sample", "assembler", "contig_id", "contig_length_bp", "dtr_bp", "itr_bp",
+				"dtr_sequence", "dtr_left_start", "dtr_left_end", "dtr_right_start", "dtr_right_end",
+				"itr_left_sequence", "itr_right_sequence", "itr_left_start", "itr_left_end",
+				"itr_right_start", "itr_right_end",
+				"terminal_repeat_type", "repeat_warning", "genomad_virus_call",
+				"genomad_topology", "genomad_virus_score", "genomad_taxonomy"
+			])
+			for name, seq in fasta_records(input.assembly):
+				hits = viruses.get(name, [])
+				window = min(params.max_repeat, len(seq) // 2)
+				if any("DTR" in hit.get("topology", "").upper() for hit in hits):
+					window = len(seq) // 2
+				dtr, itr = 0, 0
+				if window:
+					start, end = seq[:window], seq[-window:]
+					text = start + "#" + end
+					border = [0] * len(text)
+					for i in range(1, len(text)):
+						j = border[i - 1]
+						while j and text[i] != text[j]:
+							j = border[j - 1]
+						if text[i] == text[j]:
+							j += 1
+						border[i] = j
+					dtr = border[-1]
+					reverse_end = end.translate(complement)[::-1]
+					while itr < window and start[itr] == reverse_end[itr]:
+						itr += 1
+				repeat_types = []
+				if dtr >= params.min_repeat:
+					repeat_types.append("DTR")
+				if itr >= params.min_repeat:
+					repeat_types.append("ITR")
+				repeats = [seq[:n] for n in (dtr, itr) if n >= params.min_repeat]
+				warnings = []
+				if any(set(repeat) - set("ACGT") for repeat in repeats):
+					warnings.append("ambiguous_bases")
+				if any(len(set(repeat)) == 1 for repeat in repeats):
+					warnings.append("homopolymer")
+				def coordinates(length):
+					return (1, length, len(seq) - length + 1, len(seq)) if length else ("", "", "", "")
+
+				dtr_left_start, dtr_left_end, dtr_right_start, dtr_right_end = coordinates(dtr)
+				itr_left_start, itr_left_end, itr_right_start, itr_right_end = coordinates(itr)
+				writer.writerow([
+					wildcards.sample, wildcards.assembler, name, len(seq), dtr, itr,
+					seq[:dtr], dtr_left_start, dtr_left_end, dtr_right_start, dtr_right_end,
+					seq[:itr], seq[-itr:] if itr else "", itr_left_start, itr_left_end,
+					itr_right_start, itr_right_end,
+					"+".join(repeat_types) if repeat_types else "none",
+					";".join(warnings), "yes" if hits else "no",
+					" | ".join(hit.get("topology", "") for hit in hits),
+					" | ".join(hit.get("virus_score", "") for hit in hits),
+					" | ".join(hit.get("taxonomy", "") for hit in hits)
+				])
+
 def input_genomad_viral_id_long(wildcards):
 	if NANOPORE and NANOPORE_ONLY:
 		return dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_" + LONG_ASSEMBLER + ".{sampling}.fasta"

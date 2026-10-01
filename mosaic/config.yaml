@@ -12,6 +12,8 @@ rna_trinity_bfly_heap_gb: 20 # Java heap per Butterfly process; leave RAM for co
 rna_trinity_strandedness: "" # empty (unstranded), RF, or FR; check library preparation
 # RNA-positive representatives have a separate acceptance route in the shared final filter.
 rna_viral_groups: "RNA" # optionally dsDNAphage,NCLDV,RNA,ssDNA,lavidaviridae
+circularity_min_repeat_bp: 30 # minimum exact terminal repeat reported as evidence
+circularity_max_repeat_bp: 5000 # maximum sequence examined at each contig end
 microdiversity: False # independent of RNA_enriched; map every sample to the final catalogue
 microdiversity_min_depth: 100
 microdiversity_min_base_quality: 30
