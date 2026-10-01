@@ -356,8 +356,10 @@ rule remove_user_contaminants_PE:
 		unpaired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz"),
 		phix_contaminants_fasta=dirs_dict["CONTAMINANTS_DIR"] +"/{sample}_contaminants.fasta",
 		stats=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_contaminant_stats_bbduk.tot.txt"),
+	params:
+		has_contaminants=bool(CONTAMINANTS),
 	message:
-		"Removing phiX174 and user given contaminants with BBtools"
+		"Removing configured contaminants or passing reads through unchanged"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
@@ -368,13 +370,30 @@ rule remove_user_contaminants_PE:
 		runtime_min= 15,
 	shell:
 		"""
-		cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
-		#PE
-		#PAIRED
-		bbduk.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
-			ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads} stats={output.stats}
-		#UNPAIRED
-		bbduk.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads}
+		if [ "{params.has_contaminants}" = "True" ]; then
+			cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
+			bbduk.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
+				ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads} stats={output.stats}
+			bbduk.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads}
+		else
+			: > {output.phix_contaminants_fasta:q}
+			if [[ {input.forward_paired:q} == *.gz ]]; then
+				cp -- {input.forward_paired:q} {output.forward_paired:q}
+			else
+				gzip -c -- {input.forward_paired:q} > {output.forward_paired:q}
+			fi
+			if [[ {input.reverse_paired:q} == *.gz ]]; then
+				cp -- {input.reverse_paired:q} {output.reverse_paired:q}
+			else
+				gzip -c -- {input.reverse_paired:q} > {output.reverse_paired:q}
+			fi
+			if [[ {input.unpaired:q} == *.gz ]]; then
+				cp -- {input.unpaired:q} {output.unpaired:q}
+			else
+				gzip -c -- {input.unpaired:q} > {output.unpaired:q}
+			fi
+			printf 'No contaminant references configured; read filtering skipped.\n' > {output.stats:q}
+		fi
 		"""
 
 rule contaminants_KRAKEN_clean:

@@ -51,8 +51,10 @@ rule remove_contaminants_nanopore:
 		fastq=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.tot.fastq.gz"),
 		size=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean_read_count.tot.txt",
 		phix_contaminants_fasta=dirs_dict["CONTAMINANTS_DIR"] +"/{sample_nanopore}_nanopore_contaminants.fasta",
+	params:
+		has_contaminants=bool(CONTAMINANTS),
 	message:
-		"Remove contamination with Minimap"
+		"Removing configured contaminants or passing Nanopore reads through unchanged"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_mapping.yaml"
 	benchmark:
@@ -60,8 +62,13 @@ rule remove_contaminants_nanopore:
 	threads: 2
 	shell:
 		"""
-		cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
-		minimap2 -ax map-ont {output.phix_contaminants_fasta} {input.trimmed_data} | samtools fastq -c 6 -n -f 4 - > {output.fastq}
+		if [ "{params.has_contaminants}" = "True" ]; then
+			cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
+			minimap2 -ax map-ont {output.phix_contaminants_fasta} {input.trimmed_data} | samtools fastq -c 6 -n -f 4 - > {output.fastq}
+		else
+			: > {output.phix_contaminants_fasta:q}
+			cp -- {input.trimmed_data:q} {output.fastq:q}
+		fi
 		echo $(( $(zgrep -Ec "$" {output.fastq}) / 4 )) > {output.size}
 		"""
 
