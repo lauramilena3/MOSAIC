@@ -40,6 +40,8 @@ LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
 ISOLATES=config['isolates']
 REMOVE_EUK=config_bool('remove_euk', True)
+RNA_MODE=config_bool('RNA_enriched', False)
+RUN_MICRODIVERSITY=config_bool('microdiversity', False)
 VISUALIZATION_TOOL=str(config.get('visualization_tool', 'lovis4u')).strip().lower()
 if VISUALIZATION_TOOL in ["lovis", "lovis4u"]:
 	VISUALIZATION_TOOL="lovis4u"
@@ -72,12 +74,14 @@ else:
 print("Viral contigs dir" + VIRAL_CONTIGS_DIR)
 
 METAGENOME_FLAG=""
+
 if ISOLATES:
 	METAGENOME=False
 
 if METAGENOME:
 	print("metagenomic mode")
 	METAGENOME_FLAG="--meta"
+
 if config["run_dnaapler"]:
 	DNAAPLER_FLAG="--dnaapler"
 else:
@@ -154,6 +158,23 @@ REFERENCE_DATABASES=config["reference_databases"].split()
 dir_list = ["RULES_DIR","ENVS_DIR", "ADAPTERS_DIR", "RAW_NOTEBOOKS", "CONTAMINANTS_DIR","CONTAMINANTS_DIR_DB","CONTAMINANTS_DIR_POST","RAW_DATA_DIR", "QC_DIR", "CLEAN_DATA_DIR", "ASSEMBLY_DIR", "VIRAL_DIR", "vOUT_DIR", "MAPPING_DIR", "MMSEQS", "ANNOTATION", "ASSEMBLY_TEST", "BENCHMARKS", "NOTEBOOKS_DIR", "PLOTS_DIR", "HOST_DIR"]
 dir_names = ["rules", "../envs", "db/adapters", "../notebooks" , RESULTS_DIR + "/db/contaminants" , "db/contaminants", RESULTS_DIR + "/db/contaminants_post" ,RAW_DATA_DIR, RESULTS_DIR + "/01_QC", RESULTS_DIR + "/02_CLEAN_DATA", RESULTS_DIR + "/03_CONTIGS", VIRAL_CONTIGS_DIR , REPRESENTATIVE_CONTIGS_DIR ,RESULTS_DIR + "/06_MAPPING", RESULTS_DIR + "/08_MMSEQS", RESULTS_DIR + "/07_ANNOTATION", RESULTS_DIR + "/08_ASSEMBLY_TEST", RESULTS_DIR + "/BENCHMARK", RESULTS_DIR + "/NOTEBOOKS" ,RESULTS_DIR + "/FIGURES_AND_TABLES",RESULTS_DIR + "/HOST"]
 dirs_dict = dict(zip(dir_list, dir_names))
+
+RNA_DIR=dirs_dict["ASSEMBLY_DIR"] + "/RNA"
+MICRO_DIR=dirs_dict["MAPPING_DIR"] + "/MICRODIVERSITY"
+RNA_ASSEMBLERS=config.get("rna_assemblers", "rnaviralspades megahit trinity")
+if isinstance(RNA_ASSEMBLERS, str):
+	RNA_ASSEMBLERS=RNA_ASSEMBLERS.split()
+else:
+	RNA_ASSEMBLERS=list(RNA_ASSEMBLERS)
+if config.get("microdiversity_reference"):
+	raise ValueError("microdiversity_reference is no longer supported; microdiversity uses the shared filtered vOTU catalogue")
+if RNA_MODE:
+	if not RNA_ASSEMBLERS or set(RNA_ASSEMBLERS) - {"rnaviralspades", "megahit", "trinity"}:
+		raise ValueError("rna_assemblers must select rnaviralspades, megahit and/or trinity")
+	if not SAMPLES:
+		raise ValueError("RNA_enriched requires paired-end samples in input_dir")
+	if config.get("rna_trinity_strandedness", "") not in ["", "RF", "FR"]:
+		raise ValueError("rna_trinity_strandedness must be empty, RF or FR")
 
 CONTAMINANTS_LIST_POST=[]
 if os.path.exists(dirs_dict["CONTAMINANTS_DIR_POST"]):
@@ -309,6 +330,8 @@ def inputAssembly(wildcards):
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample_nanopore}.svg", sample_nanopore=NANOPORE_SAMPLES))
 	if CROSS_ASSEMBLY:
 		inputs.append(dirs_dict["ASSEMBLY_DIR"] + "/ALL_spades_filtered_scaffolds.tot.fasta")
+	if RNA_MODE:
+		inputs.append(dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_contig_counts.tot.png")
 	return inputs
 
 def inputViralID(wildcards):
@@ -424,12 +447,40 @@ def get_clinker_outputs(wildcards):
 	print(expand("{contigs}_clinker.html", contigs=contigs))
 	return expand("{contigs}_clinker.html", contigs=contigs)
 
+def inputRNAAssembly(wildcards):
+	if not RNA_MODE:
+		raise ValueError("Set RNA_enriched=True to run RNA assembly")
+	inputs=expand(RNA_DIR + "/{sample}/combined.fasta", sample=SAMPLES)
+	inputs.append(dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_contig_counts.tot.png")
+	return inputs
+
+def inputMicrodiversity(wildcards):
+	if not SAMPLES:
+		raise ValueError("Microdiversity requires paired-end samples in input_dir")
+	inputs=expand(MICRO_DIR + "/{sample}/summary.tsv", sample=SAMPLES)
+	return inputs
+
+def inputRNA(wildcards):
+	inputs=inputRNAAssembly(wildcards)
+	inputs.append(dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta")
+	if RUN_MICRODIVERSITY:
+		inputs.extend(inputMicrodiversity(wildcards))
+	return inputs
+
+def inputOptionalRNA(wildcards):
+	if RNA_MODE:
+		return inputRNA(wildcards)
+	if RUN_MICRODIVERSITY:
+		return inputMicrodiversity(wildcards)
+	return []
+
 rule all:
 	input:
 		inputReadsCount,
 		inputQC,
 		inputAssembly,
 		inputAnnotation,
+		inputOptionalRNA,
 
 rule runQC:
 	input:
@@ -480,8 +531,22 @@ rule runWorkflow:
 		inputAssembly,
 		inputViralID,
 		inputvOTUClustering,
-		inputAbundance, 
+		inputAbundance,
 		inputAnnotation,
+		inputOptionalRNA,
+
+rule runRNAAssembly:
+	input:
+		inputRNAAssembly,
+
+rule runRNA:
+	input:
+		inputRNA,
+
+rule runMicrodiversity:
+	input:
+		inputMicrodiversity,
+
 
 rule microbial_metagenome:
 	input:
@@ -784,6 +849,7 @@ include: os.path.join(RULES_DIR, '08_resultsParsing.smk')
 include: os.path.join(RULES_DIR, '09_test_assembly_depth.smk')
 include: os.path.join(RULES_DIR, '10_single_isolates.smk')
 include: os.path.join(RULES_DIR, '11_bacterial_analysis.smk')
+include: os.path.join(RULES_DIR, '12_rna_microdiversity.smk')
 
 if NANOPORE==True:
 	include: os.path.join(RULES_DIR, '01_quality_control_nanopore.smk')

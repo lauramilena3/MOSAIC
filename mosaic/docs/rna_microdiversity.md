@@ -1,0 +1,208 @@
+# Optional RNA assembly and microdiversity
+
+These are independent, opt-in flags in `mosaic/config.yaml`:
+
+```yaml
+RNA_enriched: False
+microdiversity: True
+```
+
+| RNA_enriched | microdiversity | Additional work in `all` / `runWorkflow` |
+| --- | --- | --- |
+| False | False | None; existing workflow |
+| True | False | RNA assembly and candidates added to the existing vOTU clustering/filtering |
+| False | True | Per-sample variation against the existing final filtered vOTU catalogue |
+| True | True | RNA-enriched shared catalogue, then per-sample variation against it |
+
+Both branches use every paired-end sample discovered in `input_dir` (normally
+`00_RAW_DATA`), following the existing filename/tag conventions. There is no
+`rna_samples` list. They use full **cleaned paired reads**, before subsampling or
+BBnorm, not raw reads or orphan reads. Neither branch currently profiles long reads.
+
+## Running
+
+From the repository root, with input and output paths adjusted:
+
+```bash
+# Existing assembly plus microdiversity, without the RNA branch:
+python mosaic/mosaic.py run end_to_end --raw /data/00_RAW_DATA \
+    --results /data/results --no-rna-enriched --microdiversity
+
+# Enable both for every paired-end library:
+python mosaic/mosaic.py run end_to_end --raw /data/00_RAW_DATA \
+    --results /data/results_rna --rna-enriched --microdiversity
+
+# Just microdiversity and its missing prerequisites:
+python mosaic/mosaic.py run microdiversity --raw /data/00_RAW_DATA \
+    --results /data/results --no-rna-enriched
+```
+
+The wrapper enables Conda by default. Add `--dry-run` to inspect scheduled jobs.
+Direct Snakemake users can set `--config RNA_enriched=True microdiversity=True`
+when requesting `runWorkflow`, or use the dedicated targets `runRNAAssembly`,
+`runRNA` and `runMicrodiversity`. Explicitly requesting `runMicrodiversity` runs it
+even when the automatic `microdiversity` flag is off. `runQC` keeps its existing
+scope. With `RNA_enriched=True`, `runAssembly` also requests the RNA assemblies
+and their assembly report. Any target that needs to build the final catalogue
+also includes its RNA prerequisites when `RNA_enriched=True`.
+
+There is only one final catalogue path, with or without RNA enrichment:
+`05_vOTUs/filtered_95-85_positive_viral_contigs.tot.fasta` by default
+(`filtered_<REPRESENTATIVE_CONTIGS_BASE>.tot.fasta` for customized catalogue names).
+Changing the RNA flag can rebuild that file and its downstream results. Use separate
+results directories if you want to preserve both versions for comparison.
+The former `microdiversity_reference` override is no longer supported.
+
+## RNA branch
+
+`rna_assemblers` defaults to `"rnaviralspades megahit trinity"`. All three run
+independently on each sample. SPAdes uses **`--rnaviral`**, not ordinary `--rna`.
+These assemblies are additional to the standard MOSAIC assembly.
+Each assembler has its own explicit rule in `rules/12_rna_microdiversity.smk`,
+with its own environment, command, log and benchmark. Assembly reconciliation
+and microdiversity calculations are also written directly in their rule blocks.
+
+The companion `03_assembly_short_RNA.py.ipynb` runs after the selected assemblies
+are combined for all samples. Its executed notebook is saved in `NOTEBOOKS/`;
+the summary and provenance CSVs, plus four PNG/SVG plots, are saved in
+`FIGURES_AND_TABLES/` with the `03_assembly_short_RNA_` prefix. It reports
+per-assembler and combined contig counts, assembled bases, length distributions,
+N50, and the counts retained, collapsed as exact duplicates or below the minimum
+length. Empty assemblies remain visible. The combined FASTA is not a vOTU catalogue.
+
+Assembler sequences are pooled per sample, filtered at `rna_min_contig_length`
+(default 500 nt), and exact duplicates/reverse complements are collapsed. VirSorter2
+selects RNA-virus candidates using `rna_viral_groups: "RNA"`. Identification
+is a candidate screen, not confirmation that every retained sequence is viral.
+
+RNA candidates enter the existing `tot` catalogue workflow **before clustering**,
+alongside the standard viral contigs. The existing MMseqs exact dereplication,
+BLAST, `anicalc_checkv.py`, `aniclust_checkv.py`, and representative selection are
+reused. Clustering arguments stay `--min_ani 95 --min_tcov 85 --min_qcov 0`.
+The local clustering script's customized coverage-times-ANI condition is preserved;
+it is not replaced by an independent 95% ANI cutoff. There is no CD-HIT catalogue
+branch and no additional RNA-specific final vOTU FASTA.
+
+RNA candidates receive CheckV assessments, merged into the existing quality summary
+for representative selection. Standard contig IDs are not globally renamed.
+Additional assembly contigs have sample-prefixed IDs; `assembly_provenance.tsv`
+records their original assembler IDs. Per-sample assembly FASTAs, provenance,
+VirSorter2 output and CheckV assessments are under `03_CONTIGS/RNA/<sample>/`.
+The existing clustering tables track membership in the shared catalogue.
+
+### Final acceptance routes
+
+Standard acceptance is unchanged: all three identification tools agree **or**
+conservative geNomad support is present, together with the existing length/quality
+gate (default length >=5,000 nt or the existing high-quality condition).
+
+When RNA enrichment is enabled, a second route accepts a selected representative
+if it is in the final representative-level VirSorter2 positive list, its
+`max_score_group` is `RNA`, and its actual FASTA length is at least
+`rna_min_contig_length` (default 500 nt). It does not require three-tool agreement
+or a high CheckV quality estimate. Evidence on a different cluster member, or an
+RNA assembler name alone, is insufficient. A standard-assembly contig can qualify
+if the representative itself has this RNA evidence.
+
+**Both routes still require the same mapping support:** filtered read count >1
+in at least one of the configured key samples. These are the existing
+unfiltered-catalogue mapping statistics, not the stricter microdiversity callability
+thresholds. The RNA exception does not apply to subsampled catalogues.
+
+The existing `vOTU_clustering_summary.tot.csv` now records `sequence_length`,
+`VirSorter2_RNA_positive`, `mapping_support`, and `acceptance_route`
+(`standard`, `RNA`, or `standard+RNA`) for retained representatives.
+
+Abundance, annotation and optional microdiversity all use the same final
+`filtered_...tot.fasta`. Phage-specific annotations are not thereby made applicable
+to every RNA virus; their biological interpretation still needs care.
+
+Assembly memory defaults to 64,000 MB per job. SPAdes and MEGAHIT use
+`rna_assembly_threads` (16 by default). Trinity uses `rna_trinity_threads` (2)
+and `rna_trinity_bfly_heap_gb` (20), passed as `--CPU 2` and
+`--bflyHeapSpaceMax 20G`. The heap limit applies per Butterfly process, not to
+the whole assembly. Increasing `rna_assembly_mem_mb` alone does not increase
+that heap limit; leave memory headroom for concurrent partitions and Java overhead.
+Trinity runs without
+read normalization and uses `--no_salmon` to skip its final Salmon expression filter.
+The assembled transcripts continue through the existing viral-candidate and vOTU filters.
+Trinity's working directory (`03_CONTIGS/RNA/<sample>/trinity_out`) is retained
+on success and failure. The rule copies Trinity's sibling output
+`trinity_out.Trinity.fasta` to the existing `trinity.fasta` result; it does not
+look for `Trinity.fasta` inside the working directory. SPAdes and MEGAHIT use
+fresh working directories that are automatically removed when their jobs exit.
+Leave `rna_trinity_strandedness` empty for mixed library types;
+only set `RF` or `FR` if that orientation is appropriate for every input library.
+The flag does not change existing cleanup settings. Review `remove_euk` and
+contaminant filtering for your experiment. The optional wrapper `rna_viruses` preset
+sets `remove_euk=False`; adding `--rna-enriched` to another preset does not.
+
+## Microdiversity outputs and interpretation
+
+The branch also executes the separate `11_microdiversity_summary.py.ipynb`
+notebook, producing `FIGURES_AND_TABLES/11_microdiversity_summary.tot.html` and
+combined tables/figures. It does not depend on the abundance/lifestyle notebook.
+See [the report documentation](abundance_lifestyle_summary.md) for targets and outputs.
+
+Every sample is mapped competitively against the shared filtered catalogue with Bowtie2
+end-to-end `--very-sensitive`. Results are under
+`06_MAPPING/MICRODIVERSITY/<sample>/`:
+
+- `aligned.sorted.bam`, its index, mapping log and `flagstat.txt`.
+- `positions.tsv.gz`: one-based positions, quality-filtered A/C/G/T counts, reverse
+  strand counts, callability, observed nucleotide diversity and Shannon entropy.
+  This is sparse: positions absent from the pileup have no row.
+- `snv_candidates.tsv`: non-reference alleles passing depth/count/frequency filters.
+  Fixed or near-fixed reference differences are distinguished from polymorphic sites.
+- `summary.tsv`: per-vOTU coverage, callable fraction, polymorphic-site count,
+  mean callable-site diversity (`pi_callable`) and entropy, with analysis thresholds.
+
+Defaults are depth >=100, base quality >=30, mapping quality >=30, alternate
+count >=5 and frequency >=0.03. All are configurable. Unmapped, secondary,
+supplementary, QC-failed and duplicate-flagged alignments are excluded. This does
+not perform duplicate marking. Pysam overlap handling avoids counting overlapping
+mates twice at the default quality threshold; improper/orphan paired alignments
+are excluded. No both-strand requirement is imposed on RNA libraries; strand
+counts are provided for inspection. BAQ correction is disabled.
+
+Sites reaching `microdiversity_max_depth` (default 100,000) are conservatively
+excluded from diversity/candidate calling and counted separately. Mean coverage
+at capped sites can be underestimated. The maximum must exceed the minimum depth.
+Only callable A/C/G/T reference sites contribute to mean diversity, **including
+invariant sites**. No callable sites produces `NA`, not a misleading zero.
+
+Per-site diversity is `pi = (n*n - sum(count_base**2)) / (n*(n-1))`.
+Allele count/frequency thresholds govern candidate and polymorphic-site reporting;
+they do not remove low-frequency bases from the pi calculation. These are
+**observed read-level estimates and SNV candidates**, not error-corrected population
+diversity or statistically validated variant calls. Sequencing/RT/PCR errors,
+reference bias and cross-mapping between related viruses can affect results.
+Compare callable coverage as well as pi. This branch does not implement haplotype
+reconstruction, indel calling, consensus refinement or the complete nf-core workflow.
+
+## Validation
+
+Synthetic tests cover nucleotide diversity, invariant/uncallable sites, quality and
+alignment-flag filtering, depth caps, sequence deduplication, and standard/RNA
+acceptance and rejection cases. Two-sample Snakemake dry-runs check independent
+flag combinations and RNA assembly through the existing CheckV clustering and
+final filtering to microdiversity.
+
+```bash
+MOSAIC_SNAKEMAKE=/path/to/snakemake python -m unittest discover -s mosaic/tests -v
+```
+
+The test Python environment needs `pysam`, `pandas`, and `numpy`; CLI checks need `click` and
+`ruamel.yaml` (or set `MOSAIC_CLI_PYTHON` to an interpreter with those dependencies).
+The new assembler environments and a
+full real-data run still need validation on the deployment system.
+
+Migration from the earlier experimental implementation: the CD-HIT catalogue
+script/environment have been removed. Any previously generated `05_vOTUs/RNA/`
+results are not used or automatically deleted.
+
+Tool references: [SPAdes modes](https://ablab.github.io/spades/running.html),
+[MEGAHIT](https://github.com/voutcn/megahit),
+[Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki/Running-Trinity),
+[VirSorter2](https://github.com/jiarong/VirSorter2),
+[pysam pileup API](https://pysam.readthedocs.io/en/latest/api.html).

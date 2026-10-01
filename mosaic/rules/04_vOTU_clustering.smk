@@ -16,6 +16,8 @@ def input_vOTU_clustering(wildcards):
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS))
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES))
+	if RNA_MODE and wildcards.sampling == "tot":
+		input_list.extend(expand(RNA_DIR + "/{sample}/virsorter/final-viral-combined.fa", sample=SAMPLES))
 	return input_list
 
 # if len(config['additional_reference_contigs'])==0:
@@ -33,6 +35,7 @@ rule derreplicate_assembly:
 		rep_name_full=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_rep_seq.fasta",
 		rep_temp="combined_" + VIRAL_CONTIGS_BASE + ".{sampling}_derreplicated_tmp",
 		dir_votu=dirs_dict["vOUT_DIR"],
+		rna_enabled=lambda wc: RNA_MODE and wc.sampling == "tot",
 	message:
 		"Derreplicating assembled contigs with mmseqs"
 	conda:
@@ -88,6 +91,8 @@ def input_getHighQuality(wildcards):
 	if ISOLATES:
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_checkV/quality_summary.tsv", host=HOSTS))
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/quality_summary.tsv",sample=SAMPLES)),
+	if RNA_MODE and wildcards.sampling == "tot":
+		input_list.extend(expand(RNA_DIR + "/{sample}/checkv/quality_summary.tsv", sample=SAMPLES))
 	return input_list
 
 rule getHighQuality:
@@ -96,6 +101,8 @@ rule getHighQuality:
 	output:
 		quality_summary_concat=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
 		high_qualty_list=dirs_dict["vOUT_DIR"] + "/checkV_high_quality.{sampling}.txt",
+	params:
+		rna_enabled=lambda wc: RNA_MODE and wc.sampling == "tot",
 	message:
 		"Getting list high-quality vOTUs"
 	conda:
@@ -106,7 +113,7 @@ rule getHighQuality:
 	shell:
 		"""
 		awk 'FNR>1' {input} > {output.quality_summary_concat}
-		grep "High-quality" {output.quality_summary_concat} | cut -f1 > {output.high_qualty_list}
+		awk -F '\t' '/High-quality/ {{print $1}}' {output.quality_summary_concat} > {output.high_qualty_list}
 		"""
 
 checkpoint getHighQuality_clusters_fasta:
@@ -234,6 +241,7 @@ rule get_list_filtered_vOTUs:
 		genomad_viral_fasta=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/formatted_viral_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",										
 		genomad_viral_fasta_conservative=dirs_dict["vOUT_DIR"] + "/geNomad_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}_summary/formatted_viral_" + REPRESENTATIVE_CONTIGS_BASE + "_conservative.{sampling}.fasta",
 		map_unfiltered=expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
+		covstats_unfiltered=expand(dirs_dict["MAPPING_DIR"] + "/STATS_FILES/bowtie2_{sample}_unfiltered_contigs.{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
 
 	output:
 		summary=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.{sampling}.csv",
@@ -247,6 +255,8 @@ rule get_list_filtered_vOTUs:
 		cross_assembly=CROSS_ASSEMBLY,
 		min_votu_len=config['min_votu_length'],
 		key_samples=SAMPLES_key,
+		rna_enabled=lambda wc: RNA_MODE and wc.sampling == "tot",
+		rna_min_length=int(config.get("rna_min_contig_length", 500)),
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
 	notebook:

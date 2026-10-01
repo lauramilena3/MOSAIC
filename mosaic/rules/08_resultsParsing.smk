@@ -126,6 +126,38 @@ rule assembly_parsing_short:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_short.py.ipynb"
 
+rule assembly_parsing_short_RNA:
+	input:
+		assemblies=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS),
+		combined=expand(RNA_DIR + "/{sample}/combined.fasta", sample=SAMPLES),
+		provenance=expand(RNA_DIR + "/{sample}/assembly_provenance.tsv", sample=SAMPLES),
+	output:
+		summary=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_summary.tot.csv",
+		fate=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_provenance.tot.csv",
+		contig_counts_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_contig_counts.tot.png",
+		contig_counts_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_contig_counts.tot.svg",
+		total_length_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_total_length.tot.png",
+		total_length_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_total_length.tot.svg",
+		length_distribution_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_length_distribution.tot.png",
+		length_distribution_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_length_distribution.tot.svg",
+		provenance_png=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_provenance.tot.png",
+		provenance_svg=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_provenance.tot.svg",
+	params:
+		samples=SAMPLES,
+		assemblers=RNA_ASSEMBLERS,
+		min_length=int(config.get("rna_min_contig_length", 500)),
+	message:
+		"Summarizing RNA assemblies across samples and assemblers"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/assembly_parsing_short_RNA/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_short_RNA.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/03_assembly_short_RNA.py.ipynb"
+
 rule assembly_parsing_long:
 	input:
 		caudovirales=("db/caudovirales_orf_lengths_09_05_2023.txt"),

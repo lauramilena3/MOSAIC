@@ -49,6 +49,15 @@ DEFAULT_FLAGS: Dict[str, object] = {
 }
 
 PRESETS: Dict[str, Dict[str, object]] = {
+    "rna_viruses": {
+        **DEFAULT_FLAGS,
+        "metagenome": True,
+        "isolates": False,
+        "microbial": False,
+        "sourmash": False,
+        "remove_euk": False,
+        "RNA_enriched": True,
+    },
     "viral_metagenome": {
         **DEFAULT_FLAGS,
         "metagenome": True,
@@ -92,6 +101,24 @@ PRESETS: Dict[str, Dict[str, object]] = {
 }
 
 MODES: Dict[str, Dict[str, str]] = {
+    "rna_viruses": {
+        "target": "runRNA",
+        "preset": "rna_viruses",
+        "reads": "illumina",
+        "description": "RNA assembly, viral candidates, and optional microdiversity",
+    },
+    "rna_assembly": {
+        "target": "runRNAAssembly",
+        "preset": "rna_viruses",
+        "reads": "illumina",
+        "description": "RNA assembly with selected assemblers",
+    },
+    "microdiversity": {
+        "target": "runMicrodiversity",
+        "preset": "viral_metagenome",
+        "reads": "illumina",
+        "description": "Within-sample nucleotide variation against the final vOTU catalogue",
+    },
     "qc": {
         "target": "runQC",
         "preset": "viral_metagenome",
@@ -636,6 +663,8 @@ def unlock(snakefile: Path, workflow_dir: Path, print_only: bool) -> None:
 @click.option("--imgvr-blast/--no-imgvr-blast", default=None, help="Override config imgvr_blast.")
 @click.option("--virsorter/--no-virsorter", default=None, help="Override config VirSorter.")
 @click.option("--extract-mapped/--no-extract-mapped", default=None, help="Override config extract_mapped.")
+@click.option("--rna-enriched/--no-rna-enriched", default=None, help="Run additional RNA assemblers for all paired-end samples.")
+@click.option("--microdiversity/--no-microdiversity", default=None, help="Calculate within-sample nucleotide variation against the final vOTU catalogue.")
 @click.option(
     "--visualization-tool",
     type=click.Choice(["lovis4u", "clinker"], case_sensitive=False),
@@ -684,6 +713,8 @@ def run(
     imgvr_blast: Optional[bool],
     virsorter: Optional[bool],
     extract_mapped: Optional[bool],
+    rna_enriched: Optional[bool],
+    microdiversity: Optional[bool],
     visualization_tool: Optional[str],
     visualization_max_contigs: Optional[int],
     config_items: Tuple[str, ...],
@@ -736,6 +767,8 @@ def run(
     set_optional_bool(config_values, "imgvr_blast", imgvr_blast)
     set_optional_bool(config_values, "VirSorter", virsorter)
     set_optional_bool(config_values, "extract_mapped", extract_mapped)
+    set_optional_bool(config_values, "RNA_enriched", rna_enriched)
+    set_optional_bool(config_values, "microdiversity", microdiversity)
 
     config_values.update(parse_key_value(config_items))
 
