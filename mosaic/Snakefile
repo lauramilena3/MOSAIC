@@ -78,8 +78,10 @@ if ISOLATES:
 if METAGENOME:
 	print("metagenomic mode")
 	METAGENOME_FLAG="--meta"
+if config["run_dnaapler"]:
+	DNAAPLER_FLAG="--dnaapler"
 else:
-	METAGENOME_FLAG=""
+	DNAAPLER_FLAG=""
 
 
 RULES_DIR = 'rules'

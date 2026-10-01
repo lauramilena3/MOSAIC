@@ -46,6 +46,7 @@ long_index: False
 run_vcontact: False
 run_DRAM: False
 imgvr_blast: False
+run_dnaapler: False
 ecc_memory: 6000
 representative_contigs: ""
 sra_list: ""

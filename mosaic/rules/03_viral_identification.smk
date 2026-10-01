@@ -191,7 +191,7 @@ rule annotate_VIBRANT:
 	params:
 		vibrant_outdir=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+		dirs_dict["ENVS_DIR"] + "/vibrant.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] +"/annotate_VIBRANT/{sampling}.tsv"
 	message:
