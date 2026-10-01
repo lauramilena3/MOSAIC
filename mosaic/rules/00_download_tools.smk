@@ -354,6 +354,50 @@ rule downloadKrakenDB:
 		tar -xvf {output.kraken_tar} -C {output.kraken_db}
 		"""
 
+rule downloadSourmashRocksDB:
+	output:
+		rocksdb=directory(config["sourmash_rocksdb"]),
+		archive=temp(config["sourmash_rocksdb"] + ".tar.gz"),
+	params:
+		url=config["sourmash_rocksdb_url"],
+	message:
+		"Downloading the GTDB RS226 k31 Sourmash RocksDB index"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadSourmashRocksDB/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=1000,
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p "$(dirname {output.archive:q})" {output.rocksdb:q}
+		wget --continue --tries=3 --output-document={output.archive:q} {params.url:q}
+		tar -xzf {output.archive:q} --strip-components=1 -C {output.rocksdb:q}
+		"""
+
+rule downloadSourmashTaxonomy:
+	output:
+		taxonomy=config["sourmash_tax"],
+	params:
+		url=config["sourmash_tax_url"],
+	message:
+		"Downloading the matching GTDB RS226 Sourmash taxonomy"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadSourmashTaxonomy/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=1000,
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p "$(dirname {output.taxonomy:q})"
+		wget --continue --tries=3 --output-document={output.taxonomy:q} {params.url:q}
+		"""
+
 rule downloadKrakenUniqDB:
 	output:
 		krakenuniq_db=directory(config['krakenUniq_db']),

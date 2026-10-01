@@ -156,11 +156,11 @@ checkm_db: "db/checkm-db"
 bakta_db: "db/bakta-db"
 iphop_db: "db/iphop_db/Jun_2025_pub_rw"
 taxmyphage_db: "db/taxmyphage_db"
-# sourmash_sig: "/home/lmf/db/SOURMASH/matrix_09_42_sourmash_k31.sig.zip"
-# sourmash_rocksdb: "/home/lmf/db/SOURMASH/matrix_09_42_sourmash_k31.sig.rocksdb"
-sourmash_rocksdb: "/home/lmf/db/SOURMASH_25_08/25_08_26_manysketch_references_bacteria.k31_s1000.sig.rocksdb"
-# sourmash_tax: "/home/lmf/db/SOURMASH/taxonomy/taxonomy_matrix_strain.csv"
-sourmash_tax: "/home/lmf/db/SOURMASH_25_08/taxonomy/taxonomy_bacteria.csv"
+# Matching GTDB RS226 references and taxonomy; missing files are downloaded automatically.
+sourmash_rocksdb: "db/SOURMASH/gtdb-rs226/gtdb-rs226-k31.dna.rocksdb"
+sourmash_tax: "db/SOURMASH/gtdb-rs226/gtdb-rs226.lineages.csv"
+sourmash_rocksdb_url: "https://farm.cse.ucdavis.edu/~ctbrown/sourmash-db.new/gtdb-rs226/gtdb-rs226-k31.dna.rocksdb.tar.gz"
+sourmash_tax_url: "https://farm.cse.ucdavis.edu/~ctbrown/sourmash-db.new/gtdb-rs226/gtdb-rs226.lineages.csv"
 
 canu_dir: "tools/canu-2.0/Linux-amd64/bin" #linux
 PhaGCN_newICTV_dir: "tools/PhaGCN_newICTV"
