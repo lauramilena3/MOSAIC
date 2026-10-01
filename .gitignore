@@ -23,6 +23,7 @@ mosaic/database_processing.log
 mosaic/bracken_db_ckeckpoint.txt
 
 # Local database installs/downloads
+mosaic/db/cenote-taker3/
 mosaic/db/METAVR/
 mosaic/db/RefSeqViral/
 mosaic/db/DRAM_db
@@ -365,6 +366,7 @@ mosaic/db/pharokka/.DS_Store
 mosaic/errors.txt
 mosaic/tests/rule_blocks.py
 mosaic/tests/test_all_assembled.py
+mosaic/tests/test_cenote.py
 mosaic/tests/test_benchmarks.py
 mosaic/tests/test_circularity.py
 mosaic/tests/test_inline_genbank.py

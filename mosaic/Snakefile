@@ -44,6 +44,7 @@ RNA_MODE=config_bool('RNA_enriched', False)
 RUN_MICRODIVERSITY=config_bool('microdiversity', False)
 MAP_TO_REFSEQ=config_bool('map_to_RefSeq', False)
 MAP_TO_ALL_ASSEMBLED=config_bool('map_to_all_assembled', False)
+RUN_CENOTE=config_bool('run_cenote', False)
 VISUALIZATION_TOOL=str(config.get('visualization_tool', 'lovis4u')).strip().lower()
 if VISUALIZATION_TOOL in ["lovis", "lovis4u"]:
 	VISUALIZATION_TOOL="lovis4u"
@@ -167,6 +168,7 @@ ALL_ASSEMBLED_DIR=dirs_dict["ASSEMBLY_DIR"] + "/ALL_ASSEMBLED"
 ALL_ASSEMBLED_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ALL_ASSEMBLED"
 ALL_ASSEMBLED_TOP_NAME="AllAssembled_top_contigs"
 ALL_ASSEMBLED_TOP_PREFIX=ALL_ASSEMBLED_DIR + "/" + ALL_ASSEMBLED_TOP_NAME + "_tot"
+ALL_ASSEMBLED_TOP_CENOTE=dirs_dict["ANNOTATION"] + "/Cenote_" + ALL_ASSEMBLED_TOP_NAME + ".tot"
 
 def annotation_fasta_path(sequence):
 	if sequence in config.get("annotation_fastas", {}):

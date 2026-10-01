@@ -846,11 +846,15 @@ rule all_assembled_top_metadata:
 		metavr=dirs_dict["ANNOTATION"] + "/blast_output_METAVR_" + ALL_ASSEMBLED_TOP_NAME + ".tot.csv",
 		metavr_metadata=dirs_dict["PLOTS_DIR"] + "/" + ALL_ASSEMBLED_TOP_NAME + "_METAVR.tot/METAVR_main_table_for_hits.tsv",
 		pharokka=ALL_ASSEMBLED_TOP_PREFIX + "_pharokka",
+		cenote=[ALL_ASSEMBLED_TOP_CENOTE] if MAP_TO_ALL_ASSEMBLED and RUN_CENOTE else [],
 	output:
 		metadata=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_metadata_tot.tsv",
 		pharokka_cds=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_pharokka_cds_tot.tsv",
 	message:
 		"Combining abundance, classification and annotation of the top assembled contigs"
+	params:
+		cenote_enabled=MAP_TO_ALL_ASSEMBLED and RUN_CENOTE,
+		cenote_min_length=int(config.get("cenote_min_contig_length", 1000)),
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/all_assembled_top_metadata/tot.tsv"
 	threads: 1
@@ -872,6 +876,23 @@ rule all_assembled_top_metadata:
 			if key in frame:
 				frame=frame.drop_duplicates(key).set_index(key).add_prefix(prefix + "_")
 				metadata=metadata.join(frame.reindex(metadata.index))
+
+		if params.cenote_enabled:
+			metadata["Cenote_assessed"]="yes"
+			metadata.loc[metadata["length_bp"] < params.cenote_min_length, "Cenote_assessed"]="below length cutoff"
+			metadata["Cenote_classification"]="not reported"
+			cenote=table(Path(input.cenote[0]) / "mosaic_ct3_virus_summary.tsv")
+			if "input_name" in cenote:
+				# Cenote's internal names are not the assembly catalogue identifiers.
+				cenote["contig_id"]=cenote["input_name"].str.split().str[0]
+				cenote=cenote.loc[cenote["contig_id"].isin(metadata.index)].copy()
+				cenote["evidence_scope"]="whole contig"
+				processed=pd.to_numeric(cenote["virus_seq_length"], errors="coerce") != cenote["contig_id"].map(metadata["length_bp"])
+				cenote.loc[processed, "evidence_scope"]="processed contig"
+				cenote.loc[cenote["contig"].str.contains("@", regex=False), "evidence_scope"]="region"
+				metadata.loc[metadata.index.isin(cenote["contig_id"]), "Cenote_classification"]="virus"
+				cenote=cenote.drop(columns="input_name").groupby("contig_id", sort=False).agg(lambda values: " | ".join(dict.fromkeys(values.dropna().astype(str))))
+				metadata=metadata.join(cenote.add_prefix("Cenote_").reindex(metadata.index))
 
 		def original_name(name):
 			if name in metadata.index:

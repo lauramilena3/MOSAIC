@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - cenote-taker3=3.4.4
+  - pip
+  - wget

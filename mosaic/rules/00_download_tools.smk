@@ -191,6 +191,34 @@ rule get_VIGA:
 		chmod 744 trf irf
 		"""
 
+rule downloadCenoteDB:
+	output:
+		cenote_db=directory(config["cenote_db"]),
+	message:
+		"Downloading the core Cenote-Taker3 databases"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/cenote.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadCenoteDB/tot.tsv"
+	log:
+		dirs_dict["BENCHMARKS"] + "/downloadCenoteDB/tot.log"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	shell:
+		"""
+		mkdir -p {output.cenote_db:q}
+		get_ct3_dbs -o {output.cenote_db:q} --hmm T --hallmark_tax T --refseq_tax T --mmseqs_cdd T --domain_list T > {log:q} 2>&1
+		# The downloader does not propagate all failed download/build commands.
+		for database_file in hmmscan_DBs/v3.1.1/Virion_HMMs.h3m hmmscan_DBs/v3.1.1/DNA_rep_HMMs.h3m \\
+			hmmscan_DBs/v3.1.1/RDRP_HMMs.h3m hmmscan_DBs/v3.1.1/Useful_Annotation_HMMs.h3m \\
+			hmmscan_DBs/v3.1.1/phrogs_for_ct.h3m mmseqs_DBs/ct3_hallmark.taxDB \\
+			mmseqs_DBs/refseq_virus_prot_taxDB mmseqs_DBs/CDD viral_cdds_and_pfams_191028.txt; do
+			test -s {output.cenote_db:q}/"$database_file"
+		done
+		date -u '+%Y-%m-%d' > {output.cenote_db:q}/download_date.txt
+		"""
+
 rule downloadVirSorterDB:
 	output:
 		virSorter_dir=directory(config['virSorter_db']),

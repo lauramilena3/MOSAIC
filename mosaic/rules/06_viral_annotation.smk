@@ -1,3 +1,69 @@
+rule annotate_cenote:
+	input:
+		fasta=lambda wc: annotation_fasta_path(wc.sequence + "." + wc.sampling),
+		cenote_db=config["cenote_db"],
+	output:
+		cenote_output=directory(dirs_dict["ANNOTATION"] + "/Cenote_{sequence}.{sampling}"),
+	params:
+		workdir=dirs_dict["ANNOTATION"],
+		min_length=int(config.get("cenote_min_contig_length", 1000)),
+		circular_min_length=max(1000, int(config.get("cenote_min_contig_length", 1000))),
+		prune="T" if config_bool("cenote_prune_prophage", False) else "F",
+	message:
+		"Discovering and annotating viruses in the selected contigs with Cenote-Taker3"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/cenote.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/annotate_cenote/sequence={sequence}__sampling={sampling}.tsv"
+	log:
+		dirs_dict["ANNOTATION"] + "/Cenote_{sequence}.{sampling}.log"
+	threads: int(config.get("cenote_threads", 8))
+	resources:
+		mem_mb=int(config.get("cenote_mem_mb", 16000)),
+	wildcard_constraints:
+		sequence="[^/]+",
+		sampling="tot|sub",
+	shell:
+		"""
+		mkdir -p {params.workdir:q}
+		cenote_tmp=$(mktemp -d {params.workdir:q}/.cenote.XXXXXX)
+		trap 'rm -rf "$cenote_tmp"' EXIT
+		seqkit seq --quiet -m {params.min_length} {input.fasta:q} > "$cenote_tmp/input.fasta"
+		cenote_empty=0
+		if [ -s "$cenote_tmp/input.fasta" ]; then
+			# A short run title is required; the outer output directory identifies the dataset.
+			cenotetaker3 -c "$cenote_tmp/input.fasta" -r mosaic_ct3 -wd "$cenote_tmp" \\
+				--cenote-dbs {input.cenote_db:q} -t {threads} -p {params.prune} -am F --wrap F \\
+				--minimum_length_linear {params.min_length} --minimum_length_circular {params.circular_min_length} \\
+				-db virion rdrp -hh none > {log:q} 2>&1
+			# Cenote can return exit status zero without producing a summary.
+			# Accept its documented no-hallmark outcome only after all three HMM searches completed.
+			if [ ! -s "$cenote_tmp/mosaic_ct3/mosaic_ct3_virus_summary.tsv" ] && \\
+				grep -Fq 'combine_hallmark_counts.py: no contigs with at least' {log:q}; then
+				for hmm in Virion_HMMs.h3m DNA_rep_HMMs.h3m RDRP_HMMs.h3m; do
+					grep -Fq "pyhmmscan of $hmm finished in" {log:q}
+				done
+				cenote_empty=1
+			else
+				test -s "$cenote_tmp/mosaic_ct3/mosaic_ct3_virus_summary.tsv"
+				test -s "$cenote_tmp/mosaic_ct3/final_genes_to_contigs_annotation_summary.tsv"
+			fi
+		else
+			printf 'No selected contigs meet the Cenote length cutoff.\\n' > {log:q}
+			cenote_empty=1
+		fi
+		if [ "$cenote_empty" -eq 1 ]; then
+			mkdir -p "$cenote_tmp/mosaic_ct3"
+			printf 'contig\\tinput_name\\torganism\\tvirus_seq_length\\tend_feature\\tgene_count\\tvirion_hallmark_count\\trep_hallmark_count\\tRDRP_hallmark_count\\tvirion_hallmark_genes\\trep_hallmark_genes\\tRDRP_hallmark_genes\\ttaxonomy_hierarchy\\tORF_caller\\tgcode\\tavg_read_depth\\n' > "$cenote_tmp/mosaic_ct3/mosaic_ct3_virus_summary.tsv"
+			printf 'contig\\tgene_name\\tEvidence_source\\tevidence_description\\n' > "$cenote_tmp/mosaic_ct3/final_genes_to_contigs_annotation_summary.tsv"
+		fi
+		if [ -f "$cenote_tmp/mosaic_ct3/ct_processing/contig_name_map.tsv" ]; then
+			cp "$cenote_tmp/mosaic_ct3/ct_processing/contig_name_map.tsv" "$cenote_tmp/mosaic_ct3/contig_name_map.tsv"
+		fi
+		rm -rf "$cenote_tmp/mosaic_ct3/ct_processing"
+		mv -T "$cenote_tmp/mosaic_ct3" {output.cenote_output:q}
+		"""
+
 rule lifestyle_bacphlip:
 	input:
 		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
