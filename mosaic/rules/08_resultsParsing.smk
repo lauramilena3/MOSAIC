@@ -644,6 +644,90 @@ def input_bacterial_results_genomad(wildcards):
 	return(input_list)
 
 
+rule selectMetaVRMetadata:
+	input:
+		blast=dirs_dict["ANNOTATION"] + "/blast_output_METAVR_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",
+		metadata=os.path.join(config["METAVR_db"], "METAVR_main_table.parquet"),
+	output:
+		selected=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/METAVR_main_table_for_hits.tsv",
+	message:
+		"Selecting MetaVR metadata for the matched viral genomes"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/selectMetaVRMetadata/sampling={sampling}.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p $(dirname {output.selected:q})
+		python - {input.blast:q} {input.metadata:q} {output.selected:q} <<'PYCODE'
+import csv
+import sys
+from fastparquet import ParquetFile
+
+columns = ["uvig", "taxon_oid", "quality", "completeness", "genome_type",
+           "ictv_taxonomy", "ictv_taxonomy_method", "host_taxonomy", "host_taxonomy_method"]
+with open(sys.argv[1], newline="") as handle:
+    subjects = set()
+    for row in csv.reader(handle, delimiter="\t"):
+        if len(row) > 1 and row[1] != "sseqid":
+            subjects.add(row[1].split("|")[0])
+with open(sys.argv[3], "w", newline="") as handle:
+    writer = csv.writer(handle, delimiter="\t")
+    writer.writerow(columns)
+    if subjects:
+        parquet = ParquetFile(sys.argv[2])
+        for group in parquet.iter_row_groups(columns=columns):
+            selected = group.loc[group["uvig"].isin(subjects), columns]
+            writer.writerows(selected.itertuples(index=False, name=None))
+PYCODE
+		"""
+
+
+rule METAVR_analysis:
+	input:
+		fasta=dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
+		blast=dirs_dict["ANNOTATION"] + "/blast_output_METAVR_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.csv",
+		checkv=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
+		uvig_metadata=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/METAVR_main_table_for_hits.tsv",
+		source_metadata=os.path.join(config["METAVR_db"], "IMG_full_metadata.tsv.gz"),
+	output:
+		summary_html=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}.html",
+		hit_pairs=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/hit_pairs.tsv",
+		query_summary=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/vOTU_summary.tsv",
+		sample_summary=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/sample_summary.tsv",
+		environment_counts=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/environment_counts.tsv",
+		viral_taxonomy_counts=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/viral_taxonomy_counts.tsv",
+		host_taxonomy_counts=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/host_taxonomy_counts.tsv",
+		host_method_counts=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/host_method_counts.tsv",
+		metadata_subset=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/METAVR_metadata_for_hits.tsv",
+		metadata_manifest=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/METAVR_metadata_for_hits.manifest.json",
+		run_summary=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/run_summary.tsv",
+		provenance=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/provenance.json",
+		composition_png=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/coverage_composition.png",
+		composition_svg=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/coverage_composition.svg",
+		samples_png=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/sample_composition.png",
+		samples_svg=dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.{sampling}/sample_composition.svg",
+	params:
+		samples=SAMPLES,
+		sampling="{sampling}",
+		metadata_chunksize=250000,
+	message:
+		"Summarizing MetaVR hit environments, viral taxonomy and recorded host taxonomy"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/METAVR_analysis/sampling={sampling}.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_METAVR_analysis.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_METAVR_analysis.py.ipynb"
+
+
 rule bacterial_results_parsing:
 	input:
 		checkm=input_bacterial_results_checkm,

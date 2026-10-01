@@ -12,6 +12,7 @@ dependencies:
   - scikit-learn =1.8.0
   - hmmer =3.3.2
   - wget =1.25.0
+  - zstd
   # - ont-tombo = 1.5.1
   - blast =2.17.0
   - checkm-genome =1.2.5

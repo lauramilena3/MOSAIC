@@ -42,7 +42,7 @@ DEFAULT_FLAGS: Dict[str, object] = {
     "long_index": False,
     "run_vcontact": False,
     "run_DRAM": False,
-    "imgvr_blast": False,
+    "metavr_blast": False,
     "extract_mapped": False,
     "visualization_tool": "lovis4u",
     "visualization_max_contigs": 50,
@@ -666,7 +666,7 @@ def unlock(snakefile: Path, workflow_dir: Path, print_only: bool) -> None:
 @click.option("--cross-assembly/--no-cross-assembly", default=None, help="Override config cross_assembly.")
 @click.option("--vcontact/--no-vcontact", default=None, help="Override config run_vcontact.")
 @click.option("--dram/--no-dram", default=None, help="Override config run_DRAM.")
-@click.option("--imgvr-blast/--no-imgvr-blast", default=None, help="Override config imgvr_blast.")
+@click.option("--metavr-blast/--no-metavr-blast", default=None, help="Override config metavr_blast.")
 @click.option("--map-to-refseq/--no-map-to-refseq", default=None, help="Also map cleaned paired-end reads to RefSeqViral_db.")
 @click.option("--virsorter/--no-virsorter", default=None, help="Override config VirSorter.")
 @click.option("--extract-mapped/--no-extract-mapped", default=None, help="Override config extract_mapped.")
@@ -717,7 +717,7 @@ def run(
     cross_assembly: Optional[bool],
     vcontact: Optional[bool],
     dram: Optional[bool],
-    imgvr_blast: Optional[bool],
+    metavr_blast: Optional[bool],
     map_to_refseq: Optional[bool],
     virsorter: Optional[bool],
     extract_mapped: Optional[bool],
@@ -772,7 +772,7 @@ def run(
     set_optional_bool(config_values, "cross_assembly", cross_assembly)
     set_optional_bool(config_values, "run_vcontact", vcontact)
     set_optional_bool(config_values, "run_DRAM", dram)
-    set_optional_bool(config_values, "imgvr_blast", imgvr_blast)
+    set_optional_bool(config_values, "metavr_blast", metavr_blast)
     set_optional_bool(config_values, "map_to_RefSeq", map_to_refseq)
     set_optional_bool(config_values, "VirSorter", virsorter)
     set_optional_bool(config_values, "extract_mapped", extract_mapped)

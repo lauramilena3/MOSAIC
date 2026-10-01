@@ -25,7 +25,7 @@ RESULTS_DIR=config['results_dir'].rstrip("/")
 LONG_ASSEMBLER=config['long_assembler']
 LONG_ASSEMBLER_PACBIO=config['long_assembler_pacbio']
 
-IMGVR_blast=config['imgvr_blast']
+METAVR_blast=config['metavr_blast']
 METAGENOME=config['metagenome']
 VIRSORTER=config['VirSorter']
 MEMORY_ECORR=config['ecc_memory']
@@ -401,8 +401,9 @@ def inputAnnotation(wildcards):
 	# inputs.append(dirs_dict["ANNOTATION"] + "/spacepharer_dion_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.tsv"),
 	if VCONTACT:
 		inputs.extend(expand(dirs_dict["ANNOTATION"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_vContact.{sampling}/genome_by_genome_overview.csv", sampling=SAMPLING_TYPE_TOT))
-	if IMGVR_blast:
-		inputs.append(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot.csv")
+	if METAVR_blast:
+		inputs.append(dirs_dict["ANNOTATION"] + "/blast_output_METAVR_filtered_"+ REPRESENTATIVE_CONTIGS_BASE + ".tot.csv")
+		inputs.append(dirs_dict["PLOTS_DIR"] + "/08_METAVR_analysis.tot.html")
 	if DRAM:
 		inputs.append(dirs_dict["ANNOTATION"]+ "/vDRAM_distill_results_tot"),
 		inputs.append(dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_tot.fna")
@@ -694,7 +695,7 @@ rule assembly_long_only_phage:
 		(dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv"),
 		(dirs_dict["ANNOTATION"] + "/iphop_hostID_combined_positive_viral_contigs.tot_resultsDir"),
 		(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.tot.csv"),
-		(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_combined_positive_viral_contigs.tot.csv"),
+		(dirs_dict["ANNOTATION"] + "/blast_output_METAVR_combined_positive_viral_contigs.tot.csv"),
 		(dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.tot.tsv"),
 		(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 		(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv"),
@@ -774,7 +775,7 @@ rule phage_isolates:
 		# dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv",
 		# dirs_dict["ANNOTATION"] + "/iphop_hostID_combined_positive_viral_contigs.tot_resultsDir",
 		dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.tot.csv",
-		# dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_combined_positive_viral_contigs.tot.csv",
+		# dirs_dict["ANNOTATION"] + "/blast_output_METAVR_combined_positive_viral_contigs.tot.csv",
 		(dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.tot.tsv"),
 		dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv",
 		# dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv",

@@ -511,6 +511,86 @@ with tarfile.open(sys.argv[1], "r|gz") as archive, \
 PYCODE
 		"""
 
+rule downloadMetaVR:
+	output:
+		archive=os.path.join(config["METAVR_db"], "METAVR_blastdb.tar.zst"),
+		blastdb=directory(os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb")),
+		metadata=os.path.join(config["METAVR_db"], "METAVR_main_table.parquet"),
+		sources=os.path.join(config["METAVR_db"], "IMG_full_metadata.tsv.gz"),
+	params:
+		url=config["metavr_download_url"].rstrip("/"),
+		db_dir=config["METAVR_db"],
+		blastdb=os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb", "METAVR_UViG.blastdb"),
+	message:
+		"Downloading MetaVR BLAST database and metadata from NERSC"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadMetaVR/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p {params.db_dir:q}
+		wget --continue --tries=3 --output-document={output.archive:q} {params.url:q}/METAVR_blastdb.tar.zst
+		wget --continue --tries=3 --output-document={output.metadata:q} {params.url:q}/METAVR_main_table.parquet
+		wget --continue --tries=3 --output-document={output.sources:q} {params.url:q}/IMG_full_metadata.tsv.gz
+		gzip -t {output.sources:q}
+		tar --use-compress-program=zstd -xf {output.archive:q} -C {params.db_dir:q}
+		blastdbcmd -db {params.blastdb:q} -info
+		"""
+
+rule downloadMetaVRNucleotideFasta:
+	output:
+		fasta=config["METAVR_reference_fasta"],
+	params:
+		url=config["metavr_download_url"].rstrip("/") + "/METAVR.fna.bgz",
+	message:
+		"Downloading the MetaVR nucleotide FASTA for isolate-relative extraction"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadMetaVRNucleotideFasta/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p $(dirname {output.fasta:q})
+		wget --continue --tries=3 --output-document={output.fasta:q}.bgz {params.url:q}
+		gzip -t {output.fasta:q}.bgz
+		gzip -dc {output.fasta:q}.bgz > {output.fasta:q}
+		test -s {output.fasta:q}
+		"""
+
+rule downloadMetaVRProteinFasta:
+	output:
+		fasta=config["METAVR_protein_db"],
+	params:
+		url=config["metavr_download_url"].rstrip("/") + "/METAVR.faa.bgz",
+	message:
+		"Downloading and indexing the MetaVR protein FASTA for isolate searches"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadMetaVRProteinFasta/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	shell:
+		"""
+		set -euo pipefail
+		mkdir -p $(dirname {output.fasta:q})
+		wget --continue --tries=3 --output-document={output.fasta:q}.bgz {params.url:q}
+		gzip -t {output.fasta:q}.bgz
+		gzip -dc {output.fasta:q}.bgz > {output.fasta:q}
+		test -s {output.fasta:q}
+		makeblastdb -in {output.fasta:q} -dbtype prot
+		"""
+
 rule downloadRefSeqViral:
 	output:
 		fasta="db/RefSeqViral/RefSeq_viral.fasta",

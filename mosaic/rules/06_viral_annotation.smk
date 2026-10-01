@@ -1072,24 +1072,24 @@ rule blasToRefSeq:
 		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
 		"""
 
-rule blastToIMGVR:
+rule blastToMETAVR:
 	input:
 		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
-		img_vr_db=(config['IMGVR_db']),
+		metavr_db=directory(os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb")),
 	output:
-		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_IMGVR_{sequence}.csv"),
+		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_METAVR_{sequence}.csv"),
 	params:
-			img_vr_db=(config['IMGVR_db'] + "IMGVR_all_nucleotides"),
+		metavr_db=os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb", "METAVR_UViG.blastdb"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/blasToIMGVR/{sequence}.tsv"
+		dirs_dict["BENCHMARKS"] + "/blastToMETAVR/sequence={sequence}.tsv"
 	message:
-		"Blast contigs agaist IMG/VR database"
+		"Blast contigs against the MetaVR nucleotide database"
 	threads: 32
 	shell:
 		"""
-		blastn -num_threads {threads} -db {params.img_vr_db} -query {input.fasta} \
+		blastn -num_threads {threads} -db {params.metavr_db} -query {input.fasta} \
 		-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
 		"""
 

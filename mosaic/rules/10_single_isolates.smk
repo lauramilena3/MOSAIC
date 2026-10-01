@@ -86,8 +86,8 @@ def inputDatabase(wildcards):
 		return config["RefSeqViral_protein_db"]
 	elif wildcards.db=="GenBankViral":
 		return config["GenBankViral_protein_db"]
-	elif wildcards.db=="IMGVR":
-		return config["IMGVR_protein_db"]
+	elif wildcards.db=="METAVR":
+		return config["METAVR_protein_db"]
 
 rule blastp_Reference_db:
 	input:
@@ -135,16 +135,16 @@ def inputDatabaseLen(wildcards):
 		return (config["RefSeqViral_protein_db"].split(".faa")[0] + "_lengths_and_names.txt")
 	elif wildcards.db=="GenBankViral":
 		return (config["GenBankViral_protein_db"].split(".faa")[0] + "_lengths_and_names.txt")
-	elif wildcards.db=="IMGVR":
-		return (config["IMGVR_protein_db"].split(".faa")[0] + "_lengths_and_names.txt")
+	elif wildcards.db=="METAVR":
+		return (config["METAVR_protein_db"].split(".faa")[0] + "_lengths_and_names.txt")
 
 def inputDatabaseCoding(wildcards):
 	if wildcards.db=="RefSeqViral":
 		return (config["RefSeqViral_protein_db"].split(".faa")[0] + "_coding_lengths.txt")
 	elif wildcards.db=="GenBankViral":
 		return (config["GenBankViral_protein_db"].split(".faa")[0] + "_coding_lengths.txt")
-	elif wildcards.db=="IMGVR":
-		return (config["IMGVR_protein_db"].split(".faa")[0] + "_coding_lengths.txt")
+	elif wildcards.db=="METAVR":
+		return (config["METAVR_protein_db"].split(".faa")[0] + "_coding_lengths.txt")
 
 rule get_relatives_list:
 	input:
@@ -278,15 +278,15 @@ def inputDatabaseExtract(wildcards):
 			return config["RefSeqViral_protein_db"]
 		elif wildcards.db=="GenBankViral":
 			return config["GenBankViral_protein_db"]
-		elif wildcards.db=="IMGVR":
-			return config["IMGVR_protein_db"]
+		elif wildcards.db=="METAVR":
+			return config["METAVR_protein_db"]
 	elif wildcards.type=="phages":
 		if wildcards.db=="RefSeqViral":
 			return config["RefSeqViral_db"]
 		elif wildcards.db=="GenBankViral":
 			return config["GenBankViral_db"]
-		elif wildcards.db=="IMGVR":
-			return config["IMGVR_db"]
+		elif wildcards.db=="METAVR":
+			return config["METAVR_reference_fasta"]
 
 rule get_relatives_fasta:
 	input:

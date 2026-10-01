@@ -82,8 +82,8 @@ cross_assembly: False
 long_index: False
 run_vcontact: False
 run_DRAM: False
-imgvr_blast: False
 run_dnaapler: False
+metavr_blast: False # MetaVR BLAST plus environment, viral-taxonomy and recorded-host report
 ecc_memory: 6000
 representative_contigs: ""
 sra_list: ""
@@ -115,8 +115,13 @@ ambiguous_mapping: "all"
 basecalled_dir: "data/basecalled/"
 microbial_spacers: ""
 
-reference_databases: "IMGVR GenBankViral RefSeqViral"
-IMGVR_db: "/home/lmf/db/IMG_VR_2022-12-19_7/"
+reference_databases: "METAVR GenBankViral RefSeqViral"
+# Prebuilt nucleotide BLAST and reporting files are downloaded here when metavr_blast is enabled.
+METAVR_db: "db/METAVR"
+metavr_download_url: "https://portal.nersc.gov/cfs/m342/METAVR"
+# Isolate-relative searches require these separate nucleotide and protein FASTAs.
+METAVR_reference_fasta: "db/METAVR/METAVR.fna"
+METAVR_protein_db: "db/METAVR/METAVR.faa"
 # Missing RefSeq FASTA triggers downloadRefSeqViral, which keeps dated snapshots.
 RefSeqViral_db: "db/RefSeqViral/RefSeq_viral.fasta"
 refseq_viral_download_url: "https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.1.genomic.fna.gz"
