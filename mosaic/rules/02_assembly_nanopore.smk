@@ -10,6 +10,8 @@ if POOLED==True:
 	#ruleorder: symlinkPooled>remove_adapters_quality_nanopore
 	ruleorder: hybridAsemblySpadesPooled>hybridAsemblySpades>shortReadAsemblySpadesPE
 	rule hybridAsemblySpadesPooled:
+		benchmark:
+			dirs_dict["BENCHMARKS"] + "/hybridAsemblySpadesPooled/sample={sample}__sampling={sampling}.tsv"
 		input:
 			forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}.fastq.gz"),
 			reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}.fastq.gz"),
@@ -26,8 +28,6 @@ if POOLED==True:
 			"Assembling hybrid reads with metaSpades"
 		conda:
 			dirs_dict["ENVS_DIR"] + "/env2.yaml"
-		benchmark:
-			dirs_dict["BENCHMARKS"] +"/hybridAsemblySpadesPooled/{sample}_{sampling}.tsv"
 		threads: 16
 		shell:
 			"""
@@ -56,7 +56,7 @@ rule hybridAsemblySpades:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/hybridAsemblySpades/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/hybridAsemblySpades/sample={sample}__sampling={sampling}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -82,7 +82,7 @@ rule asemblyCanu:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_longread.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/asemblyCanu/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/asemblyCanu/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -117,7 +117,7 @@ rule asemblyFlye:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_longread.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/asemblyFlye/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/asemblyFlye/sample={sample}__sampling={sampling}.tsv"
 	threads: 32
 	shell:
 		"""
@@ -148,7 +148,7 @@ rule errorCorrectMedaka:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/errorCorrectMedaka/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/errorCorrectMedaka/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -172,7 +172,7 @@ rule errorCorrectRacon_2rounds:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_longread.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/errorCorrectRacon/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/errorCorrectRacon_2rounds/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -259,7 +259,7 @@ rule errorCorrectPilonPE:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/errorCorrectPilon/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/errorCorrectPilonPE/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	resources:
 		mem_mb=16384
@@ -353,6 +353,8 @@ rule mergeAssembliesHYBRID:
 		"Merging assembled contigs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/mergeAssembliesHYBRID/sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""

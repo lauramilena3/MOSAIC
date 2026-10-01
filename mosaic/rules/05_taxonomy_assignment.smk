@@ -23,6 +23,8 @@ rule getORFs_prodigal_gv:
 		"Calling ORFs with prodigal-gv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_orf.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/getORFs_prodigal_gv/fasta={fasta}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -41,6 +43,8 @@ rule getORFs_coding_length:
 		"Calculating ORFs length"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/getORFs_coding_length/fasta={fasta}__sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -70,10 +74,10 @@ rule clusterTaxonomy:
 		"Clustering viral genomes with vContact2"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vcontact.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/clusterTaxonomy/sampling={sampling}.tsv"
 	# conda:
 	# 	dirs_dict["ENVS_DIR"] + "/wtp.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/clusterTaxonomy/{sampling}.tsv"
 	threads: 64
 	shell:
 		"""
@@ -98,7 +102,7 @@ rule parseVcontact:
 	message:
 		"Assigning viral taxonomy with vContact2 results"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/parseVcontact/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/parseVcontact/sampling={sampling}.tsv"
 	threads: 1
 	run:
 		import pandas as pd
@@ -169,12 +173,12 @@ rule PhaGCNTaxonomy:
 		"Taxonomy Assignment with PhaGCN"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/PhaGCNTaxonomy/sequence={sequence}.tsv"
 	params:
 		taxonomy_table_temp=("final_prediction.csv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/PhaGCN_Taxonomy/{sequence}.tsv"
 	threads: 32
 	wildcard_constraints:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
@@ -197,7 +201,7 @@ rule hostID_iphop:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/iphop/{sequence}.tsv"
+		dirs_dict["BENCHMARKS"] + "/hostID_iphop/sequence={sequence}.tsv"
 	threads: 64
 	wildcard_constraints:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
@@ -218,6 +222,8 @@ rule single_fasta_filtered:
 		"formating filtered vOTUs into single fasta"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/single_fasta_filtered/sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -235,14 +241,14 @@ rule match_spacers:
 		"Matching microbial spacers"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_spacepharer.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/match_spacers/sampling={sampling}.tsv"
 	params:
 		filtered_representatives_dir=((dirs_dict["vOUT_DIR"]+ "/single_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}")),
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB.{sampling}")),
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_rev.{sampling}")),
 		spacers_mincedSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_mincedSetDB.{sampling}")),
 		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder.{sampling}")),	
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/spacepharer/{sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -266,13 +272,13 @@ rule match_spacers_dion:
 		"Matching microbial spacers with the DION database"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_spacepharer.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/match_spacers_dion/sampling={sampling}.tsv"
 	params:
 		viralTargetDB=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion.{sampling}")),
 		viralTargetDB_rev=temp(directory(dirs_dict["ANNOTATION"] + "/viralTargetDB_dion_rev.{sampling}")),
 		# spacers_dionSetDB=temp(directory(dirs_dict["ANNOTATION"] + "/spacers_dionSetDB.{sampling}")),
 		tmpFolder=temp(directory(dirs_dict["ANNOTATION"] + "/tmpFolder_dion.{sampling}")),	
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/spacepharer/{sampling}_dion.tsv"
 	threads: 1
 	shell:
 		"""
@@ -299,7 +305,7 @@ rule taxmyphage:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxmyphage/{sequence}.tsv"
+		dirs_dict["BENCHMARKS"] + "/taxmyphage/sequence={sequence}.tsv"
 	threads: 32
 	shell:
 		"""

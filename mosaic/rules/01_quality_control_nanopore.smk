@@ -9,7 +9,7 @@ rule preQualityCheckNanopore:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/qualityCheckNanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/preQualityCheckNanopore/sample_nanopore={sample_nanopore}.tsv"
 #	threads: 1
 	shell:
 		"""
@@ -34,7 +34,7 @@ rule remove_adapters_quality_nanopore:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/remove_adapters_quality_nanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/remove_adapters_quality_nanopore/sample_nanopore={sample_nanopore}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -58,7 +58,7 @@ rule remove_contaminants_nanopore:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/remove_contaminants_nanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/remove_contaminants_nanopore/sample_nanopore={sample_nanopore}.tsv"
 	threads: 2
 	shell:
 		"""
@@ -76,6 +76,8 @@ if CONTAMINANTS==["GCF_000819615.1"]:
 	ruleorder: get_size_nanopore > remove_contaminants_nanopore
 
 	rule get_size_nanopore:
+		benchmark:
+			dirs_dict["BENCHMARKS"] + "/get_size_nanopore/sample_nanopore={sample_nanopore}.tsv"
 		input:
 			trimmed_data=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_nanofilt.fastq.gz",
 		output:
@@ -85,8 +87,6 @@ if CONTAMINANTS==["GCF_000819615.1"]:
 			"Calculating number of reads"
 		conda:
 			dirs_dict["ENVS_DIR"]+ "/env1.yaml"
-		benchmark:
-			dirs_dict["BENCHMARKS"] +"/remove_contaminants_nanopore/{sample_nanopore}.tsv"
 		threads: 1
 		shell:
 			"""
@@ -106,7 +106,7 @@ rule postQualityCheckNanopore:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/postQualityCheckNanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/postQualityCheckNanopore/sample_nanopore={sample_nanopore}.tsv"
 #	threads: 1
 	shell:
 		"""
@@ -124,7 +124,7 @@ rule qualityStatsNanopore_pre:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/qualityStatsNanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/qualityStatsNanopore_pre/sample_nanopore={sample_nanopore}.tsv"
 #	threads: 1
 	shell:
 		"""
@@ -141,7 +141,7 @@ rule qualityStatsNanopore_post:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/qualityStatsNanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/qualityStatsNanopore_post/sample_nanopore={sample_nanopore}.tsv"
 #	threads: 1
 	shell:
 		"""
@@ -160,7 +160,7 @@ rule subsampleReadsNanopore:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsNanopore/{sample_nanopore}.tsv"
+		dirs_dict["BENCHMARKS"] + "/subsampleReadsNanopore/sample_nanopore={sample_nanopore}.tsv"
 	params:
 		sizes=dirs_dict["CLEAN_DATA_DIR"] + "/*_nanopore_clean_read_count.tot.txt"
 	threads: 1

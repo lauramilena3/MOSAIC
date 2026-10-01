@@ -1,3 +1,21 @@
+def benchmark_snapshot(wildcards):
+	from pathlib import Path
+	root=Path(dirs_dict["BENCHMARKS"])
+	return [(str(path.relative_to(root)), path.stat().st_size, path.stat().st_mtime_ns)
+		for path in sorted(root.rglob("*.tsv"))
+		if path.relative_to(root).parts[0] != "benchmark_summary"]
+
+def benchmark_registry(wildcards):
+	registry=[]
+	for rule in workflow.rules:
+		if rule.benchmark is None or rule.name == "benchmark_summary":
+			continue
+		threads=rule.resources.get("_cores", 1)
+		registry.append(dict(name=rule.name, pattern=str(rule.benchmark),
+			threads_declared=threads if isinstance(threads, (int, float)) else None,
+			inputs=[str(value) for value in rule.input if not callable(value)]))
+	return registry
+
 rule abundance_lifestyle_summary:
 	input:
 		fasta=dirs_dict["vOUT_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
@@ -70,6 +88,24 @@ rule microdiversity_summary:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/11_microdiversity_summary.py.ipynb"
 
+rule benchmark_summary:
+	output:
+		jobs=dirs_dict["PLOTS_DIR"] + "/09_benchmark_jobs.csv",
+		rules=dirs_dict["PLOTS_DIR"] + "/09_benchmark_rules.csv",
+		figure=dirs_dict["PLOTS_DIR"] + "/09_benchmark_summary.png",
+		html=dirs_dict["PLOTS_DIR"] + "/09_benchmark_summary.html",
+	params:
+		benchmark_dir=dirs_dict["BENCHMARKS"],
+		registry=benchmark_registry,
+		snapshot=benchmark_snapshot,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/benchmark_summary/tot.tsv"
+	threads: 1
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/09_benchmark_summary.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/09_benchmark_summary.py.ipynb"
+
 rule plot_assemblies:
 	input:
 		aa="{fasta}_ORFs.{sampling}.fasta",
@@ -88,6 +124,8 @@ rule plot_assemblies:
 		svg=(dirs_dict["CLEAN_DATA_DIR"] + "/protein_lengths_plot.{sampling}.svg"),
 	message:
 		"Plot unique reads with BBtools"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/plot_assemblies/sampling={sampling}.tsv"
 	threads: 1
 	run:
 		import pandas as pd
@@ -166,6 +204,8 @@ rule QC_parsing:
 		raw_dir=dirs_dict["RAW_DATA_DIR"],
 		qc_dir=dirs_dict["QC_DIR"],
 		remove_euk=REMOVE_EUK,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/QC_parsing/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_QC.{sampling}.ipynb"
 	notebook:
@@ -193,6 +233,8 @@ rule assembly_parsing_short:
 		reverse_tag=config['reverse_tag'],
 		raw_dir=dirs_dict["RAW_DATA_DIR"],
 		qc_dir=dirs_dict["QC_DIR"],
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/assembly_parsing_short/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_short.{sampling}.ipynb"
 	notebook:
@@ -245,6 +287,8 @@ rule assembly_parsing_long:
 	output:
 		orf_length_png=(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample}.png"),
 		orf_length_svg=(dirs_dict["PLOTS_DIR"] + "/03_ORF_length_{sample}.svg"),
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/assembly_parsing_long/sample={sample}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_{sample}.ipynb"
 	notebook:
@@ -279,6 +323,8 @@ rule viralID_parsing:
 		subassembly=SUBASSEMBLY,
 		cross_assembly=CROSS_ASSEMBLY,
 		long_assembler=LONG_ASSEMBLER
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/viralID_parsing/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_viral_ID_{sampling}.ipynb"
 	notebook:
@@ -309,6 +355,8 @@ rule mapping_statistics_parsing:
 		mapping_dir=dirs_dict["MAPPING_DIR"],
 		sampling="{sampling}",
 		map_to_all_assembled=MAP_TO_ALL_ASSEMBLED,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/mapping_statistics_parsing/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics_{sampling}.ipynb"
 	notebook:
@@ -435,6 +483,8 @@ rule phage_isolates_summary:
 		microbial=MICROBIAL,
 		remove_euk=REMOVE_EUK,
 		sourmash=SOURMASH
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/phage_isolates_summary/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_phage_isolates_summary.{sampling}.ipynb"
 	notebook:
@@ -453,6 +503,8 @@ rule subsample_reads:
 		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
 		sampling="tot",
 		key_samples=SAMPLES_key
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/subsample_reads/tot.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_subsampling.ipynb"
 	notebook:
@@ -484,6 +536,8 @@ rule normalise_reads:
 		threshold_bases=200,
 		threshold_RPKM=0.1,
 		reference="",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/normalise_reads/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise.{sampling}.ipynb"
 	notebook:
@@ -515,12 +569,15 @@ rule normalise_reads_reference:
 		threshold_bases=200,
 		threshold_RPKM=0.1,
 		reference=REFERENCE,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/normalise_reads_reference/" + REFERENCE + "/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_" + REFERENCE + ".{sampling}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
 
 
+# Reuse the reference-normalisation notebook and criteria, with separate inputs/outputs.
 rule normalise_reads_RefSeq:
 	input:
 		postqc_txt=dirs_dict["QC_DIR"] + "/postQC_illumina_report_data/multiqc_fastqc.txt",
@@ -716,6 +773,8 @@ rule QC_long_only_parsing:
 		sampling="{sampling}",
 		samples_nanopore=NANOPORE_SAMPLES,
 		samples_pacbio=PACBIO_SAMPLES
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/QC_long_only_parsing/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/01_QC_long_only.{sampling}.ipynb"
 	notebook:
@@ -735,6 +794,8 @@ rule assembly_long_only_parsing:
 	params:
 		input_quast_report=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
 		sampling="{sampling}"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/assembly_long_only_parsing/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/03_assembly_long_only.{sampling}.ipynb"
 	notebook:
@@ -889,6 +950,8 @@ rule bacterial_results_parsing:
 		sampling="{sampling}",
 		long_assembler=LONG_ASSEMBLER,
 		long_assembler_pacbio=LONG_ASSEMBLER_PACBIO,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/bacterial_results_parsing/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/06_bacterial_results.{sampling}.ipynb"
 	notebook:

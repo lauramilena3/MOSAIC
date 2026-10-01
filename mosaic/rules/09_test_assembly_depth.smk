@@ -14,7 +14,7 @@ rule subsampleReadsIllumina_PE_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_test_depth/{sample}_{subsample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/subsampleReadsIllumina_PE_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	threads: 1
 	resources:
 		mem_mb=4000
@@ -44,7 +44,7 @@ rule normalizeReads_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/normalizeReads_test_depth/{sample}_{subsample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/normalizeReads_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	params:
 		min_depth=config['min_norm'],
 		max_depth=config['max_norm']
@@ -77,7 +77,7 @@ rule metaspadesPE_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/metaspadesPE_test_depth/{sample}_{subsample}_{sampling}.tsv",
+		dirs_dict["BENCHMARKS"] + "/metaspadesPE_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -103,7 +103,7 @@ rule assemblyStatsILLUMINA_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_quast.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/assemblyStatsILLUMINA_test_depth/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/assemblyStatsILLUMINA_test_depth/sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -125,7 +125,7 @@ rule genomad_viral_id_subassembly:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{subsample}_{sampling}_illumina.tsv"
+		dirs_dict["BENCHMARKS"] + "/genomad_viral_id_subassembly/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -151,7 +151,7 @@ rule viralStatsILLUMINA_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_quast.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/assemblyStatsILLUMINA_test_depth_viral/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/viralStatsILLUMINA_test_depth/sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -175,7 +175,7 @@ rule estimateGenomeCompletness_test_depth:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_test_depth/{sample}_{subsample}_{viral_id_tool}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}__viral_id_tool={viral_id_tool}.tsv"
 	threads: 4
 	shell:
 		"""

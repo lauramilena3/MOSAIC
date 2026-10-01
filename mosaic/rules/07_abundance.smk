@@ -15,7 +15,7 @@ rule subsampleReadsIllumina_PE_mapping:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_mapping/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/subsampleReadsIllumina_PE_mapping/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	# resources:
 	# 	mem_mb=4000
@@ -39,7 +39,7 @@ rule subsampleReadsIllumina_PE_mapping_7M:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_mapping/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/subsampleReadsIllumina_PE_mapping_7M/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	# resources:
 	# 	mem_mb=4000
@@ -62,7 +62,7 @@ rule subsampleReadsIllumina_PE_vOTU_mapping:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/subsampleReadsIllumina_PE_vOTU_mapping/{sample}.tsv"
+		dirs_dict["BENCHMARKS"] + "/subsampleReadsIllumina_PE_vOTU_mapping/sample={sample}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -83,10 +83,10 @@ rule buildBowtieDB_assembly:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_bowtie_assembly.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_assembly/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -102,10 +102,10 @@ rule buildBowtieDB_genes:
 		prefix=dirs_dict["ANNOTATION"] + "/predicted_genes_NR_95_85_150bp_tot",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToGenesPE/bowtie_genes.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_genes/tot.tsv"
 	threads: 8
 	shell:
 		"""
@@ -146,7 +146,7 @@ rule stat_mapReadsToAssembly:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_assembly.tsv"
+		dirs_dict["BENCHMARKS"] + "/stat_mapReadsToAssembly/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -169,10 +169,10 @@ rule buildBowtieDB_viral:
 		prefix=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_bowtie_viral.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_viral/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -200,7 +200,7 @@ rule stat_mapReadsToViral:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_viral.tsv"
+		dirs_dict["BENCHMARKS"] + "/stat_mapReadsToViral/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -223,10 +223,10 @@ rule buildBowtieDB_derreplicated:
 		prefix=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sampling}_bowtie_derreplicated.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_derreplicated/sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -254,7 +254,7 @@ rule stat_mapReadsToDerreplicated:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_viral.tsv"
+		dirs_dict["BENCHMARKS"] + "/stat_mapReadsToDerreplicated/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -277,10 +277,10 @@ rule buildBowtieDB_unfiltered:
 		prefix=dirs_dict["MAPPING_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sampling}_bowtie_unfiltered.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_unfiltered/sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -308,7 +308,7 @@ rule stat_mapReadsToUnfiltered:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_unfiltered.tsv"
+		dirs_dict["BENCHMARKS"] + "/stat_mapReadsToUnfiltered/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -331,10 +331,10 @@ rule buildBowtieDB_filtered:
 		prefix=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sampling}_bowtie_filtered.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_filtered/sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -370,7 +370,7 @@ rule mapReadsToContigsPE:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReadsToContigsPE/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -405,7 +405,7 @@ rule call_SNPs_sub:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/SNP_calling/{sample}_sub.tsv"
+		dirs_dict["BENCHMARKS"] + "/call_SNPs_sub/sample={sample}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -422,10 +422,10 @@ rule buildBowtieDB_contaminants:
 		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{contaminant}_bowtie_contaminants.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_contaminants/contaminant={contaminant}.tsv"
 	threads: 32
 	shell:
 		"""
@@ -461,7 +461,7 @@ rule mapReads_contaminants:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{contaminant}_contaminants.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReads_contaminants/contaminant={contaminant}__sample={sample}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -643,10 +643,10 @@ rule buildBowtieDB_reference:
 		prefix=REFERENCE_DIR+ "/" + REFERENCE + "",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/" + REFERENCE + "_bowtie_contaminants.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_reference/" + REFERENCE + "/tot.tsv"
 	threads: 32
 	shell:
 		"""
@@ -662,10 +662,10 @@ rule buildBowtieDB_reference_long:
 		prefix=REFERENCE_DIR+ "/" + REFERENCE + "",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/" + REFERENCE + "_bowtie_contaminants.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_reference_long/" + REFERENCE + "/tot.tsv"
 	threads: 32
 	shell:
 		"""
@@ -707,7 +707,7 @@ rule mapReads_reference:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_tot_" + REFERENCE + "_contaminants.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReads_reference/" + REFERENCE + "/sample={sample}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -789,7 +789,7 @@ rule gene_Abundance:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_tot_predicted_genes_NR_95_85_150bp.tsv"
+		dirs_dict["BENCHMARKS"] + "/gene_Abundance/sample={sample}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -833,7 +833,7 @@ rule mapReads_reference_sub:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_sub_" + REFERENCE + "_contaminants.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReads_reference_sub/" + REFERENCE + "/sample={sample}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -871,7 +871,7 @@ rule extract_mapped_reads:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_tot_extract_mapped.tsv"
+		dirs_dict["BENCHMARKS"] + "/extract_mapped_reads/sample={sample}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -911,7 +911,7 @@ rule long_read_contig_coverage:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/long_read_contig_coverage/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/long_read_contig_coverage/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""

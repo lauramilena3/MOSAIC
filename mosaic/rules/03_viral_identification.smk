@@ -15,7 +15,7 @@ rule satellite_finder:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/satellite_finder/{sample}_{sampling}_{model}.tsv"
+		dirs_dict["BENCHMARKS"] + "/satellite_finder/model={model}__sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -38,7 +38,7 @@ rule satellite_finder_get_fasta:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/satellite_finder/{sample}_{sampling}_{model}.tsv"
+		dirs_dict["BENCHMARKS"] + "/satellite_finder_get_fasta/model={model}__sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -57,7 +57,7 @@ rule combine_satellite_finder:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/satellite_finder.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/satellite_finder/combine_{sampling}_{model}.tsv"
+		dirs_dict["BENCHMARKS"] + "/combine_satellite_finder/model={model}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -78,7 +78,7 @@ rule genomad_viral_id:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{sample}_{sampling}_illumina.tsv"
+		dirs_dict["BENCHMARKS"] + "/genomad_viral_id/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -220,7 +220,7 @@ rule genomad_viral_id_long:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/geNomad_viralID/{sample}_{sampling}_long.tsv"
+		dirs_dict["BENCHMARKS"] + "/genomad_viral_id_long/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -247,7 +247,7 @@ rule virSorter2:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/VirSorter2_/" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}_illumina.tsv"
+		dirs_dict["BENCHMARKS"] + "/virSorter2/sampling={sampling}.tsv"
 	threads: 64
 	shell:
 		"""
@@ -273,7 +273,7 @@ rule genomad_vOTUs:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID_filtering/{sampling}_nanopore.tsv"
+		dirs_dict["BENCHMARKS"] + "/genomad_vOTUs/sampling={sampling}.tsv"
 	threads: 32
 	shell:
 		"""
@@ -300,7 +300,7 @@ rule annotate_VIBRANT:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vibrant.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_VIBRANT/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/annotate_VIBRANT/sampling={sampling}.tsv"
 	message:
 		"Annotating viral contigs with VIBRANT"
 	threads: 16

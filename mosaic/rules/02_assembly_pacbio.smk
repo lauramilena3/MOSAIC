@@ -11,7 +11,7 @@ rule hifiasmPacbio:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/pacbio.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/hifiasmPacbio/{sample_pacbio}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/hifiasmPacbio/sample_pacbio={sample_pacbio}__sampling={sampling}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -34,7 +34,7 @@ rule errorCorrectPolypolishPacbioPE:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/pacbio.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/errorCorrectPolypolishPacbioPE/{sample_pacbio}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/errorCorrectPolypolishPacbioPE/sample_pacbio={sample_pacbio}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -67,7 +67,7 @@ rule estimateFungalGenomeCompletnessBUSCO:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/pacbio.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateFungalGenomeCompletnessBUSCO/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateFungalGenomeCompletnessBUSCO/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""

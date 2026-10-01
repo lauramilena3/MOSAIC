@@ -11,7 +11,7 @@ rule cleanPacbioReads:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/cleanPacbioReads/{sample_pacbio}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/cleanPacbioReads/sample_pacbio={sample_pacbio}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -34,7 +34,7 @@ rule preQualityCheckPacbio:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/preQualityCheckPacbio/{sample_pacbio}.tsv"
+		dirs_dict["BENCHMARKS"] + "/preQualityCheckPacbio/sample_pacbio={sample_pacbio}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -55,7 +55,7 @@ rule postQualityCheckPacbio:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/postQualityCheckPacbio/{sample_pacbio}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/postQualityCheckPacbio/sample_pacbio={sample_pacbio}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""

@@ -41,7 +41,7 @@ rule derreplicate_assembly:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/contig_derreplication/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/derreplicate_assembly/sampling={sampling}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -130,6 +130,8 @@ rule vOUTclustering:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/vOUTclustering/basedir={basedir}__sequence={sequence}.tsv"
 	#  benchmark:
 	#		dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
 	threads: 144
@@ -176,7 +178,7 @@ rule getHighQuality:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/getHighQuality/sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -197,7 +199,7 @@ checkpoint getHighQuality_clusters_fasta:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/filter_vOTUs/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/getHighQuality_clusters_fasta/sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -234,6 +236,8 @@ rule combine_with_taxmyphage:
 			"Combining {input.ref_fasta} with taxmyphage result: {params.tax_fasta}"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/combine_with_taxmyphage/contigs={contigs}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -267,6 +271,8 @@ rule select_vOTU_representative:
 		viral_dir=dirs_dict['VIRAL_DIR'],
 		subassembly=SUBASSEMBLY,
 		cross_assembly=CROSS_ASSEMBLY,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/select_vOTU_representative/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_representative.{sampling}.ipynb"
 	notebook:
@@ -284,7 +290,7 @@ rule vOUTclustering_get_new_references:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/vOUTclustering/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/vOUTclustering_get_new_references/sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -325,6 +331,8 @@ rule get_list_filtered_vOTUs:
 		key_samples=SAMPLES_key,
 		rna_enabled=lambda wc: RNA_MODE and wc.sampling == "tot",
 		rna_min_length=int(config.get("rna_min_contig_length", 500)),
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_list_filtered_vOTUs/sampling={sampling}.tsv"
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/05_vOTU_filtering.{sampling}.ipynb"
 	notebook:
@@ -343,7 +351,7 @@ rule filter_vOTUs:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/filter_vOTUs/sampling={sampling}.tsv"
 	threads: 2
 	shell:
 		"""
@@ -365,11 +373,10 @@ rule clustered_with_filter_vOTUs:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/cluster_filtered_representatives_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/clustered_with_filter_vOTUs/sampling={sampling}.tsv"
 	threads: 2
 	shell:
 		"""
 		grep -f {input.filtered_list} {input.new_clusters} | cut -f2 > {output.cluster_filtered_representatives_list}
 		seqtk subseq {input.derreplicated_positive_contigs} {output.cluster_filtered_representatives_list} > {output.cluster_filtered_representatives_fasta}
 		"""
-

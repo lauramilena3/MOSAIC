@@ -23,6 +23,8 @@ rule merge_microbial:
 		"Derreplicating assembled contigs with mmseqs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/merge_microbial/tot.tsv"
 	threads: 16
 	shell:
 		"""
@@ -43,10 +45,10 @@ rule buildBowtieDB_microbial:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/2K_combined_microbial.tot",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/bowtie_microbial.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_microbial/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -81,7 +83,7 @@ rule mapReadsToContigs_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_{sampling}_microbial.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReadsToContigs_microbial/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -121,7 +123,7 @@ rule bacterial_binning_VAMB:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/VAMB_outdir/binning.tsv"
+		dirs_dict["BENCHMARKS"] + "/bacterial_binning_VAMB/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -145,7 +147,7 @@ rule predict_spacers:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/CRISPR/minced.tsv"
+		dirs_dict["BENCHMARKS"] + "/predict_spacers/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -171,7 +173,7 @@ rule estimateBinningQuality:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/microbial_checkm.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateBinningQuality/tot.tsv"
 	threads: 32
 	shell:
 		"""
@@ -195,7 +197,7 @@ rule taxonomy_binning:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/microbial_vamb_GTDB-Tk.tsv"
+		dirs_dict["BENCHMARKS"] + "/taxonomy_binning/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -218,7 +220,7 @@ rule taxonomy_binning_assembly:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_microbial_GTDB-Tk.tsv"
+		dirs_dict["BENCHMARKS"] + "/taxonomy_binning_assembly/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -241,7 +243,7 @@ rule DRAM_microbial_annotation:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/DRAM_microbial_annotation/sampling={sampling}.tsv"
 	message:
 		"Annotate contigs with DRAM"
 	threads: 32
@@ -278,7 +280,7 @@ rule taxonomy_gtdbtk_bacteria:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/taxonomy_assignment/assembly_bacteria_GTDB-Tk_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/taxonomy_gtdbtk_bacteria/sampling={sampling}.tsv"
 	threads: 64
 	shell:
 		"""
@@ -297,6 +299,8 @@ rule single_fasta_microbial:
 		"formating microbial contigs into single fasta"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/single_fasta_microbial/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -317,7 +321,7 @@ rule sourmash_sketch_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_sketch.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_microbial/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -339,7 +343,7 @@ rule sourmash_gather_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_gather.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_gather_microbial/tot.tsv"
 	threads: 64
 	shell:
 		"""
@@ -360,7 +364,7 @@ rule sourmash_tax_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/combined_microbial_derreplicated_tot_tax.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax_microbial/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -376,7 +380,7 @@ rule defense_finder:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/DefenseFinder/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/defense_finder/sampling={sampling}.tsv"
 	message:
 		"Detecting defense systems with DefenseFinder"
 	threads: 32
@@ -416,7 +420,7 @@ rule estimateBacterialGenomeCompletness:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}_checkm.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateBacterialGenomeCompletness/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -431,6 +435,8 @@ rule combine_logs_to_csv:
 		logs = expand((dirs_dict["vOUT_DIR"] + "/{sample}_checkM_tot.log"), sample=SAMPLES)
 	output:
 		csv = dirs_dict["PLOTS_DIR"] + "/checkM_summary.csv"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/combine_logs_to_csv/tot.tsv"
 	run:
 		import pandas as pd
 		from io import StringIO
@@ -473,6 +479,8 @@ rule fastani_all_vs_all:
 	threads: 8
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/fastani_all_vs_all/tot.tsv"
 	shell:
 		"""
 		mkdir -p fastani
@@ -493,6 +501,8 @@ rule single_fasta_microbial_isolate:
 		"formating microbial contigs into single fasta"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/single_fasta_microbial_isolate/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -513,7 +523,7 @@ rule sourmash_sketch_microbial_isolate:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_sketch.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_microbial_isolate/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -535,7 +545,7 @@ rule sourmash_gather_microbial_isolate:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_gather.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_gather_microbial_isolate/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -557,7 +567,7 @@ rule sourmash_tax_microbial_isolate:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_tax.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax_microbial_isolate/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -575,6 +585,8 @@ rule single_fasta_pacbio:
 		"formating PacBio contigs into single fasta"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/single_fasta_pacbio/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -595,7 +607,7 @@ rule sourmash_sketch_pacbio:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_sketch.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_pacbio/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -617,7 +629,7 @@ rule sourmash_gather_pacbio:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_gather.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_gather_pacbio/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -638,7 +650,7 @@ rule sourmash_tax_pacbio:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_tax.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax_pacbio/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -655,6 +667,8 @@ rule single_fasta_pacbio_hybrid:
 		"formating PacBio hybrid contigs into single fasta"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/single_fasta_pacbio_hybrid/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -675,7 +689,7 @@ rule sourmash_sketch_pacbio_hybrid:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_hybrid_sketch.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_pacbio_hybrid/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -697,7 +711,7 @@ rule sourmash_gather_pacbio_hybrid:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_hybrid_gather.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_gather_pacbio_hybrid/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -718,7 +732,7 @@ rule sourmash_tax_pacbio_hybrid:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_pacbio_hybrid_tax.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax_pacbio_hybrid/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -734,7 +748,7 @@ rule sourmash_sketch_nanopore_only_bacteria:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_nanopore_sketch.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_nanopore_only_bacteria/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -752,7 +766,7 @@ rule sourmash_gather_nanopore_only_bacteria:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_nanopore_gather.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_gather_nanopore_only_bacteria/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -771,7 +785,7 @@ rule sourmash_tax_nanopore_only_bacteria:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_{sampling}_nanopore_tax.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax_nanopore_only_bacteria/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -806,7 +820,7 @@ rule annotate_bakta:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/bakta.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/bakta/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/annotate_bakta/sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -814,14 +828,14 @@ rule annotate_bakta:
 		"""
 
 rule sourmash_sketch_nanopore_hybrid_bacteria:
+    benchmark:
+        dirs_dict["BENCHMARKS"] + "/sourmash_sketch_nanopore_hybrid_bacteria/sample={sample}__sampling={sampling}.tsv"
     input:
         fasta=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_" + LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"
     output:
         sketch=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_hybrid_sourmash.sig.zip")
     conda:
         dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
-    benchmark:
-        dirs_dict["BENCHMARKS"] + "/sourmash/{sample}_{sampling}_nanopore_hybrid_sketch.tsv"
     threads: 4
     shell:
         """
@@ -829,6 +843,8 @@ rule sourmash_sketch_nanopore_hybrid_bacteria:
         """
 
 rule sourmash_gather_nanopore_hybrid_bacteria:
+    benchmark:
+        dirs_dict["BENCHMARKS"] + "/sourmash_gather_nanopore_hybrid_bacteria/sample={sample}__sampling={sampling}.tsv"
     input:
         sketch=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_hybrid_sourmash.sig.zip",
         sourmash_rocksdb=config['sourmash_rocksdb']
@@ -838,8 +854,6 @@ rule sourmash_gather_nanopore_hybrid_bacteria:
         threshold_bp="0"
     conda:
         dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
-    benchmark:
-        dirs_dict["BENCHMARKS"] + "/sourmash/{sample}_{sampling}_nanopore_hybrid_gather.tsv"
     threads: 8
     shell:
         """
@@ -847,6 +861,8 @@ rule sourmash_gather_nanopore_hybrid_bacteria:
         """
 
 rule sourmash_tax_nanopore_hybrid_bacteria:
+    benchmark:
+        dirs_dict["BENCHMARKS"] + "/sourmash_tax_nanopore_hybrid_bacteria/sample={sample}__sampling={sampling}.tsv"
     input:
         gather=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_nanopore_hybrid_gather_sourmash.csv",
         sourmash_tax=config['sourmash_tax']
@@ -857,8 +873,6 @@ rule sourmash_tax_nanopore_hybrid_bacteria:
         name="{sample}_{sampling}_nanopore_hybrid"
     conda:
         dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
-    benchmark:
-        dirs_dict["BENCHMARKS"] + "/sourmash/{sample}_{sampling}_nanopore_hybrid_tax.tsv"
     threads: 4
     shell:
         """

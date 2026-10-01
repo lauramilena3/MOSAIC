@@ -31,7 +31,7 @@ rule shortReadAsemblySpadesPE:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/shortReadAsemblySpadesPE/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/shortReadAsemblySpadesPE/sample={sample}__sampling={sampling}.tsv"
 	threads: input_threads_assembler
 	resources:
 		mem_gb=450
@@ -79,7 +79,7 @@ rule assemblyStats:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/assemblyStats/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/assemblyStats/sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""

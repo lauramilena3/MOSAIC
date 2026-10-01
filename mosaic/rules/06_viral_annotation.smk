@@ -11,7 +11,7 @@ rule lifestyle_bacphlip:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/bacphlip/{sequence}.tsv"
+		dirs_dict["BENCHMARKS"] + "/lifestyle_bacphlip/sequence={sequence}.tsv"
 	threads: 1
 	wildcard_constraints:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
@@ -42,7 +42,7 @@ rule estimateGenomeCompletness_long:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/nanopore_{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness_long/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -78,7 +78,7 @@ rule estimateGenomeCompletness:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -114,7 +114,7 @@ rule estimateGenomeCompletness_reference:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/user_reference_contigs_checkV.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness_reference/tot.tsv"
 	threads: 32
 	shell:
 		"""
@@ -153,7 +153,7 @@ rule virSorter2_DRAM:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/VirSorter2_DRAM/{sampling}_illumina.tsv"
+		dirs_dict["BENCHMARKS"] + "/virSorter2_DRAM/sampling={sampling}.tsv"
 	threads: 64
 	shell:
 		"""
@@ -177,13 +177,13 @@ rule DRAMv_annotation:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/DRAMv_annotation/sampling={sampling}.tsv"
 	message:
 		"Annotate contigs with DRAM"
 	threads: 64
 	shell:
 		"""
-		DRAM-v.py annotate -i {input.DRAM_fasta} -v {input.DRAM_tab} -o {output.DRAM_output} --threads 64
+		DRAM-v.py annotate -i {input.DRAM_fasta} -v {input.DRAM_tab} -o {output.DRAM_output} --threads {threads}
 		"""
 
 rule DRAMv_distill:
@@ -201,7 +201,7 @@ rule DRAMv_distill:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/DRAM/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/DRAMv_distill/sampling={sampling}.tsv"
 	message:
 		"Annotate contigs with DRAM"
 	threads: 64
@@ -232,7 +232,7 @@ rule DRAMv_extract_genes:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vcontact.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/AMG/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/DRAMv_extract_genes/sampling={sampling}.tsv"
 	message:
 		"Derreplicate genes with mmseqs"
 	threads: 64
@@ -277,6 +277,8 @@ rule pharokka_annotation_genbank:
 		DRAM_gbk=dirs_dict["ANNOTATION"]+ "/vDRAM_annotate_results_{sampling}/genbank/final-viral-combined-for-dramv.gbk",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/pharokka_annotation_genbank/sampling={sampling}.tsv"
 	message:
 		"Annotate contigs with pharokka"
 	threads: 144
@@ -294,6 +296,8 @@ rule pharokka_annotation:
 		pharokka_output = directory("{contigs}_pharokka")
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/pharokka_annotation/contigs={contigs}.tsv"
 	message:
 		"Annotate contigs with pharokka"
 	params:
@@ -552,7 +556,7 @@ rule annotate_VIGA:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_VIGA_{contigs}/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/annotate_VIGA/contigs={contigs}.tsv"
 	message:
 		"Annotating contigs with VIGA"
 	threads: 8
@@ -606,7 +610,7 @@ rule annotate_BLAST:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/annotate_BLAST/sampling={sampling}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 32
@@ -623,6 +627,8 @@ rule cluster_proteins_viga:
 		mmseqs_out=(dirs_dict["ANNOTATION"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_viga_cluster.tsv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/cluster_proteins_viga/tot.tsv"
 	# benchmark:
 	# 	dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{sampling}.tsv"
 	message:
@@ -644,6 +650,8 @@ rule cluster_proteins:
 		mmseqs_out=(dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/cluster_proteins/tot.tsv"
 	# benchmark:
 	# 	dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{sampling}.tsv"
 	message:
@@ -670,6 +678,8 @@ rule phynteny_annotation:
 		"Annotating Pharokka GenBank with Phynteny"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/phynteny.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/phynteny_annotation/contigs={contigs}.tsv"
 	threads: 1
 	shell:
 		r"""
@@ -907,6 +917,8 @@ rule clinker_figure:
 		"Creating genome visualization with clinker"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/clinker.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/clinker_figure/contigs={contigs}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -950,6 +962,8 @@ rule lovis4u_figure:
 		"Creating genome visualization with LoVis4u"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/lovis4u.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/lovis4u_figure/contigs={contigs}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -1005,6 +1019,8 @@ checkpoint filtered_vOTU_visualization_decision:
 		clinker_output="{contigs}_clinker.html"
 	message:
 		"Checking whether filtered vOTUs are small enough to visualize"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/filtered_vOTU_visualization_decision/contigs={contigs}.tsv"
 	shell:
 		"""
 		seq_count=$(grep -c '^>' {input.fasta} || true)
@@ -1048,6 +1064,8 @@ rule filtered_vOTU_visualization:
 		done="{contigs}_visualization.done",
 	message:
 		"Finalizing filtered vOTU annotation and visualization"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/filtered_vOTU_visualization/contigs={contigs}.tsv"
 	shell:
 		"""
 		touch {output.done}
@@ -1062,7 +1080,7 @@ rule blasToRefSeq:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/blasToRefSeq/{sequence}.tsv"
+		dirs_dict["BENCHMARKS"] + "/blasToRefSeq/sequence={sequence}.tsv"
 	message:
 		"Blast contigs agaist RefSeq database"
 	threads: 32
@@ -1112,7 +1130,7 @@ rule create_dbs_mmseqs2:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/create_dbs_mmseqs2/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/create_dbs_mmseqs2/tot.tsv"
 	threads: 4
 	shell:
 		"""
@@ -1140,7 +1158,7 @@ rule search_contigs_mmseqs2:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/search_contigs_mmseqs2/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/search_contigs_mmseqs2/tot.tsv"
 	threads: 16
 	shell:
 		"""
@@ -1172,7 +1190,7 @@ rule mapReadstoContigsPE:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadstoContigsPE/{sample}_{sampling}_{contigs}.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReadstoContigsPE/contigs={contigs}__sample={sample}__sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -1204,7 +1222,7 @@ rule detectNucleotideModifications:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_tombo.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/detectNucleotideModifications/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/detectNucleotideModifications/tot.tsv"
 	threads: 16
 	shell:
 		"""
@@ -1221,6 +1239,8 @@ rule gbk_to_faa:
 		faa=dirs_dict["ANNOTATION"] + "/{contigs}_viga_ORFs.tot.faa",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/gbk_to_faa/contigs={contigs}.tsv"
 	message:
 		"Formating genbank proteins as amino acid fasta"
 	shell:
@@ -1237,6 +1257,8 @@ checkpoint split_multi_fasta:
 		faa_dir=directory(dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/split_multi_fasta/tot.tsv"
 	message:
 		"Splitting amino acid fasta into protein cluster fasta"
 	params:
@@ -1258,6 +1280,8 @@ rule fasta_to_a2m:
 		aln=dirs_dict["ANNOTATION"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/" + "cluster_{protein}.aln",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/fasta_to_a2m/protein={protein}.tsv"
 	message:
 		"Splitting amino acid fasta into protein cluster fasta"
 	params:
@@ -1286,6 +1310,8 @@ rule merge_annotations:
 		hhpred_dir=dirs_dict["ANNOTATION"] + "/results_" + REPRESENTATIVE_CONTIGS_BASE + "_hhpred/"
 	message:
 		"Merging annotation results"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/merge_annotations/tot.tsv"
 	threads: 1
 	run:
 		import pandas as pd
@@ -1482,7 +1508,7 @@ rule makeblastdb:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_makeblast_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/makeblastdb/fasta_name={fasta_name}__sampling={sampling}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 8
@@ -1500,7 +1526,7 @@ rule diamond:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/{fasta_name}_diamond_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/diamond/fasta_name={fasta_name}__sampling={sampling}.tsv"
 	message:
 		"Performing protein diamond for ORFs"
 	conda:
@@ -1561,10 +1587,10 @@ rule parse_diamond:
 		distance_short=temp(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_short.txt"),
 		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_short_full.txt"),
 		pivot=(dirs_dict["ANNOTATION"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + "_distance_matrix_AAI.txt"),
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing.tsv"
 	message:
 		"Parsing blast results to AAI distance matrix"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/parse_diamond/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -1595,10 +1621,10 @@ rule parse_diamond_isolates:
 		distance_short=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short.txt"),
 		distance_short_full=temp(dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_short_full.txt"),
 		pivot=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/BLAST_viridic/diamond_parsing_combined.tsv"
 	message:
 		"Parsing blast results to AAI distance matrix"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/parse_diamond_isolates/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -1623,6 +1649,8 @@ rule get_composition:
 		"Getting vOTUs nucleotide composition"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_composition/sequence={sequence}.tsv"
 	threads: 1
 	shell:
 		"""

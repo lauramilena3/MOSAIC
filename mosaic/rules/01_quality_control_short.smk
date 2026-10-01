@@ -17,6 +17,8 @@ rule download_SRA:
 		"Downloading SRA run"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/download_SRA/SRA={SRA}.tsv"
 #	threads: 1
 	shell:
 		"""
@@ -33,6 +35,8 @@ rule countReads_gz:
 		"Counting reads on fastq file"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads_gz/fastq_name={fastq_name}.tsv"
 	group:
 		"read_counts_gz"
 	resources:
@@ -52,6 +56,8 @@ rule countReads:
 		"Counting reads on fastq file"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads/fastq_name={fastq_name}.tsv"
 	group:
 		"read_counts"
 	resources:
@@ -73,7 +79,7 @@ rule fastQC_pre:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_pre_qc.tsv"
+		dirs_dict["BENCHMARKS"] + "/fastQC_pre/fastq_name={fastq_name}.tsv"
 	resources:
 		runtime_min= 412,
 		mem_mb= 500,
@@ -93,7 +99,7 @@ rule fastQC_post:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/qualityCheckIllumina/{fastq_name}_post_qc.tsv"
+		dirs_dict["BENCHMARKS"] + "/fastQC_post/fastq_name={fastq_name}.tsv"
 	resources:
 		runtime_min= 412,
 		mem_mb= 500,
@@ -115,7 +121,7 @@ rule superDeduper_pcr:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/SuperDeduper/{sample}_pcr_duplicates.tsv"
+		dirs_dict["BENCHMARKS"] + "/superDeduper_pcr/sample={sample}.tsv"
 	resources:
 		runtime_min= 30,
 		mem_mb= 1000,
@@ -141,7 +147,7 @@ rule trim_adapters_quality_illumina_PE:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/trim_adapters_quality_illumina_PE/{sample}.tsv"
+		dirs_dict["BENCHMARKS"] + "/trim_adapters_quality_illumina_PE/sample={sample}.tsv"
 	resources:
 		runtime_min= 350,
 		mem_mb= 1500,
@@ -169,7 +175,7 @@ rule sourmash_sketch_trim:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_sketch.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_trim/sample={sample}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -179,6 +185,8 @@ rule sourmash_sketch_trim:
 		"""
 
 rule sourmash_gather:
+    benchmark:
+        dirs_dict["BENCHMARKS"] + "/sourmash_gather/sample={sample}.tsv"
     input:
         sketch=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip",
         sourmash_rocksdb=config["sourmash_rocksdb"],
@@ -190,8 +198,6 @@ rule sourmash_gather:
         "Metagenome containment with sourmash fastmultigather"
     conda:
         dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
-    benchmark:
-        dirs_dict["BENCHMARKS"] + "/sourmash/{sample}_gather.tsv"
     threads: 8
     shell:
         """
@@ -218,7 +224,7 @@ rule sourmash_tax:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/sourmash/{sample}_tax.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax/sample={sample}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -246,7 +252,7 @@ rule contaminants_KRAKEN:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary.tsv"
+		dirs_dict["BENCHMARKS"] + "/contaminants_KRAKEN/sample={sample}.tsv"
 	threads: 16
 	resources:
 		runtime_min= 15,
@@ -281,7 +287,7 @@ rule contaminants_KRAKEN_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_preliminary_microbial.tsv"
+		dirs_dict["BENCHMARKS"] + "/contaminants_KRAKEN_microbial/sample={sample}.tsv"
 	threads: 32
 	shell:
 		"""
@@ -312,9 +318,9 @@ rule remove_euk:
 		host_taxid=config["contaminants_taxid"] 
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_kraken.yaml"
-	threads: 4
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/remove_euk_PE/{sample}.tsv"
+		dirs_dict["BENCHMARKS"] + "/remove_euk/sample={sample}.tsv"
+	threads: 4
 	resources:
 		mem_mb=40000,
 		runtime_min= 1100,
@@ -363,7 +369,7 @@ rule remove_user_contaminants_PE:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/remove_contaminants_PE/{sample}.tsv"
+		dirs_dict["BENCHMARKS"] + "/remove_user_contaminants_PE/sample={sample}.tsv"
 	threads: 4
 	resources:
 		mem_mb=40000,
@@ -413,7 +419,7 @@ rule contaminants_KRAKEN_clean:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kraken/{sample}_clean.tsv"
+		dirs_dict["BENCHMARKS"] + "/contaminants_KRAKEN_clean/sample={sample}.tsv"
 	priority: 1
 	threads: 8
 	resources:
@@ -443,7 +449,7 @@ rule preMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_pre.tsv"
+		dirs_dict["BENCHMARKS"] + "/preMultiQC/tot.tsv"
 	resources:
 		runtime_min= 5,
 		mem_mb= 4000,
@@ -471,9 +477,9 @@ rule postMultiQC:
 		"Generating MultiQC report"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
-	priority: 1
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_post.tsv"
+		dirs_dict["BENCHMARKS"] + "/postMultiQC/tot.tsv"
+	priority: 1
 	resources:
 		runtime_min= 5,
 		mem_mb= 4000,
@@ -498,7 +504,7 @@ rule prekrakenMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_pre.tsv"
+		dirs_dict["BENCHMARKS"] + "/prekrakenMultiQC/tot.tsv"
 	resources:
 		runtime_min= 5,
 		mem_mb= 4000,
@@ -522,7 +528,7 @@ rule postkrakenMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_post.tsv"
+		dirs_dict["BENCHMARKS"] + "/postkrakenMultiQC/tot.tsv"
 	resources:
 		runtime_min= 5,
 		mem_mb= 4000,
@@ -547,7 +553,7 @@ rule krakenMicrobialMultiQC:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/QC.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/multiQC/multiqc_kraken_microbial.tsv"
+		dirs_dict["BENCHMARKS"] + "/krakenMicrobialMultiQC/tot.tsv"
 	shell:
 		"""
 		multiqc -f {input} -o {params.multiqc_dir} -n {params.html_name}
@@ -570,7 +576,7 @@ rule normalizeReads_PE:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/normalizeReads_PE/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/normalizeReads_PE/sample={sample}__sampling={sampling}.tsv"
 	params:
 		min_depth=config['min_norm'],
 		max_depth=config['max_norm']
@@ -602,6 +608,8 @@ rule concatenate_subassembly:
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/ALL_unpaired_clean.tot.fastq.gz",
 	message:
 		"Concatenating clean reads for cross assembly"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/concatenate_subassembly/tot.tsv"
 	shell:
 		"""
 		cat {input.forward_paired} > {output.forward_paired}
@@ -619,7 +627,7 @@ rule kmer_rarefraction:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/kmer_rarefraction/{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/kmer_rarefraction/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	resources:
 		mem_mb=MEMORY_ECORR,

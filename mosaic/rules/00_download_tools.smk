@@ -7,6 +7,8 @@ rule get_SRAToolkit:
 		tools="tools",
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_entrez.yaml",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_SRAToolkit/tot.tsv"
 	threads:
 		16
 	shell:
@@ -26,6 +28,8 @@ rule downloadContaminants:
 		contaminants_dir=dirs_dict["CONTAMINANTS_DIR_DB"],
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_entrez.yaml",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadContaminants/contaminant={contaminant}.tsv"
 	threads:
 		16
 	shell:
@@ -44,6 +48,8 @@ rule get_VIBRANT:
 		"Downloading VIBRANT"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_VIBRANT/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -62,6 +68,8 @@ rule get_minced:
 		"Downloading VIBRANT"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_minced/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -83,6 +91,8 @@ rule get_mmseqs:
 		taxdump=(os.path.join(workflow.basedir,"db/ncbi-taxdump/")),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_mmseqs/tot.tsv"
 	threads: 8
 	shell:
 		"""
@@ -120,6 +130,8 @@ rule get_ALE:
 		ALE_dir=directory(config['ALE_dir']),
 	message:
 		"Downloading ALE"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_ALE/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -135,6 +147,8 @@ rule get_weeSAM:
 		weesam_dir=directory(config['weesam_dir']),
 	message:
 		"Downloading weesam"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_weeSAM/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -152,6 +166,8 @@ rule get_VIGA:
 		"Downloading MMseqs2"
 	# conda:
 	# 	dirs_dict["ENVS_DIR"] + "/viga.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_VIGA/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -183,6 +199,8 @@ rule downloadVirSorterDB:
 	threads: 8
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadVirSorterDB/tot.tsv"
 	params:
 		virSorter_db="db/VirSorter"
 	shell:
@@ -204,6 +222,8 @@ rule downloadIphopDB:
 		db_dir="db/iphop_db/"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadIphopDB/tot.tsv"
 	shell:
 		"""
 		mkdir -p {params.db_dir}
@@ -219,6 +239,8 @@ rule downloadDRAMDB:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/vir2.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadDRAMDB/tot.tsv"
 	shell:
 		"""
 		DRAM-setup.py prepare_databases --output_dir {output.DRAM_db}
@@ -232,6 +254,8 @@ rule downloadCheckvDB:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadCheckvDB/tot.tsv"
 	shell:
 		"""
 		checkv download_database ./db
@@ -246,6 +270,8 @@ rule downloadCheckMDB:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadCheckMDB/tot.tsv"
 	shell:
 		"""
 		wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
@@ -262,6 +288,8 @@ rule downloadGtdbtk_db:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadGtdbtk_db/tot.tsv"
 	shell:
 		"""
 		wget https://data.gtdb.ecogenomic.org/releases/release214/214.0/auxillary_files/gtdbtk_r214_data.tar.gz
@@ -278,6 +306,8 @@ rule getKrakenTools:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/getKrakenTools/tot.tsv"
 	shell:
 		"""
 		mkdir -p tools
@@ -294,6 +324,8 @@ rule getPhaGCN_newICTV:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/getPhaGCN_newICTV/tot.tsv"
 	shell:
 		"""
 		mkdir -p tools
@@ -313,6 +345,8 @@ rule downloadKrakenDB:
 	threads: 1
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadKrakenDB/tot.tsv"
 	shell:
 		"""
 		wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_08_GB_20260626.tar.gz
@@ -329,6 +363,8 @@ rule downloadKrakenUniqDB:
 	threads: 1
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadKrakenUniqDB/tot.tsv"
 	shell:
 		"""
 		mkdir {output.krakenuniq_db}
@@ -347,6 +383,8 @@ rule installBracken:
 	threads: 1
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/installBracken/tot.tsv"
 	shell:
 		"""
 		mkdir -p tools
@@ -367,6 +405,8 @@ rule buildBrackenDB:
 	threads: 144
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBrackenDB/tot.tsv"
 	shell:
 		"""
     	bracken-build -d {input.kraken_db} -t {threads} -k 35 -l 150
@@ -384,6 +424,8 @@ rule buildBrackenUniqDB:
 	threads: 32
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBrackenUniqDB/tot.tsv"
 	shell:
 		"""
     	{input.bracken_dir}/bracken-build -d {input.krakenuniq_db} -t {threads} -k 31 -l 150 -y krakenuniq
@@ -399,6 +441,8 @@ rule downloadGenomadDB:
 		db_dir="db/"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadGenomadDB/tot.tsv"
 	shell:
 		"""
 		genomad download-database {params.db_dir}
@@ -413,6 +457,8 @@ rule downloadTaxmyphageDB:
 		db_dir="db/"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadTaxmyphageDB/tot.tsv"
 	shell:
 		"""
 		taxmyphage install -db {output.taxmyphage_db}
@@ -430,6 +476,8 @@ rule downloadPharokkaDB:
 		db_dir="db/"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env7.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadPharokkaDB/tot.tsv"
 	shell:
 		"""
 		install_databases.py -o {output.pharokka_db}
@@ -442,6 +490,8 @@ rule downloadPhyntenyDB:
 		"Downloading phynteny models"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/phynteny.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadPhyntenyDB/tot.tsv"
 	shell:
 		"""
 		install_models -o {output.phynteny_db}
@@ -455,6 +505,8 @@ rule downloadKrakenDB_human:
 	threads: 4
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_kraken.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadKrakenDB_human/tot.tsv"
 	shell:
 		"""
 		kraken2-build --download-library human --db {output.kraken_db_human} --threads {threads} --use-ftp
@@ -474,6 +526,8 @@ rule downloadVcontact2Files:
 		"Downloading Millard GenomesDB and preparing vConTACT2 reference inputs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadVcontact2Files/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -655,6 +709,8 @@ rule downloadBLASTviralProteins:
 	threads: 1
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_blast_download.yaml",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadBLASTviralProteins/tot.tsv"
 	shell:
 		"""
 		esearch -db "protein" -query "txid10239[Organism:exp] AND (viruses[filter] AND refseq[filter])" \
@@ -667,6 +723,8 @@ rule getClusterONE:
 		clusterONE_dir=directory(config["clusterONE_dir"]),
 	message:
 		"Downloading clusterONE"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/getClusterONE/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -680,6 +738,8 @@ rule downloadCanu:
 		canu_dir=directory(config['canu_dir']),
 	message:
 		"Installing Canu assembler"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadCanu/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -704,6 +764,8 @@ rule get_WTP:
 		"Downloading What the Phage"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_WTP/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -722,6 +784,8 @@ rule get_vcontact2:
 		"Downloading vConTACT"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_vcontact2/tot.tsv"
 	threads: 1
 	shell:
 		"""
@@ -740,6 +804,8 @@ rule downloadDionSpacers:
 	threads: 1
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1_spacepharer.yaml",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadDionSpacers/tot.tsv"
 	shell:
 		"""
 		mkdir {output.dion_db}
@@ -755,7 +821,7 @@ rule download_bakta_db:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/bakta.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/bakta/download_bakta_db.tsv"
+		dirs_dict["BENCHMARKS"] + "/download_bakta_db/tot.tsv"
 	threads: 1
 	shell:
 		"""

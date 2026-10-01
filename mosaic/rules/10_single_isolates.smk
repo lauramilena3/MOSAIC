@@ -14,7 +14,7 @@ rule estimateGenomeCompletnessIsolates:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/isolates_{sample}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletnessIsolates/sample={sample}__sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -37,7 +37,7 @@ rule filter_isolates:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/filter_vOTUs/{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/filter_isolates/sampling={sampling}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -53,7 +53,7 @@ rule makeblastdb_isolates:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_makeblast_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/makeblastdb_isolates/sampling={sampling}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 8
@@ -71,7 +71,7 @@ rule blastall_isolates:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_blastall_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/blastall_isolates/sampling={sampling}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 8
@@ -98,7 +98,7 @@ rule blastp_Reference_db:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_{db}_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/blastp_Reference_db/db={db}__sampling={sampling}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 32
@@ -116,10 +116,10 @@ rule blastp_database_lengths:
 		names_temp=temp("{fasta}_names_temp.txt"),
 		length="{fasta}_lengths_and_names.txt",
 		cummulative_length="{fasta}_coding_lengths.txt",
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/lengths_{fasta}.tsv"
 	message:
 		"Getting database ORF lengths"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/blastp_database_lengths/fasta={fasta}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -156,13 +156,13 @@ rule get_relatives_list:
 	output:
 		blast_relatives_phages=(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_phages_{db}.{sampling}.txt"),
 		blast_relatives_proteins=(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_ORFs_{db}.{sampling}.txt"),
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_{db}_{sampling}.tsv",
 	message:
 		"Extracting relative sequences NAMES"
 	params:
 		similarity_cutoff=20,
 		length_cutoff=20,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_relatives_list/db={db}__sampling={sampling}.tsv"
 	threads: 1
 	run:
 		# ALL TOGETHER
@@ -294,12 +294,12 @@ rule get_relatives_fasta:
 		blast_database=inputDatabaseExtract
 	output:
 		blast_relatives=(dirs_dict["ANNOTATION"] + "/isolates_blast_relatives_{type}_{db}.{sampling}.fasta"),
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_blast_relatives_extract_{type}_{db}.{sampling}.tsv"
 	message:
 		"Extracting relative sequences FASTA"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/get_relatives_fasta/db={db}__sampling={sampling}__type={type}.tsv"
 	threads: 1
 	shell:
 		"""
@@ -320,7 +320,7 @@ rule makeblastdb_relatives_ORFs:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_relatives_makeblast_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/makeblastdb_relatives_ORFs/sampling={sampling}.tsv"
 	message:
 		"Creating ORFs relatives blast database"
 	threads: 8
@@ -344,7 +344,7 @@ rule blastall_relatives_ORFs:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_blastall_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/blastall_relatives_ORFs/sampling={sampling}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 32
@@ -366,7 +366,7 @@ rule cat_relatives_phages:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_relatives_cat_{sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/cat_relatives_phages/sampling={sampling}.tsv"
 	message:
 		"Creating ORFs relatives blast database"
 	threads: 8
@@ -385,10 +385,10 @@ rule viridic_relatives_phages:
 		viridic_singularity_folder=config["viridic_folder"]
 	output:
 		viridic_out=directory(dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.{sampling}/"),
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/isolates_VIRIDIC_{sampling}.tsv"
 	message:
 		"Finding simmilartiy contigs with VIRIDIC"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/viridic_relatives_phages/sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -409,7 +409,7 @@ rule genomad_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/geNomad_viralID/{host}_host.tsv"
+		dirs_dict["BENCHMARKS"] + "/genomad_host/host={host}.tsv"
 	threads: 16
 	shell:
 		"""
@@ -433,7 +433,7 @@ rule estimateGenomeCompletness_prophages:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness/{host}_checkV.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateGenomeCompletness_prophages/host={host}.tsv"
 	threads: 32
 	shell:
 		"""
@@ -465,6 +465,8 @@ rule mask_prophages:
 		mask_additional_bases=500,
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/mask_prophages/host={host}.tsv"
 	shell:
 		"""
 		# Convert the TSV file to a BED format file
@@ -489,10 +491,10 @@ rule buildBowtieDB_host:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
 		"Creating contig DB with Bowtie2"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{host}_bowtie_host.tsv"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_host/host={host}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -509,7 +511,7 @@ rule run_BLASTn_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/annotate_BLAST/host_blast_{host}.tsv"
+		dirs_dict["BENCHMARKS"] + "/run_BLASTn_host/host={host}.tsv"
 	message:
 		"Annotating contigs with BLAST"
 	threads: 8
@@ -548,7 +550,7 @@ rule map_to_host_masked_prophages:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host_masked_prophages.tsv"
+		dirs_dict["BENCHMARKS"] + "/map_to_host_masked_prophages/host={host}__sample={sample}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -594,7 +596,7 @@ rule map_to_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/mapReadsToContigsPE/{sample}_vs_{host}_host.tsv"
+		dirs_dict["BENCHMARKS"] + "/map_to_host/host={host}__sample={sample}.tsv"
 	threads: 8
 	shell:
 		"""
@@ -626,6 +628,8 @@ rule clustering_isolates:
 		"Creating vOUTs with CheckV aniclust"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/clustering_isolates/coverage={coverage}__identity={identity}.tsv"
 	#  benchmark:
 	#		dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
 	threads: 144
@@ -656,7 +660,7 @@ rule estimateBacterialGenomeCompletness_host:
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] +"/estimateGenomeCompletness_host/{host}_checkm.tsv"
+		dirs_dict["BENCHMARKS"] + "/estimateBacterialGenomeCompletness_host/host={host}.tsv"
 	threads: 4
 	shell:
 		"""
@@ -671,6 +675,8 @@ rule combine_logs_to_csv_hosts:
 		logs = expand((dirs_dict["HOST_DIR"] + "/{host}_checkM.log"), host=HOSTS)
 	output:
 		csv = dirs_dict["HOST_DIR"] + "/checkM_summary.csv"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/combine_logs_to_csv_hosts/tot.tsv"
 	run:
 		import pandas as pd
 		from io import StringIO

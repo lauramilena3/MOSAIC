@@ -591,6 +591,9 @@ rule runMicrodiversity:
 	input:
 		inputMicrodiversity,
 
+rule runBenchmarkSummary:
+	input:
+		dirs_dict["PLOTS_DIR"] + "/09_benchmark_summary.html",
 
 rule microbial_metagenome:
 	input:
