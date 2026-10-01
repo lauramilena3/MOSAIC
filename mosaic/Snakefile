@@ -43,6 +43,7 @@ REMOVE_EUK=config_bool('remove_euk', True)
 RNA_MODE=config_bool('RNA_enriched', False)
 RUN_MICRODIVERSITY=config_bool('microdiversity', False)
 MAP_TO_REFSEQ=config_bool('map_to_RefSeq', False)
+MAP_TO_ALL_ASSEMBLED=config_bool('map_to_all_assembled', False)
 VISUALIZATION_TOOL=str(config.get('visualization_tool', 'lovis4u')).strip().lower()
 if VISUALIZATION_TOOL in ["lovis", "lovis4u"]:
 	VISUALIZATION_TOOL="lovis4u"
@@ -162,6 +163,8 @@ dirs_dict = dict(zip(dir_list, dir_names))
 
 RNA_DIR=dirs_dict["ASSEMBLY_DIR"] + "/RNA"
 MICRO_DIR=dirs_dict["MAPPING_DIR"] + "/MICRODIVERSITY"
+ALL_ASSEMBLED_DIR=dirs_dict["ASSEMBLY_DIR"] + "/ALL_ASSEMBLED"
+ALL_ASSEMBLED_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ALL_ASSEMBLED"
 RNA_ASSEMBLERS=config.get("rna_assemblers", "rnaviralspades megahit trinity")
 if isinstance(RNA_ASSEMBLERS, str):
 	RNA_ASSEMBLERS=RNA_ASSEMBLERS.split()
@@ -369,6 +372,8 @@ def inputAbundance(wildcards):
 	inputs=[]
 	if MAP_TO_REFSEQ:
 		inputs.extend(inputRefSeqMapping(wildcards))
+	if MAP_TO_ALL_ASSEMBLED:
+		inputs.extend(inputAllAssembledMapping(wildcards))
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	# # inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv", sample=SAMPLES, sampling=SAMPLING_TYPE)),
@@ -480,6 +485,21 @@ def inputOptionalRefSeq(wildcards):
 		return inputRefSeqMapping(wildcards)
 	return []
 
+def inputAllAssembledMapping(wildcards):
+	if not SAMPLES:
+		raise ValueError("All-assembled mapping requires paired-end samples in input_dir")
+	inputs=[ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
+		ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_normalised_tot.txt",
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_normalised_tot.txt",
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
+		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mapping_summary_tot.tsv"]
+	inputs.extend(expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES))
+	return inputs
+
+def inputOptionalAllAssembled(wildcards):
+	return inputAllAssembledMapping(wildcards) if MAP_TO_ALL_ASSEMBLED else []
+
 def inputOptionalRNA(wildcards):
 	if RNA_MODE:
 		return inputRNA(wildcards)
@@ -494,6 +514,7 @@ rule all:
 		inputAssembly,
 		inputAnnotation,
 		inputOptionalRefSeq,
+		inputOptionalAllAssembled,
 		inputOptionalRNA,
 
 rule runQC:
@@ -866,6 +887,10 @@ def inputRefSeqMapping(wildcards):
 rule map_to_RefSeq:
 	input:
 		inputRefSeqMapping,
+
+rule map_to_all_assembled:
+	input:
+		inputAllAssembledMapping,
 
 rule map_raw_to_reference:
 	input:

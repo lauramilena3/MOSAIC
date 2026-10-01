@@ -296,7 +296,8 @@ rule mapping_statistics_parsing:
 	input:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
 		assembled_sequences=inputAssemblyContigs,
-		assembly_flagstats=input_assembly_flagstats
+		assembly_flagstats=input_assembly_flagstats,
+		all_assembled_mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES) if MAP_TO_ALL_ASSEMBLED else [],
 	output:
 		mapping_stats_html=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html"),
 		filtered_viral_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.png"),
@@ -307,6 +308,7 @@ rule mapping_statistics_parsing:
 		samples=SAMPLES,
 		mapping_dir=dirs_dict["MAPPING_DIR"],
 		sampling="{sampling}",
+		map_to_all_assembled=MAP_TO_ALL_ASSEMBLED,
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics_{sampling}.ipynb"
 	notebook:
@@ -553,6 +555,72 @@ rule normalise_reads_RefSeq:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_RefSeqViral.tot.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
+
+rule normalise_reads_all_assembled:
+	input:
+		postqc_txt=dirs_dict["QC_DIR"] + "/postQC_illumina_report_data/multiqc_fastqc.txt",
+		covstats=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_covstats.txt", sample=SAMPLES),
+		covstats_unique=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
+	output:
+		raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_raw_tot.txt",
+		norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_normalised_tot.txt",
+		raw_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_raw_tot.txt",
+		norm_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_normalised_tot.txt",
+		coverage_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
+		coverage_bases_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_bases_tot.txt",
+		mean_coverage_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mean_depth_tot.txt",
+		filtered_raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_RPKM_raw_tot.txt",
+		filtered_norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_RPKM_normalised_tot.txt",
+		filtered_raw_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_counts_raw_tot.txt",
+		filtered_norm_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_counts_normalised_tot.txt",
+		filtered_75_raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_75_AllAssembled_RPKM_raw_tot.txt",
+		filtered_75_norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_75_AllAssembled_RPKM_normalised_tot.txt",
+	params:
+		samples=SAMPLES,
+		mapping_dir=ALL_ASSEMBLED_MAPPING_DIR,
+		clean_dir=dirs_dict["CLEAN_DATA_DIR"],
+		sampling="tot",
+		threshold_bases=200,
+		threshold_RPKM=0.1,
+		reference="AllAssembled",
+		index_label="assembled_contig",
+		plot_max_points=5000,
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/normalise_reads_all_assembled/tot.tsv"
+	resources:
+		mem_mb=64000
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_AllAssembled.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
+
+rule all_assembled_mapping_summary:
+	input:
+		qc=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.tot.csv",
+		mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES),
+	output:
+		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mapping_summary_tot.tsv",
+	params:
+		samples=SAMPLES,
+	message:
+		"Summarizing reads mapping to all assembled contigs"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/all_assembled_mapping_summary/tot.tsv"
+	threads: 1
+	run:
+		import csv
+
+		with open(input.qc) as handle:
+			cleaned_reads={row["sample"]: int(float(row["bbduk"])) for row in csv.DictReader(handle)}
+		with open(output.tsv, "w") as handle:
+			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
+			writer.writerow(["sample", "cleaned_read_pairs", "properly_mapped_pairs", "properly_mapped_percent"])
+			for sample, path in zip(params.samples, input.mapped_pairs):
+				with open(path) as counts:
+					mapped=int(counts.read().strip())
+				cleaned=cleaned_reads[sample]
+				writer.writerow([sample, cleaned, mapped, round(100 * mapped / cleaned, 2) if cleaned else 0])
+
 
 if MAP_TO_REFSEQ:
 	rule refseq_detection:

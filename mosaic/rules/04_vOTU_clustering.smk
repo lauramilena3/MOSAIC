@@ -51,6 +51,74 @@ rule derreplicate_assembly:
 		mv {params.rep_name_full} {output.derreplicated_positive_contigs}
 		"""
 
+rule combine_all_assembled_contigs:
+	input:
+		dna=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES),
+		rna=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE else [],
+	output:
+		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta",
+		provenance=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_provenance.tot.tsv",
+	message:
+		"Combining all retained DNA and RNA assemblies for read mapping"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/combine_all_assembled_contigs/tot.tsv"
+	threads: 1
+	run:
+		import csv
+
+		def records(path):
+			name, chunks = None, []
+			with open(path) as handle:
+				for line in handle:
+					if line.startswith(">"):
+						if name is not None:
+							yield name, "".join(chunks)
+						name, chunks = line[1:].split()[0], []
+					else:
+						chunks.append(line.strip())
+			if name is not None:
+				yield name, "".join(chunks)
+
+		os.makedirs(ALL_ASSEMBLED_DIR, exist_ok=True)
+		with open(output.fasta, "w") as fasta, open(output.provenance, "w") as handle:
+			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
+			writer.writerow(["contig_id", "sample", "assembler", "original_id", "length_bp"])
+			for path in list(input.dna) + list(input.rna):
+				if path.endswith("_spades_filtered_scaffolds.tot.fasta"):
+					sample=os.path.basename(path).split("_spades_filtered_scaffolds.tot.fasta")[0]
+					assembler="spades"
+				else:
+					sample=os.path.basename(os.path.dirname(path))
+					assembler=os.path.splitext(os.path.basename(path))[0]
+				for number, (original_id, sequence) in enumerate(records(path), 1):
+					contig_id=f"{sample}_{assembler}_{number:08d}"
+					fasta.write(f">{contig_id}\n{sequence}\n")
+					writer.writerow([contig_id, sample, assembler, original_id, len(sequence)])
+
+rule derreplicate_all_assembled_contigs:
+	input:
+		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta",
+	output:
+		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
+		clusters=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
+		tmp=directory(ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_tmp"),
+	params:
+		prefix=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated",
+	message:
+		"Derreplicating all assembled contigs with mmseqs"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env4.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/derreplicate_all_assembled_contigs/tot.tsv"
+	threads: 16
+	shell:
+		"""
+		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 \
+			{input.fasta:q} {params.prefix:q} {output.tmp:q}
+		mv {params.prefix:q}_rep_seq.fasta {output.fasta:q}
+		mv {params.prefix:q}_cluster.tsv {output.clusters:q}
+		"""
+
 rule vOUTclustering:
 	input:
 		fasta="{basedir}/{sequence}.fasta",
