@@ -1253,6 +1253,7 @@ rule mapReadstoContigsPE:
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq",
 		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{contigs}.fasta",
 	output:
+		bowtie_index=temp(expand(dirs_dict["ASSEMBLY_DIR"] + "/{{sample}}_bowtieDB_{{sampling}}_to_{{contigs}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 		sam_paired=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired.{sampling}_to_{contigs}.sam",
 		bam_paired=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired.{sampling}_to_{contigs}.bam",
 		sorted_bam_paired=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_sorted.{sampling}_to_{contigs}.bam",

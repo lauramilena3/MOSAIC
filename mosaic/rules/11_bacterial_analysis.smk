@@ -40,7 +40,7 @@ rule buildBowtieDB_microbial:
 	input:
 		combined_positive_contigs_2k=dirs_dict["ASSEMBLY_DIR"]+ "/2K_combined_microbial.tot.fasta",
 	output:
-		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/2K_combined_microbial.tot.1.bt2",
+		contigs_bt2=temp(expand(dirs_dict["ASSEMBLY_DIR"] + "/2K_combined_microbial.tot.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/2K_combined_microbial.tot",
 	message:
@@ -57,7 +57,7 @@ rule buildBowtieDB_microbial:
 
 rule mapReadsToContigs_microbial:
 	input:
-		contigs_bt2=dirs_dict["ASSEMBLY_DIR"] + "/2K_combined_microbial.tot.1.bt2",
+		contigs_bt2=expand(dirs_dict["ASSEMBLY_DIR"] + "/2K_combined_microbial.tot.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:

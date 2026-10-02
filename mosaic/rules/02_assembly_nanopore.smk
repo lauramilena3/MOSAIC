@@ -195,6 +195,7 @@ rule errorCorrectPilonPE:
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.{sampling}.fastq.gz",
 		corrected2_racon=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 	output:
+		bowtie_index=temp(expand(dirs_dict["ASSEMBLY_DIR"] + "/{{sample}}_bowtieDB_{round}_{{sampling}}.{part}.bt2", round=[1, 2, 3, 4], part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 		#round1
 		sam_paired1=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_1.{sampling}.sam",
 		bam_paired1=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_1.{sampling}.bam",

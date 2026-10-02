@@ -1,5 +1,8 @@
 #ruleorder: mapReadsToContigsPE > mapReadsToContigsSE
 
+# Track all six project index files in both builders and consumers. Snakemake
+# removes temporary indexes only after every dependent mapping job finishes.
+
 rule subsampleReadsIllumina_PE_mapping:
 	input:
 		paired_sizes=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}_read_count.txt",),
@@ -79,6 +82,8 @@ rule buildBowtieDB_assembly:
 		contigs_bt2_2=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.2.bt2"),
 		contigs_bt2_3=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.3.bt2"),
 		contigs_bt2_4=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.4.bt2"),
+		contigs_bt2_rev_1=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.rev.1.bt2"),
+		contigs_bt2_rev_2=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.rev.2.bt2"),
 	params:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}",
 	message:
@@ -97,7 +102,7 @@ rule buildBowtieDB_genes:
 	input:
 		NR_fna_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.fna",
 	output:
-		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.1.bt2",
+		NR_bt2_150=temp(expand(dirs_dict["ANNOTATION"] + "/predicted_genes_NR_95_85_150bp_tot.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["ANNOTATION"] + "/predicted_genes_NR_95_85_150bp_tot",
 	message:
@@ -128,6 +133,8 @@ rule stat_mapReadsToAssembly:
 		contigs_bt2_2=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.2.bt2"),
 		contigs_bt2_3=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.3.bt2"),
 		contigs_bt2_4=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.4.bt2"),
+		contigs_bt2_rev_1=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.rev.1.bt2"),
+		contigs_bt2_rev_2=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.rev.2.bt2"),
 		forward_paired=lambda wildcards: input_mapping(wildcards)[0],
 		reverse_paired=lambda wildcards: input_mapping(wildcards)[1],
 	output:
@@ -164,7 +171,7 @@ rule buildBowtieDB_viral:
 	input:
 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
-		contigs_bt2=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.1.bt2",
+		contigs_bt2=temp(expand(dirs_dict["VIRAL_DIR"] + "/{{sample}}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}",
 	message:
@@ -181,7 +188,7 @@ rule buildBowtieDB_viral:
 
 rule stat_mapReadsToViral:
 	input:
-		contigs_bt2=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.1.bt2",
+		contigs_bt2=expand(dirs_dict["VIRAL_DIR"] + "/{{sample}}_" + VIRAL_CONTIGS_BASE + ".{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
@@ -218,7 +225,7 @@ rule buildBowtieDB_derreplicated:
 	input:
 		derreplicated_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.fasta",
 	output:
-		contigs_bt2=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.1.bt2",
+		contigs_bt2=temp(expand(dirs_dict["vOUT_DIR"] + "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}",
 	message:
@@ -235,7 +242,7 @@ rule buildBowtieDB_derreplicated:
 
 rule stat_mapReadsToDerreplicated:
 	input:
-		contigs_bt2=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{sampling}.1.bt2",
+		contigs_bt2=expand(dirs_dict["vOUT_DIR"] + "/combined_" + VIRAL_CONTIGS_BASE + "_derreplicated_rep_seq.{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
@@ -272,7 +279,7 @@ rule buildBowtieDB_unfiltered:
 	input:
 		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
 	output:
-		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.1.bt2",
+		contigs_bt2=temp(expand(dirs_dict["MAPPING_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["MAPPING_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	message:
@@ -289,7 +296,7 @@ rule buildBowtieDB_unfiltered:
 
 rule stat_mapReadsToUnfiltered:
 	input:
-		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.1.bt2",
+		contigs_bt2=expand(dirs_dict["MAPPING_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + ".{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
@@ -326,7 +333,7 @@ rule buildBowtieDB_filtered:
 	input:
 		filtered_representatives=dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
 	output:
-		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.1.bt2",
+		contigs_bt2=temp(expand(dirs_dict["MAPPING_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{{sampling}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}",
 	message:
@@ -343,7 +350,7 @@ rule buildBowtieDB_filtered:
 
 rule mapReadsToContigsPE:
 	input:
-		contigs_bt2=dirs_dict["MAPPING_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.1.bt2",
+		contigs_bt2=expand(dirs_dict["MAPPING_DIR"] + "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.{sampling}.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.{sampling}.fastq.gz"),
 	output:
@@ -417,7 +424,7 @@ rule buildBowtieDB_contaminants:
 	input:
 		contaminants=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}.fasta",
 	output:
-		contigs_bt2=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}.1.bt2",
+		contigs_bt2=temp(expand(dirs_dict["CONTAMINANTS_DIR_POST"] + "/{{contaminant}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	params:
 		prefix=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}",
 	message:
@@ -435,7 +442,7 @@ rule buildBowtieDB_contaminants:
 
 rule mapReads_contaminants:
 	input:
-		contigs_bt2=dirs_dict["CONTAMINANTS_DIR_POST"]+ "/{contaminant}.1.bt2",
+		contigs_bt2=expand(dirs_dict["CONTAMINANTS_DIR_POST"] + "/{{contaminant}}.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
@@ -495,7 +502,7 @@ rule buildBowtieDB_RefSeq:
 	input:
 		fasta=lambda wildcards: config["RefSeqViral_db"],
 	output:
-		index=REFSEQ_INDEX_FILES,
+		index=temp(REFSEQ_INDEX_FILES),
 	params:
 		prefix=REFSEQ_INDEX_PREFIX,
 	message:
@@ -569,7 +576,7 @@ rule buildBowtieDB_all_assembled:
 	input:
 		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
 	output:
-		index=ALL_ASSEMBLED_INDEX_FILES,
+		index=temp(ALL_ASSEMBLED_INDEX_FILES),
 	params:
 		prefix=ALL_ASSEMBLED_INDEX_PREFIX,
 	wildcard_constraints:
@@ -795,7 +802,7 @@ rule mapReads_raw_reference:
 
 rule gene_Abundance:
 	input:
-		NR_bt2_150=dirs_dict["ANNOTATION"]+ "/predicted_genes_NR_95_85_150bp_tot.1.bt2",
+		NR_bt2_150=expand(dirs_dict["ANNOTATION"] + "/predicted_genes_NR_95_85_150bp_tot.{part}.bt2", part=["1", "2", "3", "4", "rev.1", "rev.2"]),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:

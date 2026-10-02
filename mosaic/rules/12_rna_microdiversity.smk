@@ -312,7 +312,7 @@ rule microdiversity_reference:
 	output:
 		fasta=MICRO_DIR + "/reference/catalogue.fasta",
 		fai=MICRO_DIR + "/reference/catalogue.fasta.fai",
-		bowtie_index=directory(MICRO_DIR + "/reference/bowtie2"),
+		bowtie_index=temp(directory(MICRO_DIR + "/reference/bowtie2")),
 	params:
 		prefix=MICRO_DIR + "/reference/bowtie2/catalogue",
 	message:

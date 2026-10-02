@@ -487,6 +487,8 @@ rule buildBowtieDB_host:
 		contigs_bt2_2=temp(dirs_dict["HOST_DIR"]+ "/{host}.2.bt2"),
 		contigs_bt2_3=temp(dirs_dict["HOST_DIR"]+ "/{host}.3.bt2"),
 		contigs_bt2_4=temp(dirs_dict["HOST_DIR"]+ "/{host}.4.bt2"),
+		contigs_bt2_rev_1=temp(dirs_dict["HOST_DIR"]+ "/{host}.rev.1.bt2"),
+		contigs_bt2_rev_2=temp(dirs_dict["HOST_DIR"]+ "/{host}.rev.2.bt2"),
 	params:
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 	message:
@@ -575,6 +577,8 @@ rule map_to_host:
 		contigs_bt2_2=(dirs_dict["HOST_DIR"] + "/{host}.2.bt2"),
 		contigs_bt2_3=(dirs_dict["HOST_DIR"] + "/{host}.3.bt2"),
 		contigs_bt2_4=(dirs_dict["HOST_DIR"] + "/{host}.4.bt2"),
+		contigs_bt2_rev_1=(dirs_dict["HOST_DIR"] + "/{host}.rev.1.bt2"),
+		contigs_bt2_rev_2=(dirs_dict["HOST_DIR"] + "/{host}.rev.2.bt2"),
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
 	output:
