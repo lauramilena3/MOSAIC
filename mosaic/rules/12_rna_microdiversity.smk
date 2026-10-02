@@ -192,6 +192,48 @@ rule rna_combine_assemblies:
 					fasta.write(f">{identifier}\n{seq}\n")
 					writer.writerow([identifier, source, name, len(seq), "retained"])
 
+rule assemblyStats_RNA:
+	input:
+		fastas=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS + ["combined"]),
+	output:
+		quast_report_dir=directory(RNA_DIR + "/statistics_quast_tot"),
+		quast_txt=RNA_DIR + "/assembly_quast_report.tot.txt",
+		quast_tsv=RNA_DIR + "/statistics_quast_tot/transposed_report.tsv",
+	message:
+		"Creating QUAST statistics for each RNA assembler and the combined assemblies"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/assemblyStats_RNA/tot.tsv"
+	log:
+		RNA_DIR + "/quast.tot.log"
+	threads: 4
+	shell:
+		"""
+		rna_quast_fastas=()
+		rna_quast_labels=""
+		for rna_quast_fasta in {input.fastas:q}; do
+			if [ -s "$rna_quast_fasta" ]; then
+				rna_quast_fastas+=("$rna_quast_fasta")
+				rna_quast_sample=$(basename "$(dirname "$rna_quast_fasta")")
+				rna_quast_assembler=$(basename "$rna_quast_fasta" .fasta)
+				rna_quast_labels+="${{rna_quast_sample}}_${{rna_quast_assembler}},"
+			fi
+		done
+		if [ "${{#rna_quast_fastas[@]}}" -gt 0 ]; then
+			# Assess every non-empty contig, matching the RNA notebook's unfiltered FASTA statistics.
+			quast.py "${{rna_quast_fastas[@]}}" -o {output.quast_report_dir:q} \
+				--labels "${{rna_quast_labels%,}}" --min-contig 1 --threads {threads} > {log:q} 2>&1
+			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
+		else
+			mkdir -p {output.quast_report_dir:q}
+			printf 'Assembly\n' > {output.quast_tsv:q}
+			printf 'No RNA contigs to assess.\n' > {output.quast_report_dir:q}/report.txt
+			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
+			printf 'No RNA contigs to assess.\n' > {log:q}
+		fi
+		"""
+
 rule rna_identify_candidates:
 	input:
 		fasta=RNA_DIR + "/{sample}/combined.fasta",

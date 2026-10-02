@@ -70,6 +70,17 @@ per-assembler and combined contig counts, assembled bases, length distributions,
 N50, and the counts retained, collapsed as exact duplicates or below the minimum
 length. Empty assemblies remain visible. The combined FASTA is not a vOTU catalogue.
 
+With `RNA_enriched=True`, `assemblyStats_RNA` also runs reference-free QUAST on
+each selected RNA assembler and each sample's combined FASTA, reusing `env3.yaml`.
+The report is in `03_CONTIGS/RNA/assembly_quast_report.tot.txt`, and the full
+QUAST output, including `transposed_report.tsv`, is in
+`03_CONTIGS/RNA/statistics_quast_tot/`. Unique `sample_assembler` labels distinguish
+assemblies with identical filenames across samples. All non-empty contigs are
+included (`--min-contig 1`); empty assemblies are skipped and remain visible in
+the notebook's existing FASTA summary. If all RNA assemblies are empty, a
+header-only QUAST table is produced. The QUAST table is displayed in the RNA
+assembly notebook. The DNA QUAST report and notebook are unchanged.
+
 Assembler sequences are pooled per sample, filtered at `rna_min_contig_length`
 (default 500 nt), and exact duplicates/reverse complements are collapsed. VirSorter2
 selects RNA-virus candidates using `rna_viral_groups: "RNA"`. Identification

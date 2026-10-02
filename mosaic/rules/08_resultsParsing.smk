@@ -245,6 +245,7 @@ rule assembly_parsing_short_RNA:
 		assemblies=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS),
 		combined=expand(RNA_DIR + "/{sample}/combined.fasta", sample=SAMPLES),
 		provenance=expand(RNA_DIR + "/{sample}/assembly_provenance.tsv", sample=SAMPLES),
+		quast=RNA_DIR + "/statistics_quast_tot/transposed_report.tsv",
 	output:
 		summary=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_summary.tot.csv",
 		fate=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_provenance.tot.csv",
