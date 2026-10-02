@@ -137,12 +137,69 @@ rule vOUTclustering:
 		sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
-		makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
-		blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
-				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
-		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+		if [ -s {input.fasta:q} ]; then
+			makeblastdb -in {input.fasta:q} -dbtype nucl -out {input.fasta:q}
+			blastn -query {input.fasta:q} -db {input.fasta:q} -outfmt '6 std qlen slen' \
+				-max_target_seqs 10000000 -out {output.blastout:q} -num_threads {threads}
+			if [ -s {output.blastout:q} ]; then
+				python scripts/anicalc_checkv.py -i {output.blastout:q} -o {output.aniout:q}
+			else
+				printf 'qname\ttname\tnum_alns\tpid\tqcov\ttcov\n' > {output.aniout:q}
+			fi
+			python scripts/aniclust_checkv.py --fna {input.fasta:q} --ani {output.aniout:q} --out {output.clusters:q} --min_ani 95 --min_tcov 85 --min_qcov 0
+		else
+			printf '' > {output.blastout:q}
+			printf 'qname\ttname\tnum_alns\tpid\tqcov\ttcov\n' > {output.aniout:q}
+			printf '' > {output.clusters:q}
+		fi
 		"""
+
+rule collect_all_assembled_cluster_representatives:
+	input:
+		fasta=ALL_ASSEMBLED_SELECTED_PREFIX + ".fasta",
+		clusters=ALL_ASSEMBLED_SELECTED_PREFIX + "_95-85.clstr",
+		ranking=ALL_ASSEMBLED_DIR + "/all_assembled_selected_contigs_tot.tsv",
+		membership=ALL_ASSEMBLED_DIR + "/all_assembled_selected_contigs_membership_tot.tsv",
+	output:
+		fasta=ALL_ASSEMBLED_TOP_PREFIX + ".fasta",
+		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_tot.tsv",
+		membership=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_membership_tot.tsv",
+	message:
+		"Collecting every selected cluster representative and its original full-catalogue mapping measurements"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/collect_all_assembled_cluster_representatives/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=16000,
+	run:
+		import pandas as pd
+		from Bio import SeqIO
+
+		clusters=pd.read_csv(input.clusters, sep="\t", header=None, names=["representative_id", "dereplicated_representative_id"])
+		clusters["dereplicated_representative_id"]=clusters["dereplicated_representative_id"].str.split(",")
+		clusters=clusters.explode("dereplicated_representative_id").drop_duplicates()
+		ranking=pd.read_csv(input.ranking, sep="\t").set_index("contig_id", drop=False)
+		top=ranking.loc[ranking.index.isin(clusters["representative_id"])].copy()
+		top=top.rename(columns={"rank": "selection_rank"})
+		top.insert(0, "rank", range(1, len(top) + 1))
+
+		# Expand ANI membership through the existing MMseqs membership, without old-ID lookups.
+		members=pd.read_csv(input.membership, sep="\t").rename(
+			columns={"representative_id": "dereplicated_representative_id", "rank": "selection_rank"})
+		membership=clusters.merge(members, on="dereplicated_representative_id", how="left")
+		membership["rank"]=membership["representative_id"].map(top["rank"])
+		membership=membership.sort_values(["rank", "member_id"], kind="stable")
+		top["cluster_size"]=membership.groupby("representative_id")["member_id"].nunique().reindex(top.index).astype(int)
+		top["selected_contigs_in_cluster"]=clusters.groupby("representative_id").size().reindex(top.index).astype(int)
+		top["abundance_scope"]="representative_contig_full_catalogue_mapping"
+		membership.to_csv(output.membership, sep="\t", index=False)
+		top.to_csv(output.ranking, sep="\t", index=False)
+
+		# Preserve the longest-first centroids chosen by the existing ANI clustering helper.
+		with open(input.fasta) as handle:
+			sequences={record.id: record for record in SeqIO.parse(handle, "fasta") if record.id in top.index}
+		with open(output.fasta, "w") as handle:
+			SeqIO.write((sequences[name] for name in top.index), handle, "fasta")
 
 def input_getHighQuality(wildcards):
 	input_list=[]

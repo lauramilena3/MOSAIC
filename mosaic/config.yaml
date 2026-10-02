@@ -16,10 +16,11 @@ circularity_min_repeat_bp: 30 # minimum exact terminal repeat reported as eviden
 circularity_max_repeat_bp: 5000 # maximum sequence examined at each contig end
 microdiversity: False # independent of RNA_enriched; map every sample to the final catalogue
 map_to_RefSeq: False # independent branch: full cleaned paired-end reads against RefSeqViral_db
-map_to_all_assembled: False # map the existing 2M cleaned read subset to a dereplicated catalogue of all retained assemblies
-all_assembled_top_n: 100 # rank by mean raw RPKM across samples, excluding negative_control
-run_cenote: False # Cenote-Taker3 discovery/annotation of the selected top contigs; requires map_to_all_assembled
-cenote_min_contig_length: 1000 # shorter selected contigs remain in the metadata, without a Cenote result
+map_to_all_assembled: False # map the existing 2M cleaned read subset once; select abundant contigs, cluster and annotate every representative
+all_assembled_cluster_top_n: 1000 # top contigs by mean raw RPKM across non-NC samples; union with each sample's top contigs, not an overall cap
+all_assembled_top_per_sample: 100 # add each non-NC sample's top non-zero contigs to the clustering selection
+run_cenote: False # Cenote-Taker3 discovery/annotation of every selected cluster representative; requires map_to_all_assembled
+cenote_min_contig_length: 0 # shorter selected contigs remain in the metadata, without a Cenote result
 cenote_threads: 8
 cenote_mem_mb: 16000 # scheduling reservation, not a tool-enforced memory limit
 cenote_prune_prophage: False # optionally report viral regions after removing flanking cellular sequence

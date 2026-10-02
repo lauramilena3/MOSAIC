@@ -343,13 +343,15 @@ rule mapping_statistics_parsing:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
 		assembled_sequences=inputAssemblyContigs,
 		assembly_flagstats=input_assembly_flagstats,
-		all_assembled_mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES) if MAP_TO_ALL_ASSEMBLED else [],
+		all_assembled_mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_all_assembled_{sample}.tot.txt", sample=SAMPLES) if MAP_TO_ALL_ASSEMBLED else [],
 	output:
 		mapping_stats_html=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html"),
 		filtered_viral_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.png"),
 		filtered_viral_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.svg"),
 		filtered_unfiltered_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.png"),
 		filtered_unfiltered_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.svg"),
+		all_assembled_png=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_all_assembled_{sampling}.png"] if MAP_TO_ALL_ASSEMBLED else [],
+		all_assembled_svg=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_all_assembled_{sampling}.svg"] if MAP_TO_ALL_ASSEMBLED else [],
 	params:
 		samples=SAMPLES,
 		mapping_dir=dirs_dict["MAPPING_DIR"],
@@ -616,22 +618,22 @@ rule normalise_reads_RefSeq:
 rule normalise_reads_all_assembled:
 	input:
 		postqc_txt=dirs_dict["QC_DIR"] + "/postQC_illumina_report_data/multiqc_fastqc.txt",
-		covstats=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_covstats.txt", sample=SAMPLES),
-		covstats_unique=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
+		covstats=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_all_assembled_{sample}_tot_covstats.txt", sample=SAMPLES),
+		covstats_unique=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_all_assembled_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
 	output:
-		raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_raw_tot.txt",
-		norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_normalised_tot.txt",
-		raw_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_raw_tot.txt",
-		norm_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_normalised_tot.txt",
-		coverage_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
-		coverage_bases_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_bases_tot.txt",
-		mean_coverage_file=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mean_depth_tot.txt",
-		filtered_raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_RPKM_raw_tot.txt",
-		filtered_norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_RPKM_normalised_tot.txt",
-		filtered_raw_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_counts_raw_tot.txt",
-		filtered_norm_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_AllAssembled_counts_normalised_tot.txt",
-		filtered_75_raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_75_AllAssembled_RPKM_raw_tot.txt",
-		filtered_75_norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_75_AllAssembled_RPKM_normalised_tot.txt",
+		raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_RPKM_raw_tot.txt",
+		norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_RPKM_normalised_tot.txt",
+		raw_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_counts_raw_tot.txt",
+		norm_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_counts_normalised_tot.txt",
+		coverage_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_breadth_coverage_percent_tot.txt",
+		coverage_bases_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_breadth_coverage_bases_tot.txt",
+		mean_coverage_file=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_mean_depth_tot.txt",
+		filtered_raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_all_assembled_RPKM_raw_tot.txt",
+		filtered_norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_all_assembled_RPKM_normalised_tot.txt",
+		filtered_raw_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_all_assembled_counts_raw_tot.txt",
+		filtered_norm_count_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_all_assembled_counts_normalised_tot.txt",
+		filtered_75_raw_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_75_all_assembled_RPKM_raw_tot.txt",
+		filtered_75_norm_RPKM_file=ALL_ASSEMBLED_MAPPING_DIR + "/filtered_75_all_assembled_RPKM_normalised_tot.txt",
 	params:
 		samples=SAMPLES,
 		mapping_dir=ALL_ASSEMBLED_MAPPING_DIR,
@@ -639,7 +641,7 @@ rule normalise_reads_all_assembled:
 		sampling="tot",
 		threshold_bases=200,
 		threshold_RPKM=0.1,
-		reference="AllAssembled",
+		reference="all_assembled",
 		index_label="assembled_contig",
 		plot_max_points=5000,
 	benchmark:
@@ -647,22 +649,24 @@ rule normalise_reads_all_assembled:
 	resources:
 		mem_mb=64000
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_AllAssembled.tot.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_Normalise_all_assembled.tot.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/07_Normalise.py.ipynb"
 
 rule all_assembled_mapping_summary:
 	input:
 		qc=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.tot.csv",
-		mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES),
+		mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_{{assembled_reference}}_{sample}.tot.txt", sample=SAMPLES),
 	output:
-		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mapping_summary_tot.tsv",
+		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/{assembled_reference}_mapping_summary_tot.tsv",
 	params:
 		samples=SAMPLES,
+	wildcard_constraints:
+		assembled_reference="all_assembled",
 	message:
-		"Summarizing reads mapping to all assembled contigs"
+		"Summarizing reads mapping to {wildcards.assembled_reference}"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/all_assembled_mapping_summary/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/all_assembled_mapping_summary/reference={assembled_reference}.tsv"
 	threads: 1
 	run:
 		import csv
@@ -685,21 +689,22 @@ rule select_all_assembled_top_contigs:
 		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
 		clusters=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
 		provenance=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_provenance.tot.tsv",
-		rpkm=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_raw_tot.txt",
-		counts=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_raw_tot.txt",
-		breadth=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
-		depth=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mean_depth_tot.txt",
-		unique=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
+		rpkm=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_RPKM_raw_tot.txt",
+		counts=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_counts_raw_tot.txt",
+		breadth=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_breadth_coverage_percent_tot.txt",
+		depth=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_mean_depth_tot.txt",
+		unique=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_all_assembled_{sample}_tot_unique_covstats.txt", sample=SAMPLES),
 	output:
-		fasta=ALL_ASSEMBLED_TOP_PREFIX + ".fasta",
-		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
-		membership=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_membership_tot.tsv",
+		fasta=ALL_ASSEMBLED_SELECTED_PREFIX + ".fasta",
+		ranking=ALL_ASSEMBLED_DIR + "/all_assembled_selected_contigs_tot.tsv",
+		membership=ALL_ASSEMBLED_DIR + "/all_assembled_selected_contigs_membership_tot.tsv",
 	params:
 		samples=SAMPLES,
-		top_n=int(config.get("all_assembled_top_n", 100)),
+		top_n=int(config.get("all_assembled_cluster_top_n", 1000)),
+		top_per_sample=int(config.get("all_assembled_top_per_sample", 100)),
 		negative_control=str(config.get("negative_control", "")).strip(),
 	message:
-		"Selecting the most abundant assembled contigs by mean raw RPKM"
+		"Selecting the union of sample top contigs and mean raw-RPKM top contigs for clustering"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/select_all_assembled_top_contigs/tot.tsv"
 	threads: 1
@@ -717,7 +722,20 @@ rule select_all_assembled_top_contigs:
 		top["highest_abundance_sample"]=ranked.idxmax(axis=1) if ranking_samples else "not reported"
 		top["contig_id"]=top.index
 		top=top.loc[top["mean_RPKM_raw"] > 0].sort_values(
-			["mean_RPKM_raw", "contig_id"], ascending=[False, True], kind="stable").head(max(0, params.top_n))
+			["mean_RPKM_raw", "contig_id"], ascending=[False, True], kind="stable")
+		# Include each non-NC sample's most abundant contigs, counting shared contigs once.
+		sample_top_ids=set()
+		for sample in ranking_samples:
+			sample_ranking=top[["contig_id"]].copy()
+			sample_ranking["RPKM_raw"]=ranked[sample]
+			sample_ranking=sample_ranking.loc[sample_ranking["RPKM_raw"] > 0].sort_values(
+				["RPKM_raw", "contig_id"], ascending=[False, True], kind="stable")
+			sample_top_ids.update(sample_ranking.head(max(0, params.top_per_sample)).index)
+		# Union with the overall mean-RPKM selection; neither selection caps the other.
+		mean_top_ids=set(top.head(max(0, params.top_n)).index)
+		top=top.loc[top.index.isin(sample_top_ids | mean_top_ids)].copy()
+		top["selected_by_sample_top"]=top.index.isin(sample_top_ids)
+		top["selected_by_mean_top"]=top.index.isin(mean_top_ids)
 		top.insert(0, "rank", range(1, len(top) + 1))
 		provenance=pd.read_csv(input.provenance, sep="\t", usecols=["contig_id", "sample", "assembler", "length_bp"])
 		origins=provenance.set_index("contig_id")
@@ -765,11 +783,11 @@ rule select_all_assembled_top_contigs:
 
 rule collect_all_assembled_top_evidence:
 	input:
-		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
+		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_tot.tsv",
 		genomad=dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot",
 		circularity=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv", sample=SAMPLES, assembler=["spades"] + (RNA_ASSEMBLERS if RNA_MODE else [])),
 	output:
-		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_existing_annotations_tot.tsv",
+		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_existing_annotations_tot.tsv",
 	params:
 		prefix="all_assembled_contigs.tot",
 	message:
@@ -830,8 +848,8 @@ rule collect_all_assembled_top_evidence:
 
 rule all_assembled_top_metadata:
 	input:
-		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
-		existing=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_existing_annotations_tot.tsv",
+		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_tot.tsv",
+		existing=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_existing_annotations_tot.tsv",
 		virsorter=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + ALL_ASSEMBLED_TOP_NAME + "_tot/final-viral-score.tsv",
 		vibrant_quality=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + ALL_ASSEMBLED_TOP_NAME + "_positive_quality.tot.csv",
 		vibrant_summary=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + ALL_ASSEMBLED_TOP_NAME + "_summary_results.tot.csv",
@@ -842,10 +860,10 @@ rule all_assembled_top_metadata:
 		pharokka=ALL_ASSEMBLED_TOP_PREFIX + "_pharokka",
 		cenote=[ALL_ASSEMBLED_TOP_CENOTE] if MAP_TO_ALL_ASSEMBLED and RUN_CENOTE else [],
 	output:
-		metadata=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_metadata_tot.tsv",
-		pharokka_cds=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_pharokka_cds_tot.tsv",
+		metadata=ALL_ASSEMBLED_DIR + "/all_assembled_top_contigs_metadata_tot.tsv",
+		pharokka_cds=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_pharokka_cds_tot.tsv",
 	message:
-		"Combining abundance, classification and annotation of the top assembled contigs"
+		"Combining original representative abundance, classification and annotation of every selected cluster"
 	params:
 		cenote_enabled=MAP_TO_ALL_ASSEMBLED and RUN_CENOTE,
 		cenote_min_length=int(config.get("cenote_min_contig_length", 1000)),

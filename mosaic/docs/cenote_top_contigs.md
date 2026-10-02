@@ -1,19 +1,69 @@
-# Cenote-Taker3 on the most abundant assembled contigs
+# Cenote-Taker3 on abundance-selected cluster representatives
 
 Run from the `mosaic/` directory with your usual configuration, adding:
 
 ```bash
 snakemake --use-conda -p runWorkflow --config \
   input_dir=/path/to/00_RAW_DATA \
-  map_to_all_assembled=True run_cenote=True all_assembled_top_n=100 \
+  map_to_all_assembled=True run_cenote=True \
+  all_assembled_cluster_top_n=1000 all_assembled_top_per_sample=100 \
   -j 32 --rerun-incomplete
 ```
 
 The automatic Cenote branch requires both flags. `run_cenote=False` is the
 default and leaves the existing top-contig analysis unchanged. RNA enrichment
 is independent: when enabled, RNA assemblies can contribute to the same
-abundance-ranked selection. These are selected contigs, not necessarily complete
-or viral genomes.
+abundance-ranked selection. These are selected cluster representatives, not
+necessarily complete or viral genomes.
+
+## Selection, clustering and mapping
+
+`map_to_all_assembled=True` maps the same existing subset of up to 2 million
+cleaned read pairs per sample once, to the full MMseqs-dereplicated catalogue.
+Selection takes the union of the top `all_assembled_top_per_sample` contigs
+per non-NC sample (100 by default) and the top `all_assembled_cluster_top_n`
+contigs by mean raw RPKM across non-NC samples (1,000 by default). Only non-zero
+abundances qualify, and shared contigs are counted once. There is no overall
+selection cap: the union can contain more than 1,000 contigs. Ties are resolved
+by contig ID. NC values remain in the reported columns but do not affect selection.
+
+The selection is written to
+`03_CONTIGS/ALL_ASSEMBLED/all_assembled_selected_contigs.tot.fasta`, with ranking
+and MMseqs membership tables alongside it. The existing `vOUTclustering` rule
+compares only this selection, using `anicalc_checkv.py` and `aniclust_checkv.py`
+with `--min_ani 95 --min_tcov 85 --min_qcov 0`. The workflow's existing custom
+coverage-times-ANI condition is preserved. Results are in
+`all_assembled_selected_contigs.tot_95-85.clstr` and its BLAST/ANI tables.
+
+Every longest-first cluster representative is kept for annotation. There is
+no final top-100 selection, no additional mapping, and no summing of member
+RPKMs. Existing `all_assembled_top_contigs` output names are retained, but now
+contain all representatives. Their abundance columns remain the representative
+contig's measurements from the original full-catalogue mapping, as recorded in
+`abundance_scope`. `selected_contigs_in_cluster` counts the selected dereplicated
+sequences; `cluster_size` includes their known MMseqs members. The separate final
+membership table links each representative to these renamed original members
+and their dereplicated representatives. Unselected relatives are not assigned
+to these ANI clusters. The main filtered viral vOTU catalogue is unchanged.
+
+Full-catalogue files use the `all_assembled` prefix, including
+`all_assembled_RPKM_raw_tot.txt` and `all_assembled_mapping_summary_tot.tsv`.
+Full-catalogue normalization outputs are unchanged. This branch no longer
+creates an `all_assembled_top` mapping index, BAMs, coverage tables or mapping
+summary. Old remapping outputs from earlier runs are not used or automatically
+deleted.
+
+The flag also requests `NOTEBOOKS/07_mapping_statistics_tot.ipynb`, even without
+`assembly_stats=True`. Its HTML table includes the full-catalogue mapping
+percentage, and a per-sample barplot is displayed in the notebook and saved as
+PNG/SVG in `FIGURES_AND_TABLES/07_mapping_statistics_all_assembled_tot.*`.
+There is no selected-set mapping percentage because the selection is not
+remapped. The report retains its existing mapping comparisons, so their mapping
+inputs are also requested if not already available.
+
+An empty abundance selection produces empty clustered FASTAs and header-only
+selection/metadata tables without running BLAST. This branch does not require
+`run_cenote=True`; that flag only enables the additional Cenote annotation.
 
 ## Rules and environment
 
@@ -24,7 +74,7 @@ the successful installation day in UTC. The download is approximately 3 GB
 decompressed; optional HHsuite databases are not downloaded.
 
 `annotate_cenote` runs discovery plus annotation on
-`03_CONTIGS/ALL_ASSEMBLED/AllAssembled_top_contigs_tot.fasta`. It uses virion and
+`03_CONTIGS/ALL_ASSEMBLED/all_assembled_top_contigs_tot.fasta`. It uses virion and
 RdRP hallmark evidence, not forced annotation-only mode. The generic rule also
 uses the existing `annotation_fastas` mechanism, but the workflow automatically
 requests it only for the top selection.
@@ -50,7 +100,7 @@ length cutoff follows `cenote_min_contig_length`.
 
 ## Results
 
-Results are in `07_ANNOTATION/Cenote_AllAssembled_top_contigs.tot/`, including:
+Results are in `07_ANNOTATION/Cenote_all_assembled_top_contigs.tot/`, including:
 
 - `mosaic_ct3_virus_summary.tsv`: reported viruses, hallmark counts, taxonomy and
   annotation information, including the original identifier in `input_name`.
@@ -62,10 +112,10 @@ Results are in `07_ANNOTATION/Cenote_AllAssembled_top_contigs.tot/`, including:
 - `mosaic_ct3_prune_summary.tsv`: region coordinates, when pruning produces regions.
 - Run arguments, filtered sequences and the tool's own log, when produced.
 
-The outer log is `07_ANNOTATION/Cenote_AllAssembled_top_contigs.tot.log`.
+The outer log is `07_ANNOTATION/Cenote_all_assembled_top_contigs.tot.log`.
 Both rules also have their own benchmarks.
 
-`06_MAPPING/ALL_ASSEMBLED/AllAssembled_top_contigs_metadata_tot.tsv` gains
+`03_CONTIGS/ALL_ASSEMBLED/all_assembled_top_contigs_metadata_tot.tsv` gains
 `Cenote_` columns when this branch is enabled. Results are joined using
 `input_name`, not Cenote's renamed contig IDs. Every selected contig remains in
 the table. Short contigs are marked `below length cutoff` in `Cenote_assessed`;
@@ -73,8 +123,8 @@ unreported classifications and annotations say `not reported`, not â€œnon-viralâ
 Multiple reported regions are retained as ` | `-separated values, not silently
 reduced to the first hit.
 
-The assembly catalogue, top FASTA, raw RPKM ranking, mapping and normalization
-remain unchanged. Rotation is disabled, but Cenote can still trim terminal
+Enabling Cenote does not change the assembly catalogue, top FASTA, raw RPKM
+ranking, mapping or normalization. Rotation is disabled, but Cenote can still trim terminal
 repeats in its own output sequences. Metadata distinguishes whole-contig,
 processed-contig and region evidence. Do not transfer gene coordinates from a
 processed sequence directly to the original assembly without accounting for

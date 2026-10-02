@@ -166,7 +166,8 @@ RNA_DIR=dirs_dict["ASSEMBLY_DIR"] + "/RNA"
 MICRO_DIR=dirs_dict["MAPPING_DIR"] + "/MICRODIVERSITY"
 ALL_ASSEMBLED_DIR=dirs_dict["ASSEMBLY_DIR"] + "/ALL_ASSEMBLED"
 ALL_ASSEMBLED_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ALL_ASSEMBLED"
-ALL_ASSEMBLED_TOP_NAME="AllAssembled_top_contigs"
+ALL_ASSEMBLED_SELECTED_PREFIX=ALL_ASSEMBLED_DIR + "/all_assembled_selected_contigs.tot"
+ALL_ASSEMBLED_TOP_NAME="all_assembled_top_contigs"
 ALL_ASSEMBLED_TOP_PREFIX=ALL_ASSEMBLED_DIR + "/" + ALL_ASSEMBLED_TOP_NAME + "_tot"
 ALL_ASSEMBLED_TOP_CENOTE=dirs_dict["ANNOTATION"] + "/Cenote_" + ALL_ASSEMBLED_TOP_NAME + ".tot"
 
@@ -385,7 +386,7 @@ def inputAbundance(wildcards):
 	if MAP_TO_REFSEQ:
 		inputs.extend(inputRefSeqMapping(wildcards))
 	if MAP_TO_ALL_ASSEMBLED:
-		inputs.extend(inputAllAssembledMapping(wildcards))
+		inputs.extend(input_all_assembled_mapping(wildcards))
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}.bam", sample=SAMPLES, sampling=SAMPLING_TYPE)),
 	# # inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/{sample}_sub_SNP_calls.tsv", sample=SAMPLES, sampling=SAMPLING_TYPE)),
@@ -497,22 +498,26 @@ def inputOptionalRefSeq(wildcards):
 		return inputRefSeqMapping(wildcards)
 	return []
 
-def inputAllAssembledMapping(wildcards):
+def input_all_assembled_mapping(wildcards):
 	if not SAMPLES:
 		raise ValueError("All-assembled mapping requires paired-end samples in input_dir")
 	inputs=[ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
 		ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_RPKM_normalised_tot.txt",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_counts_normalised_tot.txt",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_breadth_coverage_percent_tot.txt",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_mapping_summary_tot.tsv",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_metadata_tot.tsv",
-		ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_membership_tot.tsv"]
-	inputs.extend(expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_AllAssembled_{sample}.tot.txt", sample=SAMPLES))
+		dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot",
+		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_RPKM_normalised_tot.txt",
+		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_counts_normalised_tot.txt",
+		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_breadth_coverage_percent_tot.txt",
+		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_mapping_summary_tot.tsv",
+		ALL_ASSEMBLED_SELECTED_PREFIX + "_95-85.clstr",
+		ALL_ASSEMBLED_DIR + "/all_assembled_top_contigs_metadata_tot.tsv",
+		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_membership_tot.tsv"]
+	inputs.extend(expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_all_assembled_{sample}.tot.txt", sample=SAMPLES))
+	if MAP_TO_ALL_ASSEMBLED:
+		inputs.append(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_tot.html")
 	return inputs
 
-def inputOptionalAllAssembled(wildcards):
-	return inputAllAssembledMapping(wildcards) if MAP_TO_ALL_ASSEMBLED else []
+def input_optional_all_assembled(wildcards):
+	return input_all_assembled_mapping(wildcards) if MAP_TO_ALL_ASSEMBLED else []
 
 def inputOptionalRNA(wildcards):
 	if RNA_MODE:
@@ -528,7 +533,7 @@ rule all:
 		inputAssembly,
 		inputAnnotation,
 		inputOptionalRefSeq,
-		inputOptionalAllAssembled,
+		input_optional_all_assembled,
 		inputOptionalRNA,
 
 rule runQC:
@@ -907,7 +912,7 @@ rule map_to_RefSeq:
 
 rule map_to_all_assembled:
 	input:
-		inputAllAssembledMapping,
+		input_all_assembled_mapping,
 
 rule map_raw_to_reference:
 	input:

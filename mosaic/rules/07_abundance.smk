@@ -562,8 +562,8 @@ rule mapReads_RefSeq:
 		coverm contig -b {output.unique_sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats_unique:q}
 		"""
 
-ALL_ASSEMBLED_INDEX_PREFIX=ALL_ASSEMBLED_MAPPING_DIR + "/INDEX/AllAssembled"
-ALL_ASSEMBLED_INDEX_FILES=expand(ALL_ASSEMBLED_INDEX_PREFIX + ".{part}.bt2l", part=["1", "2", "3", "4", "rev.1", "rev.2"])
+ALL_ASSEMBLED_INDEX_PREFIX=ALL_ASSEMBLED_MAPPING_DIR + "/INDEX/{assembled_reference}"
+ALL_ASSEMBLED_INDEX_FILES=expand(ALL_ASSEMBLED_MAPPING_DIR + "/INDEX/{{assembled_reference}}.{part}.bt2l", part=["1", "2", "3", "4", "rev.1", "rev.2"])
 
 rule buildBowtieDB_all_assembled:
 	input:
@@ -572,66 +572,91 @@ rule buildBowtieDB_all_assembled:
 		index=ALL_ASSEMBLED_INDEX_FILES,
 	params:
 		prefix=ALL_ASSEMBLED_INDEX_PREFIX,
+	wildcard_constraints:
+		assembled_reference="all_assembled",
 	message:
-		"Creating the all-assembled-contigs Bowtie2 index"
+		"Creating the {wildcards.assembled_reference} Bowtie2 index"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_all_assembled/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/buildBowtieDB_all_assembled/reference={assembled_reference}.tsv"
 	threads: 16
 	shell:
 		"""
-		bowtie2-build --large-index --threads {threads} {input.fasta:q} {params.prefix:q}
+		if [ -s {input.fasta:q} ]; then
+			bowtie2-build --large-index --threads {threads} {input.fasta:q} {params.prefix:q}
+		else
+			# Empty-catalogue markers, not valid indices; the mapping rule skips Bowtie2.
+			touch {output.index:q}
+		fi
 		"""
 
 rule mapReads_all_assembled:
 	input:
 		index=ALL_ASSEMBLED_INDEX_FILES,
+		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
 		forward_paired=dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["ASSEMBLY_TEST"] + "/2M_{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		sam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot.sam"),
-		bam=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot.bam",
-		sorted_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_sorted.bam"),
-		sorted_bam_idx=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_sorted.bam.bai"),
-		filtered_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_filtered.bam"),
-		flagstats=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_AllAssembled_{sample}.tot.txt",
-		flagstats_filtered=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_AllAssembled_{sample}.tot.txt",
-		mapped_pairs=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_AllAssembled_{sample}.tot.txt",
-		flagstats_unique=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_unique_AllAssembled_{sample}.tot.txt",
-		unique_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique.bam"),
-		unique_sorted_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_sorted.bam"),
-		unique_sorted_bam_idx=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_sorted.bam.bai"),
-		covstats=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_covstats.txt",
-		covstats_unique=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot_unique_covstats.txt",
+		sam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot.sam"),
+		bam=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot.bam",
+		sorted_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_sorted.bam"),
+		sorted_bam_idx=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_sorted.bam.bai"),
+		filtered_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_filtered.bam"),
+		flagstats=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_{assembled_reference}_{sample}.tot.txt",
+		flagstats_filtered=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_{assembled_reference}_{sample}.tot.txt",
+		mapped_pairs=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_{assembled_reference}_{sample}.tot.txt",
+		flagstats_unique=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_unique_{assembled_reference}_{sample}.tot.txt",
+		unique_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_unique.bam"),
+		unique_sorted_bam=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_unique_sorted.bam"),
+		unique_sorted_bam_idx=temp(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_unique_sorted.bam.bai"),
+		covstats=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_covstats.txt",
+		covstats_unique=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot_unique_covstats.txt",
 	params:
 		prefix=ALL_ASSEMBLED_INDEX_PREFIX,
+	wildcard_constraints:
+		assembled_reference="all_assembled",
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
 	message:
-		"Mapping the 2M cleaned paired-end read subset to all assembled contigs"
+		"Mapping the 2M cleaned paired-end read subset to {wildcards.assembled_reference}"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/mapReads_all_assembled/sample={sample}.tsv"
+		dirs_dict["BENCHMARKS"] + "/mapReads_all_assembled/reference={assembled_reference}__sample={sample}.tsv"
 	log:
-		bowtie2=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_AllAssembled_{sample}_tot.log",
+		bowtie2=ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_{assembled_reference}_{sample}_tot.log",
 	threads: 16
 	shell:
 		"""
-		bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} \
-			-S {output.sam:q} --threads {threads} --no-unal --very-sensitive 2> {log.bowtie2:q}
+		if [ -s {input.fasta:q} ]; then
+			bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} \
+				-S {output.sam:q} --threads {threads} --no-unal --very-sensitive 2> {log.bowtie2:q}
+		else
+			printf '@HD\tVN:1.6\tSO:coordinate\n' > {output.sam:q}
+			printf 'Empty full catalogue; mapping skipped.\n' > {log.bowtie2:q}
+		fi
 		samtools view -@ {threads} -bS {output.sam:q} -o {output.bam:q}
 		samtools sort -@ {threads} {output.bam:q} -o {output.sorted_bam:q}
 		samtools index {output.sorted_bam:q}
 		samtools flagstat {output.sorted_bam:q} > {output.flagstats:q}
-		coverm filter -b {output.sorted_bam:q} -o {output.filtered_bam:q} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		if [ -s {input.fasta:q} ]; then
+			coverm filter -b {output.sorted_bam:q} -o {output.filtered_bam:q} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		else
+			cp {output.sorted_bam:q} {output.filtered_bam:q}
+		fi
 		samtools flagstat {output.filtered_bam:q} > {output.flagstats_filtered:q}
 		samtools view -@ {threads} -c -f 0x42 -F 0x104 {output.filtered_bam:q} > {output.mapped_pairs:q}
 		samtools view -@ {threads} -hf 0x2 {output.filtered_bam:q} | awk '/^@/ || !/XS:i:/' | samtools view -@ {threads} -b -o {output.unique_bam:q} -
 		samtools sort -@ {threads} {output.unique_bam:q} -o {output.unique_sorted_bam:q}
 		samtools index {output.unique_sorted_bam:q}
 		samtools flagstat {output.unique_bam:q} > {output.flagstats_unique:q}
-		coverm contig -b {output.filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats:q}
-		coverm contig -b {output.unique_sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats_unique:q}
+		if [ -s {input.fasta:q} ]; then
+			coverm contig -b {output.filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats:q}
+			coverm contig -b {output.unique_sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -t {threads} -o {output.covstats_unique:q}
+		else
+			printf 'Contig\tMean\tLength\tCovered Bases\tRead Count\tVariance\tTrimmed Mean\tRPKM\n' > {output.covstats:q}
+			cp {output.covstats:q} {output.covstats_unique:q}
+		fi
 		"""
 
 rule buildBowtieDB_reference:
