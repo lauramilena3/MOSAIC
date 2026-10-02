@@ -380,3 +380,6 @@ mosaic/tests/test_summary_notebooks.py
 mosaic/tests/test_rna_quast.py
 mosaic/tests/test_bowtie_temp.py
 mosaic/tests/test_phage_contig_catalogue.py
+mosaic/tests/test_sourmash_catalogue.py
+mosaic/tests/test_sourmash_clean_reads.py
+mosaic/tests/test_shared_dna_catalogue.py

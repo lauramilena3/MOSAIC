@@ -36,6 +36,8 @@ CROSS_ASSEMBLY=config['cross_assembly']
 SUBASSEMBLY=config['subassembly']
 MICROBIAL=config['microbial']
 SOURMASH=config['sourmash']
+SOURMASH_CONTIG_CATALOGUE=config_bool('sourmash_contig_catalogue', False)
+SOURMASH_CLEAN_READS=config_bool('sourmash_clean_reads', False)
 LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
 ISOLATES=config['isolates']
@@ -169,6 +171,8 @@ ALL_ASSEMBLED_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ALL_ASSEMBLED"
 ALL_ASSEMBLED_SELECTED_PREFIX=ALL_ASSEMBLED_DIR + "/all_assembled_selected_contigs.tot"
 ALL_ASSEMBLED_TOP_NAME="all_assembled_top_contigs"
 ALL_ASSEMBLED_TOP_PREFIX=ALL_ASSEMBLED_DIR + "/" + ALL_ASSEMBLED_TOP_NAME + "_tot"
+PHAGE_ISOLATES_CLUSTER_PREFIX=ALL_ASSEMBLED_DIR + "/phage_isolates_cluster_representatives"
+SOURMASH_CLEAN_DIR=dirs_dict["ANNOTATION"] + "/SOURMASH_CLEAN"
 ALL_ASSEMBLED_TOP_CENOTE=dirs_dict["ANNOTATION"] + "/Cenote_" + ALL_ASSEMBLED_TOP_NAME + ".tot"
 
 def annotation_fasta_path(sequence):

@@ -292,50 +292,103 @@ rule taxonomy_gtdbtk_bacteria:
 
 rule single_fasta_microbial:
 	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_microbial_contigs=lambda wildcards: PHAGE_ISOLATES_CLUSTER_PREFIX + ".tot.fasta" if wildcards.sourmash_catalogue == "phage_isolates_cluster_representatives_tot" else dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.fasta",
 	output:
-		derreplicated_microbial_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
+		derreplicated_microbial_contigs_dir=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/single_{sourmash_catalogue}")),
+	wildcard_constraints:
+		sourmash_catalogue="combined_microbial_derreplicated_tot|phage_isolates_cluster_representatives_tot",
 	message:
-		"formating microbial contigs into single fasta"
+		"Formatting contig representatives into single FASTA files"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/wtp.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/single_fasta_microbial/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/single_fasta_microbial/catalogue={sourmash_catalogue}.tsv"
 	threads: 1
 	shell:
 		"""
-		seqkit split --quiet -i {input.derreplicated_microbial_contigs} --out-dir {output.derreplicated_microbial_contigs_dir}
+		mkdir -p {output.derreplicated_microbial_contigs_dir:q}
+		if [ -s {input.derreplicated_microbial_contigs:q} ]; then
+			seqkit split --quiet -i {input.derreplicated_microbial_contigs:q} --out-dir {output.derreplicated_microbial_contigs_dir:q}
+		fi
 	 	"""
 
 rule sourmash_sketch_microbial:
 	input:
-		derreplicated_microbial_contigs=dirs_dict["ASSEMBLY_DIR"]+ "/combined_microbial_derreplicated_tot.fasta",
-		derreplicated_microbial_contigs_dir=((dirs_dict["ASSEMBLY_DIR"]+ "/single_combined_microbial_derreplicated_tot")),
+		derreplicated_microbial_contigs=lambda wildcards: PHAGE_ISOLATES_CLUSTER_PREFIX + ".tot.fasta" if wildcards.sourmash_catalogue == "phage_isolates_cluster_representatives_tot" else dirs_dict["ASSEMBLY_DIR"] + "/combined_microbial_derreplicated_tot.fasta",
+		derreplicated_microbial_contigs_dir=dirs_dict["ASSEMBLY_DIR"] + "/single_{sourmash_catalogue}",
 	output:
-		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_manysketch.csv"),
-		sketch=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+		manysketch_csv=temp(dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_manysketch.csv"),
+		sketch=temp(dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_sourmash.sig.zip"),
+		query_stats=dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_sourmash_queries.tsv",
+	wildcard_constraints:
+		sourmash_catalogue="combined_microbial_derreplicated_tot|phage_isolates_cluster_representatives_tot",
 	params: 
-		name="combined_microbial_derreplicated_tot"
+		min_length=lambda wildcards: int(config.get("sourmash_contig_catalogue_min_length", 5000)) if wildcards.sourmash_catalogue == "phage_isolates_cluster_representatives_tot" else 0,
 	message:
 		"Building sketches with sourmash"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_microbial/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_microbial/catalogue={sourmash_catalogue}.tsv"
 	threads: 64
 	shell:
 		"""
-		echo name,genome_filename,protein_filename > {output.manysketch_csv}
-		grep "^>" {input.derreplicated_microbial_contigs} | sed 's/^>//' | awk -v dir="{input.derreplicated_microbial_contigs_dir}/{params.name}.part_" '{{print $1 "," dir $1 ".fasta,"}}' >> {output.manysketch_csv}
-		sourmash scripts manysketch {output.manysketch_csv} -p k=31,abund,DNA -o {output.sketch} -c {threads}
+		python - {input.derreplicated_microbial_contigs:q} {input.derreplicated_microbial_contigs_dir:q} {output.manysketch_csv:q} {params.min_length} <<-'PYTHON'
+		import csv
+		from pathlib import Path
+		import sys
+		import screed
+		fasta, split_dir, csv_path, minimum = sys.argv[1:]
+		with open(csv_path, "w") as handle:
+		    writer = csv.writer(handle)
+		    writer.writerow(["name", "genome_filename", "protein_filename"])
+		    if Path(fasta).stat().st_size:
+		        for record in screed.open(fasta):
+		            if len(record.sequence) >= int(minimum):
+		                name = record.name.split()[0]
+		                path = Path(split_dir) / (Path(fasta).stem + ".part_" + name + ".fasta")
+		                writer.writerow([name, str(path), ""])
+		PYTHON
+		if [ "$(wc -l < {output.manysketch_csv:q})" -gt 1 ]; then
+			sourmash scripts manysketch {output.manysketch_csv:q} -p k=31,abund,DNA -o {output.sketch:q} -c {threads}
+		else
+			python - {output.sketch:q} <<-'PYTHON'
+			import sys
+			from sourmash.sourmash_args import SaveSignaturesToLocation
+			with SaveSignaturesToLocation(sys.argv[1]):
+			    pass
+			PYTHON
+		fi
+		python - {input.derreplicated_microbial_contigs:q} {output.sketch:q} {output.query_stats:q} {params.min_length} <<-'PYTHON'
+		import csv
+		from pathlib import Path
+		import sys
+		import screed
+		import sourmash
+		fasta, sketches, output_path, minimum = sys.argv[1:]
+		hashes = {{signature.name: len(signature.minhash) for signature in sourmash.load_file_as_signatures(sketches)}}
+		with open(output_path, "w") as handle:
+		    writer = csv.writer(handle, delimiter="\t")
+		    writer.writerow(["cluster_rep", "sourmash_representative_length_bp", "sourmash_query_hashes", "sourmash_screen_status"])
+		    if Path(fasta).stat().st_size:
+		        for record in screed.open(fasta):
+		            name = record.name.split()[0]
+		            length = len(record.sequence)
+		            count = hashes.get(name, 0)
+		            status = "below_length_cutoff" if length < int(minimum) else ("no_usable_hashes" if count == 0 else "screened")
+		            writer.writerow([name, length, count, status])
+		PYTHON
 		"""
 
 rule sourmash_gather_microbial:
 	input:
-		sketch=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_sourmash.sig.zip"),
+		sketch=dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_sourmash.sig.zip",
+		query_stats=dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_sourmash_queries.tsv",
 		sourmash_rocksdb=config['sourmash_rocksdb'],
 	output:
-		gather=temp(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+		gather=temp(dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_gather_sourmash.csv"),
+	wildcard_constraints:
+		sourmash_catalogue="combined_microbial_derreplicated_tot|phage_isolates_cluster_representatives_tot",
 	message:
 		"Genome containtment with sourmash gather"
 	params:
@@ -343,33 +396,45 @@ rule sourmash_gather_microbial:
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/sourmash_gather_microbial/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_gather_microbial/catalogue={sourmash_catalogue}.tsv"
 	threads: 64
 	shell:
 		"""
-		sourmash scripts fastmultigather {input.sketch} {input.sourmash_rocksdb} -c {threads} -o {output.gather} -t {params.threshold_bp} -s 1000
+		printf '' > {output.gather:q}
+		if awk -F '\t' 'NR > 1 && $3 > 0 {{found=1}} END {{exit !found}}' {input.query_stats:q}; then
+			sourmash scripts fastmultigather {input.sketch:q} {input.sourmash_rocksdb:q} -c {threads} -o {output.gather:q} -t {params.threshold_bp} -s 1000
+		fi
+		if [ ! -s {output.gather:q} ]; then
+			printf 'query_name,name,f_unique_weighted,f_unique_to_query,unique_intersect_bp,remaining_bp,query_md5,query_filename,query_bp,ksize,scaled,query_n_hashes\n' > {output.gather:q}
+		fi
 		"""
 
 rule sourmash_tax_microbial:
 	input:
-		gather=(dirs_dict["ANNOTATION"] + "/combined_microbial_derreplicated_tot_gather_sourmash.csv"),
+		gather=dirs_dict["ANNOTATION"] + "/{sourmash_catalogue}_gather_sourmash.csv",
 		sourmash_tax=config['sourmash_tax'],
 	output:
-		csv_report=(dirs_dict["ANNOTATION"] + "/sourmash_combined_microbial_derreplicated_tot.classifications.csv"),
+		csv_report=dirs_dict["ANNOTATION"] + "/sourmash_{sourmash_catalogue}.classifications.csv",
+	wildcard_constraints:
+		sourmash_catalogue="combined_microbial_derreplicated_tot|phage_isolates_cluster_representatives_tot",
 	params:
 		outdir=(dirs_dict["ANNOTATION"]),
-		name="sourmash_combined_microbial_derreplicated_tot",
+		name="sourmash_{sourmash_catalogue}",
 	message:
 		"Assigning taxonomy with sourmash tax"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/sourmash_tax_microbial/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax_microbial/catalogue={sourmash_catalogue}.tsv"
 	threads: 1
 	shell:
 		"""
-		sourmash tax genome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.name}\
-			--output-dir {params.outdir} -F csv_summary
+		if [ "$(wc -l < {input.gather:q})" -gt 1 ]; then
+			sourmash tax genome --gather-csv {input.gather:q} -t {input.sourmash_tax:q} -o {params.name:q}\
+				--output-dir {params.outdir:q} -F csv_summary
+		else
+			printf 'query_name,status,rank,fraction,lineage,query_md5,query_filename,f_weighted_at_rank,bp_match_at_rank,query_ani_at_rank\n' > {output.csv_report:q}
+		fi
 		"""
 		
 rule defense_finder:

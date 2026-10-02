@@ -339,23 +339,33 @@ rule select_vOTU_representative:
 
 rule vOUTclustering_get_new_references:
 	input:
-		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
-		representative_list=dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list.{sampling}.csv",
+		combined_positive_contigs=lambda wildcards: ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot.fasta" if wildcards.reference_catalogue == "phage_isolates_cluster_representatives" else dirs_dict["vOUT_DIR"] + "/combined_" + VIRAL_CONTIGS_BASE + "." + wildcards.sampling + ".fasta",
+		representative_list=lambda wildcards: ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot_95-85.clstr" if wildcards.reference_catalogue == "phage_isolates_cluster_representatives" else dirs_dict["vOUT_DIR"] + "/vOTU_clustering_rep_list." + wildcards.sampling + ".csv",
 	output:
-		representatives=dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".{sampling}.fasta",
-		representative_lengths=dirs_dict["vOUT_DIR"] + "/" + REPRESENTATIVE_CONTIGS_BASE + "_lengths.{sampling}.txt",
+		representatives="{basedir}/{reference_catalogue}.{sampling}.fasta",
+		representative_lengths="{basedir}/{reference_catalogue}_lengths.{sampling}.txt",
+	wildcard_constraints:
+		basedir="(?:" + re.escape(dirs_dict["vOUT_DIR"]) + "|" + re.escape(ALL_ASSEMBLED_DIR) + ")",
+		reference_catalogue="(?:" + re.escape(REPRESENTATIVE_CONTIGS_BASE) + "|phage_isolates_cluster_representatives)",
+	params:
+		cluster_centroids=lambda wildcards: wildcards.reference_catalogue == "phage_isolates_cluster_representatives",
 	message:
 		"Selecting new representatives with seqtk"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/vOUTclustering_get_new_references/sampling={sampling}.tsv"
+		dirs_dict["BENCHMARKS"] + "/vOUTclustering_get_new_references/basedir={basedir}__catalogue={reference_catalogue}__sampling={sampling}.tsv"
 	threads: 1
 	shell:
 		"""
-		seqtk subseq {input.combined_positive_contigs} {input.representative_list} > {output.representatives}
-		cat {output.representatives} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
-			$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths}
+		if [ "{params.cluster_centroids}" = "True" ]; then
+			seqtk subseq {input.combined_positive_contigs:q} <(cut -f1 {input.representative_list:q}) > {output.representatives:q}
+			seqtk comp {output.representatives:q} | cut -f1,2 > {output.representative_lengths:q}
+		else
+			seqtk subseq {input.combined_positive_contigs:q} {input.representative_list:q} > {output.representatives:q}
+			cat {output.representatives:q} | awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} \
+				$0 !~ ">" {{c+=length($0);}} END {{ print c; }}' > {output.representative_lengths:q}
+		fi
 		"""
 		
 rule get_list_filtered_vOTUs:

@@ -445,10 +445,21 @@ rule phage_isolates_summary:
 		catalogue_genomad=ALL_ASSEMBLED_MAPPING_DIR + "/phage_isolates_contigs_existing_annotations_tot.tsv",
 		catalogue_checkv=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/quality_summary.tsv", sample=SAMPLES),
 		catalogue_contamination=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/contamination.tsv", sample=SAMPLES),
+		catalogue_sourmash_tax=[dirs_dict["ANNOTATION"] + "/sourmash_phage_isolates_cluster_representatives_tot.classifications.csv"] if SOURMASH_CONTIG_CATALOGUE else [],
+		catalogue_sourmash_gather=[dirs_dict["ANNOTATION"] + "/phage_isolates_cluster_representatives_tot_gather_sourmash.csv"] if SOURMASH_CONTIG_CATALOGUE else [],
+		catalogue_sourmash_queries=[dirs_dict["ANNOTATION"] + "/phage_isolates_cluster_representatives_tot_sourmash_queries.tsv"] if SOURMASH_CONTIG_CATALOGUE else [],
+		clean_sourmash_gather=([SOURMASH_CLEAN_DIR + "/POOLED/pooled_gather_sourmash.with-lineages.csv"] + expand(SOURMASH_CLEAN_DIR + "/SAMPLES/{sample}_gather_sourmash.with-lineages.csv", sample=SAMPLES)) if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_profiles=([SOURMASH_CLEAN_DIR + "/POOLED/pooled_sourmash.summarized.csv"] + expand(SOURMASH_CLEAN_DIR + "/SAMPLES/{sample}_sourmash.summarized.csv", sample=SAMPLES)) if SOURMASH_CLEAN_READS else [],
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.html",
 		all_contig_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
 		cluster_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
+		clean_sourmash_metadata=[SOURMASH_CLEAN_DIR + "/clean_read_profiles.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_taxonomy=[SOURMASH_CLEAN_DIR + "/clean_read_taxonomy.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_pooled_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_pooled_svg=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.svg"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_genus_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_genus.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_genus_svg=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_genus.{sampling}.svg"] if SOURMASH_CLEAN_READS else [],
 		summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.csv",
 		contig_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_contigs.{sampling}.csv",
 		closest_relatives_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_closest_relatives.{sampling}.csv",
@@ -493,7 +504,14 @@ rule phage_isolates_summary:
 		metagenome=METAGENOME,
 		microbial=MICROBIAL,
 		remove_euk=REMOVE_EUK,
-		sourmash=SOURMASH
+		sourmash=SOURMASH,
+		sourmash_contig_catalogue=SOURMASH_CONTIG_CATALOGUE,
+		sourmash_contig_catalogue_min_length=int(config.get("sourmash_contig_catalogue_min_length", 5000)),
+		sourmash_contig_catalogue_database=config["sourmash_rocksdb"],
+		sourmash_clean_reads=SOURMASH_CLEAN_READS,
+		sourmash_clean_min_shared_bp=int(config.get("sourmash_clean_min_shared_bp", 50000)),
+		sourmash_clean_min_reference_fraction=float(config.get("sourmash_clean_min_reference_fraction", 0.10)),
+		sourmash_clean_database=config["sourmash_rocksdb"],
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/phage_isolates_summary/sampling={sampling}.tsv"
 	log:

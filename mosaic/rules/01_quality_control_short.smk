@@ -184,52 +184,141 @@ rule sourmash_sketch_trim:
 		sourmash scripts manysketch {output.manysketch_csv} -p k=31,k=51,abund,scaled=1000,DNA -o {output.sketch} -c {threads}
 		"""
 
+rule sourmash_sketch_clean_reads:
+	input:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz",
+	output:
+		sketch=SOURMASH_CLEAN_DIR + "/SAMPLES/{sample}_sourmash.sig.zip",
+	message:
+		"Sketching all final clean paired and unpaired reads with Sourmash"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/sourmash_sketch_clean_reads/sample={sample}.tsv"
+	threads: 1
+	shell:
+		"""
+		rm -f -- {output.sketch:q}
+		sourmash sketch dna {input.forward_paired:q} {input.reverse_paired:q} {input.unpaired:q} \
+			-p k=31,scaled=1000,abund --merge {wildcards.sample:q} -o {output.sketch:q}
+		if [ ! -s {output.sketch:q} ]; then
+			python - {output.sketch:q} {wildcards.sample:q} <<-'PYTHON'
+			import sys
+			import sourmash
+			from sourmash.sourmash_args import SaveSignaturesToLocation
+			minhash = sourmash.MinHash(n=0, ksize=31, scaled=1000, track_abundance=True)
+			with SaveSignaturesToLocation(sys.argv[1]) as output:
+			    output.add(sourmash.SourmashSignature(minhash, name=sys.argv[2]))
+			PYTHON
+		fi
+		"""
+
+rule sourmash_pool_clean_reads:
+	input:
+		sketches=expand(SOURMASH_CLEAN_DIR + "/SAMPLES/{sample}_sourmash.sig.zip", sample=SAMPLES),
+	output:
+		sketch=SOURMASH_CLEAN_DIR + "/POOLED/pooled_sourmash.sig.zip",
+	message:
+		"Pooling clean-read sketches from every sample, including the negative control"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/sourmash_pool_clean_reads/tot.tsv"
+	threads: 1
+	shell:
+		"""
+		rm -f -- {output.sketch:q}
+		if [ -n "{input.sketches}" ]; then
+			sourmash sig merge {input.sketches:q} -k 31 --dna --name pooled -o {output.sketch:q}
+		else
+			python - {output.sketch:q} <<-'PYTHON'
+			import sys
+			import sourmash
+			from sourmash.sourmash_args import SaveSignaturesToLocation
+			minhash = sourmash.MinHash(n=0, ksize=31, scaled=1000, track_abundance=True)
+			with SaveSignaturesToLocation(sys.argv[1]) as output:
+			    output.add(sourmash.SourmashSignature(minhash, name="pooled"))
+			PYTHON
+		fi
+		"""
+
 rule sourmash_gather:
     benchmark:
-        dirs_dict["BENCHMARKS"] + "/sourmash_gather/sample={sample}.tsv"
+        dirs_dict["BENCHMARKS"] + "/sourmash_gather/basedir={basedir}__sample={sample}.tsv"
     input:
-        sketch=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.sig.zip",
+        sketch="{basedir}/{sample}_sourmash.sig.zip",
         sourmash_rocksdb=config["sourmash_rocksdb"],
     output:
-        gather=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv",
+        gather="{basedir}/{sample}_gather_sourmash.csv",
+    wildcard_constraints:
+        basedir="(?:" + re.escape(dirs_dict["CLEAN_DATA_DIR"]) + "|" + re.escape(SOURMASH_CLEAN_DIR + "/SAMPLES") + "|" + re.escape(SOURMASH_CLEAN_DIR + "/POOLED") + ")",
     params:
-        threshold_bp=50000,
+        threshold_bp=lambda wildcards: int(config.get("sourmash_clean_min_shared_bp", 50000)) if wildcards.basedir != dirs_dict["CLEAN_DATA_DIR"] else 50000,
+        abundances=lambda wildcards: wildcards.basedir != dirs_dict["CLEAN_DATA_DIR"],
     message:
-        "Metagenome containment with sourmash fastmultigather"
+        "Metagenome containment with Sourmash"
     conda:
         dirs_dict["ENVS_DIR"] + "/sourmash.yaml"
-    threads: 8
+    threads: lambda wildcards: 1 if wildcards.basedir != dirs_dict["CLEAN_DATA_DIR"] else 8
     shell:
         """
-        sourmash scripts fastmultigather \
-            {input.sketch} \
-            {input.sourmash_rocksdb} \
-            -c {threads} \
-            -o {output.gather} \
-            -t {params.threshold_bp} \
-            -s 1000
+        printf '' > {output.gather:q}
+        sourmash_hashes=$(python - {input.sketch:q} <<-'PYTHON'
+		import sys
+		import sourmash
+		print(sum(len(signature.minhash) for signature in sourmash.load_file_as_signatures(sys.argv[1])))
+		PYTHON
+        )
+        if [ "$sourmash_hashes" -gt 0 ]; then
+            if [ "{params.abundances}" = "True" ]; then
+                sourmash gather {input.sketch:q} {input.sourmash_rocksdb:q} \
+                    -k 31 --scaled 1000 --threshold-bp {params.threshold_bp} -o {output.gather:q} --create-empty-results
+            else
+                sourmash scripts fastmultigather \
+                    {input.sketch:q} {input.sourmash_rocksdb:q} \
+                    -c {threads} -o {output.gather:q} -t {params.threshold_bp} -s 1000
+            fi
+        fi
+        if [ ! -s {output.gather:q} ]; then
+            printf 'query_name,name,f_unique_weighted,f_unique_to_query,unique_intersect_bp,remaining_bp,query_md5,query_filename,query_bp,ksize,scaled,query_n_hashes\n' > {output.gather:q}
+        fi
         """
 
 rule sourmash_tax:
 	input:
-		gather=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_gather_sourmash.csv"),
+		gather="{basedir}/{sample}_gather_sourmash.csv",
 		sourmash_tax=config['sourmash_tax'],
 	output:
-		kreport=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_sourmash.kreport.txt"),
+		kreport="{basedir}/{sample}_sourmash.kreport.txt",
+		profile="{basedir}/{sample}_sourmash.summarized.csv",
+		annotated_gather="{basedir}/{sample}_gather_sourmash.with-lineages.csv",
+	wildcard_constraints:
+		basedir="(?:" + re.escape(dirs_dict["CLEAN_DATA_DIR"]) + "|" + re.escape(SOURMASH_CLEAN_DIR + "/SAMPLES") + "|" + re.escape(SOURMASH_CLEAN_DIR + "/POOLED") + ")",
 	params:
 		sample="{sample}_sourmash",
-		outdir=(dirs_dict["CLEAN_DATA_DIR"]),
+		outdir="{basedir}",
 	message:
 		"Assigning taxonomy with sourmash tax"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/sourmash.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/sourmash_tax/sample={sample}.tsv"
+		dirs_dict["BENCHMARKS"] + "/sourmash_tax/basedir={basedir}__sample={sample}.tsv"
 	threads: 1
 	shell:
 		"""
-		sourmash tax metagenome --gather-csv {input.gather} -t {input.sourmash_tax}  -o {params.sample} \
-			--output-format kreport --rank species -f --output-dir {params.outdir}
+		if [ "$(wc -l < {input.gather:q})" -gt 1 ]; then
+			# In v4, kreport and the CSV f_weighted_at_rank column retain abundance.
+			# Explicit --use-abundances incorrectly rejects equal weighted/unweighted fractions.
+			sourmash tax metagenome --gather-csv {input.gather:q} -t {input.sourmash_tax:q} -o {params.sample:q} \
+				--v4 --output-format kreport csv_summary --rank species -f --output-dir {params.outdir:q}
+			sourmash tax annotate --gather-csv {input.gather:q} -t {input.sourmash_tax:q} --output-dir {params.outdir:q}
+		else
+			printf '' > {output.kreport:q}
+			printf 'query_name,rank,fraction,lineage,f_weighted_at_rank,bp_match_at_rank\n' > {output.profile:q}
+			printf 'query_name,name,f_unique_weighted,f_unique_to_query,unique_intersect_bp,f_match_orig,average_abund,median_abund,scaled,lineage\n' > {output.annotated_gather:q}
+		fi
 		"""
 
 rule contaminants_KRAKEN:
