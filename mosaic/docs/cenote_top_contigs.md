@@ -46,6 +46,44 @@ membership table links each representative to these renamed original members
 and their dereplicated representatives. Unselected relatives are not assigned
 to these ANI clusters. The main filtered viral vOTU catalogue is unchanged.
 
+geNomad evidence is collected by the current contig IDs from the existing
+per-sample DNA results in `04_VIRAL_ID/{sample}_geNomad_tot` and, when RNA
+enrichment is enabled, each `03_CONTIGS/RNA/{sample}/{assembler}_genomad` result.
+No combined `all_assembled_geNomad_tot` run is requested. The selected-set
+metadata retains virus/plasmid calls, scores, taxonomy/topology, provirus-region
+and hallmark evidence, including `not reported` where evidence is absent.
+Previously generated combined geNomad results are not used or deleted.
+
+### Annotation reuse audit
+
+| Analysis | Current decision | Reason |
+| --- | --- | --- |
+| Combined full-assembly geNomad | Removed from the workflow dependencies | DNA and individual RNA assembly results already provide the needed evidence. |
+| Isolate and all-assembled concatenation/MMseqs dereplication | Shared when RNA enrichment is off | One `all_assembled` DNA catalogue is generated. Isolate FASTA/provenance and representative/membership filenames are symlinks to those outputs. With RNA enrichment on, both catalogues are generated separately. |
+| Selected-cluster VIBRANT and VirSorter2 | Keep | The main viral-catalogue analyses do not cover every selected original assembly contig; the RNA candidate run also uses a different group selection. |
+| Selected-cluster CheckV | Keep | The main CheckV inputs are viral candidates, sometimes extracted provirus regions, rather than every selected whole contig. The isolate catalogue already reuses per-sample isolate CheckV outputs. |
+| Selected-cluster RefSeq/METAVR BLAST and Pharokka | Keep | The existing main-catalogue outputs do not cover every selected representative. |
+| Selected-cluster Cenote | Optional, unchanged | Requested only with both `map_to_all_assembled=True` and `run_cenote=True`; it adds separate discovery and annotation evidence. |
+| Main-catalogue `genomad_vOTUs` | Keep, possible simplification to evaluate separately | Its conservative, default and relaxed outputs are all consumed by vOTU filtering. Removing a preset would change that filtering. |
+
+Overlapping contig IDs alone do not establish reusable results: the sequence
+may have been extracted or trimmed, and tool parameters may differ. Reusing
+additional annotations would require checking identical sequences and
+parameters, then running each tool only on missing sequences. That broader
+change is not part of removing the redundant combined geNomad run.
+
+Repeated occurrences of the same input path do not cause repeated jobs:
+Snakemake schedules one producer job for that output. With RNA enrichment off,
+`reuse_dna_contigs_for_isolates` and `reuse_dna_dereplication_for_isolates`
+preserve the isolate filenames without repeating concatenation or MMseqs.
+The symlink targets are relative filenames in the same directory, so moving
+the project directory does not break these links.
+Requesting isolate outputs alone also uses this shared DNA catalogue, but does
+not request all-assembled mapping or selected-set annotation. Subsequent ANI
+clustering stays separate: the isolate catalogue clusters all retained DNA
+contigs, while the abundance branch clusters its selected subset. Existing
+study outputs are not migrated or deleted automatically by this code change.
+
 Full-catalogue files use the `all_assembled` prefix, including
 `all_assembled_RPKM_raw_tot.txt` and `all_assembled_mapping_summary_tot.tsv`.
 Full-catalogue normalization outputs are unchanged. This branch no longer

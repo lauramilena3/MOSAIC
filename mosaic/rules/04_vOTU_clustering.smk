@@ -59,7 +59,7 @@ rule combine_all_assembled_contigs:
 		fasta=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs.tot.fasta",
 		provenance=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_provenance.tot.tsv",
 	wildcard_constraints:
-		catalogue="all_assembled|phage_isolates",
+		catalogue="all_assembled|phage_isolates" if RNA_MODE else "all_assembled",
 	message:
 		"Combining retained assemblies into the {wildcards.catalogue} catalogue"
 	benchmark:
@@ -105,7 +105,7 @@ rule derreplicate_all_assembled_contigs:
 	params:
 		prefix=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_derreplicated",
 	wildcard_constraints:
-		catalogue="all_assembled|phage_isolates",
+		catalogue="all_assembled|phage_isolates" if RNA_MODE else "all_assembled",
 	message:
 		"Derreplicating all assembled contigs with mmseqs"
 	conda:
@@ -120,6 +120,49 @@ rule derreplicate_all_assembled_contigs:
 		mv {params.prefix:q}_rep_seq.fasta {output.fasta:q}
 		mv {params.prefix:q}_cluster.tsv {output.clusters:q}
 		"""
+
+if not RNA_MODE:
+	rule reuse_dna_contigs_for_isolates:
+		input:
+			fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta",
+			provenance=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_provenance.tot.tsv",
+		output:
+			fasta=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs.tot.fasta",
+			provenance=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv",
+		params:
+			fasta=lambda wc, input: os.path.basename(input.fasta),
+			provenance=lambda wc, input: os.path.basename(input.provenance),
+		message:
+			"Reusing the DNA catalogue and provenance for phage isolates"
+		benchmark:
+			dirs_dict["BENCHMARKS"] + "/reuse_dna_contigs_for_isolates/tot.tsv"
+		threads: 1
+		shell:
+			"""
+			ln -sfn -- {params.fasta:q} {output.fasta:q}
+			ln -sfn -- {params.provenance:q} {output.provenance:q}
+			"""
+
+	rule reuse_dna_dereplication_for_isolates:
+		input:
+			fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
+			clusters=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
+		output:
+			fasta=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot.fasta",
+			clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_cluster.tot.tsv",
+		params:
+			fasta=lambda wc, input: os.path.basename(input.fasta),
+			clusters=lambda wc, input: os.path.basename(input.clusters),
+		message:
+			"Reusing exact DNA dereplication for phage isolates"
+		benchmark:
+			dirs_dict["BENCHMARKS"] + "/reuse_dna_dereplication_for_isolates/tot.tsv"
+		threads: 1
+		shell:
+			"""
+			ln -sfn -- {params.fasta:q} {output.fasta:q}
+			ln -sfn -- {params.clusters:q} {output.clusters:q}
+			"""
 
 rule vOUTclustering:
 	input:
