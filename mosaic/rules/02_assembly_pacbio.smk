@@ -3,7 +3,7 @@ rule hifiasmPacbio:
 		pacbio=dirs_dict["CLEAN_DATA_DIR"] + "/{sample_pacbio}_pacbio_clean.{sampling}.fastq.gz"
 	output:
 		gfa=dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_hifiasm.{sampling}.bp.p_ctg.gfa",
-		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta"
+		scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.unrenamed.fasta")
 	params:
 		prefix=dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_hifiasm.{sampling}"
 	message:
@@ -28,7 +28,7 @@ rule errorCorrectPolypolishPacbioPE:
 	output:
 		sam1=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_polypolish_1.{sampling}.sam"),
 		sam2=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample_pacbio}_polypolish_2.{sampling}.sam"),
-		scaffolds_polypolish=dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.fasta"
+		scaffolds_polypolish=temp(dirs_dict["ASSEMBLY_DIR"] + "/polypolish_{sample_pacbio}_contigs_"+ LONG_ASSEMBLER_PACBIO + ".{sampling}.unrenamed.fasta")
 	message:
 		"Correcting PacBio HiFi assembly with Illumina reads using Polypolish"
 	conda:

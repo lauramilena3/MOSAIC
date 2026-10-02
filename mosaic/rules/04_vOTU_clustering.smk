@@ -82,18 +82,16 @@ rule combine_all_assembled_contigs:
 		os.makedirs(ALL_ASSEMBLED_DIR, exist_ok=True)
 		with open(output.fasta, "w") as fasta, open(output.provenance, "w") as handle:
 			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
-			writer.writerow(["contig_id", "sample", "assembler", "original_id", "length_bp"])
+			writer.writerow(["contig_id", "sample", "assembler", "length_bp"])
 			for path in list(input.dna) + list(input.rna):
 				if path.endswith("_spades_filtered_scaffolds.tot.fasta"):
-					sample=os.path.basename(path).split("_spades_filtered_scaffolds.tot.fasta")[0]
-					assembler="spades"
+					sample=os.path.basename(path).removesuffix("_spades_filtered_scaffolds.tot.fasta")
 				else:
 					sample=os.path.basename(os.path.dirname(path))
-					assembler=os.path.splitext(os.path.basename(path))[0]
-				for number, (original_id, sequence) in enumerate(records(path), 1):
-					contig_id=f"{sample}_{assembler}_{number:08d}"
+				for contig_id, sequence in records(path):
+					assembler=contig_id.rsplit("_", 4)[1]
 					fasta.write(f">{contig_id}\n{sequence}\n")
-					writer.writerow([contig_id, sample, assembler, original_id, len(sequence)])
+					writer.writerow([contig_id, sample, assembler, len(sequence)])
 
 rule derreplicate_all_assembled_contigs:
 	input:

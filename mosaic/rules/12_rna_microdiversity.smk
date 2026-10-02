@@ -5,7 +5,7 @@ rule rna_assemble_spades:
 		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		fasta=RNA_DIR + "/{sample}/rnaviralspades.fasta",
+		fasta=temp(RNA_DIR + "/{sample}/rnaviralspades.unrenamed.fasta"),
 	params:
 		work_prefix=RNA_DIR + "/{sample}/spades_work_",
 		mem_gb=lambda wildcards, resources: max(1, int(resources.mem_mb) // 1000),
@@ -36,7 +36,7 @@ rule rna_assemble_megahit:
 		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		fasta=RNA_DIR + "/{sample}/megahit.fasta",
+		fasta=temp(RNA_DIR + "/{sample}/megahit.unrenamed.fasta"),
 	params:
 		work_prefix=RNA_DIR + "/{sample}/megahit_work_",
 		mem_bytes=lambda wildcards, resources: int(resources.mem_mb) * 1000000,
@@ -68,7 +68,7 @@ rule rna_assemble_trinity:
 		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		fasta=RNA_DIR + "/{sample}/trinity.fasta",
+		fasta=temp(RNA_DIR + "/{sample}/trinity.unrenamed.fasta"),
 	params:
 		assembly_dir=lambda wildcards: os.path.abspath(RNA_DIR + "/" + wildcards.sample + "/trinity_out"),
 		assembled_fasta=lambda wildcards: os.path.abspath(RNA_DIR + "/" + wildcards.sample + "/trinity_out.Trinity.fasta"),
@@ -107,7 +107,7 @@ rule rna_genomad_assembler:
 	params:
 		empty_summary=RNA_DIR + "/{sample}/{assembler}_genomad/{assembler}_summary/{assembler}_virus_summary.tsv",
 	message:
-		"Identifying viral contigs in the original RNA assembly with geNomad"
+		"Identifying viral contigs in the named RNA assembly with geNomad"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
@@ -120,7 +120,7 @@ rule rna_genomad_assembler:
 	shell:
 		r"""
 		if [ -s {input.fasta:q} ]; then
-			genomad end-to-end --cleanup --splits 8 -t {threads} \
+			genomad end-to-end --restart --cleanup --splits 8 -t {threads} \
 				{input.fasta:q} {output.outdir:q} {input.db:q} --relaxed > {log:q} 2>&1
 		else
 			mkdir -p "$(dirname {params.empty_summary:q})"
@@ -137,7 +137,6 @@ rule rna_combine_assemblies:
 		provenance=RNA_DIR + "/{sample}/assembly_provenance.tsv",
 	params:
 		names=RNA_ASSEMBLERS,
-		prefix="{sample}_RNA",
 		min_length=int(config.get("rna_min_contig_length", 500)),
 	message:
 		"Combining RNA assemblies and recording exact-sequence provenance"
@@ -175,7 +174,7 @@ rule rna_combine_assemblies:
 		seen = {}
 		with open(output.fasta, "w") as fasta, open(output.provenance, "w") as handle:
 			writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-			writer.writerow(["representative", "source", "original_id", "length", "status"])
+			writer.writerow(["representative", "source", "contig_id", "length", "status"])
 			for path, source in zip(input.fastas, params.names):
 				for name, seq in records(path):
 					if not seq or len(seq) < params.min_length:
@@ -188,7 +187,7 @@ rule rna_combine_assemblies:
 					if key in seen:
 						writer.writerow([seen[key], source, name, len(seq), "exact_duplicate"])
 						continue
-					identifier = f"{params.prefix}_{len(seen) + 1:07d}"
+					identifier = name
 					seen[key] = identifier
 					fasta.write(f">{identifier}\n{seq}\n")
 					writer.writerow([identifier, source, name, len(seq), "retained"])

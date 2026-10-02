@@ -1,4 +1,71 @@
 #ruleorder: shortReadAsemblySpadesPE > shortReadAsemblySpadesSE
+rule rename_assembled_contigs:
+	input:
+		fasta=RESULTS_DIR + "/{assembly_path}.unrenamed.fasta",
+	output:
+		fasta=RESULTS_DIR + "/{assembly_path}.fasta",
+		ids=RESULTS_DIR + "/{assembly_path}.ids.tsv",
+	params:
+		spades_assembler="metaspades" if METAGENOME_FLAG == "--meta" else "spades",
+	message:
+		"Naming assembled contigs and recording their original identifiers"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/rename_assembled_contigs/assembly_path={assembly_path}.tsv"
+	threads: 1
+	wildcard_constraints:
+		assembly_path=r"03_CONTIGS/(?:RNA/[^/]+/(?:rnaviralspades|megahit|trinity)|[^/]+_spades_filtered_scaffolds\.(?:tot|sub)|[^/]+_(?:contigs_[^/]+|corrected_scaffolds_pilon)\.(?:tot|sub))|08_ASSEMBLY_TEST/[^/]+_metaspades_filtered_scaffolds\.(?:tot|sub)"
+	run:
+		import csv
+		import re
+		from Bio import SeqIO
+
+		path=wildcards.assembly_path
+		if path.startswith("03_CONTIGS/RNA/"):
+			_, _, sample, assembler=path.split("/")
+			prefix=sample
+		else:
+			stem, sampling=os.path.basename(path).rsplit(".", 1)
+			if path.startswith("08_ASSEMBLY_TEST/"):
+				sample, percentage=stem.removesuffix("_metaspades_filtered_scaffolds").rsplit("_", 1)
+				assembler="metaspades"
+				prefix=sample + "_" + percentage + "pct"
+			elif stem.endswith("_spades_filtered_scaffolds"):
+				sample=stem.removesuffix("_spades_filtered_scaffolds")
+				assembler=params.spades_assembler
+				prefix=sample
+			elif stem.endswith("_corrected_scaffolds_pilon"):
+				sample, assembler=stem.removesuffix("_corrected_scaffolds_pilon").rsplit("_", 1)
+				prefix=sample + "_pilon"
+			else:
+				sample, assembler=stem.rsplit("_contigs_", 1)
+				stage=re.match(r"^(medaka_polished|polypolish|racon|pilon_[1-4]_polished)_(.+)$", sample)
+				if stage:
+					sample=stage.group(2)
+					if stage.group(1) == "racon":
+						iteration, assembler=assembler.split("_", 1)
+						prefix=sample + "_racon" + iteration
+					else:
+						prefix=sample + "_" + stage.group(1)
+				else:
+					prefix=sample
+			if sampling == "sub":
+				prefix += "_sub"
+
+		with open(input.fasta) as source:
+			total_contigs=sum(1 for line in source if line.startswith(">"))
+		width=max(5, len(str(total_contigs)))
+
+		with open(input.fasta) as source, open(output.fasta, "w") as fasta, open(output.ids, "w") as handle:
+			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
+			writer.writerow(["contig_id", "sample", "assembler", "original_id", "length_bp", "original_description"])
+			for number, record in enumerate(SeqIO.parse(source, "fasta"), 1):
+				original_id, description=record.id, record.description
+				contig_id=f"{prefix}_{assembler}_{number:0{width}d}_len_{len(record.seq)}"
+				writer.writerow([contig_id, sample, assembler, original_id, len(record.seq), description])
+				record.id=record.name=contig_id
+				record.description=""
+				SeqIO.write(record, fasta, "fasta")
+
 def input_error_correction(wildcards):
 	params_ecc=""
 	if wildcards.sample=="ALL":
@@ -17,7 +84,7 @@ rule shortReadAsemblySpadesPE:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}.fastq.gz"),
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq.gz",
 	output:
-		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
+		scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.unrenamed.fasta"),
 		assembly_graph=dirs_dict["ASSEMBLY_DIR"] +"/{sample}_assembly_graph_spades.{sampling}.fastg",
 	params:
 		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",

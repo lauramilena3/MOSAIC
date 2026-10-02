@@ -369,6 +369,7 @@ mosaic/tests/test_all_assembled.py
 mosaic/tests/test_cenote.py
 mosaic/tests/test_benchmarks.py
 mosaic/tests/test_circularity.py
+mosaic/tests/test_contig_identifiers.py
 mosaic/tests/test_inline_genbank.py
 mosaic/tests/test_metavr_analysis.py
 mosaic/tests/test_refseq_detection.py
@@ -376,3 +377,6 @@ mosaic/tests/test_refseq_mapping.py
 mosaic/tests/test_rna_assemble.py
 mosaic/tests/test_rna_microdiversity.py
 mosaic/tests/test_summary_notebooks.py
+mosaic/tests/test_rna_quast.py
+mosaic/tests/test_bowtie_temp.py
+mosaic/tests/test_phage_contig_catalogue.py

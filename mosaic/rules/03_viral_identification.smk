@@ -66,13 +66,13 @@ rule combine_satellite_finder:
 		
 rule genomad_viral_id:
 	input:
-		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
+		scaffolds_spades=lambda wc: ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta" if wc.sample == "all_assembled" else dirs_dict["ASSEMBLY_DIR"] + "/" + wc.sample + "_spades_filtered_scaffolds." + wc.sampling + ".fasta",
 		genomad_db=(config['genomad_db']),
 	output:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),
 		positive_contigs=dirs_dict["VIRAL_DIR"]+ "/{sample}_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
 	params:
-		viral_fasta=dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/{sample}_spades_filtered_scaffolds.{sampling}_summary/{sample}_spades_filtered_scaffolds.{sampling}_virus.fna",
+		viral_fasta=lambda wc, input: dirs_dict["VIRAL_DIR"] + "/" + wc.sample + "_geNomad_" + wc.sampling + "/" + os.path.basename(input.scaffolds_spades).removesuffix(".fasta") + "_summary/" + os.path.basename(input.scaffolds_spades).removesuffix(".fasta") + "_virus.fna",
 	message:
 		"Identifying viral contigs with geNomad"
 	conda:
@@ -82,8 +82,14 @@ rule genomad_viral_id:
 	threads: 8
 	shell:
 		"""
-		genomad end-to-end --cleanup --splits 8 -t {threads} {input.scaffolds_spades} {output.genomad_outdir} {input.genomad_db} --relaxed
-		cat {params.viral_fasta} | sed "s/|/_/g" > {output.positive_contigs}
+		if [ -s {input.scaffolds_spades:q} ]; then
+			genomad end-to-end --restart --cleanup --splits 8 -t {threads} {input.scaffolds_spades:q} {output.genomad_outdir:q} {input.genomad_db:q} --relaxed
+			cat {params.viral_fasta:q} | sed "s/|/_/g" > {output.positive_contigs:q}
+		else
+			mkdir -p "$(dirname {params.viral_fasta:q})"
+			printf 'seq_name\\tlength\\ttopology\\tvirus_score\\ttaxonomy\\n' > "$(dirname {params.viral_fasta:q})/$(basename {input.scaffolds_spades:q} .fasta)_virus_summary.tsv"
+			printf '' > {output.positive_contigs:q}
+		fi
 		"""
 
 rule report_assembly_circularity:

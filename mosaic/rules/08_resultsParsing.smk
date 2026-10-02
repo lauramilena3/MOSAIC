@@ -719,9 +719,9 @@ rule select_all_assembled_top_contigs:
 		top=top.loc[top["mean_RPKM_raw"] > 0].sort_values(
 			["mean_RPKM_raw", "contig_id"], ascending=[False, True], kind="stable").head(max(0, params.top_n))
 		top.insert(0, "rank", range(1, len(top) + 1))
-		provenance=pd.read_csv(input.provenance, sep="\t")
+		provenance=pd.read_csv(input.provenance, sep="\t", usecols=["contig_id", "sample", "assembler", "length_bp"])
 		origins=provenance.set_index("contig_id")
-		for field in ["sample", "assembler", "original_id", "length_bp"]:
+		for field in ["sample", "assembler", "length_bp"]:
 			top["assembly_sample" if field == "sample" else field]=origins[field].reindex(top.index)
 		clusters=pd.read_csv(input.clusters, sep="\t", header=None, names=["representative_id", "member_id"])
 		clusters=clusters.drop_duplicates()
@@ -766,16 +766,14 @@ rule select_all_assembled_top_contigs:
 rule collect_all_assembled_top_evidence:
 	input:
 		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_tot.tsv",
-		genomad_dna=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_tot", sample=SAMPLES),
-		genomad_rna=expand(RNA_DIR + "/{sample}/{assembler}_genomad", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE else [],
+		genomad=dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot",
 		circularity=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv", sample=SAMPLES, assembler=["spades"] + (RNA_ASSEMBLERS if RNA_MODE else [])),
 	output:
 		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/AllAssembled_top_contigs_existing_annotations_tot.tsv",
 	params:
-		viral_dir=dirs_dict["VIRAL_DIR"],
-		rna_dir=RNA_DIR,
+		prefix="all_assembled_contigs.tot",
 	message:
-		"Collecting original-assembly geNomad and terminal-repeat evidence without reclassifying"
+		"Collecting full-catalogue geNomad and terminal-repeat evidence using contig identifiers"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/collect_all_assembled_top_evidence/tot.tsv"
 	threads: 1
@@ -792,7 +790,7 @@ rule collect_all_assembled_top_evidence:
 		circles={}
 		for path in input.circularity:
 			for row in rows(Path(path)):
-				circles[(row["sample"], row["assembler"], row["contig_id"])]=row
+				circles[row["contig_id"]]=row
 		circle_fields=["dtr_bp", "itr_bp", "dtr_sequence", "dtr_left_start", "dtr_left_end", "dtr_right_start", "dtr_right_end",
 			"itr_left_sequence", "itr_right_sequence", "itr_left_start", "itr_left_end", "itr_right_start", "itr_right_end",
 			"terminal_repeat_type", "repeat_warning"]
@@ -803,13 +801,9 @@ rule collect_all_assembled_top_evidence:
 			writer=csv.DictWriter(handle, fieldnames=fields, delimiter="\t", lineterminator="\n")
 			writer.writeheader()
 			for origin in rows(Path(input.ranking)):
-				name, sample, assembler=origin["original_id"], origin["assembly_sample"], origin["assembler"]
-				if assembler == "spades":
-					folder=Path(params.viral_dir) / (sample + "_geNomad_tot")
-					prefix=sample + "_spades_filtered_scaffolds.tot"
-				else:
-					folder=Path(params.rna_dir) / sample / (assembler + "_genomad")
-					prefix=assembler
+				name=origin["contig_id"]
+				folder=Path(input.genomad)
+				prefix=params.prefix
 				if folder not in cache:
 					summary=folder / (prefix + "_summary")
 					virus=summary / (prefix + "_virus_summary.tsv")
@@ -829,7 +823,7 @@ rule collect_all_assembled_top_evidence:
 							("genomad_taxonomy", "taxonomy"), ("genomad_topology", "topology"), ("genomad_reported_sequence", "seq_name")]:
 						values=[row[source] for row in hits if row.get(source)]
 						result[column]=" | ".join(values) if values else "not reported"
-				circle=circles.get((sample, assembler, name), {})
+				circle=circles.get(name, {})
 				for column in circle_fields:
 					result[column]=circle.get(column) or "not reported"
 				writer.writerow(result)

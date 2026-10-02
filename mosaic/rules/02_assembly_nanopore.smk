@@ -18,7 +18,7 @@ if POOLED==True:
 			unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq.gz",
 			nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/"+ NANOPORE_SAMPLES +"_nanopore_clean.{sampling}.fastq.gz"
 		output:
-			scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
+			scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.unrenamed.fasta"),
 			filtered_list=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/filtered_list.txt")
 		params:
 			raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
@@ -45,7 +45,7 @@ rule hybridAsemblySpades:
 		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq.gz",
 		nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nanopore_clean.{sampling}.fastq.gz"
 	output:
-		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta"),
+		scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.unrenamed.fasta"),
 		filtered_list=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/filtered_list.txt")
 	params:
 		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
@@ -74,7 +74,7 @@ rule asemblyCanu:
 		#canu_dir=config['canu_dir'],
 	output:
 		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/canu_{sample}_{sampling}"),
-		scaffolds_final=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_canu.{sampling}.fasta",
+		scaffolds_final=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_canu.{sampling}.unrenamed.fasta"),
 	message:
 		"Assembling Nanopore reads with Canu"
 	params:
@@ -107,7 +107,7 @@ rule asemblyFlye:
 		nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nanopore_clean.{sampling}.fastq.gz",
 	output:
 		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}/assembly.fasta",
-		scaffolds_final=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_flye.{sampling}.fasta"
+		scaffolds_final=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_flye.{sampling}.unrenamed.fasta")
 	message:
 		"Assembling Nanopore reads with Flye"
 	params:
@@ -133,7 +133,7 @@ rule errorCorrectMedaka:
 		#corrected4=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_4_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 		nanopore=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nanopore_clean.{sampling}.fastq.gz",
 	output:
-		corrected_medaka=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		corrected_medaka=temp(dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 		#temp=temp(directory(dirs_dict["ASSEMBLY_DIR"] + "/medaka_temp_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}")),
 		fai=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.fai"),
 		mmi=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta.map-ont.mmi"),
@@ -164,9 +164,9 @@ rule errorCorrectRacon_2rounds:
 		corrected_medaka=dirs_dict["ASSEMBLY_DIR"] + "/medaka_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
 	output:
 		overlap1=dirs_dict["ASSEMBLY_DIR"] + "/minimap2_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}.paf",
-		corrected1=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		corrected1=temp(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_1_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 		overlap2=dirs_dict["ASSEMBLY_DIR"] + "/minimap2_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.paf",
-		corrected2=dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.fasta",
+		corrected2=temp(dirs_dict["ASSEMBLY_DIR"] + "/racon_{sample}_contigs_2_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 	message:
 		"Correcting nanopore assembly with long reads using four rounds of Racon "
 	conda:
@@ -205,7 +205,7 @@ rule errorCorrectPilonPE:
 		sorted_bam_unpaired1=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_1.{sampling}.bam",
 		sorted_bam_unpaired_ix1=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_1.{sampling}.bam.bai",
 		scaffolds_pilon1=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_pilon_1_{sampling}/pilon.fasta"),
-		scaffolds_pilon1_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta"),
+		scaffolds_pilon1_final=temp(dirs_dict["ASSEMBLY_DIR"] + "/pilon_1_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 		#round2
 		sam_paired2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_2.{sampling}.sam",
 		bam_paired2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_2.{sampling}.bam",
@@ -216,7 +216,7 @@ rule errorCorrectPilonPE:
 		sorted_bam_unpaired2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_2.{sampling}.bam",
 		sorted_bam_unpaired_ix2=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_2.{sampling}.bam.bai",
 		scaffolds_pilon2=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_pilon_2_{sampling}/pilon.fasta"),
-		scaffolds_pilon2_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta"),
+		scaffolds_pilon2_final=temp(dirs_dict["ASSEMBLY_DIR"] + "/pilon_2_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 		#round3
 		sam_paired3=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_3.{sampling}.sam",
 		bam_paired3=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_3.{sampling}.bam",
@@ -227,7 +227,7 @@ rule errorCorrectPilonPE:
 		sorted_bam_unpaired3=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_3.{sampling}.bam",
 		sorted_bam_unpaired_ix3=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_3.{sampling}.bam.bai",
 		scaffolds_pilon3=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_pilon_3_{sampling}/pilon.fasta"),
-		scaffolds_pilon3_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta"),
+		scaffolds_pilon3_final=temp(dirs_dict["ASSEMBLY_DIR"] + "/pilon_3_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 		#round4
 		sam_paired4=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_4.{sampling}.sam",
 		bam_paired4=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_paired_4.{sampling}.bam",
@@ -238,9 +238,9 @@ rule errorCorrectPilonPE:
 		sorted_bam_unpaired4=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_4.{sampling}.bam",
 		sorted_bam_unpaired_ix4=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_unpaired_sorted_4.{sampling}.bam.bai",
 		scaffolds_pilon4=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_pilon_4_{sampling}/pilon.fasta"),
-		scaffolds_pilon4_final=(dirs_dict["ASSEMBLY_DIR"] + "/pilon_4_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.fasta"),
+		scaffolds_pilon4_final=temp(dirs_dict["ASSEMBLY_DIR"] + "/pilon_4_polished_{sample}_contigs_"+ LONG_ASSEMBLER + ".{sampling}.unrenamed.fasta"),
 		#final
-		scaffolds=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.fasta"),
+		scaffolds=temp(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_"+ LONG_ASSEMBLER + "_corrected_scaffolds_pilon.{sampling}.unrenamed.fasta"),
 	params:
 		#round1
 		pilon_dir1=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_pilon_1_{sampling}",

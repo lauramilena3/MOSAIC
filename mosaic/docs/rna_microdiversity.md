@@ -84,9 +84,11 @@ it is not replaced by an independent 95% ANI cutoff. There is no CD-HIT catalogu
 branch and no additional RNA-specific final vOTU FASTA.
 
 RNA candidates receive CheckV assessments, merged into the existing quality summary
-for representative selection. Standard contig IDs are not globally renamed.
-Additional assembly contigs have sample-prefixed IDs; `assembly_provenance.tsv`
-records their original assembler IDs. Per-sample assembly FASTAs, provenance,
+for representative selection. DNA and RNA assemblies use the shared
+`sample_assembler_number_len_length` identifiers. `assembly_provenance.tsv`
+records the renamed member and representative IDs. Original assembler headers
+remain in the optional-lookup `.ids.tsv` sidecars; downstream rules do not read
+them. Per-sample assembly FASTAs, provenance,
 VirSorter2 output and CheckV assessments are under `03_CONTIGS/RNA/<sample>/`.
 The existing clustering tables track membership in the shared catalogue.
 
