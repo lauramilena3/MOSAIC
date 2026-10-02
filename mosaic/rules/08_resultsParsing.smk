@@ -438,9 +438,17 @@ rule phage_isolates_summary:
 		host_covstats=input_phage_isolates_host_covstats,
 		host_masked_covstats=input_phage_isolates_host_masked_covstats,
 		host_blast=input_phage_isolates_host_blast,
-		host_fastas=input_phage_isolates_host_fastas
+		host_fastas=input_phage_isolates_host_fastas,
+		catalogue_provenance=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv",
+		catalogue_exact_clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_cluster.tot.tsv",
+		catalogue_mosaic_clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot_95-85.clstr",
+		catalogue_genomad=ALL_ASSEMBLED_MAPPING_DIR + "/phage_isolates_contigs_existing_annotations_tot.tsv",
+		catalogue_checkv=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/quality_summary.tsv", sample=SAMPLES),
+		catalogue_contamination=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/contamination.tsv", sample=SAMPLES),
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.html",
+		all_contig_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
+		cluster_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
 		summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.csv",
 		contig_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_contigs.{sampling}.csv",
 		closest_relatives_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_closest_relatives.{sampling}.csv",
@@ -784,17 +792,19 @@ rule select_all_assembled_top_contigs:
 
 rule collect_all_assembled_top_evidence:
 	input:
-		ranking=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_tot.tsv",
-		genomad=dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot",
-		circularity=expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv", sample=SAMPLES, assembler=["spades"] + (RNA_ASSEMBLERS if RNA_MODE else [])),
+		ranking=lambda wc: ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv" if wc.catalogue == "phage_isolates_contigs" else ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_tot.tsv",
+		genomad=lambda wc: expand(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_tot", sample=SAMPLES) if wc.catalogue == "phage_isolates_contigs" else [dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot"],
+		circularity=lambda wc: expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv", sample=SAMPLES, assembler=["spades"] + (RNA_ASSEMBLERS if RNA_MODE and wc.catalogue == "all_assembled_top_contigs" else [])),
 	output:
-		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_existing_annotations_tot.tsv",
+		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/{catalogue}_existing_annotations_tot.tsv",
 	params:
-		prefix="all_assembled_contigs.tot",
+		prefix=lambda wc: [sample + "_spades_filtered_scaffolds.tot" for sample in SAMPLES] if wc.catalogue == "phage_isolates_contigs" else ["all_assembled_contigs.tot"],
+	wildcard_constraints:
+		catalogue="all_assembled_top_contigs|phage_isolates_contigs",
 	message:
 		"Collecting full-catalogue geNomad and terminal-repeat evidence using contig identifiers"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/collect_all_assembled_top_evidence/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/collect_all_assembled_top_evidence/catalogue={catalogue}.tsv"
 	threads: 1
 	run:
 		import csv
@@ -803,8 +813,7 @@ rule collect_all_assembled_top_evidence:
 		def rows(path):
 			if path.is_file() and path.stat().st_size:
 				with path.open() as handle:
-					return list(csv.DictReader(handle, delimiter="\t"))
-			return []
+					yield from csv.DictReader(handle, delimiter="\t")
 
 		circles={}
 		for path in input.circularity:
@@ -814,27 +823,63 @@ rule collect_all_assembled_top_evidence:
 			"itr_left_sequence", "itr_right_sequence", "itr_left_start", "itr_left_end", "itr_right_start", "itr_right_end",
 			"terminal_repeat_type", "repeat_warning"]
 		fields=["contig_id", "genomad_assessed", "genomad_classification", "genomad_virus_score", "genomad_plasmid_score",
-			"genomad_taxonomy", "genomad_topology", "genomad_evidence_scope", "genomad_reported_sequence", "genomad_source"] + circle_fields
-		cache={}
+			"genomad_taxonomy", "genomad_topology", "genomad_evidence_scope", "genomad_reported_sequence", "genomad_source",
+			"genomad_virus_call", "genomad_plasmid_call", "genomad_contig_virus_score", "genomad_contig_plasmid_score",
+			"genomad_contig_chromosome_score", "genomad_score_source", "genomad_reported_virus_scores", "genomad_reported_plasmid_scores",
+			"genomad_provirus_sequences", "genomad_provirus_coordinates", "genomad_provirus_scores",
+			"genomad_plasmid_reported_sequence", "genomad_plasmid_topology",
+			"genomad_hallmarks_assessed",
+			"genomad_virus_hallmark_count", "genomad_plasmid_hallmark_count",
+			"genomad_virus_hallmark_genes", "genomad_plasmid_hallmark_genes",
+			"genomad_virus_hallmark_annotations", "genomad_plasmid_hallmark_annotations", "phage_plasmid_candidate"] + circle_fields
+		origins=list(rows(Path(input.ranking)))
+		wanted={row["contig_id"] for row in origins}
+		origin_samples={row["contig_id"]: row.get("sample", "") for row in origins}
+		folders=[input.genomad] if isinstance(input.genomad, str) else list(input.genomad)
+		prefixes=[params.prefix] if isinstance(params.prefix, str) else list(params.prefix)
+		virus_hits, plasmid_hits, scores, sources, hallmarks={}, {}, {}, {}, {}
+		for folder, prefix in zip(folders, prefixes):
+			folder=Path(folder)
+			summary=folder / (prefix + "_summary")
+			virus=summary / (prefix + "_virus_summary.tsv")
+			plasmid=summary / (prefix + "_plasmid_summary.tsv")
+			for row in rows(virus):
+				name=row["seq_name"].split("|provirus_", 1)[0]
+				if name in wanted:
+					virus_hits.setdefault(name, []).append(row)
+			for row in rows(plasmid):
+				if row["seq_name"] in wanted:
+					plasmid_hits.setdefault(row["seq_name"], []).append(row)
+			score_path=folder / (prefix + "_aggregated_classification") / (prefix + "_aggregated_classification.tsv")
+			for row in rows(score_path):
+				if row["seq_name"] in wanted:
+					scores[row["seq_name"]]=dict(row, source=str(score_path))
+			# These are geNomad's own hallmark assignments, not new score cutoffs.
+			# The whole-contig annotation table also contains genes within provirus regions.
+			gene_path=folder / (prefix + "_annotate") / (prefix + "_genes.tsv")
+			for row in rows(gene_path):
+				name=row["gene"].rsplit("_", 1)[0]
+				if name in wanted:
+					for biology in ["virus", "plasmid"]:
+						if row.get(biology + "_hallmark") == "1":
+							hallmarks.setdefault((name, biology), {})[row["gene"]]=row.get("annotation_description", "")
+			for name in wanted:
+				if len(folders) == 1 or origin_samples[name] == prefix.removesuffix("_spades_filtered_scaffolds.tot"):
+					sources[name]=(str(folder), virus.is_file(), gene_path.is_file())
 		with open(output.tsv, "w") as handle:
 			writer=csv.DictWriter(handle, fieldnames=fields, delimiter="\t", lineterminator="\n")
 			writer.writeheader()
-			for origin in rows(Path(input.ranking)):
+			for origin in origins:
 				name=origin["contig_id"]
-				folder=Path(input.genomad)
-				prefix=params.prefix
-				if folder not in cache:
-					summary=folder / (prefix + "_summary")
-					virus=summary / (prefix + "_virus_summary.tsv")
-					plasmid=summary / (prefix + "_plasmid_summary.tsv")
-					cache[folder]=(virus.is_file(), rows(virus), rows(plasmid))
-				assessed, viruses, plasmids=cache[folder]
-				exact=[row for row in viruses if row["seq_name"] == name]
-				regional=[row for row in viruses if row["seq_name"].split("|provirus_", 1)[0] == name and row["seq_name"] != name]
-				plasmids=[row for row in plasmids if row["seq_name"] == name]
+				exact=[row for row in virus_hits.get(name, []) if row["seq_name"] == name]
+				regional=[row for row in virus_hits.get(name, []) if row["seq_name"] != name]
+				plasmids=plasmid_hits.get(name, [])
 				hits=exact or regional or plasmids
 				result=dict.fromkeys(fields, "not reported")
-				result.update(contig_id=origin["contig_id"], genomad_assessed="yes" if assessed else "not reported", genomad_source=str(folder))
+				folder, assessed, genes_assessed=sources.get(name, ("not reported", False, False))
+				result.update(contig_id=name, genomad_assessed="yes" if assessed else "not reported", genomad_source=folder,
+					genomad_virus_call=bool(exact or regional), genomad_plasmid_call=bool(plasmids),
+					genomad_hallmarks_assessed="yes" if genes_assessed else "not reported")
 				if hits:
 					result["genomad_classification"]="virus" if exact or regional else "plasmid"
 					result["genomad_evidence_scope"]="provirus region" if regional and not exact else "whole contig"
@@ -842,6 +887,24 @@ rule collect_all_assembled_top_evidence:
 							("genomad_taxonomy", "taxonomy"), ("genomad_topology", "topology"), ("genomad_reported_sequence", "seq_name")]:
 						values=[row[source] for row in hits if row.get(source)]
 						result[column]=" | ".join(values) if values else "not reported"
+				for column, source in [("genomad_contig_virus_score", "virus_score"), ("genomad_contig_plasmid_score", "plasmid_score"),
+						("genomad_contig_chromosome_score", "chromosome_score"), ("genomad_score_source", "source")]:
+					result[column]=scores.get(name, {}).get(source) or "not reported"
+				for biology, reported in [("virus", exact or regional), ("plasmid", plasmids)]:
+					values=[row[biology + "_score"] for row in reported if row.get(biology + "_score")]
+					result["genomad_reported_" + biology + "_scores"]=" | ".join(values) if values else "not reported"
+					# Keep existing reported scores, and provide whole-contig scores for non-calls.
+					result["genomad_" + biology + "_score"]=" | ".join(values) if values else result["genomad_contig_" + biology + "_score"]
+					genes=hallmarks.get((name, biology), {})
+					result["genomad_" + biology + "_hallmark_count"]=len(genes) if genes_assessed else "not reported"
+					result["genomad_" + biology + "_hallmark_genes"]=" | ".join(genes) or "not reported"
+					result["genomad_" + biology + "_hallmark_annotations"]=" | ".join(dict.fromkeys(
+						value for value in genes.values() if value and value != "NA")) or "not reported"
+				for column, reported, source in [("genomad_provirus_sequences", regional, "seq_name"),
+						("genomad_provirus_coordinates", regional, "coordinates"), ("genomad_provirus_scores", regional, "virus_score"),
+						("genomad_plasmid_reported_sequence", plasmids, "seq_name"), ("genomad_plasmid_topology", plasmids, "topology")]:
+					result[column]=" | ".join(row[source] for row in reported if row.get(source)) or "not reported"
+				result["phage_plasmid_candidate"]=(bool(exact or regional) or bool(hallmarks.get((name, "virus")))) and (bool(plasmids) or bool(hallmarks.get((name, "plasmid"))))
 				circle=circles.get(name, {})
 				for column in circle_fields:
 					result[column]=circle.get(column) or "not reported"

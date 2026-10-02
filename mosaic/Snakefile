@@ -853,6 +853,8 @@ rule phage_isolates:
 		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_5-0.clstr",
 		expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.tot.csv", host=HOSTS),
 		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.html",
+		ALL_ASSEMBLED_DIR + "/phage_isolates.tot/all_contig_metadata.tsv",
+		ALL_ASSEMBLED_DIR + "/phage_isolates.tot/cluster_metadata.tsv",
 		dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_visualization.done",
 
 

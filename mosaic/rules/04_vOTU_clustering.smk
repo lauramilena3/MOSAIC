@@ -54,14 +54,16 @@ rule derreplicate_assembly:
 rule combine_all_assembled_contigs:
 	input:
 		dna=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES),
-		rna=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE else [],
+		rna=lambda wc: expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE and wc.catalogue == "all_assembled" else [],
 	output:
-		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta",
-		provenance=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_provenance.tot.tsv",
+		fasta=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs.tot.fasta",
+		provenance=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_provenance.tot.tsv",
+	wildcard_constraints:
+		catalogue="all_assembled|phage_isolates",
 	message:
-		"Combining all retained DNA and RNA assemblies for read mapping"
+		"Combining retained assemblies into the {wildcards.catalogue} catalogue"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/combine_all_assembled_contigs/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/combine_all_assembled_contigs/catalogue={catalogue}.tsv"
 	threads: 1
 	run:
 		import csv
@@ -95,19 +97,21 @@ rule combine_all_assembled_contigs:
 
 rule derreplicate_all_assembled_contigs:
 	input:
-		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta",
+		fasta=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs.tot.fasta",
 	output:
-		fasta=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
-		clusters=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
-		tmp=directory(ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_tmp"),
+		fasta=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_derreplicated_rep_seq.tot.fasta",
+		clusters=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_derreplicated_cluster.tot.tsv",
+		tmp=directory(ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_derreplicated_tmp"),
 	params:
-		prefix=ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated",
+		prefix=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_derreplicated",
+	wildcard_constraints:
+		catalogue="all_assembled|phage_isolates",
 	message:
 		"Derreplicating all assembled contigs with mmseqs"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env4.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/derreplicate_all_assembled_contigs/tot.tsv"
+		dirs_dict["BENCHMARKS"] + "/derreplicate_all_assembled_contigs/catalogue={catalogue}.tsv"
 	threads: 16
 	shell:
 		"""
