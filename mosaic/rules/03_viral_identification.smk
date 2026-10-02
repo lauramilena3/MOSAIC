@@ -66,7 +66,7 @@ rule combine_satellite_finder:
 		
 rule genomad_viral_id:
 	input:
-		scaffolds_spades=lambda wc: ALL_ASSEMBLED_DIR + "/all_assembled_contigs.tot.fasta" if wc.sample == "all_assembled" else dirs_dict["ASSEMBLY_DIR"] + "/" + wc.sample + "_spades_filtered_scaffolds." + wc.sampling + ".fasta",
+		scaffolds_spades=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.{sampling}.fasta",
 		genomad_db=(config['genomad_db']),
 	output:
 		genomad_outdir=directory(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_{sampling}/"),

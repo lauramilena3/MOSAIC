@@ -59,19 +59,19 @@ the processed sequence.
 
 ## Full-assembly geNomad evidence
 
-With `map_to_all_assembled=True`, the existing `genomad_viral_id` rule also runs
-on `03_CONTIGS/ALL_ASSEMBLED/all_assembled_contigs.tot.fasta`: **all retained
-DNA and selected RNA assembly contigs, before dereplication or top selection**.
-Results are under `04_VIRAL_ID/all_assembled_geNomad_tot/`. This is not a
-top-100-only classification run. Per-sample DNA and per-assembler RNA
-classification still run on their named final FASTAs.
+geNomad runs on each sample's named DNA FASTA and, when RNA enrichment is
+enabled, each named RNA assembler FASTA. These results cover the assemblies
+before abundance selection. `map_to_all_assembled=True` reuses these existing
+per-assembly results; it does not request a second run on the combined FASTA.
 
-Top-contig metadata subsets the full geNomad results and terminal-repeat reports
-directly by `contig_id`, without translating original headers or switching
-between per-assembly geNomad summaries. Missing classifications are recorded
-as `not reported`. VIBRANT, VirSorter, CheckV, Pharokka and Cenote retain their
-existing selected-top-contig scope. geNomad uses `--restart` to regenerate its
-results when an input assembly changes.
+Selected cluster metadata collects geNomad results and terminal-repeat reports
+directly by `contig_id`. The recorded assembly sample and assembler identify
+the original result directory; original headers and `.ids.tsv` lookups are
+not needed. Missing classifications are recorded as `not reported`. Existing
+`04_VIRAL_ID/all_assembled_geNomad_tot/` outputs are no longer used and are not
+automatically deleted. VIBRANT, VirSorter, CheckV, Pharokka and optional Cenote
+retain their selected-cluster-representative scope. geNomad uses `--restart`
+to regenerate per-assembly results when an input assembly changes.
 
 ## Existing projects
 

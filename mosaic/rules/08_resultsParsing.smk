@@ -811,16 +811,16 @@ rule select_all_assembled_top_contigs:
 rule collect_all_assembled_top_evidence:
 	input:
 		ranking=lambda wc: ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv" if wc.catalogue == "phage_isolates_contigs" else ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_top_contigs_tot.tsv",
-		genomad=lambda wc: expand(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_tot", sample=SAMPLES) if wc.catalogue == "phage_isolates_contigs" else [dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot"],
+		genomad=lambda wc: expand(dirs_dict["VIRAL_DIR"] + "/{sample}_geNomad_tot", sample=SAMPLES) + (expand(RNA_DIR + "/{sample}/{assembler}_genomad", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE and wc.catalogue == "all_assembled_top_contigs" else []),
 		circularity=lambda wc: expand(dirs_dict["VIRAL_DIR"] + "/{sample}_{assembler}_circularity.tot.tsv", sample=SAMPLES, assembler=["spades"] + (RNA_ASSEMBLERS if RNA_MODE and wc.catalogue == "all_assembled_top_contigs" else [])),
 	output:
 		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/{catalogue}_existing_annotations_tot.tsv",
 	params:
-		prefix=lambda wc: [sample + "_spades_filtered_scaffolds.tot" for sample in SAMPLES] if wc.catalogue == "phage_isolates_contigs" else ["all_assembled_contigs.tot"],
+		prefix=lambda wc: [sample + "_spades_filtered_scaffolds.tot" for sample in SAMPLES] + ([assembler for sample in SAMPLES for assembler in RNA_ASSEMBLERS] if RNA_MODE and wc.catalogue == "all_assembled_top_contigs" else []),
 	wildcard_constraints:
 		catalogue="all_assembled_top_contigs|phage_isolates_contigs",
 	message:
-		"Collecting full-catalogue geNomad and terminal-repeat evidence using contig identifiers"
+		"Collecting existing per-assembly geNomad and terminal-repeat evidence using contig identifiers"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/collect_all_assembled_top_evidence/catalogue={catalogue}.tsv"
 	threads: 1
@@ -852,12 +852,16 @@ rule collect_all_assembled_top_evidence:
 			"genomad_virus_hallmark_annotations", "genomad_plasmid_hallmark_annotations", "phage_plasmid_candidate"] + circle_fields
 		origins=list(rows(Path(input.ranking)))
 		wanted={row["contig_id"] for row in origins}
-		origin_samples={row["contig_id"]: row.get("sample", "") for row in origins}
+		origin_samples={row["contig_id"]: row.get("sample") or row.get("assembly_sample", "") for row in origins}
+		origin_assemblers={row["contig_id"]: row.get("assembler", "") for row in origins}
 		folders=[input.genomad] if isinstance(input.genomad, str) else list(input.genomad)
 		prefixes=[params.prefix] if isinstance(params.prefix, str) else list(params.prefix)
 		virus_hits, plasmid_hits, scores, sources, hallmarks={}, {}, {}, {}, {}
 		for folder, prefix in zip(folders, prefixes):
 			folder=Path(folder)
+			dna=prefix.endswith("_spades_filtered_scaffolds.tot")
+			sample=prefix.removesuffix("_spades_filtered_scaffolds.tot") if dna else folder.parent.name
+			assemblers={"spades", "metaspades"} if dna else {prefix}
 			summary=folder / (prefix + "_summary")
 			virus=summary / (prefix + "_virus_summary.tsv")
 			plasmid=summary / (prefix + "_plasmid_summary.tsv")
@@ -882,7 +886,7 @@ rule collect_all_assembled_top_evidence:
 						if row.get(biology + "_hallmark") == "1":
 							hallmarks.setdefault((name, biology), {})[row["gene"]]=row.get("annotation_description", "")
 			for name in wanted:
-				if len(folders) == 1 or origin_samples[name] == prefix.removesuffix("_spades_filtered_scaffolds.tot"):
+				if origin_samples[name] == sample and origin_assemblers[name] in assemblers:
 					sources[name]=(str(folder), virus.is_file(), gene_path.is_file())
 		with open(output.tsv, "w") as handle:
 			writer=csv.DictWriter(handle, fieldnames=fields, delimiter="\t", lineterminator="\n")

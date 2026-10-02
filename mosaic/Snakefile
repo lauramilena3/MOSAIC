@@ -508,7 +508,6 @@ def input_all_assembled_mapping(wildcards):
 		raise ValueError("All-assembled mapping requires paired-end samples in input_dir")
 	inputs=[ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_rep_seq.tot.fasta",
 		ALL_ASSEMBLED_DIR + "/all_assembled_contigs_derreplicated_cluster.tot.tsv",
-		dirs_dict["VIRAL_DIR"] + "/all_assembled_geNomad_tot",
 		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_RPKM_normalised_tot.txt",
 		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_counts_normalised_tot.txt",
 		ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_breadth_coverage_percent_tot.txt",
