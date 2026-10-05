@@ -94,10 +94,10 @@ is a candidate screen, not confirmation that every retained sequence is viral.
 
 RNA candidates enter the existing `tot` catalogue workflow **before clustering**,
 alongside the standard viral contigs. The existing MMseqs exact dereplication,
-BLAST, `anicalc_checkv.py`, `aniclust_checkv.py`, and representative selection are
+BLAST, `anicalc_checkv.py`, CheckV's original `aniclust`, and representative selection are
 reused. Clustering arguments stay `--min_ani 95 --min_tcov 85 --min_qcov 0`.
-The local clustering script's customized coverage-times-ANI condition is preserved;
-it is not replaced by an independent 95% ANI cutoff. There is no CD-HIT catalogue
+ANI must independently reach 95% and aligned coverage of the shorter sequence
+must reach 85%. The modified product-based helper is not used. There is no CD-HIT catalogue
 branch and no additional RNA-specific final vOTU FASTA.
 
 RNA candidates receive CheckV assessments, merged into the existing quality summary

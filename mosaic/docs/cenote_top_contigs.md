@@ -30,9 +30,9 @@ by contig ID. NC values remain in the reported columns but do not affect selecti
 The selection is written to
 `03_CONTIGS/ALL_ASSEMBLED/all_assembled_selected_contigs.tot.fasta`, with ranking
 and MMseqs membership tables alongside it. The existing `vOUTclustering` rule
-compares only this selection, using `anicalc_checkv.py` and `aniclust_checkv.py`
-with `--min_ani 95 --min_tcov 85 --min_qcov 0`. The workflow's existing custom
-coverage-times-ANI condition is preserved. Results are in
+compares only this selection, using `anicalc_checkv.py` and CheckV's original `aniclust`
+with `--min_ani 95 --min_tcov 85 --min_qcov 0`: independently at least 95% ANI
+and 85% aligned coverage of the shorter sequence. Results are in
 `all_assembled_selected_contigs.tot_95-85.clstr` and its BLAST/ANI tables.
 
 Every longest-first cluster representative is kept for annotation. There is

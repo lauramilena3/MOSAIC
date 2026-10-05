@@ -193,7 +193,7 @@ rule vOUTclustering:
 			else
 				printf 'qname\ttname\tnum_alns\tpid\tqcov\ttcov\n' > {output.aniout:q}
 			fi
-			python scripts/aniclust_checkv.py --fna {input.fasta:q} --ani {output.aniout:q} --out {output.clusters:q} --min_ani 95 --min_tcov 85 --min_qcov 0
+			aniclust --fna {input.fasta:q} --ani {output.aniout:q} --out {output.clusters:q} --min_ani 95 --min_tcov 85 --min_qcov 0
 		else
 			printf '' > {output.blastout:q}
 			printf 'qname\ttname\tnum_alns\tpid\tqcov\ttcov\n' > {output.aniout:q}
@@ -348,7 +348,7 @@ rule combine_with_taxmyphage:
 			blastn -query {params.tax_fasta} -db {params.tax_fasta} -outfmt '6 std qlen slen' \
 					-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
 			python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-			python scripts/aniclust_checkv.py --fna {params.tax_fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
+			aniclust --fna {params.tax_fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
 			cut -f1 {output.clusters} | sort | uniq > {output.cluster_rep}
 			seqtk subseq {params.tax_fasta} {output.cluster_rep} > {output.tax_fasta_rep}
 		else

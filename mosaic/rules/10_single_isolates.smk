@@ -578,7 +578,7 @@ rule map_to_host:
 	shell:
 		"""
 		# Unmasked host
-		bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.sam:q} --threads {threads} --no-unal --all --non-deterministic --very-sensitive
+		bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.sam:q} --threads {threads} --no-unal --all --very-sensitive
 		samtools view -@ {threads} -bS {output.sam:q} > {output.bam:q}
 		samtools sort -@ {threads} {output.bam:q} -o {output.sorted_bam:q}
 		samtools index {output.sorted_bam:q}
@@ -595,7 +595,7 @@ rule map_to_host:
 		bedtools genomecov -dz -ibam {output.filtered_bam:q} > {output.basecov_filtered:q}
 
 		# Prophage-masked host
-		bowtie2 -x {params.masked_prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.masked_sam:q} --threads {threads} --no-unal --all --non-deterministic --very-sensitive
+		bowtie2 -x {params.masked_prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.masked_sam:q} --threads {threads} --no-unal --all --very-sensitive
 		samtools view -@ {threads} -bS {output.masked_sam:q} > {output.masked_bam:q}
 		samtools sort -@ {threads} {output.masked_bam:q} -o {output.masked_sorted_bam:q}
 		samtools index {output.masked_sorted_bam:q}
@@ -627,14 +627,15 @@ rule clustering_isolates:
 	#		dirs_dict['BENCHMARKS']+ "/vOUTclustering/{sequence}.tsv",
 	threads: 144
 	wildcard_constraints:
-		sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
+		identity="95",
+		coverage="85",
 	shell:
 		"""
 		makeblastdb -in {input.fasta} -dbtype nucl -out {input.fasta}
 		blastn -query {input.fasta} -db {input.fasta} -outfmt '6 std qlen slen' \
 				-max_target_seqs 10000000 -out {output.blastout} -num_threads {threads}
 		python scripts/anicalc_checkv.py  -i {output.blastout} -o {output.aniout}
-		python scripts/aniclust_checkv.py --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani {wildcards.identity} --min_tcov {wildcards.coverage} --min_qcov 0
+		aniclust --fna {input.fasta} --ani {output.aniout} --out {output.clusters} --min_ani 95 --min_tcov 85 --min_qcov 0
 		"""
 
 rule estimateBacterialGenomeCompletness_host:
