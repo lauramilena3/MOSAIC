@@ -95,11 +95,11 @@ rule genomad_viral_id:
 rule report_assembly_circularity:
 	input:
 		assembly=lambda wc: (
-			dirs_dict["ASSEMBLY_DIR"] + f"/{wc.sample}_spades_filtered_scaffolds.tot.fasta"
+			dirs_dict["HOST_DIR"] + f"/{wc.sample}.fasta" if wc.assembler == "host" else dirs_dict["ASSEMBLY_DIR"] + f"/{wc.sample}_spades_filtered_scaffolds.tot.fasta"
 			if wc.assembler == "spades" else RNA_DIR + f"/{wc.sample}_{wc.assembler}.fasta"
 		),
 		genomad=lambda wc: (
-			dirs_dict["VIRAL_DIR"] + f"/{wc.sample}_geNomad_tot/"
+			dirs_dict["HOST_DIR"] + f"/{wc.sample}_geNomad" if wc.assembler == "host" else dirs_dict["VIRAL_DIR"] + f"/{wc.sample}_geNomad_tot/"
 			if wc.assembler == "spades" else RNA_DIR + f"/{wc.sample}/{wc.assembler}_genomad"
 		),
 	output:
@@ -113,7 +113,7 @@ rule report_assembly_circularity:
 		dirs_dict["BENCHMARKS"] + "/report_assembly_circularity/sample={sample}__assembler={assembler}.tsv"
 	threads: 1
 	wildcard_constraints:
-		assembler="spades|rnaviralspades|megahit|trinity"
+		assembler="spades|rnaviralspades|megahit|trinity|host"
 	run:
 		import csv
 

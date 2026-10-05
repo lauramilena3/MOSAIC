@@ -19,10 +19,17 @@ rule estimateGenomeCompletnessIsolates:
 	shell:
 		"""
 		rm -rf {params.checkv_outdir}
+		if [ -s {input.assembly_fasta:q} ]; then
 		checkv contamination {input.assembly_fasta} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 		checkv completeness {input.assembly_fasta} {params.checkv_outdir} -t {threads} -d {config[checkv_db]}
 		checkv complete_genomes {input.assembly_fasta} {params.checkv_outdir}
 		checkv quality_summary {input.assembly_fasta} {params.checkv_outdir}
+		else
+			mkdir -p {params.checkv_outdir:q}
+			printf 'contig_id\\tcontig_length\\tprovirus\\tproviral_length\\tgene_count\\tviral_genes\\thost_genes\\tcheckv_quality\\tmiuvig_quality\\tcompleteness\\tcompleteness_method\\tcontamination\\tkmer_freq\\twarnings\\n' > {output.quality_summary:q}
+			printf 'contig_id\\n' > {output.completeness:q}
+			printf 'contig_id\\n' > {output.contamination:q}
+		fi
 		"""
 
 rule filter_isolates:
@@ -397,15 +404,14 @@ rule viridic_relatives_phages:
 
 rule genomad_host:
 	input:
-		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
-		genomad_db= config['genomad_db'],
+		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		genomad_db=config["genomad_db"],
 	output:
 		genomad_outdir=directory(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
 		positive_contigs=dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta",
-	params:
-		viral_fasta=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.fna",
+		evidence=dirs_dict["HOST_DIR"] + "/prophages/{host}_viral_evidence.tsv",
 	message:
-		"Identifying prophages in host genome {wildcards.host} with geNomad"
+		"Identifying embedded prophages and whole-contig viral candidates in host {wildcards.host}"
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env6.yaml"
 	benchmark:
@@ -413,10 +419,37 @@ rule genomad_host:
 	threads: 16
 	shell:
 		"""
-		genomad end-to-end --cleanup -t {threads} {input.host_fasta} {output.genomad_outdir} {input.genomad_db} 
-		sed "s/|/_/g" {params.viral_fasta} | sed "s/>/>{wildcards.host}_/g"> {output.positive_contigs}
+		genomad end-to-end --restart --cleanup -t {threads} {input.host_fasta:q} {output.genomad_outdir:q} {input.genomad_db:q}
+		python - {output.genomad_outdir:q} {wildcards.host:q} {output.positive_contigs:q} {output.evidence:q} <<-'PYTHON'
+		import csv
+		import sys
+		from pathlib import Path
+		from Bio import SeqIO
+		folder, host, fasta, evidence = sys.argv[1:]
+		summary = Path(folder) / (host + "_summary")
+		with (summary / (host + "_virus_summary.tsv")).open() as handle:
+		    calls = {{row["seq_name"]: row for row in csv.DictReader(handle, delimiter="\\t")}}
+		fields = ["host", "viral_id", "genomad_sequence", "parent_contig", "evidence_scope", "start", "end",
+		          "length_bp", "virus_score", "taxonomy", "topology", "n_hallmarks", "genetic_code"]
+		with open(fasta, "w") as output, open(evidence, "w") as table:
+		    writer = csv.DictWriter(table, fieldnames=fields, delimiter="\\t", lineterminator="\\n")
+		    writer.writeheader()
+		    for record in SeqIO.parse(summary / (host + "_virus.fna"), "fasta"):
+		        original = record.id
+		        row = calls[original]
+		        embedded = "|provirus_" in original
+		        coordinates = row.get("coordinates", "").split("-") if embedded else ["1", str(len(record.seq))]
+		        record.id = host + "_" + original.replace("|", "_")
+		        record.description = ""
+		        SeqIO.write(record, output, "fasta")
+		        writer.writerow(dict(host=host, viral_id=record.id, genomad_sequence=original,
+		            parent_contig=original.split("|provirus_")[0],
+		            evidence_scope="embedded_prophage" if embedded else "whole_contig_viral_candidate",
+		            start=coordinates[0], end=coordinates[-1], length_bp=len(record.seq),
+		            **{{key: row.get(key, "not reported") for key in fields[8:]}}))
+		PYTHON
 		"""
-		
+
 rule estimateGenomeCompletness_prophages:
 	input:
 		positive_contigs=dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta",
@@ -455,29 +488,37 @@ rule estimateGenomeCompletness_prophages:
 
 rule mask_prophages:
 	input:
-		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
-		genomad_outdir=(dirs_dict["HOST_DIR"] + "/{host}_geNomad"),
+		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		evidence=dirs_dict["HOST_DIR"] + "/prophages/{host}_viral_evidence.tsv",
 	output:
-		masked_prophages = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
-		mask_regions = dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_mask_regions.bed",
+		masked_prophages=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
+		mask_regions=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_mask_regions.bed",
 	params:
-		mask_file=dirs_dict["HOST_DIR"] + "/{host}_geNomad/{host}_find_proviruses/{host}_provirus.tsv",
-		mask_additional_bases=500,
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+		mask_additional_bases=0 if ISOLATES else 500,
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/mask_prophages/host={host}.tsv"
-	shell:
-		"""
-		# Convert the TSV file to a BED format file
-		awk 'BEGIN {{OFS="\t"}} 
-			NR>1 {{
-					start = ($3 - 1 - {params.mask_additional_bases} < 0 ? 0 : $3 - 1 - {params.mask_additional_bases});
-					print $2, start, $4 + {params.mask_additional_bases}
-			}}' {params.mask_file} > {output.mask_regions}
-		# Mask the sequences using bedtools maskfasta
-		bedtools maskfasta -fi {input.host_fasta} -bed {output.mask_regions} -fo {output.masked_prophages}
-		"""
+	threads: 1
+	run:
+		import csv
+		from Bio import SeqIO
+
+		with open(input.evidence) as handle:
+			regions=list(csv.DictReader(handle, delimiter="\t"))
+		with open(output.mask_regions, "w") as bed, open(output.masked_prophages, "w") as fasta:
+			for record in SeqIO.parse(input.host_fasta, "fasta"):
+				sequence=list(str(record.seq))
+				whole_viral=False
+				for row in regions:
+					if row["parent_contig"] != record.id:
+						continue
+					start=max(0, int(row["start"]) - 1 - params.mask_additional_bases)
+					end=min(len(sequence), int(row["end"]) + params.mask_additional_bases)
+					bed.write(f"{record.id}\t{start}\t{end}\n")
+					whole_viral=whole_viral or row["evidence_scope"] == "whole_contig_viral_candidate"
+					sequence[start:end]=["N"] * (end - start)
+				# A standalone viral contig is not host chromosome sequence.
+				if not whole_viral:
+					fasta.write(f">{record.id}\n{''.join(sequence)}\n")
 
 rule buildBowtieDB_host:
 	input:
@@ -500,34 +541,47 @@ rule buildBowtieDB_host:
 	threads: 8
 	shell:
 		"""
-		bowtie2-build {input.host_fasta} {params.prefix} --threads {threads}
+		if [ -s {input.host_fasta:q} ]; then
+			bowtie2-build {input.host_fasta:q} {params.prefix:q} --threads {threads}
+		else
+			touch {output:q}
+		fi
 		"""
 
 rule run_BLASTn_host:
 	input:
-		host_fasta = dirs_dict["HOST_DIR"] + "/{host}.fasta",
-		assembly_fasta=expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
+		host_fasta=lambda wc: dirs_dict["HOST_DIR"] + ("/prophages/" + wc.host + "_prophages.fasta" if wc.host_scope else "/" + wc.host + ".fasta"),
+		assembly_fasta=[ALL_ASSEMBLED_DIR + "/phage_isolates_contigs.tot.fasta"] if ISOLATES else expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
 	output:
-		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs_{host}.fasta"),
-		blast_output=(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.tot.csv"),
+		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs_{host}{host_scope}.fasta"),
+		blast_output=(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}{host_scope}.tot.csv"),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/run_BLASTn_host/host={host}.tsv"
+		dirs_dict["BENCHMARKS"] + "/run_BLASTn_host/host={host}__scope={host_scope}.tsv"
+	wildcard_constraints:
+		host="|".join(re.escape(host) for host in HOSTS) or "(?!)",
+		host_scope="|_viral_regions",
 	message:
 		"Annotating contigs with BLAST"
 	threads: 8
 	shell:
 		"""
 		cat {input.assembly_fasta} > {output.temp_fasta}
+		if [ -s {input.host_fasta:q} ] && [ -s {output.temp_fasta:q} ]; then
 		makeblastdb -in {input.host_fasta} -dbtype nucl
 		blastn -num_threads {threads} -db {input.host_fasta} -query {output.temp_fasta}\
 			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
+		else
+			printf '' > {output.blast_output:q}
+		fi
 		"""
 
 # Both references are mapped sequentially in one job per sample/host.
 rule map_to_host:
 	input:
+		host_fasta=dirs_dict["HOST_DIR"] + "/{host}.fasta",
+		masked_fasta=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta",
 		contigs_bt2_1=(dirs_dict["HOST_DIR"] + "/{host}.1.bt2"),
 		contigs_bt2_2=(dirs_dict["HOST_DIR"] + "/{host}.2.bt2"),
 		contigs_bt2_3=(dirs_dict["HOST_DIR"] + "/{host}.3.bt2"),
@@ -542,6 +596,7 @@ rule map_to_host:
 		masked_bt2_rev_2=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.rev.2.bt2",
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
+		unpaired=mapping_orphan_reads,
 	output:
 		sam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.sam"),
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/HOST/bowtie2_{sample}_vs_{host}.bam"),
@@ -566,6 +621,7 @@ rule map_to_host:
 		masked_basecov=dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_basecov.txt",
 		masked_basecov_filtered=dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_filtered_{sample}_vs_{host}_masked_prophages_basecov.txt",
 	params:
+		unpaired=mapping_orphan_option,
 		prefix=dirs_dict["HOST_DIR"]+ "/{host}",
 		masked_prefix=dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages",
 	message:
@@ -578,36 +634,64 @@ rule map_to_host:
 	shell:
 		"""
 		# Unmasked host
-		bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.sam:q} --threads {threads} --no-unal --all --very-sensitive
+		if [ -s {input.host_fasta:q} ]; then
+			bowtie2 -x {params.prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} {params.unpaired} -S {output.sam:q} --threads {threads} --no-unal --all --very-sensitive
+		else
+			printf '@HD\\tVN:1.6\\tSO:coordinate\\n' > {output.sam:q}
+		fi
 		samtools view -@ {threads} -bS {output.sam:q} > {output.bam:q}
 		samtools sort -@ {threads} {output.bam:q} -o {output.sorted_bam:q}
 		samtools index {output.sorted_bam:q}
 		
-		coverm filter -b {output.sorted_bam:q} -o {output.filtered_bam:q} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
+		if [ -s {input.host_fasta:q} ]; then
+			coverm filter -b {output.sorted_bam:q} -o {output.filtered_bam:q} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		else
+			cp {output.sorted_bam:q} {output.filtered_bam:q}
+		fi
 		
 		samtools flagstat {output.sorted_bam:q} > {output.flagstats:q}
 		samtools flagstat {output.filtered_bam:q} > {output.flagstats_filtered:q}
 
-		coverm contig -b {output.sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.covstats:q}
-		coverm contig -b {output.filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.covstats_filtered:q}
-
-		bedtools genomecov -dz -ibam {output.sorted_bam:q} > {output.basecov:q}
-		bedtools genomecov -dz -ibam {output.filtered_bam:q} > {output.basecov_filtered:q}
+		if [ -s {input.host_fasta:q} ]; then
+			coverm contig -b {output.sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.covstats:q}
+			coverm contig -b {output.filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.covstats_filtered:q}
+			bedtools genomecov -dz -ibam {output.sorted_bam:q} > {output.basecov:q}
+			bedtools genomecov -dz -ibam {output.filtered_bam:q} > {output.basecov_filtered:q}
+		else
+			printf 'Contig\\tMean\\tLength\\tCovered Bases\\tRead Count\\tVariance\\tTrimmed Mean\\tRPKM\\n' > {output.covstats:q}
+			cp {output.covstats:q} {output.covstats_filtered:q}
+			printf '' > {output.basecov:q}
+			printf '' > {output.basecov_filtered:q}
+		fi
 
 		# Prophage-masked host
-		bowtie2 -x {params.masked_prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} -S {output.masked_sam:q} --threads {threads} --no-unal --all --very-sensitive
+		if [ -s {input.masked_fasta:q} ]; then
+			bowtie2 -x {params.masked_prefix:q} -1 {input.forward_paired:q} -2 {input.reverse_paired:q} {params.unpaired} -S {output.masked_sam:q} --threads {threads} --no-unal --all --very-sensitive
+		else
+			printf '@HD\\tVN:1.6\\tSO:coordinate\\n' > {output.masked_sam:q}
+		fi
 		samtools view -@ {threads} -bS {output.masked_sam:q} > {output.masked_bam:q}
 		samtools sort -@ {threads} {output.masked_bam:q} -o {output.masked_sorted_bam:q}
 		samtools index {output.masked_sorted_bam:q}
 		samtools flagstat {output.masked_sorted_bam:q} > {output.masked_flagstats:q}
-		coverm filter -b {output.masked_sorted_bam:q} -o {output.masked_filtered_bam:q} --min-read-percent-identity 100 --min-read-aligned-percent 100 -t {threads}
+		if [ -s {input.masked_fasta:q} ]; then
+			coverm filter -b {output.masked_sorted_bam:q} -o {output.masked_filtered_bam:q} --min-read-percent-identity 95 --min-read-aligned-percent 85 -t {threads}
+		else
+			cp {output.masked_sorted_bam:q} {output.masked_filtered_bam:q}
+		fi
 		samtools flagstat {output.masked_filtered_bam:q} > {output.masked_flagstats_filtered:q}
 
-		coverm contig -b {output.masked_sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.masked_covstats:q}
-		coverm contig -b {output.masked_filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.masked_covstats_filtered:q}
-
-		bedtools genomecov -dz -ibam {output.masked_sorted_bam:q} > {output.masked_basecov:q}
-		bedtools genomecov -dz -ibam {output.masked_filtered_bam:q} > {output.masked_basecov_filtered:q}
+		if [ -s {input.masked_fasta:q} ]; then
+			coverm contig -b {output.masked_sorted_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.masked_covstats:q}
+			coverm contig -b {output.masked_filtered_bam:q} -m mean length covered_bases count variance trimmed_mean rpkm -o {output.masked_covstats_filtered:q}
+			bedtools genomecov -dz -ibam {output.masked_sorted_bam:q} > {output.masked_basecov:q}
+			bedtools genomecov -dz -ibam {output.masked_filtered_bam:q} > {output.masked_basecov_filtered:q}
+		else
+			printf 'Contig\\tMean\\tLength\\tCovered Bases\\tRead Count\\tVariance\\tTrimmed Mean\\tRPKM\\n' > {output.masked_covstats:q}
+			cp {output.masked_covstats:q} {output.masked_covstats_filtered:q}
+			printf '' > {output.masked_basecov:q}
+			printf '' > {output.masked_basecov_filtered:q}
+		fi
 		"""
 
 rule clustering_isolates:

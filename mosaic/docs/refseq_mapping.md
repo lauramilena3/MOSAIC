@@ -48,8 +48,10 @@ pass `--config RefSeqViral_db=/path/to/RefSeq_viral.fasta` to the wrapper.
 ## Mapping and normalization
 
 Every discovered short-read sample uses its full cleaned paired-end `tot` files.
-This branch does not map raw/unpaired/long reads or create a `sub` RefSeq analysis,
-even when other branches use subsampling. RNA and DNA libraries use the same
+In virome mode this branch does not map raw/unpaired/long reads or create a `sub` RefSeq analysis,
+even when other branches use subsampling. Isolate mode additionally maps every
+QC-passed orphan read and includes primary single-mate/discordant alignments in
+the no-`XS:i:` unique subset. RNA and DNA libraries use the same
 mapping procedure. The configured database must be a nucleotide FASTA.
 
 The rules in `07_abundance.smk` follow `mapReads_reference`: Bowtie2 `--fast`,

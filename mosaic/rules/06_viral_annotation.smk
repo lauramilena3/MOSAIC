@@ -66,12 +66,12 @@ rule annotate_cenote:
 
 rule lifestyle_bacphlip:
 	input:
-		fasta=dirs_dict["vOUT_DIR"] + "/{sequence}.fasta",
+		fasta=lambda wc: annotation_fasta_path(wc.sequence),
 	output:
 		results_bacphlip_final=(dirs_dict["ANNOTATION"] + "/{sequence}_bacphlip.csv"),
 	params:
-		results_bacphlip=(dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.bacphlip"),
-		results_dir=((dirs_dict["vOUT_DIR"] + "/{sequence}.fasta.BACPHLIP_DIR")),
+		results_bacphlip=lambda wc, input: input.fasta + ".bacphlip",
+		results_dir=lambda wc, input: input.fasta + ".BACPHLIP_DIR",
 	message:
 		"Predicting lifecycle with BACPHLIP"
 	conda:
@@ -83,11 +83,15 @@ rule lifestyle_bacphlip:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
-		rm -rf {params.results_dir}
-		mkdir {params.results_dir}
-		cd {params.results_dir}
-		bacphlip -i {input.fasta} --multi_fasta -f
-		mv {params.results_bacphlip} {output.results_bacphlip_final}
+		if [ -s {input.fasta:q} ]; then
+			rm -rf {params.results_dir:q}
+			mkdir -p {params.results_dir:q}
+			cd {params.results_dir:q}
+			bacphlip -i {input.fasta:q} --multi_fasta -f
+			mv {params.results_bacphlip:q} {output.results_bacphlip_final:q}
+		else
+			printf 'Sequence\tVirulent\tTemperate\n' > {output.results_bacphlip_final:q}
+		fi
 		rm -rf {params.results_dir}
 		"""
 

@@ -593,7 +593,7 @@ rule remove_user_contaminants_PE:
 		forward_paired=remove_user_contaminants_forward,
 		reverse_paired=remove_user_contaminants_reverse,
 		unpaired=remove_user_contaminants_unpaired,
-		contaminants_fasta=expand(dirs_dict["CONTAMINANTS_DIR_DB"] +"/{contaminants}.fasta",contaminants=CONTAMINANTS),
+		contaminants_fasta=expand(dirs_dict["CONTAMINANTS_DIR_DB"] +"/{contaminants}.fasta",contaminants=CONTAMINANTS) if not ISOLATES else [],
 	output:
 		forward_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz"),
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz"),
@@ -601,7 +601,7 @@ rule remove_user_contaminants_PE:
 		phix_contaminants_fasta=dirs_dict["CONTAMINANTS_DIR"] +"/{sample}_contaminants.fasta",
 		stats=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_contaminant_stats_bbduk.tot.txt"),
 	params:
-		has_contaminants=bool(CONTAMINANTS),
+		has_contaminants=bool(CONTAMINANTS) and not ISOLATES,
 	message:
 		"Removing configured contaminants or passing reads through unchanged"
 	conda:
