@@ -21,6 +21,8 @@ dependencies:
   - pyparsing =2.4.5
   - pytorch =1.8.0
   - blast =2.12.0
+  - seqtk =1.4 # preserve zlib <1.3 required by legacy PyTables
+  - git =2.38.1 # compatible with MMseqs2's Perl 5.32 runtime
   - diamond =2.0.13
 #  - biom-format =2.1.7
   - taxonkit =0.6.0

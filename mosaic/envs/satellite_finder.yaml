@@ -3,4 +3,4 @@ channels:
   - bioconda
 dependencies:
   - apptainer =1.1.2
-  
+  - seqtk =1.5

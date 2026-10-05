@@ -9,8 +9,8 @@ dependencies:
   - concoct =1.1.0
   - das_tool =1.1.6
   - scikit-learn=1.1.0
+  - openjdk =11
   - pip = 23.3.1
   - pip:
     - git+https://github.com/RasmussenLab/vamb@v4.1.3
     - mdmparis-defense-finder==1.2.0
-  

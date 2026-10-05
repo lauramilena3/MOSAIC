@@ -94,21 +94,41 @@ rule metaspadesPE_test_depth:
 rule assemblyStatsILLUMINA_test_depth:
 	input:
 		scaffolds_assembly=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test),
-		quast_dir=(config["quast_dir"]),
 	output:
 		quast_report_dir=directory(dirs_dict["ASSEMBLY_TEST"] + "/assembly_statistics_quast_{sampling}"),
 		quast_txt=dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.{sampling}.txt",
+		quast_tsv=dirs_dict["ASSEMBLY_TEST"] + "/assembly_statistics_quast_{sampling}/transposed_report.tsv",
 	message:
-		"Creating viral stats with quast"
+		"Creating assembly-depth statistics with QUAST"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1_quast.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/assemblyStatsILLUMINA_test_depth/sampling={sampling}.tsv"
+	log:
+		dirs_dict["ASSEMBLY_TEST"] + "/quast.{sampling}.log"
 	threads: 4
 	shell:
 		"""
-		{input.quast_dir}/quast.py {input.scaffolds_assembly} -o {output.quast_report_dir} --threads {threads}
-		cp {output.quast_report_dir}/report.txt {output.quast_txt}
+		quast_fastas=()
+		quast_labels=""
+		for quast_fasta in {input.scaffolds_assembly:q}; do
+			if [ -s "$quast_fasta" ]; then
+				quast_fastas+=("$quast_fasta")
+				quast_label=$(basename "$quast_fasta" .fasta)
+				quast_labels+="${{quast_label}},"
+			fi
+		done
+		if [ "${{#quast_fastas[@]}}" -gt 0 ]; then
+			quast.py "${{quast_fastas[@]}}" -o {output.quast_report_dir:q} \
+				--labels "${{quast_labels%,}}" --min-contig 1 --threads {threads} > {log:q} 2>&1
+			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
+		else
+			mkdir -p {output.quast_report_dir:q}
+			printf 'Assembly\n' > {output.quast_tsv:q}
+			printf 'No contigs to assess.\n' > {output.quast_report_dir:q}/report.txt
+			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
+			printf 'No contigs to assess.\n' > {log:q}
+		fi
 		"""
 
 rule genomad_viral_id_subassembly:
@@ -142,21 +162,41 @@ rule genomad_viral_id_subassembly:
 rule viralStatsILLUMINA_test_depth:
 	input:
 		scaffolds_viral=expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_positive_geNomad.{{sampling}}.fasta", sample=SAMPLES, subsample=subsample_test),
-		quast_dir=(config["quast_dir"]),
 	output:
 		quast_report_dir=directory(dirs_dict["ASSEMBLY_TEST"] + "/assembly_statistics_viral_contigs_quast_{sampling}"),
 		quast_txt=dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report_viral.{sampling}.txt",
+		quast_tsv=dirs_dict["ASSEMBLY_TEST"] + "/assembly_statistics_viral_contigs_quast_{sampling}/transposed_report.tsv",
 	message:
-		"Creating viral stats with quast"
+		"Creating viral assembly-depth statistics with QUAST"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env1_quast.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/viralStatsILLUMINA_test_depth/sampling={sampling}.tsv"
+	log:
+		dirs_dict["ASSEMBLY_TEST"] + "/quast_viral.{sampling}.log"
 	threads: 4
 	shell:
 		"""
-		{input.quast_dir}/quast.py {input.scaffolds_viral} -o {output.quast_report_dir} --threads {threads}
-		cp {output.quast_report_dir}/report.txt {output.quast_txt}
+		quast_fastas=()
+		quast_labels=""
+		for quast_fasta in {input.scaffolds_viral:q}; do
+			if [ -s "$quast_fasta" ]; then
+				quast_fastas+=("$quast_fasta")
+				quast_label=$(basename "$quast_fasta" .fasta)
+				quast_labels+="${{quast_label}},"
+			fi
+		done
+		if [ "${{#quast_fastas[@]}}" -gt 0 ]; then
+			quast.py "${{quast_fastas[@]}}" -o {output.quast_report_dir:q} \
+				--labels "${{quast_labels%,}}" --min-contig 1 --threads {threads} > {log:q} 2>&1
+			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
+		else
+			mkdir -p {output.quast_report_dir:q}
+			printf 'Assembly\n' > {output.quast_tsv:q}
+			printf 'No viral contigs to assess.\n' > {output.quast_report_dir:q}/report.txt
+			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
+			printf 'No viral contigs to assess.\n' > {log:q}
+		fi
 		"""
 
 rule estimateGenomeCompletness_test_depth:
