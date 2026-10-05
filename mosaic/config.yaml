@@ -127,7 +127,7 @@ max_subsample: "50000000"
 
 #Spades and canu assembly
 min_len: "1000"
-min_cov: "2"
+min_cov: "0"
 
 # min_votu_length
 min_votu_length: 5000
