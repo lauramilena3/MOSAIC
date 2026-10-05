@@ -4,7 +4,7 @@ From `mosaic/`, add these options to the usual `phage_isolates` command:
 
 ```bash
 snakemake --use-conda -p phage_isolates --config \
-  input_dir=/path/to/00_RAW_DATA \
+  input_dir=/path/to/00_RAW_DATA isolates=True \
   sourmash_contig_catalogue=True sourmash_contig_catalogue_min_length=5000 \
   -j 32 --rerun-incomplete
 ```
@@ -16,8 +16,8 @@ or `microbial_metagenome`.
 ## Reused rules
 
 The existing global isolate catalogue still includes every retained SPAdes
-contig >=1 kb. Exact MMseqs dereplication and the current MOSAIC clustering
-criterion are unchanged.
+contig >=1 kb. Exact MMseqs dereplication is followed by the original CheckV
+independent >=95% ANI and >=85% target-coverage clustering criterion.
 
 `vOUTclustering_get_new_references` also extracts the global cluster centroids
 directly from the existing `.clstr` file. It writes
@@ -38,8 +38,8 @@ shorter sequences from the representative FASTA or either metadata table.
 
 ## Results and interpretation
 
-The existing `08_phage_isolates_summary.tot.ipynb` displays the screening table
-and adds `sourmash_` columns to both existing outputs:
+The catalogue notebook adds `sourmash_` columns to both existing outputs; the
+isolate-summary notebook displays that evidence alongside retention decisions:
 
 - `03_CONTIGS/ALL_ASSEMBLED/phage_isolates.tot/cluster_metadata.tsv`
 - `03_CONTIGS/ALL_ASSEMBLED/phage_isolates.tot/all_contig_metadata.tsv`

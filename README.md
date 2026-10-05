@@ -106,6 +106,10 @@ biological modes are:
 The old target names `assembly_phage` and `microbial` have been replaced by
 `phage_isolates` and `microbial_metagenome` for consistency.
 
+The [isolate recovery and purity workflow](mosaic/docs/isolate_purity.md)
+uses all QC-passed reads, preserves host-associated exclusions and unexplained
+reads, and treats geNomad as evidence rather than a viral selection gate.
+
 ## Long-Read and Hybrid Modes
 
 These modes are also available through the wrapper:

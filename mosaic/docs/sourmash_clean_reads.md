@@ -4,7 +4,7 @@ Enable the optional screen with:
 
 ```bash
 snakemake --use-conda -p phage_isolates \
-  --config input_dir=/path/to/00_RAW_DATA sourmash_clean_reads=True \
+  --config input_dir=/path/to/00_RAW_DATA isolates=True sourmash_clean_reads=True \
   -j 32 --rerun-incomplete
 ```
 
