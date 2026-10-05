@@ -478,7 +478,7 @@ def get_clinker_outputs(wildcards):
 def inputRNAAssembly(wildcards):
 	if not RNA_MODE:
 		raise ValueError("Set RNA_enriched=True to run RNA assembly")
-	inputs=expand(RNA_DIR + "/{sample}/combined.fasta", sample=SAMPLES)
+	inputs=expand(RNA_DIR + "/{sample}_combined_derreplicated.fasta", sample=SAMPLES)
 	inputs.append(RNA_DIR + "/assembly_quast_report.tot.txt")
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_contig_counts.tot.png")
 	return inputs

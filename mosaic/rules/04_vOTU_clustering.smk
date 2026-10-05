@@ -17,7 +17,7 @@ def input_vOTU_clustering(wildcards):
 		input_list.extend(expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS))
 		input_list.extend(expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES))
 	if RNA_MODE and wildcards.sampling == "tot":
-		input_list.extend(expand(RNA_DIR + "/{sample}/virsorter/final-viral-combined.fa", sample=SAMPLES))
+		input_list.extend(expand(RNA_DIR + "/{sample}_virsorter2_RNA_viral_positive.fasta", sample=SAMPLES))
 	return input_list
 
 # if len(config['additional_reference_contigs'])==0:
@@ -54,7 +54,7 @@ rule derreplicate_assembly:
 rule combine_all_assembled_contigs:
 	input:
 		dna=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES),
-		rna=lambda wc: expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE and wc.catalogue == "all_assembled" else [],
+		rna=lambda wc: expand(RNA_DIR + "/{sample}_{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS) if RNA_MODE and wc.catalogue == "all_assembled" else [],
 	output:
 		fasta=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs.tot.fasta",
 		provenance=ALL_ASSEMBLED_DIR + "/{catalogue}_contigs_provenance.tot.tsv",
@@ -89,7 +89,7 @@ rule combine_all_assembled_contigs:
 				if path.endswith("_spades_filtered_scaffolds.tot.fasta"):
 					sample=os.path.basename(path).removesuffix("_spades_filtered_scaffolds.tot.fasta")
 				else:
-					sample=os.path.basename(os.path.dirname(path))
+					sample=os.path.basename(path).removesuffix(".fasta").rsplit("_", 1)[0]
 				for contig_id, sequence in records(path):
 					assembler=contig_id.rsplit("_", 4)[1]
 					fasta.write(f">{contig_id}\n{sequence}\n")

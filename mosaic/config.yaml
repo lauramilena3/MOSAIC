@@ -6,8 +6,8 @@ RNA_enriched: False # add RNA assembly for every paired-end sample in input_dir
 rna_assemblers: "rnaviralspades megahit trinity"
 rna_min_contig_length: 500
 rna_assembly_threads: 16
-rna_assembly_mem_mb: 64000
-rna_trinity_threads: 2 # concurrent partitions; separate from SPAdes/MEGAHIT
+rna_assembly_mem_mb: 64000 # SPAdes/MEGAHIT allocation; Trinity adds its concurrent Butterfly heaps
+rna_trinity_threads: 8 # concurrent partitions; separate from SPAdes/MEGAHIT
 rna_trinity_bfly_heap_gb: 20 # Java heap per Butterfly process; leave RAM for concurrent jobs and overhead
 rna_trinity_strandedness: "" # empty (unstranded), RF, or FR; check library preparation
 # RNA-positive representatives have a separate acceptance route in the shared final filter.

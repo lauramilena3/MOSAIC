@@ -7,13 +7,14 @@ rule rename_assembled_contigs:
 		ids=RESULTS_DIR + "/{assembly_path}.ids.tsv",
 	params:
 		spades_assembler="metaspades" if METAGENOME_FLAG == "--meta" else "spades",
+		min_length=lambda wc: int(config.get("rna_min_contig_length", 500)) if wc.assembly_path.startswith("03_CONTIGS/RNA/") else 0,
 	message:
 		"Naming assembled contigs and recording their original identifiers"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/rename_assembled_contigs/assembly_path={assembly_path}.tsv"
 	threads: 1
 	wildcard_constraints:
-		assembly_path=r"03_CONTIGS/(?:RNA/[^/]+/(?:rnaviralspades|megahit|trinity)|[^/]+_spades_filtered_scaffolds\.(?:tot|sub)|[^/]+_(?:contigs_[^/]+|corrected_scaffolds_pilon)\.(?:tot|sub))|08_ASSEMBLY_TEST/[^/]+_metaspades_filtered_scaffolds\.(?:tot|sub)"
+		assembly_path=r"03_CONTIGS/(?:RNA/[^/]+_(?:rnaviralspades|megahit|trinity)|[^/]+_spades_filtered_scaffolds\.(?:tot|sub)|[^/]+_(?:contigs_[^/]+|corrected_scaffolds_pilon)\.(?:tot|sub))|08_ASSEMBLY_TEST/[^/]+_metaspades_filtered_scaffolds\.(?:tot|sub)"
 	run:
 		import csv
 		import re
@@ -21,7 +22,7 @@ rule rename_assembled_contigs:
 
 		path=wildcards.assembly_path
 		if path.startswith("03_CONTIGS/RNA/"):
-			_, _, sample, assembler=path.split("/")
+			sample, assembler=os.path.basename(path).rsplit("_", 1)
 			prefix=sample
 		else:
 			stem, sampling=os.path.basename(path).rsplit(".", 1)
@@ -52,13 +53,20 @@ rule rename_assembled_contigs:
 				prefix += "_sub"
 
 		with open(input.fasta) as source:
-			total_contigs=sum(1 for line in source if line.startswith(">"))
+			if params.min_length:
+				total_contigs=sum(1 for record in SeqIO.parse(source, "fasta") if len(record.seq) >= params.min_length)
+			else:
+				total_contigs=sum(1 for line in source if line.startswith(">"))
 		width=max(5, len(str(total_contigs)))
 
 		with open(input.fasta) as source, open(output.fasta, "w") as fasta, open(output.ids, "w") as handle:
 			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
 			writer.writerow(["contig_id", "sample", "assembler", "original_id", "length_bp", "original_description"])
-			for number, record in enumerate(SeqIO.parse(source, "fasta"), 1):
+			number=0
+			for record in SeqIO.parse(source, "fasta"):
+				if len(record.seq) < params.min_length:
+					continue
+				number += 1
 				original_id, description=record.id, record.description
 				contig_id=f"{prefix}_{assembler}_{number:0{width}d}_len_{len(record.seq)}"
 				writer.writerow([contig_id, sample, assembler, original_id, len(record.seq), description])
@@ -96,7 +104,7 @@ rule shortReadAsemblySpadesPE:
 	message:
 		"Assembling PE reads with metaSpades"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/shortReadAsemblySpadesPE/sample={sample}__sampling={sampling}.tsv"
 	threads: input_threads_assembler

@@ -27,7 +27,7 @@ if POOLED==True:
 		message:
 			"Assembling hybrid reads with metaSpades"
 		conda:
-			dirs_dict["ENVS_DIR"] + "/env2.yaml"
+			dirs_dict["ENVS_DIR"] + "/env3.yaml"
 		threads: 16
 		shell:
 			"""
@@ -54,7 +54,7 @@ rule hybridAsemblySpades:
 	message:
 		"Assembling hybrid reads with metaSpades"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/hybridAsemblySpades/sample={sample}__sampling={sampling}.tsv"
 	threads: 16

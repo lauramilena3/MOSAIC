@@ -1,6 +1,6 @@
 # Assembly identifiers
 
-One final FASTA is retained per assembly, in its established location. There
+One final FASTA is retained per assembly. RNA FASTAs are directly under `03_CONTIGS/RNA/`; DNA locations are unchanged. There
 is no `RENAMED` directory and no retained original-ID copy of that FASTA.
 
 The assembler produces a temporary `*.unrenamed.fasta`. The shared
@@ -12,20 +12,22 @@ in the workflow environment; no new environment is needed.
 ```text
 03_CONTIGS/{sample}_spades_filtered_scaffolds.tot.fasta
 03_CONTIGS/{sample}_spades_filtered_scaffolds.tot.ids.tsv
-03_CONTIGS/RNA/{sample}/rnaviralspades.fasta
-03_CONTIGS/RNA/{sample}/rnaviralspades.ids.tsv
-03_CONTIGS/RNA/{sample}/megahit.fasta
-03_CONTIGS/RNA/{sample}/megahit.ids.tsv
-03_CONTIGS/RNA/{sample}/trinity.fasta
-03_CONTIGS/RNA/{sample}/trinity.ids.tsv
+03_CONTIGS/RNA/{sample}_rnaviralspades.fasta
+03_CONTIGS/RNA/{sample}_rnaviralspades.ids.tsv
+03_CONTIGS/RNA/{sample}_megahit.fasta
+03_CONTIGS/RNA/{sample}_megahit.ids.tsv
+03_CONTIGS/RNA/{sample}_trinity.fasta
+03_CONTIGS/RNA/{sample}_trinity.ids.tsv
 ```
 
 Identifiers follow `{sample}_{assembler}_{number:0{width}d}_len_{length}`, for
 example `NT193_MSV_OY_01_metaspades_00001_len_1000`. The counter width is
 `max(5, len(str(total_contigs)))`, calculated separately for each assembly.
 An assembly of 200,000 contigs therefore starts at `000001` and ends at
-`200000`; an assembly of 2,000,000 starts at `0000001`. An initial header-count
-pass determines the width without loading all sequences into memory. Counters
+`200000`; an assembly of 2,000,000 starts at `0000001`. An initial counting
+pass determines the width without loading all sequences into memory. For RNA,
+only sequences of at least `rna_min_contig_length` are counted, numbered and saved;
+shorter sequences are omitted before renaming or downstream analysis. Counters
 follow FASTA order and restart at 1 per assembly. Length is calculated from the
 actual sequence, including Ns. Renaming preserves sequence content and case. Existing DNA length/coverage
 filtering happens first and is unchanged.
@@ -47,6 +49,7 @@ are kept only in the sidecars, not copied into the combined provenance, top
 metadata or cluster membership tables.
 
 RNA combination and all-assembled concatenation retain the named contig IDs.
+The per-sample RNA pool is `03_CONTIGS/RNA/{sample}_combined_derreplicated.fasta`.
 Existing RNA exact-sequence/reverse-complement deduplication keeps the first
 encountered named ID. Its provenance table records both member and representative
 IDs (`contig_id` and `representative`). All-assembled provenance records

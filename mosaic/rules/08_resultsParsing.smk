@@ -245,9 +245,9 @@ rule assembly_parsing_short:
 
 rule assembly_parsing_short_RNA:
 	input:
-		assemblies=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS),
-		combined=expand(RNA_DIR + "/{sample}/combined.fasta", sample=SAMPLES),
-		provenance=expand(RNA_DIR + "/{sample}/assembly_provenance.tsv", sample=SAMPLES),
+		assemblies=expand(RNA_DIR + "/{sample}_{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS),
+		combined=expand(RNA_DIR + "/{sample}_combined_derreplicated.fasta", sample=SAMPLES),
+		provenance=expand(RNA_DIR + "/{sample}_assembly_provenance.tsv", sample=SAMPLES),
 		quast=RNA_DIR + "/statistics_quast_tot/transposed_report.tsv",
 	output:
 		summary=dirs_dict["PLOTS_DIR"] + "/03_assembly_short_RNA_summary.tot.csv",
@@ -821,7 +821,7 @@ rule collect_all_assembled_top_evidence:
 	output:
 		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/{catalogue}_existing_annotations_tot.tsv",
 	params:
-		prefix=lambda wc: [sample + "_spades_filtered_scaffolds.tot" for sample in SAMPLES] + ([assembler for sample in SAMPLES for assembler in RNA_ASSEMBLERS] if RNA_MODE and wc.catalogue == "all_assembled_top_contigs" else []),
+		prefix=lambda wc: [sample + "_spades_filtered_scaffolds.tot" for sample in SAMPLES] + ([sample + "_" + assembler for sample in SAMPLES for assembler in RNA_ASSEMBLERS] if RNA_MODE and wc.catalogue == "all_assembled_top_contigs" else []),
 	wildcard_constraints:
 		catalogue="all_assembled_top_contigs|phage_isolates_contigs",
 	message:
@@ -865,8 +865,8 @@ rule collect_all_assembled_top_evidence:
 		for folder, prefix in zip(folders, prefixes):
 			folder=Path(folder)
 			dna=prefix.endswith("_spades_filtered_scaffolds.tot")
-			sample=prefix.removesuffix("_spades_filtered_scaffolds.tot") if dna else folder.parent.name
-			assemblers={"spades", "metaspades"} if dna else {prefix}
+			sample=prefix.removesuffix("_spades_filtered_scaffolds.tot") if dna else prefix.rsplit("_", 1)[0]
+			assemblers={"spades", "metaspades"} if dna else {prefix.rsplit("_", 1)[1]}
 			summary=folder / (prefix + "_summary")
 			virus=summary / (prefix + "_virus_summary.tsv")
 			plasmid=summary / (prefix + "_plasmid_summary.tsv")

@@ -59,7 +59,9 @@ The former `microdiversity_reference` override is no longer supported.
 independently on each sample. SPAdes uses **`--rnaviral`**, not ordinary `--rna`.
 These assemblies are additional to the standard MOSAIC assembly.
 Each assembler has its own explicit rule in `rules/12_rna_microdiversity.smk`,
-with its own environment, command, log and benchmark. Assembly reconciliation
+with its own command, log and benchmark. DNA SPAdes, RNAviralSPAdes, hybrid SPAdes
+and SPAdes assembly-depth tests share `env3.yaml` (SPAdes 4.3.0 and seqtk 1.5).
+MEGAHIT and Trinity retain their dedicated environments. Assembly reconciliation
 and microdiversity calculations are also written directly in their rule blocks.
 
 The companion `03_assembly_short_RNA.py.ipynb` runs after the selected assemblies
@@ -67,22 +69,26 @@ are combined for all samples. Its executed notebook is saved in `NOTEBOOKS/`;
 the summary and provenance CSVs, plus four PNG/SVG plots, are saved in
 `FIGURES_AND_TABLES/` with the `03_assembly_short_RNA_` prefix. It reports
 per-assembler and combined contig counts, assembled bases, length distributions,
-N50, and the counts retained, collapsed as exact duplicates or below the minimum
-length. Empty assemblies remain visible. The combined FASTA is not a vOTU catalogue.
+N50, and the counts retained or collapsed as exact duplicates. All saved assembler
+FASTAs already meet `rna_min_contig_length`; the legacy below-minimum provenance
+column is normally zero. Empty assemblies remain visible. The `combined_derreplicated` FASTA is
+not a vOTU catalogue and has not yet been screened by VirSorter2.
 
 With `RNA_enriched=True`, `assemblyStats_RNA` also runs reference-free QUAST on
 each selected RNA assembler and each sample's combined FASTA, reusing `env3.yaml`.
 The report is in `03_CONTIGS/RNA/assembly_quast_report.tot.txt`, and the full
 QUAST output, including `transposed_report.tsv`, is in
 `03_CONTIGS/RNA/statistics_quast_tot/`. Unique `sample_assembler` labels distinguish
-assemblies with identical filenames across samples. All non-empty contigs are
+the sample-prefixed assembly filenames. All saved contigs are
 included (`--min-contig 1`); empty assemblies are skipped and remain visible in
 the notebook's existing FASTA summary. If all RNA assemblies are empty, a
 header-only QUAST table is produced. The QUAST table is displayed in the RNA
 assembly notebook. The DNA QUAST report and notebook are unchanged.
 
-Assembler sequences are pooled per sample, filtered at `rna_min_contig_length`
-(default 500 nt), and exact duplicates/reverse complements are collapsed. VirSorter2
+Every saved assembler FASTA is filtered at `rna_min_contig_length` (default 500 nt,
+inclusive) before assigning contig identifiers, running geNomad, testing terminal
+repeats or combining assemblies. Sequences are then pooled per sample, and exact
+duplicates/reverse complements are collapsed. VirSorter2
 selects RNA-virus candidates using `rna_viral_groups: "RNA"`. Identification
 is a candidate screen, not confirmation that every retained sequence is viral.
 
@@ -96,12 +102,27 @@ branch and no additional RNA-specific final vOTU FASTA.
 
 RNA candidates receive CheckV assessments, merged into the existing quality summary
 for representative selection. DNA and RNA assemblies use the shared
-`sample_assembler_number_len_length` identifiers. `assembly_provenance.tsv`
+`sample_assembler_number_len_length` identifiers. `<sample>_assembly_provenance.tsv`
 records the renamed member and representative IDs. Original assembler headers
 remain in the optional-lookup `.ids.tsv` sidecars; downstream rules do not read
-them. Per-sample assembly FASTAs, provenance,
-VirSorter2 output and CheckV assessments are under `03_CONTIGS/RNA/<sample>/`.
+them. Assembly FASTAs, `.ids.tsv` sidecars and combination provenance are directly
+under `03_CONTIGS/RNA/`, using sample-prefixed filenames such as
+`<sample>_trinity.fasta` and `<sample>_combined_derreplicated.fasta`. Work directories, logs,
+per-assembler geNomad results, VirSorter2 output and CheckV assessments stay
+separate under `03_CONTIGS/RNA/<sample>/`. VirSorter2-positive sequences are in
+`<sample>/virsorter/final-viral-combined.fa`, not `<sample>_combined_derreplicated.fasta`.
+The helper rule `rna_viral_positive_fasta` exposes that result as a relative symlink
+`03_CONTIGS/RNA/<sample>_virsorter2_RNA_viral_positive.fasta`, without duplicating
+sequence data or rerunning VirSorter2 just to create the link. CheckV and the shared
+vOTU combination use this symlink.
+The RNA branch also writes `final-viral-score.tsv` there, but no separate ID-only
+positive list.
 The existing clustering tables track membership in the shared catalogue.
+
+Existing FASTAs in the former `RNA/<sample>/<assembler>.fasta` layout are not
+moved or filtered automatically. They need an explicit migration to reuse them
+under the new filenames; otherwise the missing flat outputs can trigger assembly
+jobs again. geNomad outputs also need refreshing for the new input basename.
 
 ### Final acceptance routes
 
@@ -130,18 +151,23 @@ Abundance, annotation and optional microdiversity all use the same final
 `filtered_...tot.fasta`. Phage-specific annotations are not thereby made applicable
 to every RNA virus; their biological interpretation still needs care.
 
-Assembly memory defaults to 64,000 MB per job. SPAdes and MEGAHIT use
-`rna_assembly_threads` (16 by default). Trinity uses `rna_trinity_threads` (2)
-and `rna_trinity_bfly_heap_gb` (20), passed as `--CPU 2` and
+SPAdes and MEGAHIT use `rna_assembly_mem_mb` (64,000 MB) and
+`rna_assembly_threads` (16 by default). Trinity uses `rna_trinity_threads` (8 in
+the supplied config) and `rna_trinity_bfly_heap_gb` (20), passed as `--CPU 8` and
 `--bflyHeapSpaceMax 20G`. The heap limit applies per Butterfly process, not to
 the whole assembly. Increasing `rna_assembly_mem_mb` alone does not increase
-that heap limit; leave memory headroom for concurrent partitions and Java overhead.
+that heap limit. Trinity reserves the base `rna_assembly_mem_mb` plus one Butterfly
+heap per allocated thread: 224,000 MB with the supplied config (64,000 + 8 x 20,000).
+The resulting allocation is also passed to `--max_memory`, but this option is
+not an aggregate Java heap limit. If needed, use Snakemake's global
+`--resources mem_mb=<available RAM in MB>` to limit concurrent memory reservations.
 Trinity runs without
 read normalization and uses `--no_salmon` to skip its final Salmon expression filter.
 The assembled transcripts continue through the existing viral-candidate and vOTU filters.
 Trinity's working directory (`03_CONTIGS/RNA/<sample>/trinity_out`) is retained
 on success and failure. The rule copies Trinity's sibling output
-`trinity_out.Trinity.fasta` to the existing `trinity.fasta` result; it does not
+`trinity_out.Trinity.fasta` to a temporary FASTA, then filters and names it as
+`03_CONTIGS/RNA/<sample>_trinity.fasta`; it does not
 look for `Trinity.fasta` inside the working directory. SPAdes and MEGAHIT use
 fresh working directories that are automatically removed when their jobs exit.
 Leave `rna_trinity_strandedness` empty for mixed library types;

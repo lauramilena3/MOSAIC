@@ -75,7 +75,7 @@ rule metaspadesPE_test_depth:
 	message:
 		"Assembling PE reads with metaSpades"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env2.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/metaspadesPE_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	threads: 8

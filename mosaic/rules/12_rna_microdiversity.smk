@@ -5,14 +5,14 @@ rule rna_assemble_spades:
 		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		fasta=temp(RNA_DIR + "/{sample}/rnaviralspades.unrenamed.fasta"),
+		fasta=temp(RNA_DIR + "/{sample}_rnaviralspades.unrenamed.fasta"),
 	params:
 		work_prefix=RNA_DIR + "/{sample}/spades_work_",
 		mem_gb=lambda wildcards, resources: max(1, int(resources.mem_mb) // 1000),
 	message:
 		"Assembling paired-end reads with RNAviralSPAdes"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/rna_spades.yaml"
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/rna_assemble_spades/sample={sample}.tsv"
 	threads: int(config.get("rna_assembly_threads", 16))
@@ -36,7 +36,7 @@ rule rna_assemble_megahit:
 		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		fasta=temp(RNA_DIR + "/{sample}/megahit.unrenamed.fasta"),
+		fasta=temp(RNA_DIR + "/{sample}_megahit.unrenamed.fasta"),
 	params:
 		work_prefix=RNA_DIR + "/{sample}/megahit_work_",
 		mem_bytes=lambda wildcards, resources: int(resources.mem_mb) * 1000000,
@@ -68,7 +68,7 @@ rule rna_assemble_trinity:
 		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
 		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
 	output:
-		fasta=temp(RNA_DIR + "/{sample}/trinity.unrenamed.fasta"),
+		fasta=temp(RNA_DIR + "/{sample}_trinity.unrenamed.fasta"),
 	params:
 		assembly_dir=lambda wildcards: os.path.abspath(RNA_DIR + "/" + wildcards.sample + "/trinity_out"),
 		assembled_fasta=lambda wildcards: os.path.abspath(RNA_DIR + "/" + wildcards.sample + "/trinity_out.Trinity.fasta"),
@@ -82,9 +82,9 @@ rule rna_assemble_trinity:
 		dirs_dict["ENVS_DIR"] + "/rna_trinity.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/rna_assemble_trinity/sample={sample}.tsv"
-	threads: int(config.get("rna_trinity_threads", 2))
+	threads: int(config.get("rna_trinity_threads", 16))
 	resources:
-		mem_mb=int(config.get("rna_assembly_mem_mb", 64000)),
+		mem_mb=lambda wc, threads: int(config.get("rna_assembly_mem_mb", 64000)) + threads * int(config.get("rna_trinity_bfly_heap_gb", 20)) * 1000,
 	log:
 		RNA_DIR + "/{sample}/trinity.log"
 	shell:
@@ -100,12 +100,12 @@ rule rna_assemble_trinity:
 
 rule rna_genomad_assembler:
 	input:
-		fasta=RNA_DIR + "/{sample}/{assembler}.fasta",
+		fasta=RNA_DIR + "/{sample}_{assembler}.fasta",
 		db=config["genomad_db"],
 	output:
 		outdir=directory(RNA_DIR + "/{sample}/{assembler}_genomad"),
 	params:
-		empty_summary=RNA_DIR + "/{sample}/{assembler}_genomad/{assembler}_summary/{assembler}_virus_summary.tsv",
+		empty_summary=RNA_DIR + "/{sample}/{assembler}_genomad/{sample}_{assembler}_summary/{sample}_{assembler}_virus_summary.tsv",
 	message:
 		"Identifying viral contigs in the named RNA assembly with geNomad"
 	conda:
@@ -131,10 +131,10 @@ rule rna_genomad_assembler:
 
 rule rna_combine_assemblies:
 	input:
-		fastas=lambda wc: expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=wc.sample, assembler=RNA_ASSEMBLERS),
+		fastas=lambda wc: expand(RNA_DIR + "/{sample}_{assembler}.fasta", sample=wc.sample, assembler=RNA_ASSEMBLERS),
 	output:
-		fasta=RNA_DIR + "/{sample}/combined.fasta",
-		provenance=RNA_DIR + "/{sample}/assembly_provenance.tsv",
+		fasta=RNA_DIR + "/{sample}_combined_derreplicated.fasta",
+		provenance=RNA_DIR + "/{sample}_assembly_provenance.tsv",
 	params:
 		names=RNA_ASSEMBLERS,
 		min_length=int(config.get("rna_min_contig_length", 500)),
@@ -194,7 +194,7 @@ rule rna_combine_assemblies:
 
 rule assemblyStats_RNA:
 	input:
-		fastas=expand(RNA_DIR + "/{sample}/{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS + ["combined"]),
+		fastas=expand(RNA_DIR + "/{sample}_{assembler}.fasta", sample=SAMPLES, assembler=RNA_ASSEMBLERS + ["combined_derreplicated"]),
 	output:
 		quast_report_dir=directory(RNA_DIR + "/statistics_quast_tot"),
 		quast_txt=RNA_DIR + "/assembly_quast_report.tot.txt",
@@ -215,13 +215,12 @@ rule assemblyStats_RNA:
 		for rna_quast_fasta in {input.fastas:q}; do
 			if [ -s "$rna_quast_fasta" ]; then
 				rna_quast_fastas+=("$rna_quast_fasta")
-				rna_quast_sample=$(basename "$(dirname "$rna_quast_fasta")")
-				rna_quast_assembler=$(basename "$rna_quast_fasta" .fasta)
-				rna_quast_labels+="${{rna_quast_sample}}_${{rna_quast_assembler}},"
+				rna_quast_label=$(basename "$rna_quast_fasta" .fasta)
+				rna_quast_labels+="${{rna_quast_label}},"
 			fi
 		done
 		if [ "${{#rna_quast_fastas[@]}}" -gt 0 ]; then
-			# Assess every non-empty contig, matching the RNA notebook's unfiltered FASTA statistics.
+			# Assess every saved contig, matching the RNA notebook's length-filtered FASTA statistics.
 			quast.py "${{rna_quast_fastas[@]}}" -o {output.quast_report_dir:q} \
 				--labels "${{rna_quast_labels%,}}" --min-contig 1 --threads {threads} > {log:q} 2>&1
 			cp {output.quast_report_dir:q}/report.txt {output.quast_txt:q}
@@ -236,7 +235,7 @@ rule assemblyStats_RNA:
 
 rule rna_identify_candidates:
 	input:
-		fasta=RNA_DIR + "/{sample}/combined.fasta",
+		fasta=RNA_DIR + "/{sample}_combined_derreplicated.fasta",
 		db=config["virSorter_db"],
 	output:
 		fasta=RNA_DIR + "/{sample}/virsorter/final-viral-combined.fa",
@@ -267,9 +266,26 @@ rule rna_identify_candidates:
 		fi
 		"""
 
-rule rna_checkv:
+rule rna_viral_positive_fasta:
 	input:
 		fasta=RNA_DIR + "/{sample}/virsorter/final-viral-combined.fa",
+	output:
+		fasta=RNA_DIR + "/{sample}_virsorter2_RNA_viral_positive.fasta",
+	params:
+		target="{sample}/virsorter/final-viral-combined.fa",
+	message:
+		"Linking RNA VirSorter2-positive contigs into the RNA assembly directory"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/rna_viral_positive_fasta/sample={sample}.tsv"
+	threads: 1
+	shell:
+		"""
+		ln -sfn {params.target:q} {output.fasta:q}
+		"""
+
+rule rna_checkv:
+	input:
+		fasta=RNA_DIR + "/{sample}_virsorter2_RNA_viral_positive.fasta",
 		db=config["checkv_db"],
 	output:
 		quality=RNA_DIR + "/{sample}/checkv/quality_summary.tsv",

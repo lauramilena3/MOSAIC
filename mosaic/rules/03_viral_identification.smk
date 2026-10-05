@@ -96,7 +96,7 @@ rule report_assembly_circularity:
 	input:
 		assembly=lambda wc: (
 			dirs_dict["ASSEMBLY_DIR"] + f"/{wc.sample}_spades_filtered_scaffolds.tot.fasta"
-			if wc.assembler == "spades" else RNA_DIR + f"/{wc.sample}/{wc.assembler}.fasta"
+			if wc.assembler == "spades" else RNA_DIR + f"/{wc.sample}_{wc.assembler}.fasta"
 		),
 		genomad=lambda wc: (
 			dirs_dict["VIRAL_DIR"] + f"/{wc.sample}_geNomad_tot/"
