@@ -115,10 +115,16 @@ rule derreplicate_all_assembled_contigs:
 	threads: 16
 	shell:
 		"""
-		mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 \
-			{input.fasta:q} {params.prefix:q} {output.tmp:q}
-		mv {params.prefix:q}_rep_seq.fasta {output.fasta:q}
-		mv {params.prefix:q}_cluster.tsv {output.clusters:q}
+		if [ -s {input.fasta:q} ]; then
+			mmseqs easy-cluster --threads {threads} --createdb-mode 1 --min-seq-id 1 -c 1 --cov-mode 1 \
+				{input.fasta:q} {params.prefix:q} {output.tmp:q}
+			mv {params.prefix:q}_rep_seq.fasta {output.fasta:q}
+			mv {params.prefix:q}_cluster.tsv {output.clusters:q}
+		else
+			mkdir -p {output.tmp:q}
+			printf '' > {output.fasta:q}
+			printf '' > {output.clusters:q}
+		fi
 		"""
 
 if not RNA_MODE:

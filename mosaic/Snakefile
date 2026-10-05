@@ -1,6 +1,7 @@
 import os
 import re
 import glob
+import shlex
 
 #import pandas as pd
 #======================================================
@@ -40,9 +41,11 @@ SOURMASH_CONTIG_CATALOGUE=config_bool('sourmash_contig_catalogue', False)
 SOURMASH_CLEAN_READS=config_bool('sourmash_clean_reads', False)
 LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
-ISOLATES=config['isolates']
-REMOVE_EUK=config_bool('remove_euk', True)
-RNA_MODE=config_bool('RNA_enriched', False)
+ISOLATES=config_bool('isolates', False)
+# Isolate purity is assessed before biological read removal, on DNA libraries.
+REMOVE_EUK=config_bool('remove_euk', True) and not ISOLATES
+RNA_MODE=config_bool('RNA_enriched', False) and not ISOLATES
+HOST_IDENTIFICATION_TEST=config_bool('host_identification_test', False)
 RUN_MICRODIVERSITY=config_bool('microdiversity', False)
 MAP_TO_REFSEQ=config_bool('map_to_RefSeq', False)
 MAP_TO_ALL_ASSEMBLED=config_bool('map_to_all_assembled', False)
@@ -174,8 +177,15 @@ ALL_ASSEMBLED_TOP_PREFIX=ALL_ASSEMBLED_DIR + "/" + ALL_ASSEMBLED_TOP_NAME + "_to
 PHAGE_ISOLATES_CLUSTER_PREFIX=ALL_ASSEMBLED_DIR + "/phage_isolates_cluster_representatives"
 SOURMASH_CLEAN_DIR=dirs_dict["ANNOTATION"] + "/SOURMASH_CLEAN"
 ALL_ASSEMBLED_TOP_CENOTE=dirs_dict["ANNOTATION"] + "/Cenote_" + ALL_ASSEMBLED_TOP_NAME + ".tot"
+ISOLATE_CONTIG_DIR=dirs_dict["ASSEMBLY_DIR"] + "/ISOLATES"
+ISOLATE_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ISOLATES"
+ISOLATE_STAGES=["01_own_retained", "02_host_chromosomes", "03_host_viral", "04_own_excluded", "05_other_retained", "06_other_excluded"]
 
 def annotation_fasta_path(sequence):
+	if sequence == "phage_isolates_cluster_representatives.tot":
+		return PHAGE_ISOLATES_CLUSTER_PREFIX + ".tot.fasta"
+	if sequence.startswith("host_viral_"):
+		return dirs_dict["HOST_DIR"] + "/prophages/" + sequence.removeprefix("host_viral_") + "_bacphlip_input.fasta"
 	if sequence in config.get("annotation_fastas", {}):
 		return config["annotation_fastas"][sequence]
 	if sequence == ALL_ASSEMBLED_TOP_NAME + ".tot":
@@ -316,7 +326,8 @@ def inputQC(wildcards):
 		inputs.append(dirs_dict["QC_DIR"]+ "/preQC_illumina_report.html")
 		inputs.append(dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html")
 		inputs.append(dirs_dict["QC_DIR"]+ "/pre_decontamination_kraken_multiqc_report.html")
-		inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
+		if not ISOLATES:
+			inputs.append(dirs_dict["QC_DIR"]+ "/post_decontamination_kraken_multiqc_report.html")
 		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES)),
 		inputs.append(dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefraction_plot.tot.png")
 	# inputs.extend(expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_brackenuniq_{level}_report_paired_tot.csv", sample=SAMPLES, level=LEVELS_BRACKEN)),
@@ -342,7 +353,7 @@ def inputAssembly(wildcards):
 	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta", sample=SAMPLES))
 	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE_TOT))
 	inputs.append(dirs_dict["PLOTS_DIR"] + "/03_log_number_contigs_plot.tot.png")
-	if SUBASSEMBLY:
+	if SUBASSEMBLY and not ISOLATES:
 		inputs.extend(expand(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_filtered_scaffolds.tot.fasta", sample=SAMPLES, subsample=subsample_test)),
 		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report.tot.txt"),
 		inputs.append(dirs_dict["ASSEMBLY_TEST"] + "/assembly_quast_report_viral.tot.txt"),
@@ -826,43 +837,16 @@ rule phage_isolates:
 		inputQC,
 		inputAssembly,
 		inputOptionalRefSeq,
-		inputViralID,
-		# get_clinker_outputs,
-		dirs_dict["vOUT_DIR"]+ "/" + REPRESENTATIVE_CONTIGS_BASE + ".tot.fasta",
-		dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.tot.txt",
-		dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.tot.csv",
-		dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_tot/positive_VS_list_tot.txt",
-		# dirs_dict["vOUT_DIR"] + "/vOTU_clustering_summary.tot.csv",
-		# dirs_dict["ANNOTATION"] + "/PhaGCN_taxonomy_report_combined_positive_viral_contigs.tot.csv",
-		# dirs_dict["ANNOTATION"] + "/iphop_hostID_combined_positive_viral_contigs.tot_resultsDir",
-		dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.tot.csv",
-		# dirs_dict["ANNOTATION"] + "/blast_output_METAVR_combined_positive_viral_contigs.tot.csv",
-		(dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.tot.tsv"),
-		dirs_dict["vOUT_DIR"] + "/"+ REPRESENTATIVE_CONTIGS_BASE + "_cluster.tsv",
-		# dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs.tot_bacphlip.csv",
-		# dirs_dict["ANNOTATION"] + "/taxmyphage_combined_positive_viral_contigs.tot",	
-		# (dirs_dict["ANNOTATION"] + "/taxmyphage_filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot"),
-		(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
-		dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
-		expand(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html", sampling=SAMPLING_TYPE_TOT),
-		expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_{sample}_{sampling}_covstats.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_viral_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_unfiltered_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT),
-		expand(dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",sampling=SAMPLING_TYPE),
-		expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS),
-		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_covstats.txt", host=HOSTS, sample=SAMPLES),
-		expand(dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_masked_prophages_covstats.txt", host=HOSTS, sample=SAMPLES),
-		# expand(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs-aniout_{host}.csv", host=HOSTS),
-		dirs_dict["HOST_DIR"] + "/checkM_summary.csv",
-		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_95-85.clstr",
-		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_20-20.clstr",
-		dirs_dict["vOUT_DIR"] + "/clustering_combined_positive_viral_contigs_5-0.clstr",
-		expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}.tot.csv", host=HOSTS),
+		dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_tot.html",
 		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.html",
+		dirs_dict["PLOTS_DIR"] + "/08_hosts_summary.tot.html",
 		ALL_ASSEMBLED_DIR + "/phage_isolates.tot/all_contig_metadata.tsv",
 		ALL_ASSEMBLED_DIR + "/phage_isolates.tot/cluster_metadata.tsv",
-		dirs_dict["vOUT_DIR"]+ "/filtered_" + REPRESENTATIVE_CONTIGS_BASE + ".tot_visualization.done",
+		PHAGE_ISOLATES_CLUSTER_PREFIX + ".tot.fasta",
+		expand(ISOLATE_CONTIG_DIR + "/{sample}_{contig_set}.tot.fasta", sample=SAMPLES, contig_set=["retained", "excluded"]),
+		lambda wc: [ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_RPKM_normalised_tot.txt",
+			ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_counts_normalised_tot.txt",
+			ALL_ASSEMBLED_MAPPING_DIR + "/all_assembled_mapping_summary_tot.tsv"] if MAP_TO_ALL_ASSEMBLED else [],
 
 
 rule subsampling_file:
@@ -953,6 +937,7 @@ include: os.path.join(RULES_DIR, '09_test_assembly_depth.smk')
 include: os.path.join(RULES_DIR, '10_single_isolates.smk')
 include: os.path.join(RULES_DIR, '11_bacterial_analysis.smk')
 include: os.path.join(RULES_DIR, '12_rna_microdiversity.smk')
+include: os.path.join(RULES_DIR, '13_isolate_purity.smk')
 
 if NANOPORE==True:
 	include: os.path.join(RULES_DIR, '01_quality_control_nanopore.smk')

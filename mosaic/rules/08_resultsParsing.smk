@@ -335,6 +335,8 @@ rule viralID_parsing:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_viral_ID.py.ipynb"
 
 def input_assembly_flagstats(wildcards):
+	if ISOLATES:
+		return []
 	inputs=[]
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/bowtie2_flagstats_filtered_{sample}.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
 	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE_TOT)),
@@ -347,16 +349,23 @@ rule mapping_statistics_parsing:
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
 		assembled_sequences=inputAssemblyContigs,
 		assembly_flagstats=input_assembly_flagstats,
-		all_assembled_mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_all_assembled_{sample}.tot.txt", sample=SAMPLES) if MAP_TO_ALL_ASSEMBLED else [],
+		accounting=expand(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.summary.tsv", sample=SAMPLES, stage=ISOLATE_STAGES) if ISOLATES else [],
+		all_assembled_flagstats=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_all_assembled_{sample}.tot.txt", sample=SAMPLES) if ISOLATES and MAP_TO_ALL_ASSEMBLED else [],
+		all_assembled_mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_all_assembled_{sample}.tot.txt", sample=SAMPLES) if MAP_TO_ALL_ASSEMBLED and not ISOLATES else [],
 	output:
 		mapping_stats_html=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_{sampling}.html"),
-		filtered_viral_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.png"),
-		filtered_viral_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.svg"),
-		filtered_unfiltered_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.png"),
-		filtered_unfiltered_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.svg"),
-		all_assembled_png=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_all_assembled_{sampling}.png"] if MAP_TO_ALL_ASSEMBLED else [],
-		all_assembled_svg=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_all_assembled_{sampling}.svg"] if MAP_TO_ALL_ASSEMBLED else [],
+		filtered_viral_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.png") if not ISOLATES else [],
+		filtered_viral_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_viral_{sampling}.svg") if not ISOLATES else [],
+		filtered_unfiltered_png=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.png") if not ISOLATES else [],
+		filtered_unfiltered_svg=(dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_filtered_unfiltered_{sampling}.svg") if not ISOLATES else [],
+		all_assembled_png=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_all_assembled_{sampling}.png"] if MAP_TO_ALL_ASSEMBLED and not ISOLATES else [],
+		all_assembled_svg=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_all_assembled_{sampling}.svg"] if MAP_TO_ALL_ASSEMBLED and not ISOLATES else [],
+		isolate_png=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_isolates_{sampling}.png"] if ISOLATES else [],
+		isolate_svg=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_isolates_{sampling}.svg"] if ISOLATES else [],
+		isolate_table=[dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_isolates_{sampling}.tsv"] if ISOLATES else [],
 	params:
+		isolates=ISOLATES,
+		stages=ISOLATE_STAGES,
 		samples=SAMPLES,
 		mapping_dir=dirs_dict["MAPPING_DIR"],
 		sampling="{sampling}",
@@ -366,7 +375,7 @@ rule mapping_statistics_parsing:
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/07_mapping_statistics_{sampling}.ipynb"
 	notebook:
-		dirs_dict["RAW_NOTEBOOKS"] + "/07_mapping_statistics.py.ipynb"
+		dirs_dict["RAW_NOTEBOOKS"] + ("/07_mapping_statistics_isolates.py.ipynb" if ISOLATES else "/07_mapping_statistics.py.ipynb")
 
 
 def input_phage_isolates_assembled_covstats(wildcards):
@@ -417,54 +426,73 @@ def input_phage_isolates_host_fastas(wildcards):
 	return expand(dirs_dict["HOST_DIR"] + "/{host}.fasta", host=HOSTS)
 
 
-rule phage_isolates_summary:
+def input_isolate_host_assignments(wildcards):
+	return [path for path in [RESULTS_DIR + "/host_mapping_file.tsv",
+		dirs_dict["HOST_DIR"] + "/host_mapping_file.tsv"] if os.path.isfile(path)]
+
+
+rule phage_isolates_catalogue:
 	input:
-		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
-		pcr_duplicates=expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES),
-		kraken_reports=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv", sample=SAMPLES),
-		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
-		checkv=dirs_dict["vOUT_DIR"] + "/checkV_merged_quality_summary.{sampling}.txt",
-		vibrant_positive=dirs_dict["vOUT_DIR"] + "/VIBRANT_" + REPRESENTATIVE_CONTIGS_BASE  + "_positive_list.{sampling}.csv",
-		virsorter_positive=dirs_dict["vOUT_DIR"] + "/VirSorter2_" + REPRESENTATIVE_CONTIGS_BASE + "_{sampling}/positive_VS_list_{sampling}.txt",
-		viral_refseq_blast=dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_combined_positive_viral_contigs.{sampling}.csv",
-		nucleotide_content=dirs_dict["ANNOTATION"]+ "/nucleotide_content_combined_positive_viral_contigs.{sampling}.tsv",
-		clusters=dirs_dict["vOUT_DIR"]+ "/new_references_clusters.{sampling}.csv",
-		combined_positive_contigs=dirs_dict["vOUT_DIR"]+ "/combined_" + VIRAL_CONTIGS_BASE + ".{sampling}.fasta",
-		aai_distance_matrix=dirs_dict["ANNOTATION"] + "/combined_positive_viral_contigs_distance_matrix_AAI.txt",
-		rpkm=dirs_dict["MAPPING_DIR"] + "/RPKM_normalised_{sampling}.txt",
-		filtered_covstats=input_phage_isolates_filtered_covstats,
-		assembled_covstats=input_phage_isolates_assembled_covstats,
-		viral_covstats=input_phage_isolates_viral_covstats,
-		unfiltered_covstats=input_phage_isolates_unfiltered_covstats,
-		filtered_flagstats=input_phage_isolates_filtered_flagstats,
-		assembled_flagstats=input_phage_isolates_assembled_flagstats,
-		viral_flagstats=input_phage_isolates_viral_flagstats,
-		unfiltered_flagstats=input_phage_isolates_unfiltered_flagstats,
-		host_covstats=input_phage_isolates_host_covstats,
-		host_masked_covstats=input_phage_isolates_host_masked_covstats,
-		host_blast=input_phage_isolates_host_blast,
-		host_fastas=input_phage_isolates_host_fastas,
+		host_assignments=input_isolate_host_assignments,
 		catalogue_provenance=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv",
 		catalogue_exact_clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_cluster.tot.tsv",
 		catalogue_mosaic_clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot_95-85.clstr",
 		catalogue_genomad=ALL_ASSEMBLED_MAPPING_DIR + "/phage_isolates_contigs_existing_annotations_tot.tsv",
 		catalogue_checkv=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/quality_summary.tsv", sample=SAMPLES),
 		catalogue_contamination=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/contamination.tsv", sample=SAMPLES),
+		assembled_covstats=input_phage_isolates_assembled_covstats,
+		host_blast=input_phage_isolates_host_blast,
+		host_viral_blast=expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}_viral_regions.tot.csv", host=HOSTS),
 		catalogue_sourmash_tax=[dirs_dict["ANNOTATION"] + "/sourmash_phage_isolates_cluster_representatives_tot.classifications.csv"] if SOURMASH_CONTIG_CATALOGUE else [],
 		catalogue_sourmash_gather=[dirs_dict["ANNOTATION"] + "/phage_isolates_cluster_representatives_tot_gather_sourmash.csv"] if SOURMASH_CONTIG_CATALOGUE else [],
 		catalogue_sourmash_queries=[dirs_dict["ANNOTATION"] + "/phage_isolates_cluster_representatives_tot_sourmash_queries.tsv"] if SOURMASH_CONTIG_CATALOGUE else [],
+	output:
+		all_contig_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
+		cluster_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
+		sample_hosts=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/sample_host_assignments.tsv",
+	params:
+		phase="catalogue",
+		samples=SAMPLES,
+		hosts=HOSTS,
+		sampling="{sampling}",
+		results_dir=RESULTS_DIR,
+		min_depth=float(config.get("isolate_min_depth", 5)),
+		min_length=int(config.get("isolate_min_length_bp", 4000)),
+		short_depth=float(config.get("isolate_short_min_depth", 10)),
+		host_min_identity=float(config.get("isolate_host_min_identity", 90)),
+		host_min_query_coverage=float(config.get("isolate_host_min_query_coverage", 90)),
+		sourmash_contig_catalogue_database=config["sourmash_rocksdb"],
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/phage_isolates_catalogue/sampling={sampling}.tsv"
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_isolate_contig_catalogue.{sampling}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_phage_isolates_summary.py.ipynb"
+
+
+rule phage_isolates_summary:
+	input:
+		host_assignments=input_isolate_host_assignments,
+		catalogue_provenance=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv",
+		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
+		pcr_duplicates=expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES),
+		kraken_reports=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv", sample=SAMPLES),
+		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
+		metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
+		clusters=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
+		accounting=expand(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.summary.tsv", sample=SAMPLES, stage=ISOLATE_STAGES),
+		reference_counts=expand(ISOLATE_MAPPING_DIR + "/{sample}/01_own_retained.reference_reads.tsv", sample=SAMPLES),
+		unexplained=expand(ISOLATE_MAPPING_DIR + "/{sample}/unexplained_{mate}.fastq.gz", sample=SAMPLES, mate=["R1", "R2", "unpaired"]),
+		own_depth=expand(ISOLATE_MAPPING_DIR + "/{sample}/01_own_retained.basecov.tsv.gz", sample=SAMPLES),
+		host_covstats=input_phage_isolates_host_covstats if HOST_IDENTIFICATION_TEST else [],
+		host_masked_covstats=input_phage_isolates_host_masked_covstats if HOST_IDENTIFICATION_TEST else [],
+		host_blast=input_phage_isolates_host_blast,
+		viral_refseq_blast=dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_phage_isolates_cluster_representatives.tot.csv",
+		metavr_blast=[dirs_dict["ANNOTATION"] + "/blast_output_METAVR_phage_isolates_cluster_representatives.tot.csv"] if METAVR_blast else [],
 		clean_sourmash_gather=([SOURMASH_CLEAN_DIR + "/POOLED/pooled_gather_sourmash.with-lineages.csv"] + expand(SOURMASH_CLEAN_DIR + "/SAMPLES/{sample}_gather_sourmash.with-lineages.csv", sample=SAMPLES)) if SOURMASH_CLEAN_READS else [],
 		clean_sourmash_profiles=([SOURMASH_CLEAN_DIR + "/POOLED/pooled_sourmash.summarized.csv"] + expand(SOURMASH_CLEAN_DIR + "/SAMPLES/{sample}_sourmash.summarized.csv", sample=SAMPLES)) if SOURMASH_CLEAN_READS else [],
 	output:
 		summary_html=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.html",
-		all_contig_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
-		cluster_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
-		clean_sourmash_metadata=[SOURMASH_CLEAN_DIR + "/clean_read_profiles.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
-		clean_sourmash_taxonomy=[SOURMASH_CLEAN_DIR + "/clean_read_taxonomy.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
-		clean_sourmash_pooled_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
-		clean_sourmash_pooled_svg=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.svg"] if SOURMASH_CLEAN_READS else [],
-		clean_sourmash_genus_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_genus.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
-		clean_sourmash_genus_svg=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_genus.{sampling}.svg"] if SOURMASH_CLEAN_READS else [],
 		summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.{sampling}.csv",
 		contig_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_contigs.{sampling}.csv",
 		closest_relatives_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_closest_relatives.{sampling}.csv",
@@ -473,35 +501,37 @@ rule phage_isolates_summary:
 		cluster_summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_summary.{sampling}.csv",
 		single_contig_samples_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_single_contig_samples.{sampling}.csv",
 		host_blast_summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_summary.{sampling}.csv",
-		cluster_coverage_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage_matrix.{sampling}.csv",
-		host_blast_coverage_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_coverage_matrix.{sampling}.csv",
-		percent_covered_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered_matrix.{sampling}.csv",
-		covstats_rpkm_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm_matrix.{sampling}.csv",
-		aai_cluster_index_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_aai_cluster_index.{sampling}.csv",
-		aai_cluster_dir=directory(dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_aai_clusters.{sampling}"),
-		decisions_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_decisions.{sampling}.png",
-		decisions_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_decisions.{sampling}.svg",
+		read_accounting=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.tsv",
+		purity_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.png",
+		purity_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.svg",
 		remaining_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.png",
 		remaining_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.svg",
-		host_viral_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_viral_contigs.{sampling}.png",
-		host_viral_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_viral_contigs.{sampling}.svg",
-		completeness_coverage_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_completeness_vs_coverage.{sampling}.png",
-		completeness_coverage_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_completeness_vs_coverage.{sampling}.svg",
-		dominant_signal_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_dominant_signal.{sampling}.png",
-		dominant_signal_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_dominant_signal.{sampling}.svg",
 		rpkm_heatmap_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.png",
 		rpkm_heatmap_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.svg",
-		assembly_fragmentation_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.png",
-		assembly_fragmentation_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_assembly_fragmentation.{sampling}.svg",
-		cluster_coverage_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.{sampling}.png",
-		cluster_coverage_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.{sampling}.svg",
 		host_blast_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.{sampling}.png",
 		host_blast_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.{sampling}.svg",
-		percent_covered_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered.{sampling}.png",
-		percent_covered_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_percent_covered.{sampling}.svg",
-		covstats_rpkm_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm.{sampling}.png",
-		covstats_rpkm_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_covstats_rpkm.{sampling}.svg"
+		depth_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_retained_depth.{sampling}.png",
+		depth_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_retained_depth.{sampling}.svg",
+		clean_sourmash_metadata=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_reads.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_taxonomy=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_taxonomy.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_pooled_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_pooled_svg=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.svg"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_genus_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_genus.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
+		clean_sourmash_genus_svg=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_genus.{sampling}.svg"] if SOURMASH_CLEAN_READS else [],
 	params:
+		phase="summary",
+		hosts=HOSTS,
+		host_min_identity=float(config.get("isolate_host_min_identity", 90)),
+		host_min_query_coverage=float(config.get("isolate_host_min_query_coverage", 90)),
+		host_identification_test=HOST_IDENTIFICATION_TEST,
+		min_mapping_percent=float(config.get("isolate_min_retained_mapping_percent", 70)),
+		max_host_percent=float(config.get("isolate_max_host_mapping_percent", 10)),
+		max_unexplained_percent=float(config.get("isolate_max_unexplained_percent", 10)),
+		host_test_min_reads=int(config.get("isolate_host_test_min_reads", 100)),
+		host_test_min_breadth=float(config.get("isolate_host_test_min_breadth_percent", 1)),
+		plot_max_clusters=int(config.get("isolate_plot_max_clusters", 100)),
+		plot_max_host_contigs=int(config.get("isolate_plot_max_host_contigs", 100)),
+		stages=ISOLATE_STAGES,
 		samples=SAMPLES,
 		sampling="{sampling}",
 		results_dir=RESULTS_DIR,
@@ -689,10 +719,13 @@ rule all_assembled_mapping_summary:
 	input:
 		qc=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.tot.csv",
 		mapped_pairs=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_mapped_pairs_filtered_{{assembled_reference}}_{sample}.tot.txt", sample=SAMPLES),
+		full_flagstats=expand(ALL_ASSEMBLED_MAPPING_DIR + "/bowtie2_flagstats_filtered_{{assembled_reference}}_{sample}.tot.txt", sample=SAMPLES) if ISOLATES else [],
+		accounting=expand(ISOLATE_MAPPING_DIR + "/{sample}/01_own_retained.summary.tsv", sample=SAMPLES) if ISOLATES else [],
 	output:
 		tsv=ALL_ASSEMBLED_MAPPING_DIR + "/{assembled_reference}_mapping_summary_tot.tsv",
 	params:
 		samples=SAMPLES,
+		isolates=ISOLATES,
 	wildcard_constraints:
 		assembled_reference="all_assembled",
 	message:
@@ -703,17 +736,27 @@ rule all_assembled_mapping_summary:
 	run:
 		import csv
 
-		with open(input.qc) as handle:
-			cleaned_reads={row["sample"]: int(float(row["bbduk"])) for row in csv.DictReader(handle)}
 		with open(output.tsv, "w") as handle:
 			writer=csv.writer(handle, delimiter="\t", lineterminator="\n")
-			writer.writerow(["sample", "cleaned_read_pairs", "subsampled_read_pairs", "properly_mapped_pairs", "properly_mapped_percent"])
-			for sample, path in zip(params.samples, input.mapped_pairs):
-				with open(path) as counts:
-					mapped=int(counts.read().strip())
-				cleaned=cleaned_reads[sample]
-				subsampled=min(2000000, cleaned)
-				writer.writerow([sample, cleaned, subsampled, mapped, round(100 * mapped / subsampled, 2) if subsampled else 0])
+			if getattr(params, "isolates", False):
+				writer.writerow(["sample", "mapping_input_reads", "mapped_reads", "unmapped_reads", "mapped_percent", "read_scope"])
+				for sample, path, ledger in zip(params.samples, input.full_flagstats, input.accounting):
+					with open(ledger) as counts:
+						total=int(next(csv.DictReader(counts, delimiter="\t"))["original_reads"])
+					with open(path) as counts:
+						mapped=next((int(line.split()[0]) for line in counts if " primary mapped (" in line), 0)
+					writer.writerow([sample, total, mapped, total - mapped,
+						round(100 * mapped / total, 2) if total else 0, "all_qc_passed_paired_and_orphan_reads"])
+			else:
+				with open(input.qc) as counts:
+					cleaned_reads={row["sample"]: int(float(row["bbduk"])) for row in csv.DictReader(counts)}
+				writer.writerow(["sample", "cleaned_read_pairs", "subsampled_read_pairs", "properly_mapped_pairs", "properly_mapped_percent"])
+				for sample, path in zip(params.samples, input.mapped_pairs):
+					with open(path) as counts:
+						mapped=int(counts.read().strip())
+					cleaned=cleaned_reads[sample]
+					subsampled=min(2000000, cleaned)
+					writer.writerow([sample, cleaned, subsampled, mapped, round(100 * mapped / subsampled, 2) if subsampled else 0])
 
 
 rule select_all_assembled_top_contigs:
