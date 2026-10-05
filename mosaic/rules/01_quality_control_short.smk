@@ -5,6 +5,9 @@
 #ruleorder: normalizeReads_PE > normalizeReads_SE
 #ruleorder: postQualityCheckIlluminaPE > postQualityCheckIlluminaSE
 
+# Prefer one counting job per paired-end sample/stage; retain single-file fallbacks.
+ruleorder: countReads_raw > countReads_trimmed > countReads_noEuk > countReads_clean > countReads_norm > countReads_gz > countReads
+
 rule download_SRA:
 	input:
 		sratoolkit="tools/sratoolkit.2.10.0-ubuntu64"
@@ -24,6 +27,138 @@ rule download_SRA:
 		"""
 		{input.sratoolkit}/bin/fastq-dump --outdir {params.SRA_dir} --skip-technical --readids --read-filter pass \\
 		--dumpbase --split-files --clip -N 0 -M 0 {wildcards.SRA}
+		"""
+
+rule countReads_raw:
+	input:
+		forward_paired=dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + ".fastq.gz",
+		reverse_paired=dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['reverse_tag']) + ".fastq.gz",
+	output:
+		forward_paired=dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['forward_tag']) + "_read_count.txt",
+		reverse_paired=dirs_dict["RAW_DATA_DIR"] + "/{sample}_" + str(config['reverse_tag']) + "_read_count.txt",
+	message:
+		"Counting raw paired-end reads"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads_raw/sample={sample}.tsv"
+	wildcard_constraints:
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	resources:
+		runtime_min=10,
+		mem_mb=1000,
+	shell:
+		"""
+		gzip -cd -- {input.forward_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.forward_paired:q}
+		gzip -cd -- {input.reverse_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.reverse_paired:q}
+		"""
+
+rule countReads_trimmed:
+	input:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot.fastq.gz",
+	output:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_read_count.txt",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_read_count.txt",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot_read_count.txt",
+	message:
+		"Counting trimmed paired-end and unpaired reads"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads_trimmed/sample={sample}.tsv"
+	wildcard_constraints:
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	resources:
+		runtime_min=15,
+		mem_mb=1000,
+	shell:
+		"""
+		gzip -cd -- {input.forward_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.forward_paired:q}
+		gzip -cd -- {input.reverse_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.reverse_paired:q}
+		gzip -cd -- {input.unpaired:q} | awk 'END {{print int(NR / 4)}}' > {output.unpaired:q}
+		"""
+
+rule countReads_noEuk:
+	input:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot.fastq",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot.fastq",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot.fastq",
+	output:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_noEuk.tot_read_count.txt",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_noEuk.tot_read_count.txt",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_noEuk.tot_read_count.txt",
+	message:
+		"Counting paired-end and unpaired reads after eukaryote removal"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads_noEuk/sample={sample}.tsv"
+	wildcard_constraints:
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	resources:
+		runtime_min=15,
+		mem_mb=1000,
+	shell:
+		"""
+		awk 'END {{print int(NR / 4)}}' {input.forward_paired:q} > {output.forward_paired:q}
+		awk 'END {{print int(NR / 4)}}' {input.reverse_paired:q} > {output.reverse_paired:q}
+		awk 'END {{print int(NR / 4)}}' {input.unpaired:q} > {output.unpaired:q}
+		"""
+
+rule countReads_clean:
+	input:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz",
+	output:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot_read_count.txt",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_read_count.txt",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_read_count.txt",
+	message:
+		"Counting clean paired-end and unpaired reads"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads_clean/sample={sample}.tsv"
+	wildcard_constraints:
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	resources:
+		runtime_min=15,
+		mem_mb=1000,
+	shell:
+		"""
+		gzip -cd -- {input.forward_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.forward_paired:q}
+		gzip -cd -- {input.reverse_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.reverse_paired:q}
+		gzip -cd -- {input.unpaired:q} | awk 'END {{print int(NR / 4)}}' > {output.unpaired:q}
+		"""
+
+rule countReads_norm:
+	input:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}.fastq.gz",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}.fastq.gz",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq.gz",
+	output:
+		forward_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_norm.{sampling}_read_count.txt",
+		reverse_paired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_norm.{sampling}_read_count.txt",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}_read_count.txt",
+	message:
+		"Counting normalized paired-end and unpaired reads"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/QC.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/countReads_norm/sample={sample}__sampling={sampling}.tsv"
+	wildcard_constraints:
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	resources:
+		runtime_min=15,
+		mem_mb=1000,
+	shell:
+		"""
+		gzip -cd -- {input.forward_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.forward_paired:q}
+		gzip -cd -- {input.reverse_paired:q} | awk 'END {{print int(NR / 4)}}' > {output.reverse_paired:q}
+		gzip -cd -- {input.unpaired:q} | awk 'END {{print int(NR / 4)}}' > {output.unpaired:q}
 		"""
 
 rule countReads_gz:
@@ -139,26 +274,40 @@ rule trim_adapters_quality_illumina_PE:
 		reverse_paired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz"),
 		forward_unpaired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_unpaired.fastq.gz"),
 		reverse_unpaired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_unpaired.fastq.gz"),
-		merged_unpaired=temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot.fastq.gz"),
-	params:
-		adapters=dirs_dict["ADAPTERS_DIR"] + "/" + config['adapters_file']
+		# Passthrough clean reads link to this file, so retain their target.
+		merged_unpaired=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot.fastq.gz"
+			if not REMOVE_EUK and not CONTAMINANTS
+			else temp(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot.fastq.gz")),
+		html=dirs_dict["QC_DIR"] + "/{sample}_fastp.html",
+		json=dirs_dict["QC_DIR"] + "/{sample}_fastp.json",
 	message:
-		"Trimming Illumina Adapters with Trimmomatic"
+		"Trimming Illumina adapters, poly-G tails and low-quality sequence with fastp"
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/trim_adapters_quality_illumina_PE/sample={sample}.tsv"
 	resources:
 		runtime_min= 350,
-		mem_mb= 1500,
+		mem_mb= 4000,
 	threads: 8
+	log:
+		dirs_dict["QC_DIR"] + "/{sample}_fastp.log"
 	shell:
 		"""
-		trimmomatic PE -threads {threads} -phred33 {input.forward_file} {input.reverse_file} \
-			{output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} \
-			ILLUMINACLIP:{params.adapters}:2:30:10:1:true LEADING:{config[trimmomatic_leading]} TRAILING:{config[trimmomatic_trailing]} \
-			SLIDINGWINDOW:{config[trimmomatic_window_size]}:{config[trimmomatic_window_quality]} MINLEN:{config[trimmomatic_minlen]}
-		cat {output.forward_unpaired} {output.reverse_unpaired} > {output.merged_unpaired}
+		fastp --thread {threads} --in1 {input.forward_file:q} --in2 {input.reverse_file:q} \
+			--out1 {output.forward_paired:q} --out2 {output.reverse_paired:q} \
+			--unpaired1 {output.forward_unpaired:q} --unpaired2 {output.reverse_unpaired:q} \
+			--detect_adapter_for_pe --trim_poly_g --poly_g_min_len {config[fastp_poly_g_min_len]} \
+			--cut_front --cut_front_window_size {config[fastp_cut_front_window_size]} \
+			--cut_front_mean_quality {config[fastp_cut_front_mean_quality]} \
+			--cut_right --cut_right_window_size {config[fastp_cut_right_window_size]} \
+			--cut_right_mean_quality {config[fastp_cut_right_mean_quality]} \
+			--length_required {config[fastp_length_required]} \
+			--qualified_quality_phred {config[fastp_qualified_quality_phred]} \
+			--unqualified_percent_limit {config[fastp_unqualified_percent_limit]} \
+			--n_base_limit {config[fastp_n_base_limit]} \
+			--html {output.html:q} --json {output.json:q} > {log:q} 2>&1
+		cat {output.forward_unpaired:q} {output.reverse_unpaired:q} > {output.merged_unpaired:q}
 		"""
 
 rule sourmash_sketch_trim:
@@ -466,24 +615,24 @@ rule remove_user_contaminants_PE:
 	shell:
 		"""
 		if [ "{params.has_contaminants}" = "True" ]; then
-			cat {input.contaminants_fasta} > {output.phix_contaminants_fasta}
-			bbduk.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
-				ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads} stats={output.stats}
-			bbduk.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} ref={output.phix_contaminants_fasta} k=31 hdist=1 threads={threads}
+			cat {input.contaminants_fasta:q} > {output.phix_contaminants_fasta:q}
+			bbduk.sh -Xmx{resources.mem_mb}m in1={input.forward_paired:q} in2={input.reverse_paired:q} out1={output.forward_paired:q} out2={output.reverse_paired:q} \
+				ref={output.phix_contaminants_fasta:q} k=31 hdist=1 threads={threads} stats={output.stats:q}
+			bbduk.sh -Xmx{resources.mem_mb}m in={input.unpaired:q} out={output.unpaired:q} ref={output.phix_contaminants_fasta:q} k=31 hdist=1 threads={threads}
 		else
 			: > {output.phix_contaminants_fasta:q}
 			if [[ {input.forward_paired:q} == *.gz ]]; then
-				cp -- {input.forward_paired:q} {output.forward_paired:q}
+				ln -sfnr -- {input.forward_paired:q} {output.forward_paired:q}
 			else
 				gzip -c -- {input.forward_paired:q} > {output.forward_paired:q}
 			fi
 			if [[ {input.reverse_paired:q} == *.gz ]]; then
-				cp -- {input.reverse_paired:q} {output.reverse_paired:q}
+				ln -sfnr -- {input.reverse_paired:q} {output.reverse_paired:q}
 			else
 				gzip -c -- {input.reverse_paired:q} > {output.reverse_paired:q}
 			fi
 			if [[ {input.unpaired:q} == *.gz ]]; then
-				cp -- {input.unpaired:q} {output.unpaired:q}
+				ln -sfnr -- {input.unpaired:q} {output.unpaired:q}
 			else
 				gzip -c -- {input.unpaired:q} > {output.unpaired:q}
 			fi
@@ -555,11 +704,11 @@ rule postMultiQC:
 		zipped_reverse=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot_fastqc.zip", sample=SAMPLES),
 		# html_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot_fastqc.html", sample=SAMPLES),
 		zipped_unpaired=expand(dirs_dict["CLEAN_DATA_DIR"]  + "/{sample}_unpaired_clean.tot_fastqc.zip", sample=SAMPLES),
+		fastp_json=expand(dirs_dict["QC_DIR"] + "/{sample}_fastp.json", sample=SAMPLES),
 	output:
 		multiqc=dirs_dict["QC_DIR"]+ "/postQC_illumina_report.html",
 		multiqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
 	params:
-		fastqc_dir=dirs_dict["CLEAN_DATA_DIR"],
 		html_name="postQC_illumina_report.html",
 		multiqc_dir=dirs_dict["QC_DIR"]
 	message:
@@ -574,7 +723,7 @@ rule postMultiQC:
 		mem_mb= 4000,
 	shell:
 		"""
-		multiqc -f {params.fastqc_dir}/*zip -o {params.multiqc_dir} -n {params.html_name}
+		multiqc -f {input:q} -o {params.multiqc_dir:q} -n {params.html_name:q}
 		"""
 
 rule prekrakenMultiQC:

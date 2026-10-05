@@ -641,9 +641,13 @@ rule kraken:
 	input:
 		multiqc=dirs_dict["QC_DIR"]+ "/microbial_kraken_multiqc_report.html"
 
-rule trimmomatic:
+rule fastp:
 	input:
-		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_trimmomatic_values.txt", sample=SAMPLES),
+		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired.fastq.gz", sample=SAMPLES),
+		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired.fastq.gz", sample=SAMPLES),
+		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_merged_unpaired.tot.fastq.gz", sample=SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample}_fastp.html", sample=SAMPLES),
+		expand(dirs_dict["QC_DIR"] + "/{sample}_fastp.json", sample=SAMPLES),
 
 rule find_relatives:
 	input:

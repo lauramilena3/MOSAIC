@@ -156,6 +156,8 @@ rule plot_assemblies:
 rule QC_parsing:
 	input:
 		inputReadsCount,
+		fastp_json=expand(dirs_dict["QC_DIR"] + "/{sample}_fastp.json", sample=SAMPLES),
+		fastp_html=expand(dirs_dict["QC_DIR"] + "/{sample}_fastp.html", sample=SAMPLES),
 		histograms=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{{sampling}}.csv", sample=SAMPLES),
 		preqc_txt=dirs_dict["QC_DIR"]+ "/preQC_illumina_report_data/multiqc_fastqc.txt",
 		postqc_txt=dirs_dict["QC_DIR"]+ "/postQC_illumina_report_data/multiqc_fastqc.txt",
@@ -182,6 +184,7 @@ rule QC_parsing:
 		kmer_dist_post_png=(dirs_dict["PLOTS_DIR"] + "/01_kmer_distribution_plot_post.{sampling}.png"),
 		kmer_dist_post_svg=(dirs_dict["PLOTS_DIR"] + "/01_kmer_distribution_plot_post.{sampling}.svg"),
 		qc_summary_html=(dirs_dict["PLOTS_DIR"] + "/01_post_qc_read_summary.{sampling}.html"),
+		fastp_summary=dirs_dict["PLOTS_DIR"] + "/01_fastp_summary.{sampling}.csv",
 		percentage_kept_reads_png=(dirs_dict["PLOTS_DIR"] + "/01_percentage_kept_reads.{sampling}.png"),
 		percentage_kept_reads_svg=(dirs_dict["PLOTS_DIR"] + "/01_percentage_kept_reads.{sampling}.svg"),
 		percentage_kept_Mbp_png=(dirs_dict["PLOTS_DIR"] + "/01_percentage_kept_Mbp.{sampling}.png"),

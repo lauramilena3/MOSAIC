@@ -78,11 +78,16 @@ busco_lineage: fungi_odb10
 
 genome_size: "20m"
 
-trimmomatic_leading: "20"
-trimmomatic_trailing: "20"
-trimmomatic_window_size: "4"
-trimmomatic_window_quality: "20"
-trimmomatic_minlen: "50"
+# Illumina trimming with fastp (overlap analysis + PE adapter detection; no adapter FASTA)
+fastp_cut_front_window_size: 1
+fastp_cut_front_mean_quality: 20
+fastp_cut_right_window_size: 4
+fastp_cut_right_mean_quality: 20
+fastp_length_required: 50
+fastp_poly_g_min_len: 10
+fastp_qualified_quality_phred: 15
+fastp_unqualified_percent_limit: 40
+fastp_n_base_limit: 5
 pacbio_min_length: 1000
 pacbio_min_quality: 20
 nanopore_quality: 10
@@ -127,7 +132,6 @@ min_cov: "2"
 # min_votu_length
 min_votu_length: 5000
 contaminants_list: ""
-adapters_file: "adapters.fa"
 additional_reference_contigs: ""
 # host_directory: "HOST"
 
