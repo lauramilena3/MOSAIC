@@ -72,6 +72,27 @@ New benchmark paths can cause Snakemake to schedule completed jobs whose new
 benchmark files are missing. Inspect a dry-run before resuming a large analysis.
 Historical measurements cannot be recreated by adding a benchmark declaration.
 
+## Batched counting and host mapping
+
+Paired-end read counts are measured once per sample and processing stage:
+`countReads_raw`, `countReads_trimmed`, `countReads_noEuk`, `countReads_clean`
+and `countReads_norm`. Each job writes the same individual read-count files
+used by the existing reports. The single-file counters remain available for
+other read layouts. Each stage has its own benchmark; normalized counts also
+include the sampling type in the benchmark filename.
+
+`map_to_host` now runs unmasked and prophage-masked host mapping sequentially
+in one job per sample/host, retaining all existing report filenames and mapping
+settings. Its benchmark measures both mappings together, using eight threads
+unless overridden. Earlier measurements under `map_to_host` measured only the
+unmasked run, so their timings are not directly comparable. Existing masked
+benchmark files are left untouched and appear as legacy measurements.
+
+If a batched job needs to run, all of its outputs are regenerated. This reduces
+local job scheduling overhead but does not reduce the number of alignments or
+the amount of read data counted. No outputs or completion metadata are touched
+automatically to bypass genuine reruns.
+
 ## Verification
 
 Run `python -m unittest discover -s mosaic/tests -p test_benchmarks.py -v` in the

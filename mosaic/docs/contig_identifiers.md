@@ -57,6 +57,12 @@ If a tool extracts or trims a region, the retained identifier refers to its
 parent assembly; use the measured sequence length in that tool's output for
 the processed sequence.
 
+The isolate-summary notebook reuses this existing `contig_id`/`sample`
+provenance lookup before loading contig evidence. Provirus regions inherit
+their parent contig's sample. Standardized identifiers and legacy `_NODE_`
+identifiers are also recognized when a contig is not in that lookup; no
+`.ids.tsv` dependency is added.
+
 ## Full-assembly geNomad evidence
 
 geNomad runs on each sample's named DNA FASTA and, when RNA enrichment is
