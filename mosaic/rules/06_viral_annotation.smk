@@ -83,16 +83,24 @@ rule lifestyle_bacphlip:
 		  sequence="[^/]+"  # The 'sequence' wildcard cannot contain a slash
 	shell:
 		"""
-		if [ -s {input.fasta:q} ]; then
+		bacphlip_contigs=$(awk '/^>/ {{n++}} END {{print n+0}}' {input.fasta:q})
+		if [ "$bacphlip_contigs" -gt 0 ]; then
 			rm -rf {params.results_dir:q}
 			mkdir -p {params.results_dir:q}
 			cd {params.results_dir:q}
-			bacphlip -i {input.fasta:q} --multi_fasta -f
-			mv {params.results_bacphlip:q} {output.results_bacphlip_final:q}
+			if [ "$bacphlip_contigs" -gt 1 ]; then
+				bacphlip -i {input.fasta:q} --multi_fasta -f
+				mv {params.results_bacphlip:q} {output.results_bacphlip_final:q}
+			else
+				bacphlip -i {input.fasta:q} -f
+				bacphlip_id=$(awk '/^>/ {{print substr($1,2); exit}}' {input.fasta:q})
+				awk -v contig="$bacphlip_id" 'BEGIN {{FS=OFS="\\t"}} NR==1 {{$1="Sequence"}} NR>1 {{$1=contig}} {{print}}' \
+					{params.results_bacphlip:q} > {output.results_bacphlip_final:q}
+			fi
 		else
 			printf 'Sequence\tVirulent\tTemperate\n' > {output.results_bacphlip_final:q}
 		fi
-		rm -rf {params.results_dir}
+		rm -rf {params.results_dir:q}
 		"""
 
 
