@@ -1159,6 +1159,8 @@ rule blasToRefSeq:
 		refseq_db=(config['RefSeqViral_db']),
 	output:
 		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_ViralRefSeq_{sequence}.csv"),
+	params:
+		outfmt=lambda wc: "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" + (" sstart send bitscore btop" if wc.sequence.startswith("phage_isolates_cluster_representatives.") else ""),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
@@ -1170,7 +1172,7 @@ rule blasToRefSeq:
 		"""
 		if [ -s {input.fasta:q} ]; then
 			blastn -num_threads {threads} -db {input.refseq_db:q} -query {input.fasta:q} \
-			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output:q}
+			-outfmt {params.outfmt:q} > {output.blast_output:q}
 		else
 			: > {output.blast_output:q}
 		fi
@@ -1184,6 +1186,7 @@ rule blastToMETAVR:
 		blast_output=(dirs_dict["ANNOTATION"] + "/blast_output_METAVR_{sequence}.csv"),
 	params:
 		metavr_db=os.path.join(config["METAVR_db"], "METAVR_UViG_blastdb", "METAVR_UViG.blastdb"),
+		outfmt=lambda wc: "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" + (" sstart send bitscore btop" if wc.sequence.startswith("phage_isolates_cluster_representatives.") else ""),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
@@ -1195,7 +1198,7 @@ rule blastToMETAVR:
 		"""
 		if [ -s {input.fasta:q} ]; then
 			blastn -num_threads {threads} -db {params.metavr_db:q} -query {input.fasta:q} \
-			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output:q}
+			-outfmt {params.outfmt:q} > {output.blast_output:q}
 		else
 			: > {output.blast_output:q}
 		fi

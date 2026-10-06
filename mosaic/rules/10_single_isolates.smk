@@ -555,6 +555,8 @@ rule run_BLASTn_host:
 	output:
 		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs_{host}{host_scope}.fasta"),
 		blast_output=(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}{host_scope}.tot.csv"),
+	params:
+		outfmt="6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" + (" sstart send bitscore btop" if ISOLATES else ""),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
@@ -571,7 +573,7 @@ rule run_BLASTn_host:
 		if [ -s {input.host_fasta:q} ] && [ -s {output.temp_fasta:q} ]; then
 		makeblastdb -in {input.host_fasta} -dbtype nucl
 		blastn -num_threads {threads} -db {input.host_fasta} -query {output.temp_fasta}\
-			-outfmt "6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" > {output.blast_output}
+			-outfmt {params.outfmt:q} > {output.blast_output}
 		else
 			printf '' > {output.blast_output:q}
 		fi

@@ -427,8 +427,7 @@ def input_phage_isolates_host_fastas(wildcards):
 
 
 def input_isolate_host_assignments(wildcards):
-	return [path for path in [RESULTS_DIR + "/host_mapping_file.tsv",
-		dirs_dict["HOST_DIR"] + "/host_mapping_file.tsv"] if os.path.isfile(path)]
+	return HOST_ASSIGNMENT_FILES
 
 
 rule phage_isolates_catalogue:

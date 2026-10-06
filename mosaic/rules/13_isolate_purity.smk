@@ -196,9 +196,8 @@ rule isolate_read_accounting:
 		allowed = set(lengths)
 		host_scope = "not_applicable"
 		if stage in ["02_host_chromosomes", "03_host_viral"]:
-		    host_scope = "expected_host" if expected_host != "not reported" else "all_available_hosts_no_expected_assignment"
-		    if expected_host != "not reported":
-		        allowed = {{name for name in allowed if any(row["host"] == expected_host for row in owners.get(name, []))}}
+		    host_scope = "expected_host" if expected_host != "not reported" else "not_assessed"
+		    allowed = {{name for name in allowed if any(row["host"] == expected_host for row in owners.get(name, []))}}
 		if stage in ["05_other_retained", "06_other_excluded"]:
 		    # A shared exact representative can belong to this sample AND another sample.
 		    allowed = {{name for name in allowed if any(row["sample"] != sample for row in owners.get(name, []))}}

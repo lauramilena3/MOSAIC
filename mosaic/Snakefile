@@ -2,6 +2,7 @@ import os
 import re
 import glob
 import shlex
+import csv
 
 #import pandas as pd
 #======================================================
@@ -828,7 +829,39 @@ rule assembly_pacbio_hybrid_fungi:
 		sourmash=expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_{sampling}_pacbio_hybrid.classifications.csv", sample=PACBIO_SAMPLES, sampling=SAMPLING_TYPE),
 		quast=expand(dirs_dict["ASSEMBLY_DIR"] + "/assembly_quast_report.{sampling}.txt", sampling=SAMPLING_TYPE),
 
+def load_isolate_host_assignments(paths, samples, hosts):
+	# A host reference must never silently become an all-host screening fallback.
+	if not hosts:
+		return {}
+	if not paths:
+		raise ValueError("Isolate host FASTAs require host_mapping_file.tsv at the project root or under HOST/, with sample and host columns.")
+	assignments = {}
+	for path in paths:
+		with open(path) as handle:
+			reader = csv.DictReader(handle, delimiter="\t")
+			columns = {name.strip().lower(): name for name in reader.fieldnames or []}
+			if not {"sample", "host"}.issubset(columns):
+				raise ValueError("Missing sample/host columns in " + path)
+			for row in reader:
+				sample = (row.get(columns["sample"]) or "").strip()
+				host = (row.get(columns["host"]) or "").strip()
+				if sample not in samples:
+					continue
+				if not host or host not in hosts:
+					raise ValueError("Missing host assignment or host FASTA for sample " + sample + " in " + path + ": " + host)
+				if sample in assignments and assignments[sample] != host:
+					raise ValueError("Conflicting host assignments for sample " + sample + ": " + assignments[sample] + " and " + host)
+				assignments[sample] = host
+	missing = sorted(set(samples) - set(assignments))
+	if missing:
+		raise ValueError("Missing host assignments in host_mapping_file.tsv for: " + ", ".join(missing))
+	return assignments
+
+
 HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
+HOST_ASSIGNMENT_FILES = [path for path in [RESULTS_DIR + "/host_mapping_file.tsv",
+	dirs_dict["HOST_DIR"] + "/host_mapping_file.tsv"] if os.path.isfile(path)]
+ISOLATE_HOST_ASSIGNMENTS = load_isolate_host_assignments(HOST_ASSIGNMENT_FILES, SAMPLES, HOSTS) if ISOLATES else {}
 print(HOSTS)
 
 rule phage_isolates:
