@@ -151,7 +151,7 @@ rule predict_spacers:
 	threads: 64
 	shell:
 		"""
-		{input.minced_dir}/minced -spacers {input.combined_positive_contigs} {output.spacers}
+		"$CONDA_PREFIX/bin/java" -jar {input.minced_dir:q}/minced.jar -spacers {input.combined_positive_contigs:q} {output.spacers:q}
 		"""
 
 rule estimateBinningQuality:

@@ -65,19 +65,21 @@ rule get_minced:
 	output:
 		minced_dir=directory(os.path.join(workflow.basedir, config['minced_dir'])),
 	message:
-		"Downloading VIBRANT"
+		"Downloading and building MinCED"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+		dirs_dict["ENVS_DIR"] + "/bacterial.yaml"
+	params:
+		parent=os.path.dirname(os.path.join(workflow.basedir, config['minced_dir'])),
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/get_minced/tot.tsv"
 	threads: 1
 	shell:
 		"""
-		mkdir -p tools
-		cd tools
-		git clone https://github.com/ctSkennerton/minced/
-		cd minced
-		make
+		mkdir -p {params.parent:q}
+		if [ ! -f {output.minced_dir:q}/Makefile ]; then
+			git clone https://github.com/ctSkennerton/minced/ {output.minced_dir:q}
+		fi
+		make -B -C {output.minced_dir:q} JC="$CONDA_PREFIX/bin/javac" JAR="$CONDA_PREFIX/bin/jar"
 		"""
 
 rule get_mmseqs:
