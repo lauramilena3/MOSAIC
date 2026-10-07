@@ -4,7 +4,7 @@ From `mosaic/`, add these options to the usual `phage_isolates` command:
 
 ```bash
 snakemake --use-conda -p phage_isolates --config \
-  input_dir=/path/to/00_RAW_DATA isolates=True \
+  input_dir=/path/to/00_RAW_DATA isolates=True metagenome=False \
   sourmash_contig_catalogue=True sourmash_contig_catalogue_min_length=5000 \
   -j 32 --rerun-incomplete
 ```
@@ -15,8 +15,8 @@ or `microbial_metagenome`.
 
 ## Reused rules
 
-The existing global isolate catalogue still includes every retained SPAdes
-contig >=1 kb. Exact MMseqs dereplication is followed by the original CheckV
+The global isolate catalogue includes every saved SPAdes contig >=1 kb,
+including both retained and excluded contigs. Exact MMseqs dereplication is followed by the original CheckV
 independent >=95% ANI and >=85% target-coverage clustering criterion.
 
 `vOUTclustering_get_new_references` also extracts the global cluster centroids
@@ -65,7 +65,8 @@ are retained; taxonomy is not forced to strain rank. A gather match can have
 very few supporting hashes, especially on short fragments. Review the fractions
 and hash support alongside host BLAST and geNomad before concluding host origin:
 viral or plasmid sequences can also share sequence with microbial genomes.
-The six main categories never change automatically and no contig is discarded.
+The screen does not change retained/excluded decisions or discard contigs.
+No six-category biological classification is imposed in the isolate workflow.
 
 Raw taxonomy and per-query sketch measurements remain in `07_ANNOTATION/`:
 
@@ -76,3 +77,6 @@ Single-contig split FASTAs, sketch ZIPs and gather intermediates retain the
 existing temporary-file behavior. Empty selections and no-match searches
 produce header-only results. With the flag disabled, the existing metadata
 columns and other workflow modes remain unchanged.
+
+See the [isolate workflow guide](isolate_purity.md) for inputs, read accounting,
+the output index and the Snakemake dependency graphs.

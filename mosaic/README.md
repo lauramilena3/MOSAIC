@@ -106,6 +106,11 @@ biological modes are:
 The old target names `assembly_phage` and `microbial` have been replaced by
 `phage_isolates` and `microbial_metagenome` for consistency.
 
+The [isolate recovery and purity workflow](docs/isolate_purity.md) documents
+inputs, processing steps, outputs, decision thresholds and Snakemake dependency
+graphs. It uses all QC-passed reads and treats geNomad as evidence, not a viral
+selection gate.
+
 ## Long-Read and Hybrid Modes
 
 These modes are also available through the wrapper:
@@ -182,9 +187,10 @@ wrapper passes these values explicitly to Snakemake so the run is reproducible.
 - `metagenome` and `isolates`: internal workflow context flags. Users normally
   choose a wrapper mode instead of setting these directly.
 
-For `phage_isolates`, `remove_euk=False` by default. Kraken eukaryotic
-contamination is still calculated, but the next read-cleaning rule receives the
-trimmed reads instead of the Kraken euk-filtered reads.
+For `phage_isolates`, `isolates=True` bypasses biological read removal, including
+eukaryotic and configured-contaminant removal. Kraken still classifies the
+QC-passed reads for contamination reporting. Purity mapping uses all QC-passed
+paired and orphan reads, never the 2M subset.
 
 Filtered vOTUs are annotated with Pharokka and Phynteny after
 `filtered_95-85_positive_viral_contigs.tot.fasta` is created. If that filtered

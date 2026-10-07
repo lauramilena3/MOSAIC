@@ -4,7 +4,7 @@ Enable the optional screen with:
 
 ```bash
 snakemake --use-conda -p phage_isolates \
-  --config input_dir=/path/to/00_RAW_DATA isolates=True sourmash_clean_reads=True \
+  --config input_dir=/path/to/00_RAW_DATA isolates=True metagenome=False sourmash_clean_reads=True \
   -j 32 --rerun-incomplete
 ```
 
@@ -65,8 +65,10 @@ read-mapping breadth, and k-mer abundance is not sequencing depth.
 
 The configured GTDB database screens bacteria and archaea, not all possible
 contaminants. Unmatched reads may come from phages, eukaryotes, PhiX, or taxa
-absent from the database. The screen assesses what remains **after** configured
-read cleaning. It does not remove reads or change the six contig categories.
+absent from the database. In isolate mode these are all fastp-passed reads:
+biological read removal is bypassed. The screen does not remove reads or change
+retained/excluded contig decisions. No six-category biological classification
+is imposed.
 
 ## Outputs
 
@@ -83,9 +85,19 @@ POOLED/pooled_gather_sourmash.csv
 POOLED/pooled_gather_sourmash.with-lineages.csv
 POOLED/pooled_sourmash.summarized.csv
 POOLED/pooled_sourmash.kreport.txt
-clean_read_profiles.tot.tsv
-clean_read_taxonomy.tot.tsv
 ```
+
+Final report tables are under `FIGURES_AND_TABLES/`, not the raw Sourmash directory:
+
+```text
+08_phage_isolates_sourmash_clean_reads.tot.tsv
+08_phage_isolates_sourmash_clean_taxonomy.tot.tsv
+```
+
+The first table contains reference-level evidence, support status and profile
+scope (`sample` or `pooled`); the second contains the Sourmash taxonomic profiles.
+There is no requirement that a read-profile match is present in the assembled
+contig catalogue.
 
 The existing executed `NOTEBOOKS/08_phage_isolates_summary.tot.ipynb` displays
 profile status, reference matches, taxonomic summaries, a pooled genus
@@ -99,3 +111,6 @@ Figures are saved as PNG/SVG under `FIGURES_AND_TABLES` using prefixes
 `08_phage_isolates_sourmash_clean_genus.tot`. They are also included in the
 existing isolate HTML report. Empty/no-match profiles produce header-only
 tables and explanatory placeholder plots.
+
+See the [isolate workflow guide](isolate_purity.md) for inputs, read accounting,
+the output index and the Snakemake dependency graphs.
