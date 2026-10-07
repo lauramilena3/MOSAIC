@@ -161,7 +161,7 @@ rule stat_mapReadsToAssembly:
 		bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}.bam"),
 		sorted_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}_sorted.bam"),
 		sorted_bam_idx=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}_sorted.bam.bai"),
-		filtered_bam=temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}_filtered.bam"),
+		filtered_bam=(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}_filtered.bam") if ISOLATES else temp(dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs_{sampling}_filtered.bam"),
 		flagstats=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_{sample}_assembled_contigs.{sampling}.txt",
 		flagstats_filtered=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_flagstats_filtered_{sample}_assembled_contigs.{sampling}.txt",
 		basecov=dirs_dict["MAPPING_DIR"]+ "/STATS_FILES/bowtie2_{sample}_assembled_contigs.{sampling}_basecov.txt",

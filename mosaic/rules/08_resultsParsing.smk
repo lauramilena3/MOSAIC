@@ -433,13 +433,13 @@ def input_isolate_host_assignments(wildcards):
 rule phage_isolates_catalogue:
 	input:
 		host_assignments=input_isolate_host_assignments,
+		selection=expand(ISOLATE_CONTIG_DIR + "/SELECTION/{sample}.tot.tsv", sample=SAMPLES),
 		catalogue_provenance=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv",
 		catalogue_exact_clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_cluster.tot.tsv",
 		catalogue_mosaic_clusters=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot_95-85.clstr",
 		catalogue_genomad=ALL_ASSEMBLED_MAPPING_DIR + "/phage_isolates_contigs_existing_annotations_tot.tsv",
 		catalogue_checkv=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/quality_summary.tsv", sample=SAMPLES),
 		catalogue_contamination=expand(dirs_dict["ASSEMBLY_DIR"] + "/checkV_isolates_{sample}_tot/contamination.tsv", sample=SAMPLES),
-		assembled_covstats=input_phage_isolates_assembled_covstats,
 		host_blast=input_phage_isolates_host_blast,
 		host_viral_blast=expand(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}_viral_regions.tot.csv", host=HOSTS),
 		catalogue_sourmash_tax=[dirs_dict["ANNOTATION"] + "/sourmash_phage_isolates_cluster_representatives_tot.classifications.csv"] if SOURMASH_CONTIG_CATALOGUE else [],
@@ -466,7 +466,7 @@ rule phage_isolates_catalogue:
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_isolate_contig_catalogue.{sampling}.ipynb"
 	notebook:
-		dirs_dict["RAW_NOTEBOOKS"] + "/08_phage_isolates_summary.py.ipynb"
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_isolate_contig_catalogue.py.ipynb"
 
 
 rule phage_isolates_summary:
@@ -481,9 +481,10 @@ rule phage_isolates_summary:
 		clusters=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
 		catalogue_blast=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot-blastout.csv",
 		accounting=expand(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.summary.tsv", sample=SAMPLES, stage=ISOLATE_STAGES),
-		reference_counts=expand(ISOLATE_MAPPING_DIR + "/{sample}/01_own_retained.reference_reads.tsv", sample=SAMPLES),
+		reference_counts=expand(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.reference_reads.tsv", sample=SAMPLES, stage=ISOLATE_STAGES),
 		unexplained=expand(ISOLATE_MAPPING_DIR + "/{sample}/unexplained_{mate}.fastq.gz", sample=SAMPLES, mate=["R1", "R2", "unpaired"]),
 		own_depth=expand(ISOLATE_MAPPING_DIR + "/{sample}/01_own_retained.basecov.tsv.gz", sample=SAMPLES),
+		host_activity=[dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot.tsv"] if HOST_PROPHAGE_ACTIVITY and HOSTS else [],
 		host_covstats=input_phage_isolates_host_covstats if HOST_IDENTIFICATION_TEST else [],
 		host_masked_covstats=input_phage_isolates_host_masked_covstats if HOST_IDENTIFICATION_TEST else [],
 		host_blast=input_phage_isolates_host_blast,
@@ -510,6 +511,8 @@ rule phage_isolates_summary:
 		read_accounting=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.tsv",
 		purity_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.png",
 		purity_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.svg",
+		mapping_heatmap_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_mapping_heatmap.{sampling}.png",
+		mapping_heatmap_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_mapping_heatmap.{sampling}.svg",
 		remaining_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.png",
 		remaining_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.svg",
 		rpkm_heatmap_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.png",

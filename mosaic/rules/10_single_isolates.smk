@@ -551,17 +551,19 @@ rule buildBowtieDB_host:
 rule run_BLASTn_host:
 	input:
 		host_fasta=lambda wc: dirs_dict["HOST_DIR"] + ("/prophages/" + wc.host + "_prophages.fasta" if wc.host_scope else "/" + wc.host + ".fasta"),
-		assembly_fasta=[ALL_ASSEMBLED_DIR + "/phage_isolates_contigs.tot.fasta"] if ISOLATES else expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES),
+		assembly_fasta=lambda wc: [dirs_dict["ASSEMBLY_DIR"] + "/" + wc.assembly_query.split("/")[1] + "_spades_filtered_scaffolds.tot.fasta"] if wc.assembly_query else ([ALL_ASSEMBLED_DIR + "/phage_isolates_contigs.tot.fasta"] if ISOLATES else expand(dirs_dict["ASSEMBLY_DIR"]+ "/{sample}_spades_filtered_scaffolds.tot.fasta",sample=SAMPLES)),
 	output:
-		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/assembly_contigs_{host}{host_scope}.fasta"),
-		blast_output=(dirs_dict["vOUT_DIR"] + "/blastn_out_assembly_{host}{host_scope}.tot.csv"),
+		temp_fasta=temp(dirs_dict["ASSEMBLY_DIR"]+ "/{assembly_query}assembly_contigs_{host}{host_scope}.fasta"),
+		blast_output=(dirs_dict["vOUT_DIR"] + "/{assembly_query}blastn_out_assembly_{host}{host_scope}.tot.csv"),
 	params:
 		outfmt="6 qseqid sseqid salltitles qstart qend qlen slen qcovs evalue length pident" + (" sstart send bitscore btop" if ISOLATES else ""),
+		reference=lambda wc, input: ("-subject " if wc.assembly_query else "-db ") + shlex.quote(input.host_fasta),
 	conda:
 		dirs_dict["ENVS_DIR"] + "/viga.yaml"
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/run_BLASTn_host/host={host}__scope={host_scope}.tsv"
+		dirs_dict["BENCHMARKS"] + "/run_BLASTn_host/{assembly_query}host={host}__scope={host_scope}.tsv"
 	wildcard_constraints:
+		assembly_query="|ISOLATES/[^/]+/",
 		host="|".join(re.escape(host) for host in HOSTS) or "(?!)",
 		host_scope="|_viral_regions",
 	message:
@@ -569,11 +571,13 @@ rule run_BLASTn_host:
 	threads: 8
 	shell:
 		"""
-		cat {input.assembly_fasta} > {output.temp_fasta}
+		cat {input.assembly_fasta:q} > {output.temp_fasta:q}
 		if [ -s {input.host_fasta:q} ] && [ -s {output.temp_fasta:q} ]; then
-		makeblastdb -in {input.host_fasta} -dbtype nucl
-		blastn -num_threads {threads} -db {input.host_fasta} -query {output.temp_fasta}\
-			-outfmt {params.outfmt:q} > {output.blast_output}
+			if [ -z {wildcards.assembly_query:q} ]; then
+				makeblastdb -in {input.host_fasta:q} -dbtype nucl
+			fi
+			blastn -num_threads {threads} {params.reference} -query {output.temp_fasta:q}\
+				-outfmt {params.outfmt:q} > {output.blast_output:q}
 		else
 			printf '' > {output.blast_output:q}
 		fi

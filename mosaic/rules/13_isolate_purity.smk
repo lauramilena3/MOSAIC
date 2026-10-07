@@ -4,7 +4,8 @@ def isolate_stage_reference(wildcards):
 	if stage in ["01_own_retained", "04_own_excluded"]:
 		return ISOLATE_CONTIG_DIR + "/" + wildcards.sample + "_" + ("retained" if stage == "01_own_retained" else "excluded") + ".tot.fasta"
 	pool={"02_host_chromosomes": "host_chromosomes", "03_host_viral": "host_viral", "05_other_retained": "retained", "06_other_excluded": "excluded"}[stage]
-	return ISOLATE_CONTIG_DIR + "/REFERENCES/" + pool + ".fasta"
+	scope=("HOST/" + ISOLATE_HOST_ASSIGNMENTS[wildcards.sample] + "/" if wildcards.sample in ISOLATE_HOST_ASSIGNMENTS else "UNASSIGNED/") if stage in ["02_host_chromosomes", "03_host_viral"] else ""
+	return ISOLATE_CONTIG_DIR + "/REFERENCES/" + scope + pool + ".fasta"
 
 def isolate_stage_reads(wildcards, mate):
 	index=ISOLATE_STAGES.index(wildcards.stage)
@@ -18,9 +19,43 @@ def isolate_stage_index(wildcards):
 		return []
 	return [isolate_stage_reference(wildcards) + "." + part + ".bt2l" for part in ["1", "2", "3", "4", "rev.1", "rev.2"]]
 
+def isolate_reference_hosts(wildcards):
+	if wildcards.reference_set in ["retained", "excluded"] or wildcards.reference_scope == "UNASSIGNED/":
+		return []
+	if wildcards.reference_scope:
+		return [wildcards.reference_scope.split("/")[1]]
+	return HOSTS
+
+rule select_isolate_contigs:
+	input:
+		fasta=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta",
+		assembled_covstats=dirs_dict["MAPPING_DIR"] + "/STATS_FILES/bowtie2_{sample}_assembled_contigs.tot_covstats.txt",
+		host_blast=lambda wc: [dirs_dict["vOUT_DIR"] + "/ISOLATES/" + wc.sample + "/blastn_out_assembly_" + ISOLATE_HOST_ASSIGNMENTS[wc.sample] + ".tot.csv"] if wc.sample in ISOLATE_HOST_ASSIGNMENTS else [],
+		host_viral_blast=lambda wc: [dirs_dict["vOUT_DIR"] + "/ISOLATES/" + wc.sample + "/blastn_out_assembly_" + ISOLATE_HOST_ASSIGNMENTS[wc.sample] + "_viral_regions.tot.csv"] if wc.sample in ISOLATE_HOST_ASSIGNMENTS else [],
+	output:
+		selection=ISOLATE_CONTIG_DIR + "/SELECTION/{sample}.tot.tsv",
+	params:
+		phase="selection",
+		samples=lambda wc: [wc.sample],
+		hosts=lambda wc: [ISOLATE_HOST_ASSIGNMENTS[wc.sample]] if wc.sample in ISOLATE_HOST_ASSIGNMENTS else [],
+		expected_host=lambda wc: ISOLATE_HOST_ASSIGNMENTS.get(wc.sample, "not reported"),
+		sampling="tot",
+		results_dir=RESULTS_DIR,
+		min_depth=float(config.get("isolate_min_depth", 5)),
+		min_length=int(config.get("isolate_min_length_bp", 4000)),
+		short_depth=float(config.get("isolate_short_min_depth", 10)),
+		host_min_identity=float(config.get("isolate_host_min_identity", 90)),
+		host_min_query_coverage=float(config.get("isolate_host_min_query_coverage", 90)),
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/select_isolate_contigs/sample={sample}.tsv"
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/ISOLATES/{sample}_contig_selection.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_isolate_contig_catalogue.py.ipynb"
+
 rule extract_isolate_contig_sets:
 	input:
-		metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.tot/all_contig_metadata.tsv",
+		metadata=ISOLATE_CONTIG_DIR + "/SELECTION/{sample}.tot.tsv",
 		fasta=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_filtered_scaffolds.tot.fasta",
 	output:
 		retained=ISOLATE_CONTIG_DIR + "/{sample}_retained.tot.fasta",
@@ -40,18 +75,21 @@ rule extract_isolate_contig_sets:
 
 rule pool_isolate_references:
 	input:
-		metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.tot/all_contig_metadata.tsv",
-		fasta=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot.fasta",
-		hosts=lambda wc: expand(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta", host=HOSTS) if wc.reference_set == "host_chromosomes" else [],
-		viral=lambda wc: expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=HOSTS) if wc.reference_set == "host_viral" else [],
-		host_evidence=lambda wc: expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_viral_evidence.tsv", host=HOSTS) if wc.reference_set in ["host_chromosomes", "host_viral"] else [],
+		contigs=lambda wc: expand(ISOLATE_CONTIG_DIR + "/{sample}_" + wc.reference_set + ".tot.fasta", sample=SAMPLES) if wc.reference_set in ["retained", "excluded"] else [],
+		fasta=lambda wc: [ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot.fasta"] if wc.reference_set in ["retained", "excluded"] else [],
+		exact=lambda wc: [ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_cluster.tot.tsv"] if wc.reference_set in ["retained", "excluded"] else [],
+		hosts=lambda wc: expand(dirs_dict["HOST_DIR"] + "/host_masked_prophages/{host}_masked_prophages.fasta", host=isolate_reference_hosts(wc)) if wc.reference_set == "host_chromosomes" else [],
+		viral=lambda wc: expand(dirs_dict["HOST_DIR"] + "/prophages/{host}_prophages.fasta", host=isolate_reference_hosts(wc)) if wc.reference_set == "host_viral" else [],
 	output:
-		fasta=ISOLATE_CONTIG_DIR + "/REFERENCES/{reference_set}.fasta",
-		membership=ISOLATE_CONTIG_DIR + "/REFERENCES/{reference_set}.membership.tsv",
+		fasta=ISOLATE_CONTIG_DIR + "/REFERENCES/{reference_scope}{reference_set}.fasta",
+		membership=ISOLATE_CONTIG_DIR + "/REFERENCES/{reference_scope}{reference_set}.membership.tsv",
 	wildcard_constraints:
 		reference_set="host_chromosomes|host_viral|retained|excluded",
+		reference_scope="|HOST/[^/]+/|UNASSIGNED/",
+	params:
+		hosts=isolate_reference_hosts,
 	benchmark:
-		dirs_dict["BENCHMARKS"] + "/pool_isolate_references/reference={reference_set}.tsv"
+		dirs_dict["BENCHMARKS"] + "/pool_isolate_references/{reference_scope}reference={reference_set}.tsv"
 	threads: 1
 	run:
 		import csv
@@ -63,26 +101,33 @@ rule pool_isolate_references:
 			writer=csv.DictWriter(table, fieldnames=fields, delimiter="\t", lineterminator="\n")
 			writer.writeheader()
 			if wildcards.reference_set in ["retained", "excluded"]:
-				metadata=pd.read_csv(input.metadata, sep="\t")
-				members=metadata[metadata["contig_set"].eq(wildcards.reference_set)]
+				members=[]
+				for sample, path in zip(SAMPLES, input.contigs):
+					with open(path) as handle:
+						members.extend({"sample": sample, "original_id": record.id} for record in SeqIO.parse(handle, "fasta"))
+				members=pd.DataFrame(members, columns=["sample", "original_id"])
+				exact=pd.read_csv(input.exact[0], sep="\t", names=["exact_rep", "original_id"])
+				members=members.merge(exact, on="original_id", how="left")
 				groups={rep: group for rep, group in members.groupby("exact_rep")}
-				for record in SeqIO.parse(input.fasta, "fasta"):
-					if record.id not in groups:
-						continue
-					SeqIO.write(record, fasta, "fasta")
-					for row in groups[record.id].itertuples():
-						writer.writerow(dict(reference_id=record.id, sample=row.sample,
-							original_id=row.original_id, evidence_scope=wildcards.reference_set))
-			else:
-				for host, path in zip(HOSTS, list(input.hosts) or list(input.viral)):
-					for record in SeqIO.parse(path, "fasta"):
-						original=record.id
-						if wildcards.reference_set == "host_chromosomes":
-							record.id=host + "_" + original
-						record.description=""
+				with open(input.fasta[0]) as handle:
+					for record in SeqIO.parse(handle, "fasta"):
+						if record.id not in groups:
+							continue
 						SeqIO.write(record, fasta, "fasta")
-						writer.writerow(dict(reference_id=record.id, original_id=original, host=host,
-							evidence_scope=wildcards.reference_set))
+						for row in groups[record.id].itertuples():
+							writer.writerow(dict(reference_id=record.id, sample=row.sample,
+								original_id=row.original_id, evidence_scope=wildcards.reference_set))
+			else:
+				for host, path in zip(params.hosts, list(input.hosts) or list(input.viral)):
+					with open(path) as handle:
+						for record in SeqIO.parse(handle, "fasta"):
+							original=record.id
+							if wildcards.reference_set == "host_chromosomes":
+								record.id=host + "_" + original
+							record.description=""
+							SeqIO.write(record, fasta, "fasta")
+							writer.writerow(dict(reference_id=record.id, original_id=original, host=host,
+								evidence_scope=wildcards.reference_set))
 
 rule buildBowtieDB_isolate_stage:
 	input:
@@ -90,7 +135,7 @@ rule buildBowtieDB_isolate_stage:
 	output:
 		index=temp(expand("{{reference}}.fasta.{part}.bt2l", part=["1", "2", "3", "4", "rev.1", "rev.2"])),
 	wildcard_constraints:
-		reference=re.escape(ISOLATE_CONTIG_DIR) + "/(?:(?:REFERENCES/(?:host_chromosomes|host_viral|retained|excluded))|(?:[^/]+_excluded.tot))",
+		reference=re.escape(ISOLATE_CONTIG_DIR) + "/(?:(?:REFERENCES/(?:HOST/[^/]+/|UNASSIGNED/)?(?:host_chromosomes|host_viral|retained|excluded))|(?:[^/]+_excluded.tot))",
 	conda:
 		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
@@ -107,7 +152,6 @@ rule buildBowtieDB_isolate_stage:
 
 rule isolate_read_accounting:
 	input:
-		sample_hosts=ALL_ASSEMBLED_DIR + "/phage_isolates.tot/sample_host_assignments.tsv",
 		fasta=isolate_stage_reference,
 		index=isolate_stage_index,
 		forward=lambda wc: isolate_stage_reads(wc, "R1"),
@@ -124,13 +168,11 @@ rule isolate_read_accounting:
 		reference_counts=ISOLATE_MAPPING_DIR + "/{sample}/{stage}.reference_reads.tsv",
 		covstats=ISOLATE_MAPPING_DIR + "/{sample}/{stage}.covstats.tsv",
 		basecov=ISOLATE_MAPPING_DIR + "/{sample}/{stage}.basecov.tsv.gz",
-		forward=temp(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.remaining_R1.fastq.gz"),
-		rev_reads=temp(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.remaining_R2.fastq.gz"),
-		unpaired=temp(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.remaining_U.fastq.gz"),
 	wildcard_constraints:
 		stage="|".join(ISOLATE_STAGES),
 		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
 	params:
+		expected_host=lambda wc: ISOLATE_HOST_ASSIGNMENTS.get(wc.sample, "not reported"),
 		assembly_bam=lambda wc, input: shlex.quote(input.assembly_bam[0] if input.assembly_bam else ""),
 		membership=lambda wc, input: shlex.quote(input.membership[0] if input.membership else ""),
 		previous=lambda wc, input: shlex.quote(input.previous[0] if input.previous else ""),
@@ -145,9 +187,9 @@ rule isolate_read_accounting:
 		mem_mb=int(config.get("isolate_mapping_mem_mb", 16000)),
 	shell:
 		r"""
-		python - {wildcards.sample:q} {wildcards.stage:q} {input.sample_hosts:q} {input.fasta:q} {input.forward:q} {input.rev_reads:q} {input.unpaired:q} \
+		python - {wildcards.sample:q} {wildcards.stage:q} {params.expected_host:q} {input.fasta:q} {input.forward:q} {input.rev_reads:q} {input.unpaired:q} \
 			{params.assembly_bam} {params.membership} {params.previous} {output.bam:q} {output.reads:q} \
-			{output.summary:q} {output.covstats:q} {output.basecov:q} {output.forward:q} {output.rev_reads:q} {output.unpaired:q} {log:q} {threads} <<-'PYTHON'
+			{output.summary:q} {output.covstats:q} {output.basecov:q} {log:q} {threads} <<-'PYTHON'
 		import csv
 		import gzip
 		import os
@@ -157,13 +199,9 @@ rule isolate_read_accounting:
 		import tempfile
 		from collections import Counter
 
-		(sample, stage, metadata, fasta, r1, r2, orphan, assembly_bam, membership, previous,
-		 bam, reads_path, summary_path, covstats, basecov, remaining_r1, remaining_r2,
-		 remaining_u, log_path, threads) = sys.argv[1:]
+		(sample, stage, expected_host, fasta, r1, r2, orphan, assembly_bam, membership, previous,
+		 bam, reads_path, summary_path, covstats, basecov, log_path, threads) = sys.argv[1:]
 		threads = int(threads)
-		with open(metadata) as handle:
-		    expected_host = next((row["expected_host"] for row in csv.DictReader(handle, delimiter="\t")
-		                          if row["sample"] == sample), "not reported")
 
 		def fastq(path):
 		    with gzip.open(path, "rt") as handle:
@@ -316,8 +354,7 @@ rule isolate_read_accounting:
 		    columns = ["sample", "stage", "read_name", "original_read_name", "original_mate", "alignment_mate",
 		               "selected_reference", "accepted_references", "number_accepted_references",
 		               "non_unique", "pairing_scope", "matching_samples", "matching_hosts"]
-		    with gzip.open(reads_path, "wt") as table, gzip.open(remaining_r1, "wt") as forward, \
-		         gzip.open(remaining_r2, "wt") as reverse_reads, gzip.open(remaining_u, "wt") as unpaired:
+		    with gzip.open(reads_path, "wt") as table:
 		        writer = csv.DictWriter(table, fieldnames=columns, delimiter="\t", lineterminator="\n")
 		        writer.writeheader()
 
@@ -355,19 +392,10 @@ rule isolate_read_accounting:
 		            return True
 
 		        for first, second in zip(fastq(r1), fastq(r2)):
-		            mapped_first, mapped_second = account(first, 1), account(second, 2)
-		            if not mapped_first and not mapped_second:
-		                forward.writelines(first)
-		                reverse_reads.writelines(second)
-		            else:
-		                for record, mapped, mate in [(first, mapped_first, 1), (second, mapped_second, 2)]:
-		                    if not mapped:
-		                        name = read_name(record[0])
-		                        # Retain the original mate identity when a broken pair becomes an orphan.
-		                        unpaired.writelines((f"@{{name}}__MOSAIC_mate{{mate}}\n", record[1], "+\n", record[3]))
+		            account(first, 1)
+		            account(second, 2)
 		        for record in fastq(orphan):
-		            if not account(record, 0):
-		                unpaired.writelines(record)
+		            account(record, 0)
 
 		    original_total = totals["entering_reads"]
 		    if previous:
@@ -390,6 +418,58 @@ rule isolate_read_accounting:
 		        writer.writerows([sample, stage, name, reference_counts[name], length] for name, length in lengths.items())
 		PYTHON
 		"""
+
+rule extract_isolate_remaining_reads:
+	input:
+		forward=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_forward_paired_clean.tot.fastq.gz",
+		rev_reads=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_reverse_paired_clean.tot.fastq.gz",
+		unpaired=dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_clean.tot.fastq.gz",
+		assigned=lambda wc: [ISOLATE_MAPPING_DIR + "/" + wc.sample + "/" + stage + ".reads.tsv.gz" for stage in ISOLATE_STAGES[:ISOLATE_STAGES.index(wc.stage) + 1]],
+	output:
+		forward=temp(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.remaining_R1.fastq.gz"),
+		rev_reads=temp(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.remaining_R2.fastq.gz"),
+		unpaired=temp(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.remaining_U.fastq.gz"),
+	wildcard_constraints:
+		stage="|".join(ISOLATE_STAGES),
+		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/extract_isolate_remaining_reads/sample={sample}__stage={stage}.tsv"
+	threads: 1
+	run:
+		import csv
+		import gzip
+
+		assigned=set()
+		for path in input.assigned:
+			with gzip.open(path, "rt") as handle:
+				for row in csv.DictReader(handle, delimiter="\t"):
+					assigned.add((row["original_read_name"], int(row["original_mate"])))
+
+		def fastq(path):
+			with gzip.open(path, "rt") as handle:
+				for header in handle:
+					yield header, handle.readline(), handle.readline(), handle.readline()
+
+		def read_name(header):
+			return re.sub(r"/[12]$", "", header.split()[0].lstrip("@"))
+
+		with gzip.open(output.forward, "wt") as forward, gzip.open(output.rev_reads, "wt") as rev_reads, gzip.open(output.unpaired, "wt") as unpaired:
+			for first, second in zip(fastq(input.forward), fastq(input.rev_reads)):
+				remaining_first=(read_name(first[0]), 1) not in assigned
+				remaining_second=(read_name(second[0]), 2) not in assigned
+				if remaining_first and remaining_second:
+					forward.writelines(first)
+					rev_reads.writelines(second)
+				else:
+					for record, remaining, mate in [(first, remaining_first, 1), (second, remaining_second, 2)]:
+						if remaining:
+							unpaired.writelines(("@" + read_name(record[0]) + "__MOSAIC_mate" + str(mate) + "\n", record[1], "+\n", record[3]))
+			for record in fastq(input.unpaired):
+				name=read_name(record[0])
+				original=re.fullmatch(r"(.+)__MOSAIC_mate([12])", name)
+				identity=(original.group(1), int(original.group(2))) if original else (name, 0)
+				if identity not in assigned:
+					unpaired.writelines(record)
 
 rule isolate_unexplained_reads:
 	input:
