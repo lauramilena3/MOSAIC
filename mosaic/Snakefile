@@ -3,6 +3,8 @@ import re
 import glob
 import shlex
 import csv
+import json
+from snakemake.common import Mode
 
 #import pandas as pd
 #======================================================
@@ -81,7 +83,8 @@ else:
 	if RESULTS_DIR== "":
 		RESULTS_DIR=REPRESENTATIVE_CONTIGS_DIR
 
-print("Viral contigs dir" + VIRAL_CONTIGS_DIR)
+if workflow.mode == Mode.default:
+	print("Viral contigs dir" + VIRAL_CONTIGS_DIR)
 
 METAGENOME_FLAG=""
 
@@ -89,7 +92,8 @@ if ISOLATES:
 	METAGENOME=False
 
 if METAGENOME:
-	print("metagenomic mode")
+	if workflow.mode == Mode.default:
+		print("metagenomic mode")
 	METAGENOME_FLAG="--meta"
 
 if config["run_dnaapler"]:
@@ -157,7 +161,8 @@ else:
 if PAIRED:
 	READ_TYPES.append(config['reverse_tag'])
 if POOLED:
-	print("Nanopore reads are from a pooled sample")
+	if workflow.mode == Mode.default:
+		print("Nanopore reads are from a pooled sample")
 	NANOPORE_SAMPLES=config['nanopore_pooled_name']
 if len(SAMPLES)==1:
 	SAMPLING_TYPE=["tot"]
@@ -220,10 +225,12 @@ if os.path.exists(RESULTS_DIR + "/" + config["key_samples"]):
 	with open(RESULTS_DIR + "/" +  config["key_samples"]) as f:
 		SAMPLES_key = f.readlines()
 	SAMPLES_key = [x.strip() for x in SAMPLES_key]
-	print("key samples file : "+ RESULTS_DIR + "/" + config["key_samples"])
+	if workflow.mode == Mode.default:
+		print("key samples file : "+ RESULTS_DIR + "/" + config["key_samples"])
 
 else:
-	print("no key samples")
+	if workflow.mode == Mode.default:
+		print("no key samples")
 	SAMPLES_key=SAMPLES
 
 SAMPLES_NO_TECHNICAL=[element for element in SAMPLES if "_T" not in element]
@@ -240,61 +247,55 @@ if (len(SAMPLES)==0 ) & (len(PACBIO_SAMPLES)>0):
 if (len(SAMPLES)>0 ) & (len(PACBIO_SAMPLES)>0):
 	PACBIO_HYBRID=True
 
-print("Input Dir = ")
-print(RAW_DATA_DIR)
-#print(glob.glob(RAW_DATA_DIR + "/*" ))
+if workflow.mode == Mode.default:
+	print("Input Dir = ")
+	print(RAW_DATA_DIR)
 
-print("Results Dir = ")
-print(RESULTS_DIR)
+	print("Results Dir = ")
+	print(RESULTS_DIR)
 
-print("Illumina Read Tags = " )
-print(*READ_TYPES, sep = ", ")
+	print("Illumina Read Tags = " )
+	print(*READ_TYPES, sep = ", ")
 
-print("Nanopore samples detected= ")
-print(NANOPORE)
+	print("Nanopore samples detected= ")
+	print(NANOPORE)
 
-print("Nanopore samples detected= ")
-print(PACBIO)
+	print("Pacbio samples detected= ")
+	print(PACBIO)
 
-print("Sample Names = ")
-print(*SAMPLES, sep = ", ")
-print(len(SAMPLES))
+	print("Sample Names = ")
+	print(*SAMPLES, sep = ", ")
+	print(len(SAMPLES))
 
-print("Nanopore samples= ")
-print(NANOPORE_SAMPLES)
+	print("Nanopore samples= ")
+	print(NANOPORE_SAMPLES)
 
-print("Pacbio samples= ")
-print(PACBIO_SAMPLES)
+	print("Pacbio samples= ")
+	print(PACBIO_SAMPLES)
 
-print("Key Sample Names = ")
-print(*SAMPLES_key, sep = ", ")
-print(len(SAMPLES_key))
+	print("Key Sample Names = ")
+	print(*SAMPLES_key, sep = ", ")
+	print(len(SAMPLES_key))
 
-print("Contaminants = ")
-print(*CONTAMINANTS, sep = ", ")
+	print("Contaminants = ")
+	print(*CONTAMINANTS, sep = ", ")
 
-print("Contaminants post= ")
-print(*CONTAMINANTS_LIST_POST, sep = ", ")
+	print("Contaminants post= ")
+	print(*CONTAMINANTS_LIST_POST, sep = ", ")
 
-print("Reference contigs = ")
-print(REPRESENTATIVE_CONTIGS_BASE)
-print(REPRESENTATIVE_CONTIGS_DIR)
+	print("Reference contigs = ")
+	print(REPRESENTATIVE_CONTIGS_BASE)
+	print(REPRESENTATIVE_CONTIGS_DIR)
 
+	print("Nanopore Only =", NANOPORE_ONLY)
+	print("Pacbio Only =", PACBIO_ONLY)
 
+	print("Sampling= ")
+	print(SAMPLING_TYPE)
 
-# print("FAST5 = ")
-# print(TOMBO)
-
-print("Nanopore Only =", NANOPORE_ONLY)
-print("Pacbio Only =", PACBIO_ONLY)
-
-print("Sampling= ")
-print(SAMPLING_TYPE)
-
-
-if VCONTACT:
-	print("RUN VCONTACT= ")
-	print(VCONTACT)
+	if VCONTACT:
+		print("RUN VCONTACT= ")
+		print(VCONTACT)
 #======================================================
 # Rules
 #======================================================
@@ -485,7 +486,8 @@ def get_clinker_outputs(wildcards):
 		if "with_references" not in rep
 	]
 	contigs = [os.path.join(fasta_dir, rep) + "_with_references" for rep in reps]
-	print(expand("{contigs}_clinker.html", contigs=contigs))
+	if workflow.mode == Mode.default:
+		print(expand("{contigs}_clinker.html", contigs=contigs))
 	return expand("{contigs}_clinker.html", contigs=contigs)
 
 def inputRNAAssembly(wildcards):
@@ -863,7 +865,8 @@ HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta"
 HOST_ASSIGNMENT_FILES = [path for path in [RESULTS_DIR + "/host_mapping_file.tsv",
 	dirs_dict["HOST_DIR"] + "/host_mapping_file.tsv"] if os.path.isfile(path)]
 ISOLATE_HOST_ASSIGNMENTS = load_isolate_host_assignments(HOST_ASSIGNMENT_FILES, SAMPLES, HOSTS) if ISOLATES else {}
-print(HOSTS)
+if workflow.mode == Mode.default:
+	print(HOSTS)
 
 rule phage_isolates:
 	input:

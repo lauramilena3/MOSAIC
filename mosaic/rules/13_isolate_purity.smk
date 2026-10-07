@@ -60,18 +60,26 @@ rule extract_isolate_contig_sets:
 	output:
 		retained=ISOLATE_CONTIG_DIR + "/{sample}_retained.tot.fasta",
 		excluded=ISOLATE_CONTIG_DIR + "/{sample}_excluded.tot.fasta",
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/extract_isolate_contig_sets/sample={sample}.tsv"
 	threads: 1
-	run:
+	shell:
+		r"""
+		python - {input.metadata:q} {input.fasta:q} {output.retained:q} {output.excluded:q} <<-'PYTHON'
+		import sys
 		import pandas as pd
 		from Bio import SeqIO
 
-		metadata=pd.read_csv(input.metadata, sep="\t")
+		metadata_path, fasta_path, retained_path, excluded_path=sys.argv[1:]
+		metadata=pd.read_csv(metadata_path, sep="\t")
 		retained=set(metadata.loc[metadata["contig_set"].eq("retained"), "original_id"])
-		with open(output.retained, "w") as kept, open(output.excluded, "w") as removed:
-			for record in SeqIO.parse(input.fasta, "fasta"):
-				SeqIO.write(record, kept if record.id in retained else removed, "fasta")
+		with open(retained_path, "w") as kept, open(excluded_path, "w") as removed:
+		    for record in SeqIO.parse(fasta_path, "fasta"):
+		        SeqIO.write(record, kept if record.id in retained else removed, "fasta")
+		PYTHON
+		"""
 
 rule pool_isolate_references:
 	input:
@@ -87,47 +95,59 @@ rule pool_isolate_references:
 		reference_set="host_chromosomes|host_viral|retained|excluded",
 		reference_scope="|HOST/[^/]+/|UNASSIGNED/",
 	params:
-		hosts=isolate_reference_hosts,
+		context=lambda wc, input: json.dumps(dict(samples=SAMPLES, hosts=isolate_reference_hosts(wc),
+			contigs=list(input.contigs), fasta=list(input.fasta), exact=list(input.exact),
+			host_fastas=list(input.hosts), viral_fastas=list(input.viral))),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/pool_isolate_references/{reference_scope}reference={reference_set}.tsv"
 	threads: 1
-	run:
+	shell:
+		r"""
+		python - {wildcards.reference_set:q} {output.fasta:q} {output.membership:q} {params.context:q} <<-'PYTHON'
 		import csv
+		import json
+		import sys
 		import pandas as pd
 		from Bio import SeqIO
 
+		reference_set, fasta_path, membership_path, context=sys.argv[1:]
+		context=json.loads(context)
 		fields=["reference_id", "sample", "original_id", "host", "evidence_scope"]
-		with open(output.fasta, "w") as fasta, open(output.membership, "w") as table:
-			writer=csv.DictWriter(table, fieldnames=fields, delimiter="\t", lineterminator="\n")
-			writer.writeheader()
-			if wildcards.reference_set in ["retained", "excluded"]:
-				members=[]
-				for sample, path in zip(SAMPLES, input.contigs):
-					with open(path) as handle:
-						members.extend({"sample": sample, "original_id": record.id} for record in SeqIO.parse(handle, "fasta"))
-				members=pd.DataFrame(members, columns=["sample", "original_id"])
-				exact=pd.read_csv(input.exact[0], sep="\t", names=["exact_rep", "original_id"])
-				members=members.merge(exact, on="original_id", how="left")
-				groups={rep: group for rep, group in members.groupby("exact_rep")}
-				with open(input.fasta[0]) as handle:
-					for record in SeqIO.parse(handle, "fasta"):
-						if record.id not in groups:
-							continue
-						SeqIO.write(record, fasta, "fasta")
-						for row in groups[record.id].itertuples():
-							writer.writerow(dict(reference_id=record.id, sample=row.sample,
-								original_id=row.original_id, evidence_scope=wildcards.reference_set))
-			else:
-				for host, path in zip(params.hosts, list(input.hosts) or list(input.viral)):
-					with open(path) as handle:
-						for record in SeqIO.parse(handle, "fasta"):
-							original=record.id
-							if wildcards.reference_set == "host_chromosomes":
-								record.id=host + "_" + original
-							record.description=""
-							SeqIO.write(record, fasta, "fasta")
-							writer.writerow(dict(reference_id=record.id, original_id=original, host=host,
-								evidence_scope=wildcards.reference_set))
+		with open(fasta_path, "w") as fasta, open(membership_path, "w") as table:
+		    writer=csv.DictWriter(table, fieldnames=fields, delimiter="\t", lineterminator="\n")
+		    writer.writeheader()
+		    if reference_set in ["retained", "excluded"]:
+		        members=[]
+		        for sample, path in zip(context["samples"], context["contigs"]):
+		            with open(path) as handle:
+		                members.extend({{"sample": sample, "original_id": record.id}} for record in SeqIO.parse(handle, "fasta"))
+		        members=pd.DataFrame(members, columns=["sample", "original_id"])
+		        exact=pd.read_csv(context["exact"][0], sep="\t", names=["exact_rep", "original_id"])
+		        members=members.merge(exact, on="original_id", how="left")
+		        groups={{rep: group for rep, group in members.groupby("exact_rep")}}
+		        with open(context["fasta"][0]) as handle:
+		            for record in SeqIO.parse(handle, "fasta"):
+		                if record.id not in groups:
+		                    continue
+		                SeqIO.write(record, fasta, "fasta")
+		                for row in groups[record.id].itertuples():
+		                    writer.writerow(dict(reference_id=record.id, sample=row.sample,
+		                        original_id=row.original_id, evidence_scope=reference_set))
+		    else:
+		        for host, path in zip(context["hosts"], context["host_fastas"] or context["viral_fastas"]):
+		            with open(path) as handle:
+		                for record in SeqIO.parse(handle, "fasta"):
+		                    original=record.id
+		                    if reference_set == "host_chromosomes":
+		                        record.id=host + "_" + original
+		                    record.description=""
+		                    SeqIO.write(record, fasta, "fasta")
+		                    writer.writerow(dict(reference_id=record.id, original_id=original, host=host,
+		                        evidence_scope=reference_set))
+		PYTHON
+		"""
 
 rule buildBowtieDB_isolate_stage:
 	input:
@@ -432,44 +452,54 @@ rule extract_isolate_remaining_reads:
 	wildcard_constraints:
 		stage="|".join(ISOLATE_STAGES),
 		sample="|".join(re.escape(sample) for sample in SAMPLES) or "(?!)",
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/extract_isolate_remaining_reads/sample={sample}__stage={stage}.tsv"
 	threads: 1
-	run:
+	shell:
+		r"""
+		python - {input.forward:q} {input.rev_reads:q} {input.unpaired:q} \
+			{output.forward:q} {output.rev_reads:q} {output.unpaired:q} {input.assigned:q} <<-'PYTHON'
 		import csv
 		import gzip
+		import re
+		import sys
 
+		r1, r2, orphan, remaining_r1, remaining_r2, remaining_u=sys.argv[1:7]
 		assigned=set()
-		for path in input.assigned:
-			with gzip.open(path, "rt") as handle:
-				for row in csv.DictReader(handle, delimiter="\t"):
-					assigned.add((row["original_read_name"], int(row["original_mate"])))
+		for path in sys.argv[7:]:
+		    with gzip.open(path, "rt") as handle:
+		        for row in csv.DictReader(handle, delimiter="\t"):
+		            assigned.add((row["original_read_name"], int(row["original_mate"])))
 
 		def fastq(path):
-			with gzip.open(path, "rt") as handle:
-				for header in handle:
-					yield header, handle.readline(), handle.readline(), handle.readline()
+		    with gzip.open(path, "rt") as handle:
+		        for header in handle:
+		            yield header, handle.readline(), handle.readline(), handle.readline()
 
 		def read_name(header):
-			return re.sub(r"/[12]$", "", header.split()[0].lstrip("@"))
+		    return re.sub(r"/[12]$", "", header.split()[0].lstrip("@"))
 
-		with gzip.open(output.forward, "wt") as forward, gzip.open(output.rev_reads, "wt") as rev_reads, gzip.open(output.unpaired, "wt") as unpaired:
-			for first, second in zip(fastq(input.forward), fastq(input.rev_reads)):
-				remaining_first=(read_name(first[0]), 1) not in assigned
-				remaining_second=(read_name(second[0]), 2) not in assigned
-				if remaining_first and remaining_second:
-					forward.writelines(first)
-					rev_reads.writelines(second)
-				else:
-					for record, remaining, mate in [(first, remaining_first, 1), (second, remaining_second, 2)]:
-						if remaining:
-							unpaired.writelines(("@" + read_name(record[0]) + "__MOSAIC_mate" + str(mate) + "\n", record[1], "+\n", record[3]))
-			for record in fastq(input.unpaired):
-				name=read_name(record[0])
-				original=re.fullmatch(r"(.+)__MOSAIC_mate([12])", name)
-				identity=(original.group(1), int(original.group(2))) if original else (name, 0)
-				if identity not in assigned:
-					unpaired.writelines(record)
+		with gzip.open(remaining_r1, "wt") as forward, gzip.open(remaining_r2, "wt") as rev_reads, gzip.open(remaining_u, "wt") as unpaired:
+		    for first, second in zip(fastq(r1), fastq(r2)):
+		        remaining_first=(read_name(first[0]), 1) not in assigned
+		        remaining_second=(read_name(second[0]), 2) not in assigned
+		        if remaining_first and remaining_second:
+		            forward.writelines(first)
+		            rev_reads.writelines(second)
+		        else:
+		            for record, remaining, mate in [(first, remaining_first, 1), (second, remaining_second, 2)]:
+		                if remaining:
+		                    unpaired.writelines(("@" + read_name(record[0]) + "__MOSAIC_mate" + str(mate) + "\n", record[1], "+\n", record[3]))
+		    for record in fastq(orphan):
+		        name=read_name(record[0])
+		        original=re.fullmatch(r"(.+)__MOSAIC_mate([12])", name)
+		        identity=(original.group(1), int(original.group(2))) if original else (name, 0)
+		        if identity not in assigned:
+		            unpaired.writelines(record)
+		PYTHON
+		"""
 
 rule isolate_unexplained_reads:
 	input:
@@ -498,15 +528,22 @@ rule select_host_bacphlip_genomes:
 	output:
 		fasta=dirs_dict["HOST_DIR"] + "/prophages/{host}_bacphlip_input.fasta",
 		eligibility=dirs_dict["HOST_DIR"] + "/prophages/{host}_bacphlip_eligibility.tsv",
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/select_host_bacphlip_genomes/host={host}.tsv"
 	threads: 1
-	run:
+	shell:
+		r"""
+		python - {input.fasta:q} {input.evidence:q} {input.checkv:q} {output.fasta:q} {output.eligibility:q} <<-'PYTHON'
+		import os
+		import sys
 		import pandas as pd
 		from Bio import SeqIO
 
-		evidence=pd.read_csv(input.evidence, sep="\t")
-		checkv=pd.read_csv(input.checkv, sep="\t") if os.path.getsize(input.checkv) else pd.DataFrame(columns=["contig_id", "checkv_quality"])
+		fasta_path, evidence_path, checkv_path, output_fasta, eligibility_path=sys.argv[1:]
+		evidence=pd.read_csv(evidence_path, sep="\t")
+		checkv=pd.read_csv(checkv_path, sep="\t") if os.path.getsize(checkv_path) else pd.DataFrame(columns=["contig_id", "checkv_quality"])
 		evidence=evidence.merge(checkv[["contig_id", "checkv_quality"]], left_on="viral_id", right_on="contig_id", how="left")
 		phage=evidence["taxonomy"].fillna("").str.contains("Caudoviricetes", regex=False)
 		complete=evidence["checkv_quality"].eq("Complete")
@@ -514,11 +551,13 @@ rule select_host_bacphlip_genomes:
 		evidence.loc[~phage, "bacphlip_assessment"]="not_assessed_outside_model_scope"
 		evidence.loc[phage & ~complete, "bacphlip_assessment"]="not_assessed_incomplete_genome"
 		eligible=set(evidence.loc[phage & complete, "viral_id"])
-		with open(output.fasta, "w") as handle:
-			for record in SeqIO.parse(input.fasta, "fasta"):
-				if record.id in eligible:
-					SeqIO.write(record, handle, "fasta")
-		evidence[["viral_id", "bacphlip_assessment"]].to_csv(output.eligibility, sep="\t", index=False)
+		with open(output_fasta, "w") as handle:
+		    for record in SeqIO.parse(fasta_path, "fasta"):
+		        if record.id in eligible:
+		            SeqIO.write(record, handle, "fasta")
+		evidence[["viral_id", "bacphlip_assessment"]].to_csv(eligibility_path, sep="\t", index=False)
+		PYTHON
+		"""
 
 
 rule hosts_summary:

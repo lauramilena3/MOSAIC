@@ -24,7 +24,7 @@
   "snakemake_version": "7.18.2",
   "graph_scope": "Fresh example project with no installed databases, tools or previous outputs",
   "source_sha256": {
-    "Snakefile": "2116fd2b8d7963113800c67b226f0e9c533bb9b4f344f9d415947d098d08ed1b",
+    "Snakefile": "8749c654234ba650077b187ae282c01c56d199174ce1becbc1c21221f60eaf77",
     "config.yaml": "ae09da448a3116df976d485921865d18ee48a5e2ea066dd854ab725857090d5a",
     "rules/00_download_tools.smk": "9c6b0157c78b304ef62a58bf9b6ae75548c5c0d8696ec6602c73307d010bbdd0",
     "rules/01_quality_control_nanopore.smk": "93f69a70d6c997a361bd3e0e4cb1c4d989365b4f375652e1fd2653f8147b6ae9",
@@ -43,7 +43,7 @@
     "rules/10_single_isolates.smk": "863c01982d77a505a9d8d5ea8600cf46fd51c43bec24d105b32cd103cbd0d117",
     "rules/11_bacterial_analysis.smk": "6b75d08ab5b2051beafe06adc23dfa27c639b897244a944b79a1fbf238f1aac5",
     "rules/12_rna_microdiversity.smk": "740f5024c335c8e6bafe858d0b658d658f6c3b363fa7dc47d719f8ed15da43e1",
-    "rules/13_isolate_purity.smk": "34aa80284d2503740f88ed82bda33d545b53f646cb81f23c395066383157b833"
+    "rules/13_isolate_purity.smk": "019ac6c82cbd46edaec8ac2e152267ec2b3dd35889f8b0e3b164eaa652049e99"
   },
   "graphs": {
     "rulegraph": {
