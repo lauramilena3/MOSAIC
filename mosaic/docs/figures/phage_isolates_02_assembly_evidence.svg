@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="864pt" height="350.4pt" viewBox="0 0 864 350.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.5, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 350.4
+L 864 350.4
+L 864 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 35.52 79.2
+L 257.28 79.2
+Q 264 79.2 264 85.92
+L 264 140.16
+Q 264 146.88 257.28 146.88
+L 35.52 146.88
+Q 28.8 146.88 28.8 140.16
+L 28.8 85.92
+Q 28.8 79.2 35.52 79.2
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 321.12 79.2
+L 542.88 79.2
+Q 549.6 79.2 549.6 85.92
+L 549.6 140.16
+Q 549.6 146.88 542.88 146.88
+L 321.12 146.88
+Q 314.4 146.88 314.4 140.16
+L 314.4 85.92
+Q 314.4 79.2 321.12 79.2
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #0f766e; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 606.72 79.2
+L 828.48 79.2
+Q 835.2 79.2 835.2 85.92
+L 835.2 140.16
+Q 835.2 146.88 828.48 146.88
+L 606.72 146.88
+Q 600 146.88 600 140.16
+L 600 85.92
+Q 600 79.2 606.72 79.2
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #0f766e; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 264 113.04
+Q 287.700366 113.04 309.835485 113.04
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 304.235485 110.24
+L 309.835485 113.04
+L 304.235485 115.84
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #0f766e; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 549.6 113.04
+Q 573.300366 113.04 595.435485 113.04
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 589.835485 110.24
+L 595.435485 113.04
+L 589.835485 115.84
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #0f766e; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 321.12 196.8
+L 828.48 196.8
+Q 835.2 196.8 835.2 203.52
+L 835.2 272.64
+Q 835.2 279.36 828.48 279.36
+L 321.12 279.36
+Q 314.4 279.36 314.4 272.64
+L 314.4 203.52
+Q 314.4 196.8 321.12 196.8
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #0f766e; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 574.56 170.4
+Q 574.56 182.099854 574.56 192.234459
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 577.36 186.634459
+L 574.56 192.234459
+L 571.76 186.634459
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #0f766e; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 146.4 170.4
+Q 146.4 182.099854 146.4 192.234459
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 149.2 186.634459
+L 146.4 192.234459
+L 143.6 186.634459
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 35.52 196.8
+L 257.28 196.8
+Q 264 196.8 264 203.52
+L 264 272.64
+Q 264 279.36 257.28 279.36
+L 35.52 279.36
+Q 28.8 279.36 28.8 272.64
+L 28.8 203.52
+Q 28.8 196.8 35.52 196.8
+z
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 36 88.32
+L 36 137.76
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 321.6 88.32
+L 321.6 137.76
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 607.2 88.32
+L 607.2 137.76
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 321.6 205.92
+L 321.6 270.24
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 717.6 146.88
+L 717.6 170.4
+L 432 170.4
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 432 170.4
+L 574.56 170.4
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #0f766e; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 432 170.4
+L 146.4 170.4
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 36 205.92
+L 36 270.24
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 16.32px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="28.8" y="29.20065" transform="rotate(-0 28.8 29.20065)">02 / ASSEMBLY AND CONTIG EVIDENCE</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="50.628675" transform="rotate(-0 28.8 50.628675)">Assembly normalisation does not change the full-read mapping denominator</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="44.16" y="97.687575" transform="rotate(-0 44.16 97.687575)">QC-passed assembly reads</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="116.868675" transform="rotate(-0 44.16 116.868675)">BBnorm normalisation</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="131.748675" transform="rotate(-0 44.16 131.748675)">Configured target: 100×</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f766e" x="329.76" y="97.687575" transform="rotate(-0 329.76 97.687575)">SPAdes</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="329.76" y="116.868675" transform="rotate(-0 329.76 116.868675)">DNA isolate assembly mode</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="329.76" y="131.748675" transform="rotate(-0 329.76 131.748675)">No mandatory viral classifier gate</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f766e" x="615.36" y="97.687575" transform="rotate(-0 615.36 97.687575)">Saved contigs</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="615.36" y="116.50395" transform="rotate(-0 615.36 116.50395)">Length ≥1,000 bp</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="615.36" y="131.38395" transform="rotate(-0 615.36 131.38395)">Persistent IDs + .ids.tsv provenance</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f766e" x="329.76" y="215.287575" transform="rotate(-0 329.76 215.287575)">Run evidence tools on the saved assembly</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="329.76" y="234.468675" transform="rotate(-0 329.76 234.468675)">geNomad: virus / plasmid classification, scores, taxonomy and topology</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="329.76" y="249.348675" transform="rotate(-0 329.76 249.348675)">CheckV: quality, completeness, contamination and provirus evidence</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="329.76" y="264.228675" transform="rotate(-0 329.76 264.228675)">Terminal repeats: type, sequence, length and end coordinates</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="44.16" y="215.287575" transform="rotate(-0 44.16 215.287575)">Own-assembly mapping</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="233.739225" transform="rotate(-0 44.16 233.739225)">All QC-passed paired + orphan reads</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="248.619225" transform="rotate(-0 44.16 248.619225)">≥95% identity AND ≥85% aligned length</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="263.499225" transform="rotate(-0 44.16 263.499225)">Per-contig depth / breadth / counts</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="319.06395" transform="rotate(-0 28.8 319.06395)">Evidence is collected for every saved contig. Unclassified contigs remain eligible for retention.</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="342.10395" transform="rotate(-0 28.8 342.10395)">MOSAIC / phage_isolates · conceptual methods diagram · config.yaml defaults</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p93dbfa2e7d">
+   <rect x="0" y="0" width="864" height="350.4"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -56,60 +56,66 @@ By default, results are written beside `00_RAW_DATA`, in its parent project dire
 
 ## Workflow overview
 
+![Phage isolate workflow: reads, assembled contigs and assigned hosts](figures/phage_isolates_overview.png)
+
+[Zoomable overview (SVG)](figures/phage_isolates_overview.svg)
+
+The diagrams show the biological steps, not individual Snakemake jobs. Blue is reads, teal is contigs, purple is hosts, amber is exclusions/review, and grey is unexplained reads/reports. Each major step has its own diagram below. Thresholds shown are the repository defaults; a run with config overrides can use different values. The saved SPAdes filter is **1,000 bp (1 kb)**, not 1,000 kb.
+
 | Step | What happens |
 | --- | --- |
-| 1. Read QC | fastp trims adapters/poly-G and low-quality sequence. FastQC/MultiQC, read counts, SuperDeduper statistics and Kraken provide QC/contamination evidence. Biological read removal is bypassed. |
-| 2. Assembly | BBnorm-normalised QC-passed reads enter SPAdes. Save contigs >=1 kb, assign persistent IDs and write provenance sidecars. SuperDeduper measures PCR duplicates separately; its output is not the assembler input. These assembly reads are not the denominator for purity mapping. |
-| 3. Evidence | Run geNomad, CheckV and terminal-repeat checks on the saved assemblies. Characterise host assemblies with CheckM, geNomad, CheckV and eligible BACPHLIP predictions. |
-| 4. Per-sample selection | Map all QC-passed paired and orphan reads to their own assembly for depth. Apply the configured length/depth rule and the assigned-host chromosome/viral-region BLAST screen; write retained and excluded FASTAs. |
-| 5. Relatedness | Concatenate all saved contigs, exactly dereplicate with MMseqs, then cluster at independent >=95% ANI and >=85% target coverage. Extract cluster representatives and search RefSeq; optionally screen representatives with Sourmash/METAVR. |
-| 6. Read accounting | Assign each QC-passed read once through the six priority stages below. Preserve alternative/single-mate evidence and identify the final unexplained reads. |
-| 7. Additional evidence | If enabled, profile all QC-passed reads with Sourmash and assess assigned-host prophage coverage enrichment. Optional all-host identification and RefSeq read mapping are separate comparisons. |
-| 8. Reports | Collect sample decisions, per-contig/cluster evidence, host summaries, mapping fractions and figures in the existing notebooks and HTML/TSV/CSV outputs. |
+| [1. Read QC](#1-read-qc) | fastp trims adapters/poly-G and low-quality sequence. FastQC/MultiQC, read counts, SuperDeduper statistics and Kraken provide QC/contamination evidence. Biological read removal is bypassed. |
+| [2. Assembly and contig evidence](#2-assembly-and-contig-evidence) | BBnorm-normalised QC-passed reads enter SPAdes. Save contigs >=1 kb, assign persistent IDs, then collect geNomad, CheckV and terminal-repeat evidence. Assembly reads are not the purity-mapping denominator. |
+| [3. Host characterisation](#3-host-characterisation) | CheckM, geNomad, CheckV and eligible BACPHLIP predictions describe assigned hosts and viral regions. Optional activity testing measures coverage enrichment. |
+| [4. Retained and excluded contigs](#4-retained-and-excluded-contigs) | Full-read own-assembly mapping supplies depth. Apply the configured length/depth rule and assigned-host chromosome/viral-region BLAST screen; preserve both FASTAs. |
+| [5. Dereplication and clustering](#5-dereplication-and-clustering) | Concatenate all saved contigs, exactly dereplicate with MMseqs, then cluster at independent >=95% ANI and >=85% target coverage. Extract representatives and search RefSeq; optional Sourmash/METAVR screens add evidence. |
+| [6. Priority read accounting](#6-priority-read-accounting) | Assign each QC-passed read once through six stages. Preserve alternative/single-mate evidence and the final unexplained reads. |
+| [7. Reports and review](#7-reports-and-review) | Sample decisions, contig/cluster metadata, host summaries and figures. Optional full-read Sourmash, RefSeq mapping and host identification remain separate comparisons. |
 
-### Snakemake dependency graphs
-
-The overview below is generated from the actual `phage_isolates` rule graph, not a hand-drawn pipeline. Click the SVG for readable rule names when zooming.
-
-![Phage isolate rule dependencies, including database downloads](figures/phage_isolates_rulegraph.png)
-
-[Zoomable rule overview](figures/phage_isolates_rulegraph.svg) · [Full two-sample job DAG (PNG)](figures/phage_isolates_dag.png) · [Full DAG (SVG)](figures/phage_isolates_dag.svg)
-
-The example has two samples assigned to two hosts, both Sourmash screens enabled, and the default host-activity report enabled. Optional RefSeq read mapping, METAVR BLAST and all-host identification are off. There are no pre-existing results, databases or downloaded tools in the temporary example, so provisioning nodes are included. Pale orange nodes are database/tool download rules. Other node colours are Snakemake's rule colours, not biological classifications.
-
-The full job DAG retains separate sample, host and accounting-stage jobs. The rule overview collapses repeated jobs by rule name; reusable rules can therefore form loops in that overview even though the expanded job DAG is acyclic. Shared edge routes are bundled for readability; all original nodes and dependency edges remain in the DOT sources. The `remove_user_contaminants_PE` node remains as a bypass/link step in isolate mode, not biological read filtering. Conda package installation and Python downloads inside notebooks do not appear as separate rule nodes.
-
-| Download rule | Used for |
-| --- | --- |
-| `downloadKrakenDB`, `getKrakenTools` | Read-level contamination reporting. |
-| `downloadGenomadDB` | Assembly and host classification evidence. |
-| `downloadCheckvDB` | Isolate-contig and host viral-region quality assessment. |
-| `downloadCheckMDB` | Host assembly completeness/contamination. |
-| `downloadRefSeqViral` | Core cluster-representative BLAST; also reused by optional RefSeq read mapping. The downloader keeps a dated snapshot and undated links. |
-| `downloadSourmashRocksDB`, `downloadSourmashTaxonomy` | GTDB RS226 references and matching taxonomy, shared by both optional Sourmash screens. |
-
-Regenerate the documentation figures from the repository root:
+The actual Snakemake graphs and database-download rules are in the [technical appendix](#technical-appendix-snakemake-dependency-graphs). To regenerate the compact diagrams from the repository root:
 
 ```bash
 conda activate Mosaic_workflow
-python mosaic/docs/generate_isolate_dag.py
+python mosaic/docs/generate_isolate_diagrams.py
 ```
 
-Graphviz (`dot`) must be available. The generator asks Snakemake for `--rulegraph` and `--dag` in an isolated temporary example. It does not execute jobs, download databases, create Conda environments or alter project results. The DOT sources, SVGs and configuration/version manifest are saved beside the PNGs. To draw the optional branches without replacing the documented baseline, use:
-
-```bash
-python mosaic/docs/generate_isolate_dag.py \
-  --with-refseq --with-metavr --with-host-test \
-  --output-dir /tmp/mosaic-isolate-extended-graphs
-```
+This documentation-only generator uses matplotlib and PyYAML from the workflow environment. It reads `config.yaml` for configurable thresholds and saves PNG plus editable-text SVG files under `mosaic/docs/figures/`. It does not call Snakemake, execute analysis, download databases or change project results. Layouts and shared alignment/clustering policies are explicit in the generator, so update those labels if the workflow policy changes.
 
 See [clean-read Sourmash](sourmash_clean_reads.md), [cluster-representative Sourmash](sourmash_contig_catalogue.md), [contig identifiers](contig_identifiers.md) and [optional RefSeq mapping](refseq_mapping.md) for the branch-specific details.
 
-## Reads and contigs
+## 1. Read QC
+
+![Read QC: fastp, raw-read duplicate reporting and all QC-passed reads](figures/phage_isolates_01_read_qc.png)
+
+[Zoomable read-QC diagram (SVG)](figures/phage_isolates_01_read_qc.svg)
 
 With `isolates=True`, biological read removal is bypassed, including configured-contaminant and eukaryotic removal. Kraken classifies the QC-passed reads once for reporting; no post-decontamination Kraken job is required. All fastp-passed paired reads and orphans enter mapping, never the 2M subset. BBnorm normalisation is for assembly, not purity mapping. SuperDeduper measures PCR duplicates on the raw pairs for QC reporting; the current assembly path does not consume its deduplicated output, and neither fastp deduplication nor a separate PCR-duplicate filter is enabled.
 
-Existing saved SPAdes assemblies retain their filenames and >=1 kb filtering. Full-read own-assembly mapping supplies contig depth. Retention requires:
+## 2. Assembly and contig evidence
+
+![Assembly: BBnorm, SPAdes, saved contigs and annotation evidence](figures/phage_isolates_02_assembly_evidence.png)
+
+[Zoomable assembly diagram (SVG)](figures/phage_isolates_02_assembly_evidence.svg)
+
+Existing saved SPAdes assemblies retain their filenames and >=1 kb filtering. Persistent renamed IDs identify contigs throughout the analysis; neighbouring `.ids.tsv` sidecars preserve old assembler names for provenance only. geNomad, CheckV and terminal-repeat checks run on the saved assembly. Their results are evidence, not mandatory viral selection gates. Six biological categories are not imposed. RNA assembly, virome-positive filtering, VIBRANT, VirSorter, Pharokka, Phynteny and legacy AAI analysis are not required by the isolate target.
+
+## 3. Host characterisation
+
+![Assigned hosts: classification, viral regions and optional activity testing](figures/phage_isolates_03_hosts.png)
+
+[Zoomable host diagram (SVG)](figures/phage_isolates_03_hosts.svg)
+
+Host FASTAs require explicit sample-to-host assignments. CheckM describes host assembly quality; geNomad supplies predicted embedded prophages and whole-contig viral candidates, kept as separate evidence scopes. CheckV and terminal-repeat evidence describe those viral regions. BACPHLIP is limited to CheckV-complete Caudoviricetes genomes.
+
+The assigned host supplies the masked chromosome and viral-region references used below. The optional all-host comparison is report-only. [Host activity testing](#host-prophage-activity) uses the assigned unmasked host mapping, compares each embedded prophage with its whole parent-scaffold background, and does not change retention. It is enabled by default for isolate runs with hosts.
+
+## 4. Retained and excluded contigs
+
+![Selection: coverage support and assigned-host matches, with both FASTAs preserved](figures/phage_isolates_04_selection.png)
+
+[Zoomable selection diagram (SVG)](figures/phage_isolates_04_selection.svg)
+
+Full-read own-assembly mapping supplies contig depth. Retention requires:
 
 ```text
 depth >= isolate_min_depth
@@ -121,9 +127,28 @@ Defaults are 5x, 4,000 bp and 10x. Host BLAST requires >=90% identity AND >=90% 
 
 Isolate host and RefSeq/METAVR BLAST outputs append `sstart send bitscore btop` to the existing eleven columns. Query/reference breadth uses merged inclusive coordinate intervals, without double-counting overlapping alignments. Host identity is calculated from the same selected query portions, using the highest-scoring alignment where HSPs overlap and counting mismatches/gaps from BTOP. Each query/reference pair is assessed separately. Historical eleven-column files remain readable with identity explicitly labelled `legacy HSP identity estimate` and unavailable reference breadth left missing; regenerate BLAST for exact traceback-based identity. Other annotation datasets retain their existing BLAST output format.
 
-geNomad, CheckV, terminal repeats and Sourmash remain evidence, not mandatory viral selection gates. Six biological categories are not imposed. RNA assembly, virome-positive filtering, VIBRANT, VirSorter, Pharokka, Phynteny and legacy AAI analysis are not required by the isolate target.
+## 5. Dereplication and clustering
 
-## Priority read accounting
+![All-contig relatedness: exact representatives, independent 95/85 clustering and provenance](figures/phage_isolates_05_clustering.png)
+
+[Zoomable clustering diagram (SVG)](figures/phage_isolates_05_clustering.svg)
+
+All saved contigs retain the hierarchy `original_contig -> exact_rep -> mosaic_cluster -> cluster_rep`. Existing concatenation, exact MMseqs dereplication, provenance, per-assembly geNomad/CheckV and CheckV ANI calculation are reused, including DNA-only sharing links. Both retained and excluded sequences enter this global catalogue, without a top-N restriction. MMseqs uses 100% identity and 100% target coverage.
+
+Every clustering command uses the original installed CheckV tool:
+
+```bash
+aniclust --fna ... --ani ... --out ... \
+  --min_ani 95 --min_tcov 85 --min_qcov 0
+```
+
+ANI and target coverage pass independently. The local modified product-based `scripts/aniclust_checkv.py` is not invoked or edited. Optional Sourmash screens representatives >=5 kb but never removes shorter clusters from the catalogue.
+
+## 6. Priority read accounting
+
+![Read accounting: six priority mapping stages and final unexplained reads](figures/phage_isolates_06_read_accounting.png)
+
+[Zoomable read-accounting diagram (SVG)](figures/phage_isolates_06_read_accounting.svg)
 
 ```text
 own retained -> masked host chromosome -> host viral regions
@@ -139,22 +164,19 @@ Host FASTAs are discovered under `HOST/`. When host FASTAs exist and `isolates=T
 
 Residual host stages always use the assigned host; there is no all-host fallback. Runs without any host FASTAs remain possible and record host origin as not assessed, not as evidence of purity. Only reported viral coordinates are masked in isolate mode, without extra flanks. Whole-contig viral candidates are moved out of the chromosome reference into the host-viral reference.
 
+The startup sample/directory summary is printed only by the main Snakemake process. Contig extraction, reference pooling, residual-read extraction and BACPHLIP input selection use explicit inline Python in `shell:` blocks, avoiding additional Snakemake workers for these lightweight steps. They reuse `env5.yaml` for pandas/Biopython and `env1_mapping.yaml` for residual-read extraction; no new environment is required. Other existing `run:` or shadow rules elsewhere can still start normal Snakemake workers, without repeating the startup summary or restarting the full workflow.
+
 Cross-sample references reuse pooled exact representatives and membership tables. Self-only representatives are ineligible; representatives shared with other samples are eligible. A cross-sample match is sequence sharing, not proof of its source.
 
 `host_identification_test=True` separately enables full-read mappings against every masked/unmasked host. Breadth/depth/count comparisons are not summed into the purity fractions and never automatically relabel samples. Minimum evidence defaults to 100 reads and 1% masked-host breadth; equal best-host measurements remain ambiguous.
 
-## Shared clustering and outputs
+## 7. Reports and review
 
-All saved contigs retain the hierarchy `original_contig -> exact_rep -> mosaic_cluster -> cluster_rep`. Existing concatenation, exact MMseqs dereplication, provenance, per-assembly geNomad/CheckV and CheckV ANI calculation are reused, including DNA-only sharing links.
+![Reports: PASS, REVIEW, FAIL and separate QC warnings](figures/phage_isolates_07_reports.png)
 
-Every clustering command uses the original installed CheckV tool:
+[Zoomable reports diagram (SVG)](figures/phage_isolates_07_reports.svg)
 
-```bash
-aniclust --fna ... --ani ... --out ... \
-  --min_ani 95 --min_tcov 85 --min_qcov 0
-```
-
-ANI and target coverage pass independently. The local modified product-based `scripts/aniclust_checkv.py` is not invoked or edited.
+Start with the sample summary, then use contig/cluster tables and host reports to review the evidence. `REVIEW` flags a concern without automatically rejecting a recovered genome. Read-QC warnings remain separate. The [full decision definitions](#recoverypurity-decisions-and-separate-qc-warnings) distinguish review triggers from unusable data or invalid accounting.
 
 | Location | Outputs |
 | --- | --- |
@@ -296,3 +318,39 @@ The summary `decision` describes recovery/purity, independently of read-QC warni
 Read-QC levels remain available in `qc_status` and their individual status columns. The `qc_warnings` field describes low-quality filtering, SuperDeduper PCR duplicates and Kraken Eukaryota estimates, including percentages. These appear in a separate notebook/HTML table. A QC `WARN` or `FAIL` does not automatically make the isolate decision `REVIEW` or `FAIL`; missing QC measurements remain unassessed (`INFO`/missing), not evidence that QC passed. A sample can therefore have `decision=PASS` and a PCR-duplicate warning.
 
 Existing project reports are not edited in place: rerun the workflow to regenerate them. Previously product-clustered outputs must be regenerated using `--forcerun vOUTclustering` when migrating. The general `07_Normalise.py.ipynb` and virome-positive filtering remain unchanged; independent original 95/85 clustering is the intentional repository-wide change.
+
+## Technical appendix: Snakemake dependency graphs
+
+These graphs are generated from the actual `phage_isolates` dependencies, unlike the conceptual step diagrams above. Keep them for checking rule relationships and database provisioning. Click the SVG for readable rule names when zooming.
+
+![Phage isolate rule dependencies, including database downloads](figures/phage_isolates_rulegraph.png)
+
+[Zoomable rule overview](figures/phage_isolates_rulegraph.svg) · [Full two-sample job DAG (PNG)](figures/phage_isolates_dag.png) · [Full DAG (SVG)](figures/phage_isolates_dag.svg)
+
+The example has two samples assigned to two hosts, both Sourmash screens enabled, and the default host-activity report enabled. Optional RefSeq read mapping, METAVR BLAST and all-host identification are off. There are no pre-existing results, databases or downloaded tools in the temporary example, so provisioning nodes are included. Pale orange nodes are database/tool download rules. Other node colours are Snakemake's rule colours, not biological classifications.
+
+The full job DAG retains separate sample, host and accounting-stage jobs. The rule overview collapses repeated jobs by rule name; reusable rules can therefore form loops in that overview even though the expanded job DAG is acyclic. Shared edge routes are bundled for readability; all original nodes and dependency edges remain in the DOT sources. The `remove_user_contaminants_PE` node remains as a bypass/link step in isolate mode, not biological read filtering. Conda package installation and Python downloads inside notebooks do not appear as separate rule nodes.
+
+| Download rule | Used for |
+| --- | --- |
+| `downloadKrakenDB`, `getKrakenTools` | Read-level contamination reporting. |
+| `downloadGenomadDB` | Assembly and host classification evidence. |
+| `downloadCheckvDB` | Isolate-contig and host viral-region quality assessment. |
+| `downloadCheckMDB` | Host assembly completeness/contamination. |
+| `downloadRefSeqViral` | Core cluster-representative BLAST; also reused by optional RefSeq read mapping. The downloader keeps a dated snapshot and undated links. |
+| `downloadSourmashRocksDB`, `downloadSourmashTaxonomy` | GTDB RS226 references and matching taxonomy, shared by both optional Sourmash screens. |
+
+Regenerate the technical graphs from the repository root:
+
+```bash
+conda activate Mosaic_workflow
+python mosaic/docs/generate_isolate_dag.py
+```
+
+Graphviz (`dot`) must be available. This generator asks Snakemake for `--rulegraph` and `--dag` in an isolated temporary example. It does not execute jobs, download databases, create Conda environments or alter project results. The DOT sources, SVGs and configuration/version manifest are saved beside the PNGs. To draw the optional branches without replacing the documented baseline, use:
+
+```bash
+python mosaic/docs/generate_isolate_dag.py \
+  --with-refseq --with-metavr --with-host-test \
+  --output-dir /tmp/mosaic-isolate-extended-graphs
+```

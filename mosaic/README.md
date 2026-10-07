@@ -107,9 +107,9 @@ The old target names `assembly_phage` and `microbial` have been replaced by
 `phage_isolates` and `microbial_metagenome` for consistency.
 
 The [isolate recovery and purity workflow](docs/isolate_purity.md) documents
-inputs, processing steps, outputs, decision thresholds and Snakemake dependency
-graphs. It uses all QC-passed reads and treats geNomad as evidence, not a viral
-selection gate.
+inputs, outputs and decision thresholds, with a colour-coded overview, seven
+step diagrams and technical Snakemake graphs. It uses all QC-passed reads and
+treats geNomad as evidence, not a viral selection gate.
 
 ## Long-Read and Hybrid Modes
 

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="864pt" height="528pt" viewBox="0 0 864 528" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.5, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 528
+L 864 528
+L 864 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 35.52 76.8
+L 262.08 76.8
+Q 268.8 76.8 268.8 83.52
+L 268.8 152.64
+Q 268.8 159.36 262.08 159.36
+L 35.52 159.36
+Q 28.8 159.36 28.8 152.64
+L 28.8 83.52
+Q 28.8 76.8 35.52 76.8
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #ffffff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 318.72 76.8
+L 545.28 76.8
+Q 552 76.8 552 83.52
+L 552 152.64
+Q 552 159.36 545.28 159.36
+L 318.72 159.36
+Q 312 159.36 312 152.64
+L 312 83.52
+Q 312 76.8 318.72 76.8
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #ffffff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 601.92 76.8
+L 828.48 76.8
+Q 835.2 76.8 835.2 83.52
+L 835.2 152.64
+Q 835.2 159.36 828.48 159.36
+L 601.92 159.36
+Q 595.2 159.36 595.2 152.64
+L 595.2 83.52
+Q 595.2 76.8 601.92 76.8
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #ffffff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 268.8 118.08
+Q 288.901025 118.08 307.436803 118.08
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 301.836803 115.28
+L 307.436803 118.08
+L 301.836803 120.88
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #7c3aed; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 552 118.08
+Q 572.101025 118.08 590.636803 118.08
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 585.036803 115.28
+L 590.636803 118.08
+L 585.036803 120.88
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #7c3aed; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 35.52 204
+L 262.08 204
+Q 268.8 204 268.8 210.72
+L 268.8 279.84
+Q 268.8 286.56 262.08 286.56
+L 35.52 286.56
+Q 28.8 286.56 28.8 279.84
+L 28.8 210.72
+Q 28.8 204 35.52 204
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #ffffff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 148.8 159.36
+Q 148.8 180.180103 148.8 199.434957
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 151.6 193.834957
+L 148.8 199.434957
+L 146 193.834957
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #7c3aed; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 318.72 204
+L 828.48 204
+Q 835.2 204 835.2 210.72
+L 835.2 294.72
+Q 835.2 301.44 828.48 301.44
+L 318.72 301.44
+Q 312 301.44 312 294.72
+L 312 210.72
+Q 312 204 318.72 204
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #ffffff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 573.6 189.6
+Q 573.6 195.300586 573.6 199.435924
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+    <path d="M 576.4 193.835924
+L 573.6 199.435924
+L 570.8 193.835924
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #7c3aed; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: round"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 35.52 345.6
+L 828.48 345.6
+Q 835.2 345.6 835.2 352.32
+L 835.2 386.88
+Q 835.2 393.6 828.48 393.6
+L 35.52 393.6
+Q 28.8 393.6 28.8 386.88
+L 28.8 352.32
+Q 28.8 345.6 35.52 345.6
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #f7f3ff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 35.52 454.56
+L 828.48 454.56
+Q 835.2 454.56 835.2 461.28
+L 835.2 495.84
+Q 835.2 502.56 828.48 502.56
+L 35.52 502.56
+Q 28.8 502.56 28.8 495.84
+L 28.8 461.28
+Q 28.8 454.56 35.52 454.56
+z
+" clip-path="url(#pa8a5c88087)" style="fill: #f7f3ff; stroke: #7c3aed; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 36 85.92
+L 36 150.24
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 319.2 85.92
+L 319.2 150.24
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 602.4 85.92
+L 602.4 150.24
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 36 213.12
+L 36 277.44
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 319.2 213.12
+L 319.2 292.32
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 715.2 162.24
+L 715.2 189.6
+L 573.6 189.6
+" clip-path="url(#pa8a5c88087)" style="fill: none; stroke: #7c3aed; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 16.32px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="28.8" y="29.20065" transform="rotate(-0 28.8 29.20065)">03 / HOST CHARACTERISATION</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="50.628675" transform="rotate(-0 28.8 50.628675)">The assigned host drives selection and residual-read accounting; other hosts are report-only</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="44.16" y="95.287575" transform="rotate(-0 44.16 95.287575)">Host FASTAs + assignments</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="114.10395" transform="rotate(-0 44.16 114.10395)">HOST/{host}.fasta</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="128.98395" transform="rotate(-0 44.16 128.98395)">host_mapping_file.tsv: sample → host</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="143.86395" transform="rotate(-0 44.16 143.86395)">Host FASTAs require explicit metadata</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="327.36" y="95.287575" transform="rotate(-0 327.36 95.287575)">CheckM + geNomad</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="113.739225" transform="rotate(-0 327.36 113.739225)">Host completeness / contamination</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="128.619225" transform="rotate(-0 327.36 128.619225)">Embedded prophages vs whole-contig</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="143.499225" transform="rotate(-0 327.36 143.499225)">viral candidates + scope / coordinates</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="610.56" y="95.287575" transform="rotate(-0 610.56 95.287575)">Predicted viral regions</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="610.56" y="114.10395" transform="rotate(-0 610.56 114.10395)">CheckV + terminal-repeat evidence</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="610.56" y="128.98395" transform="rotate(-0 610.56 128.98395)">BACPHLIP: CheckV Complete</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="610.56" y="143.86395" transform="rotate(-0 610.56 143.86395)">Caudoviricetes genomes only</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="44.16" y="222.487575" transform="rotate(-0 44.16 222.487575)">Assigned-host references</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="240.939225" transform="rotate(-0 44.16 240.939225)">Chromosomes: viral regions masked</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="255.819225" transform="rotate(-0 44.16 255.819225)">Viral reference: embedded prophages +</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="270.699225" transform="rotate(-0 44.16 270.699225)">whole-contig candidates; scope labelled</text>
+   </g>
+   <g id="text_19">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="327.36" y="222.487575" transform="rotate(-0 327.36 222.487575)">Optional host prophage activity report (enabled by default)</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="241.668675" transform="rotate(-0 327.36 241.668675)">Use assigned-host unmasked full-read BAM; assess embedded prophages only</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="256.548675" transform="rotate(-0 327.36 256.548675)">Depth ratio ≥2; Cohen’s d ≥0.70</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="271.428675" transform="rotate(-0 327.36 271.428675)">Prophage mean depth ≥1×; breadth ≥50% at depth ≥1×</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="327.36" y="286.308675" transform="rotate(-0 327.36 286.308675)">Region length ≥1,000 bp; mask 150 bp at scaffold ends</text>
+   </g>
+   <g id="text_24">
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="39.36" y="361.5534" transform="rotate(-0 39.36 361.5534)">ACTIVITY BACKGROUND</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="39.36" y="379.428675" transform="rotate(-0 39.36 379.428675)">Whole parent scaffold, excluding all embedded prophages and masked ends; valid background required.</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="413.14395" transform="rotate(-0 28.8 413.14395)">Profiles show ±20,000 bp, clipped to the scaffold. The display window does not set the statistics.</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="433.30395" transform="rotate(-0 28.8 433.30395)">Coverage enrichment is compatible with replication, not confirmed induction; it does not change retention.</text>
+   </g>
+   <g id="text_28">
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="39.36" y="470.5134" transform="rotate(-0 39.36 470.5134)">OPTIONAL ALL-HOST IDENTIFICATION TEST</text>
+   </g>
+   <g id="text_29">
+    <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="39.36" y="488.388675" transform="rotate(-0 39.36 488.388675)">Separate masked / unmasked comparison against every host; report evidence, never automatically relabel samples.</text>
+   </g>
+   <g id="text_30">
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="519.70395" transform="rotate(-0 28.8 519.70395)">MOSAIC / phage_isolates · conceptual methods diagram · config.yaml defaults</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pa8a5c88087">
+   <rect x="0" y="0" width="864" height="528"/>
+  </clipPath>
+ </defs>
+</svg>
