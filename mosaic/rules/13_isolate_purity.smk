@@ -506,6 +506,7 @@ rule host_prophage_activity:
 		min_breadth_percent=float(config.get("host_prophage_activity_min_breadth_percent", 50)),
 		mask_bp=int(config.get("host_prophage_activity_mask_bp", 150)),
 		min_length_bp=int(config.get("host_prophage_activity_min_length_bp", 1000)),
+		plot_flank_bp=int(config.get("host_prophage_activity_plot_flank_bp", 20000)),
 	message:
 		"Checking host prophage coverage enrichment with PropagAtE activity defaults"
 	benchmark:

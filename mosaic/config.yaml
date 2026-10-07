@@ -123,6 +123,7 @@ host_prophage_activity_min_mean_depth: 1.0
 host_prophage_activity_min_breadth_percent: 50
 host_prophage_activity_mask_bp: 150
 host_prophage_activity_min_length_bp: 1000
+host_prophage_activity_plot_flank_bp: 20000 # display only; statistics use the whole parent scaffold background
 isolate_min_depth: 5
 isolate_min_length_bp: 4000
 isolate_short_min_depth: 10 # depth >=5 AND (length >=4000 OR depth >=10)
