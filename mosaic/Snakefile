@@ -47,6 +47,7 @@ ISOLATES=config_bool('isolates', False)
 REMOVE_EUK=config_bool('remove_euk', True) and not ISOLATES
 RNA_MODE=config_bool('RNA_enriched', False) and not ISOLATES
 HOST_IDENTIFICATION_TEST=config_bool('host_identification_test', False)
+HOST_PROPHAGE_ACTIVITY=config_bool('host_prophage_activity', True) and ISOLATES
 RUN_MICRODIVERSITY=config_bool('microdiversity', False)
 MAP_TO_REFSEQ=config_bool('map_to_RefSeq', False)
 MAP_TO_ALL_ASSEMBLED=config_bool('map_to_all_assembled', False)
@@ -873,6 +874,7 @@ rule phage_isolates:
 		dirs_dict["PLOTS_DIR"] + "/07_mapping_statistics_tot.html",
 		dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_summary.tot.html",
 		dirs_dict["PLOTS_DIR"] + "/08_hosts_summary.tot.html",
+		lambda wc: [dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot.tsv"] if HOST_PROPHAGE_ACTIVITY and HOSTS else [],
 		ALL_ASSEMBLED_DIR + "/phage_isolates.tot/all_contig_metadata.tsv",
 		ALL_ASSEMBLED_DIR + "/phage_isolates.tot/cluster_metadata.tsv",
 		PHAGE_ISOLATES_CLUSTER_PREFIX + ".tot.fasta",

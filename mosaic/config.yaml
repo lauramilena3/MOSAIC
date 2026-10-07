@@ -116,6 +116,13 @@ extract_mapped: False
 isolates: False
 # Isolate mode keeps all fastp-passed reads, including orphans; no biological removal or 2M mapping subset.
 host_identification_test: False # optional full-read comparison against every masked/unmasked host
+host_prophage_activity: True # isolate-only report using full reads against the assigned unmasked host
+host_prophage_activity_min_ratio: 2.0
+host_prophage_activity_min_cohen_d: 0.70
+host_prophage_activity_min_mean_depth: 1.0
+host_prophage_activity_min_breadth_percent: 50
+host_prophage_activity_mask_bp: 150
+host_prophage_activity_min_length_bp: 1000
 isolate_min_depth: 5
 isolate_min_length_bp: 4000
 isolate_short_min_depth: 10 # depth >=5 AND (length >=4000 OR depth >=10)

@@ -464,3 +464,56 @@ rule hosts_summary:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_hosts_summary.tot.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/08_hosts_summary.py.ipynb"
+
+
+# Reuse full-read host mapping, not the sequential residual host/prophage stages.
+rule host_prophage_activity_depth:
+	input:
+		bam=dirs_dict["MAPPING_DIR"] + "/HOST/bowtie2_{sample}_vs_{host}_filtered.bam",
+	output:
+		depth=dirs_dict["MAPPING_DIR"] + "/HOST/ACTIVITY/{sample}_vs_{host}.basecov.tsv.gz",
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1_mapping.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/host_prophage_activity_depth/host={host}__sample={sample}.tsv"
+	threads: 2
+	shell:
+		r"""
+		# One primary placement per read; secondary/supplementary records do not add depth.
+		samtools view -@ {threads} -u -F 2308 {input.bam:q} | \
+			bedtools genomecov -dz -ibam stdin | gzip -c > {output.depth:q}
+		"""
+
+
+rule host_prophage_activity:
+	input:
+		regions=dirs_dict["PLOTS_DIR"] + "/08_host_viral_regions.tot.tsv",
+		assignments=ALL_ASSEMBLED_DIR + "/phage_isolates.tot/sample_host_assignments.tsv",
+		host_fastas=expand(dirs_dict["HOST_DIR"] + "/{host}.fasta", host=HOSTS),
+		depth=lambda wc: [dirs_dict["MAPPING_DIR"] + "/HOST/ACTIVITY/" + sample + "_vs_" + ISOLATE_HOST_ASSIGNMENTS[sample] + ".basecov.tsv.gz"
+			for sample in SAMPLES if sample in ISOLATE_HOST_ASSIGNMENTS],
+	output:
+		table=dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot.tsv",
+		png=dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot.png",
+		svg=dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot.svg",
+		figures=directory(dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot"),
+	params:
+		samples=[sample for sample in SAMPLES if sample in ISOLATE_HOST_ASSIGNMENTS],
+		hosts=HOSTS,
+		min_ratio=float(config.get("host_prophage_activity_min_ratio", 2.0)),
+		min_cohen_d=float(config.get("host_prophage_activity_min_cohen_d", 0.70)),
+		min_mean_depth=float(config.get("host_prophage_activity_min_mean_depth", 1.0)),
+		min_breadth_percent=float(config.get("host_prophage_activity_min_breadth_percent", 50)),
+		mask_bp=int(config.get("host_prophage_activity_mask_bp", 150)),
+		min_length_bp=int(config.get("host_prophage_activity_min_length_bp", 1000)),
+	message:
+		"Checking host prophage coverage enrichment with PropagAtE activity defaults"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/host_prophage_activity/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_host_prophage_activity.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_host_prophage_activity.py.ipynb"
