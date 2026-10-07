@@ -94,6 +94,16 @@ The TSV `08_host_prophage_activity.tot.tsv` contains all assigned-host sample/re
 
 The host report includes CheckM, embedded prophages versus whole-contig viral candidates, CheckV and terminal-repeat evidence. The terminal-repeat candidate flag requires explicit geNomad `DTR`/`ITR` topology or the circularity rule's threshold-qualified `terminal_repeat_type` (using `circularity_min_repeat_bp`). `No terminal repeats` and sub-threshold raw overlaps do not qualify. Whole-host-contig repeat evidence is not assigned to an embedded prophage. BACPHLIP is assessed only for CheckV-complete Caudoviricetes genomes; other sequences remain not assessed. Terminal repeats alone do not establish physical circularity, completeness or biological activity.
 
-Review warnings default to retained-contig count !=1, <70% own-retained mapping, >10% host-associated reads, >10% unexplained reads and supported host-prophage exclusions. These warnings do not erase a recovered genome.
+## Recovery/purity decisions and separate QC warnings
+
+The summary `decision` describes recovery/purity, independently of read-QC warning levels:
+
+- `PASS`: passes the configured recovery/purity checks. This is not proof of a pure single-virus isolate.
+- `REVIEW`: retained-contig count !=1, <70% own-retained mapping, >10% host-associated reads, >10% unexplained reads, supported host-prophage exclusions, unassessed/unavailable host references, or an ambiguous/alternative best host in the optional identification test. These concerns do not erase a recovered genome; a supported host-prophage-associated genome excluded by policy remains `REVIEW`.
+- `FAIL`: no QC-passed reads, no assembled contigs, or missing, negative/non-finite or inconsistent read accounting. Stage assignments must conserve entering reads, consecutive stages must agree and all stage denominators must match. A failure takes precedence over review warnings.
+
+`warnings` contains recovery/purity review reasons; `failure_reasons` explains failures. `read_accounting_conserved` retains the original total-count check; `read_accounting_valid` additionally checks stage transitions and count availability. Existing biological and QC thresholds are unchanged.
+
+Read-QC levels remain available in `qc_status` and their individual status columns. The new `qc_warnings` field describes low-quality filtering, SuperDeduper PCR duplicates and Kraken Eukaryota estimates, including percentages. These appear in a separate notebook/HTML table. A QC `WARN` or `FAIL` does not automatically make the isolate decision `REVIEW` or `FAIL`; missing QC measurements remain unassessed (`INFO`/missing), not evidence that QC passed. A sample can therefore have `decision=PASS` and a PCR-duplicate warning.
 
 Existing project reports are not edited in place: rerun the workflow to regenerate them. Previously product-clustered outputs must be regenerated using `--forcerun vOUTclustering` when migrating. The general `07_Normalise.py.ipynb` and virome-positive filtering remain unchanged; independent original 95/85 clustering is the intentional repository-wide change.
