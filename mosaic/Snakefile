@@ -45,6 +45,7 @@ SOURMASH_CLEAN_READS=config_bool('sourmash_clean_reads', False)
 LONG_INDEX=config['long_index']
 EXTRACT_MAPPED=config['extract_mapped']
 ISOLATES=config_bool('isolates', False)
+ISOLATE_VIRIDIC=config_bool('isolate_viridic', True) and ISOLATES
 # Isolate purity is assessed before biological read removal, on DNA libraries.
 REMOVE_EUK=config_bool('remove_euk', True) and not ISOLATES
 RNA_MODE=config_bool('RNA_enriched', False) and not ISOLATES
@@ -186,6 +187,8 @@ SOURMASH_CLEAN_DIR=dirs_dict["ANNOTATION"] + "/SOURMASH_CLEAN"
 ALL_ASSEMBLED_TOP_CENOTE=dirs_dict["ANNOTATION"] + "/Cenote_" + ALL_ASSEMBLED_TOP_NAME + ".tot"
 ISOLATE_CONTIG_DIR=dirs_dict["ASSEMBLY_DIR"] + "/ISOLATES"
 ISOLATE_MAPPING_DIR=dirs_dict["MAPPING_DIR"] + "/ISOLATES"
+ISOLATE_VIRIDIC_INPUTS=ALL_ASSEMBLED_DIR + "/phage_isolates_viridic.{sampling}"
+ISOLATE_VIRIDIC_RESULTS=dirs_dict["ANNOTATION"] + "/VIRIDIC_CLUSTERS/{sampling}/{cluster}"
 ISOLATE_STAGES=["01_own_retained", "02_host_chromosomes", "03_host_viral", "04_own_excluded", "05_other_retained", "06_other_excluded"]
 
 def annotation_fasta_path(sequence):
@@ -978,6 +981,7 @@ include: os.path.join(RULES_DIR, '10_single_isolates.smk')
 include: os.path.join(RULES_DIR, '11_bacterial_analysis.smk')
 include: os.path.join(RULES_DIR, '12_rna_microdiversity.smk')
 include: os.path.join(RULES_DIR, '13_isolate_purity.smk')
+include: os.path.join(RULES_DIR, '15_isolate_viridic.smk')
 
 if NANOPORE==True:
 	include: os.path.join(RULES_DIR, '01_quality_control_nanopore.smk')

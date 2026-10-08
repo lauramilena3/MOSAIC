@@ -114,6 +114,10 @@ representative_contigs: ""
 sra_list: ""
 extract_mapped: False
 isolates: False
+# Isolate-only within-cluster similarities; never changes retention or 95/85 clustering.
+isolate_viridic: True
+isolate_viridic_complete_only: False # otherwise every eligible retained cluster is compared
+isolate_viridic_threads: 8
 # Isolate mode keeps all fastp-passed reads, including orphans; no biological removal or 2M mapping subset.
 host_identification_test: False # optional full-read comparison against every masked/unmasked host
 host_prophage_activity: True # isolate-only report using full reads against the assigned unmasked host
@@ -140,6 +144,10 @@ isolate_min_length_bp: 4000
 isolate_short_min_depth: 10 # depth >=5 AND (length >=4000 OR depth >=10)
 isolate_host_min_identity: 90
 isolate_host_min_query_coverage: 90
+# Report-only containment screen; does not change retention or 95/85 clustering.
+isolate_fragment_min_identity: 95
+isolate_fragment_min_short_coverage: 95
+isolate_fragment_max_length_ratio: 0.80
 isolate_min_retained_mapping_percent: 70
 isolate_max_host_mapping_percent: 10
 isolate_max_unexplained_percent: 10
@@ -147,7 +155,6 @@ isolate_mapping_threads: 8
 isolate_mapping_mem_mb: 16000
 isolate_host_test_min_reads: 100 # minimum evidence for the optional comparison, not an automatic host assignment
 isolate_host_test_min_breadth_percent: 1
-isolate_plot_max_clusters: 100 # figure limit only; complete tables are retained
 isolate_plot_max_host_contigs: 100
 #species
 p_ident: "95"
@@ -235,7 +242,7 @@ viga_dir: "tools/viga"
 piler_dir: "tools/pilercr1.06"
 trf_dir: "tools/TRF"
 vibrant_dir: "tools/VIBRANT"
-viridic_folder: "tools/viridic_v1.0_r3.6"
+viridic_folder: "tools/viridic_v1.1" # existing VIRIDIC Singularity bundle; requires singularity on PATH
 sra_toolkit_dir: "tools/sratoolkit.2.10.0-ubuntu64"
 ALE_dir: "tools/ALE"
 minced_dir: "tools/minced"

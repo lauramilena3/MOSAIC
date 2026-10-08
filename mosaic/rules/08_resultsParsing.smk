@@ -440,8 +440,8 @@ rule phage_isolates_catalogue:
 		catalogue_sourmash_gather=[dirs_dict["ANNOTATION"] + "/phage_isolates_cluster_representatives_tot_gather_sourmash.csv"] if SOURMASH_CONTIG_CATALOGUE else [],
 		catalogue_sourmash_queries=[dirs_dict["ANNOTATION"] + "/phage_isolates_cluster_representatives_tot_sourmash_queries.tsv"] if SOURMASH_CONTIG_CATALOGUE else [],
 	output:
-		all_contig_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
-		cluster_metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
+		all_contig_metadata=temp(ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.unflagged.tsv"),
+		cluster_metadata=temp(ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.unflagged.tsv"),
 		sample_hosts=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/sample_host_assignments.tsv",
 	params:
 		phase="catalogue",
@@ -463,21 +463,146 @@ rule phage_isolates_catalogue:
 		dirs_dict["RAW_NOTEBOOKS"] + "/08_isolate_contig_catalogue.py.ipynb"
 
 
+rule isolate_fragment_candidates:
+	input:
+		metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.unflagged.tsv",
+		clusters=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.unflagged.tsv",
+		ani=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot-aniout.csv",
+		fasta=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs.tot.fasta",
+	output:
+		metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
+		clusters=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
+		matches=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/fragment_candidate_matches.tsv",
+	params:
+		min_identity=float(config.get("isolate_fragment_min_identity", 95)),
+		min_short_coverage=float(config.get("isolate_fragment_min_short_coverage", 95)),
+		max_length_ratio=float(config.get("isolate_fragment_max_length_ratio", 0.80)),
+	message:
+		"Flagging retained fragment candidates without changing clustering or selection"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/isolate_fragment_candidates/sampling={sampling}.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	shell:
+		r"""
+		python - {input.metadata:q} {input.clusters:q} {input.ani:q} {input.fasta:q} \
+			{output.metadata:q} {output.clusters:q} {output.matches:q} \
+			{params.min_identity} {params.min_short_coverage} {params.max_length_ratio} <<-'PYTHON'
+		import sys
+		import numpy as np
+		import pandas as pd
+		from Bio import SeqIO
+
+		def flag_fragment_candidates(metadata, ani, sequences, min_identity, min_short_coverage, max_length_ratio):
+		    from Bio.Seq import reverse_complement
+
+		    # Only retained originals are compared; cluster membership is never changed.
+		    retained=metadata.loc[metadata["retained"], ["sample", "original_id", "exact_rep", "cluster_rep", "length_bp"]].copy()
+		    targets=retained.rename(columns={{"sample": "contained_in_sample", "original_id": "contained_in_contig",
+		        "exact_rep": "contained_in_exact_rep", "cluster_rep": "contained_in_cluster",
+		        "length_bp": "contained_in_length_bp"}})
+		    columns=list(retained.columns) + list(targets.columns) + [
+		        "containment_identity_percent", "containment_short_coverage_percent", "containment_length_ratio",
+		        "containment_evidence_scope"]
+
+		    # ANI percentages apply to exact representatives, not to shorter MMseqs members.
+		    # Expand them only to verified full-length identical copies (either strand).
+		    same_sequence=[]
+		    for row in retained.itertuples():
+		        sequence=sequences.get(row.original_id, "")
+		        representative=sequences.get(row.exact_rep, "")
+		        same_sequence.append(bool(sequence) and (sequence == representative or
+		                             reverse_complement(sequence) == representative))
+		    aliases=retained.loc[same_sequence]
+		    alias_targets=targets[targets["contained_in_contig"].isin(aliases["original_id"])]
+		    ani=ani.reindex(columns=["qname", "tname", "pid", "qcov"]).astype({{"qname": object, "tname": object}})
+		    ani=ani[ani["pid"].ge(min_identity) & ani["qcov"].ge(min_short_coverage)]
+		    matches=ani.merge(aliases, left_on="qname", right_on="exact_rep").merge(
+		        alias_targets, left_on="tname", right_on="contained_in_exact_rep")
+		    matches["containment_length_ratio"]=matches["length_bp"] / matches["contained_in_length_bp"].replace(0, np.nan)
+		    matches=matches[matches["length_bp"].lt(matches["contained_in_length_bp"]) &
+		                    matches["containment_length_ratio"].le(max_length_ratio)].copy()
+		    matches=matches.rename(columns={{"pid": "containment_identity_percent", "qcov": "containment_short_coverage_percent"}})
+		    matches["containment_evidence_scope"]="ANI alignment (exact representatives)"
+
+		    # Exact dereplication can also contain shorter sequences. Verify their actual
+		    # sequences within each existing MMseqs group instead of inheriting ANI values.
+		    exact_matches=[]
+		    if min_identity <= 100 and min_short_coverage <= 100:
+		        for exact_rep, members in retained.groupby("exact_rep", sort=False):
+		            for query in members.itertuples():
+		                sequence=sequences.get(query.original_id, "")
+		                if not sequence:
+		                    continue
+		                reverse=reverse_complement(sequence)
+		                longer=members[members["length_bp"].gt(query.length_bp) &
+		                               (query.length_bp / members["length_bp"]).le(max_length_ratio)]
+		                for target in longer.itertuples():
+		                    parent=sequences.get(target.original_id, "")
+		                    if sequence in parent or reverse in parent:
+		                        exact_matches.append(dict(sample=query.sample, original_id=query.original_id,
+		                            exact_rep=exact_rep, cluster_rep=query.cluster_rep, length_bp=query.length_bp,
+		                            contained_in_sample=target.sample, contained_in_contig=target.original_id,
+		                            contained_in_exact_rep=exact_rep, contained_in_cluster=target.cluster_rep,
+		                            contained_in_length_bp=target.length_bp, containment_identity_percent=100.0,
+		                            containment_short_coverage_percent=100.0,
+		                            containment_length_ratio=query.length_bp / target.length_bp,
+		                            containment_evidence_scope="Exact sequence containment (MMseqs members)"))
+		    # Prefer the strongest identity, then coverage, longest target and lexical ID.
+		    tables=[table for table in [pd.DataFrame(exact_matches, columns=columns), matches.reindex(columns=columns)] if not table.empty]
+		    matches=pd.concat(tables, ignore_index=True) if tables else pd.DataFrame(columns=columns)
+		    matches=matches.sort_values(["sample", "original_id", "containment_identity_percent",
+		        "containment_short_coverage_percent", "contained_in_length_bp", "contained_in_contig"],
+		        ascending=[True, True, False, False, False, True], kind="stable").drop_duplicates(
+		        ["original_id", "contained_in_contig"])
+		    matches["match_rank"]=matches.groupby("original_id", sort=False).cumcount() + 1
+		    best=matches.drop_duplicates("original_id").set_index("original_id")
+		    metadata=metadata.copy()
+		    metadata["fragment_candidate"]=metadata["original_id"].isin(best.index)
+		    for column in list(targets.columns) + columns[-4:]:
+		        metadata[column]=metadata["original_id"].map(best[column])
+		    return metadata, matches
+
+		(metadata_path, cluster_path, ani_path, fasta_path, output_metadata, output_clusters,
+		 output_matches, min_identity, min_short_coverage, max_length_ratio)=sys.argv[1:]
+		metadata=pd.read_csv(metadata_path, sep="\t")
+		clusters=pd.read_csv(cluster_path, sep="\t")
+		ani=pd.read_csv(ani_path, sep="\t")
+		with open(fasta_path) as handle:
+		    sequences={{record.id: str(record.seq).upper() for record in SeqIO.parse(handle, "fasta")}}
+		metadata, matches=flag_fragment_candidates(metadata, ani, sequences, float(min_identity),
+		    float(min_short_coverage), float(max_length_ratio))
+		counts=metadata.groupby("cluster_rep")["fragment_candidate"].sum()
+		clusters["number_fragment_candidates"]=clusters["cluster_rep"].map(counts).fillna(0).astype(int)
+		for table, path in [(metadata, output_metadata), (clusters, output_clusters), (matches, output_matches)]:
+		    table.to_csv(path, sep="\t", index=False, na_rep="not reported")
+
+		PYTHON
+		"""
+
+
 rule phage_isolates_summary:
 	input:
+		viridic_selection=lambda wc: input_isolate_viridic_selection(wc),
+		viridic_members=lambda wc: input_isolate_viridic_members(wc),
+		viridic_results=lambda wc: input_isolate_viridic_results(wc),
 		host_assignments=input_isolate_host_assignments,
 		catalogue_provenance=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_provenance.tot.tsv",
 		df_counts_paired=dirs_dict["PLOTS_DIR"] + "/01_qc_read_counts_paired.{sampling}.csv",
+		kmer_summary=dirs_dict["PLOTS_DIR"] + "/01_kmer_rarefaction_summary.{sampling}.csv",
 		pcr_duplicates=expand(dirs_dict["QC_DIR"] + "/{sample}_stats_pcr_duplicates.log", sample=SAMPLES),
 		kraken_reports=expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kraken2_report_paired_tot.csv", sample=SAMPLES),
 		quast=dirs_dict["ASSEMBLY_DIR"] + "/statistics_quast_{sampling}/transposed_report.tsv",
 		metadata=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/all_contig_metadata.tsv",
 		clusters=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/cluster_metadata.tsv",
+		fragment_matches=ALL_ASSEMBLED_DIR + "/phage_isolates.{sampling}/fragment_candidate_matches.tsv",
 		catalogue_blast=ALL_ASSEMBLED_DIR + "/phage_isolates_contigs_derreplicated_rep_seq.tot-blastout.csv",
 		accounting=expand(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.summary.tsv", sample=SAMPLES, stage=ISOLATE_STAGES),
 		reference_counts=expand(ISOLATE_MAPPING_DIR + "/{sample}/{stage}.reference_reads.tsv", sample=SAMPLES, stage=ISOLATE_STAGES),
 		unexplained=expand(ISOLATE_MAPPING_DIR + "/{sample}/unexplained_{mate}.fastq.gz", sample=SAMPLES, mate=["R1", "R2", "unpaired"]),
-		own_depth=expand(ISOLATE_MAPPING_DIR + "/{sample}/01_own_retained.basecov.tsv.gz", sample=SAMPLES),
 		host_activity=[dirs_dict["PLOTS_DIR"] + "/08_host_prophage_activity.tot.tsv"] if HOST_PROPHAGE_ACTIVITY and HOSTS else [],
 		host_covstats=input_phage_isolates_host_covstats if HOST_IDENTIFICATION_TEST else [],
 		host_masked_covstats=input_phage_isolates_host_masked_covstats if HOST_IDENTIFICATION_TEST else [],
@@ -497,9 +622,11 @@ rule phage_isolates_summary:
 		cluster_samples=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sample_clusters.{sampling}.tsv",
 		cluster_coverage_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage_matrix.{sampling}.csv",
 		cluster_counts_matrix_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_counts_matrix.{sampling}.csv",
+		cluster_annotations=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_annotations.{sampling}.tsv",
 		cluster_coverage_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.{sampling}.png",
 		cluster_coverage_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_cluster_coverage.{sampling}.svg",
 		cluster_figures=directory(dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_clusters.{sampling}"),
+		viridic_figures=[directory(dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_viridic.{sampling}")] if ISOLATE_VIRIDIC else [],
 		single_contig_samples_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_single_contig_samples.{sampling}.csv",
 		host_blast_summary_csv=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_summary.{sampling}.csv",
 		read_accounting=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_read_accounting.{sampling}.tsv",
@@ -509,12 +636,8 @@ rule phage_isolates_summary:
 		mapping_heatmap_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_mapping_heatmap.{sampling}.svg",
 		remaining_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.png",
 		remaining_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_remaining_contigs.{sampling}.svg",
-		rpkm_heatmap_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.png",
-		rpkm_heatmap_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_votu_rpkm_heatmap.{sampling}.svg",
 		host_blast_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.{sampling}.png",
 		host_blast_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_host_blast_clustermap.{sampling}.svg",
-		depth_png=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_retained_depth.{sampling}.png",
-		depth_svg=dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_retained_depth.{sampling}.svg",
 		clean_sourmash_metadata=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_reads.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
 		clean_sourmash_taxonomy=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_taxonomy.{sampling}.tsv"] if SOURMASH_CLEAN_READS else [],
 		clean_sourmash_pooled_png=[dirs_dict["PLOTS_DIR"] + "/08_phage_isolates_sourmash_clean_pooled.{sampling}.png"] if SOURMASH_CLEAN_READS else [],
@@ -533,7 +656,6 @@ rule phage_isolates_summary:
 		max_unexplained_percent=float(config.get("isolate_max_unexplained_percent", 10)),
 		host_test_min_reads=int(config.get("isolate_host_test_min_reads", 100)),
 		host_test_min_breadth=float(config.get("isolate_host_test_min_breadth_percent", 1)),
-		plot_max_clusters=int(config.get("isolate_plot_max_clusters", 100)),
 		plot_max_host_contigs=int(config.get("isolate_plot_max_host_contigs", 100)),
 		stages=ISOLATE_STAGES,
 		samples=SAMPLES,

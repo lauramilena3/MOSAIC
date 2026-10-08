@@ -393,13 +393,42 @@ rule viridic_relatives_phages:
 	output:
 		viridic_out=directory(dirs_dict["ANNOTATION"] + "/VIRIDIC_isolates_relatives_phages.{sampling}/"),
 	message:
-		"Finding simmilartiy contigs with VIRIDIC"
+		"Calculating intergenomic similarities with VIRIDIC"
+	params:
+		steps="ALL",
+		run_log="/dev/stdout",
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/viridic_relatives_phages/sampling={sampling}.tsv"
 	threads: 8
 	shell:
 		"""
-		{input.viridic_singularity_folder}/viridic.bash projdir={output.viridic_out} in={input.cat_isolates_relatives}
+		mkdir -p $(dirname {output.viridic_out:q})
+		# A legacy Conda Singularity can shadow the installed SIF-compatible runtime.
+		viridic_runtime=""
+		while IFS= read -r viridic_candidate; do
+			viridic_version=$("$viridic_candidate" --version 2>&1) || continue
+			if [[ "$viridic_version" =~ ([0-9]+)[.]([0-9]+) ]]; then
+				if (( BASH_REMATCH[1] > 3 || (BASH_REMATCH[1] == 3 && BASH_REMATCH[2] >= 5) )); then
+					viridic_runtime="$viridic_candidate"
+					break
+				fi
+			fi
+		done < <(type -a -P singularity)
+		if [ -z "$viridic_runtime" ]; then
+			echo "VIRIDIC requires Singularity >=3.5 on PATH; no compatible runtime was found." >&2
+			exit 1
+		fi
+		export PATH="$(dirname "$viridic_runtime"):$PATH"
+		# VIRIDIC's R future workers otherwise ignore ncor and use every server core.
+		export SINGULARITYENV_R_FUTURE_AVAILABLECORES_SYSTEM={threads}
+		export SINGULARITYENV_R_PARALLELLY_AVAILABLECORES_SYSTEM={threads}
+		export SINGULARITYENV_MC_CORES={threads}
+		export SINGULARITYENV_OMP_NUM_THREADS=1
+		{input.viridic_singularity_folder:q}/viridic.bash projdir={output.viridic_out:q} \
+			in={input.cat_isolates_relatives:q} ncor={threads} steps={params.steps} > {params.run_log:q} 2>&1
+		test -s {output.viridic_out:q}/04_VIRIDIC_out/sim_MA_genCol.csv
 		"""
 
 rule genomad_host:
