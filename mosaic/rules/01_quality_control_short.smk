@@ -262,7 +262,7 @@ rule superDeduper_pcr:
 		mem_mb= 1000,
 	shell:
 		"""
-		hts_SuperDeduper -L {output.duplicate_stats} -1 {input.forward_file} -2 {input.reverse_file} > {output.deduplicate}
+		hts_SuperDeduper --log_freq 50000 -L {output.duplicate_stats} -1 {input.forward_file} -2 {input.reverse_file} > {output.deduplicate}
 		"""
 
 rule trim_adapters_quality_illumina_PE:
