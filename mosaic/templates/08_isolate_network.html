@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOSAIC | Isolate genome network</title>
+<style>
+  :root { --blue:#3A72ED; --ink:#1d2939; --muted:#667085; --line:#e4e7ec; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px system-ui,-apple-system,sans-serif; color:var(--ink); background:#f5f7fa; }
+  header { padding:20px 28px 16px; background:white; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 6px; font-size:23px; font-weight:650; }
+  h2 { margin:0 0 14px; font-size:16px; }
+  p { margin:5px 0; line-height:1.5; }
+  .muted { color:var(--muted); }
+  .workspace { display:grid; grid-template-columns:242px minmax(300px,1fr) 300px; height:calc(100vh - 128px); min-height:680px; }
+  aside { padding:20px; overflow:auto; background:white; }
+  .controls { border-right:1px solid var(--line); }
+  .details { border-left:1px solid var(--line); }
+  label.field { display:block; margin:0 0 15px; font-size:12px; font-weight:600; }
+  select,input[type=search],input[type=number] { width:100%; margin-top:6px; padding:8px; border:1px solid #d0d5dd; border-radius:6px; color:var(--ink); background:white; }
+  input[type=range] { width:100%; accent-color:var(--blue); }
+  .checks { display:flex; flex-wrap:wrap; gap:8px; font-size:12px; margin:8px 0 16px; }
+  .checks label { white-space:nowrap; }
+  input[type=checkbox] { accent-color:var(--blue); }
+  button { border:1px solid #d0d5dd; border-radius:6px; padding:8px 10px; background:white; color:var(--ink); cursor:pointer; font-size:12px; }
+  button:hover { border-color:var(--blue); color:var(--blue); }
+  .buttons { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
+  .primary { background:var(--blue); color:white; border-color:var(--blue); }
+  .primary:hover { background:#2c5fd0; color:white; }
+  main { min-width:0; display:flex; flex-direction:column; }
+  #stats { padding:14px 18px; border-bottom:1px solid var(--line); background:#fafbfc; font-size:13px; }
+  #cy { flex:1; min-height:520px; background:white; }
+  #hint { padding:10px 18px; min-height:40px; font-size:12px; color:var(--muted); border-top:1px solid var(--line); }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; padding:12px 18px; font-size:12px; background:white; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; }
+  dl { margin:0; }
+  dt { font-size:11px; color:var(--muted); margin-top:12px; }
+  dd { margin:3px 0 0; overflow-wrap:anywhere; font-size:12px; line-height:1.45; }
+  #detail-title { overflow-wrap:anywhere; }
+  .notice { border-left:3px solid #d99d2a; padding:8px 10px; background:#fff9ed; font-size:12px; margin:12px 0; }
+  .footnote { margin-top:18px; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--muted); }
+  @media (max-width:1000px) { .workspace { grid-template-columns:220px 1fr; height:auto; } .details { grid-column:1 / -1; border-top:1px solid var(--line); } #cy { min-height:650px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>MOSAIC · Isolate genome network</h1>
+  <p class="muted">Retained contigs and selected reference relatives · connections show sketch-based Mash distance</p>
+  <p class="muted" style="font-size:12px">Exploratory relationships, not a phylogenetic tree or new taxonomic assignment. Retention, 95/85 clusters and purity decisions are unchanged.</p>
+</header>
+<div class="workspace">
+  <aside class="controls">
+    <h2>Explore the genomes</h2>
+    <label class="field">View
+      <select id="view"><option value="contigs">Each retained contig</option><option value="identical">Collapse identical sequences</option><option value="clusters">One retained member per MOSAIC cluster</option></select>
+    </label>
+    <label class="field">Sample<select id="sample"><option value="">All samples</option></select></label>
+    <label class="field">Assigned host<select id="host"><option value="">All hosts</option></select></label>
+    <label class="field">Sample purity decision<select id="decision"><option value="">All decisions</option><option>PASS</option><option>REVIEW</option><option>FAIL</option></select></label>
+    <label class="field">CheckV quality<select id="quality"><option value="">All qualities</option></select></label>
+    <label class="field">Minimum contig length (bp)<input id="min-length" type="number" min="0" value="0" step="1000"></label>
+    <label class="field">Fragment candidates<select id="fragments"><option value="all">Include</option><option value="hide">Hide</option><option value="only">Only candidates</option></select></label>
+    <label class="field">Plasmid evidence<select id="plasmids"><option value="all">Include all</option><option value="hide">Hide plasmid calls</option><option value="only">Only plasmid calls</option></select></label>
+    <label class="field">Search contig / accession<input id="search" type="search" placeholder="ID, description, cluster…"></label>
+    <label class="field">Maximum Mash distance: <span id="threshold-label"></span>
+      <input id="threshold" type="range" min="0" max="1" step="0.001" value="0.15">
+    </label>
+    <div class="checks">
+      <label><input id="source-MOSAIC" type="checkbox" checked> MOSAIC</label>
+      <label><input id="source-RefSeq" type="checkbox" checked> RefSeq</label>
+      <label><input id="source-METAVR" type="checkbox" checked> METAVR</label>
+    </div>
+    <label class="field">Colour by<select id="colour"><option value="source">Source</option><option value="expected_host">Assigned host</option><option value="CheckV_checkv_quality">CheckV quality</option><option value="cluster_rep">MOSAIC cluster</option></select></label>
+    <div class="checks"><label><input id="labels" type="checkbox"> Show labels</label></div>
+    <div class="buttons"><button id="layout" class="primary">Arrange clouds</button><button id="fit">Fit</button><button id="reset">Reset filters</button></div>
+    <div class="buttons"><button id="export-png">Save PNG</button><button id="export-nodes">Visible nodes TSV</button><button id="export-edges">Visible edges TSV</button></div>
+    <p class="muted" style="font-size:11px">Lower Mash distance means closer sketches, not a VIRIDIC percentage or definitive ANI. Sample, host and evidence filters select own contigs. Connected references remain as context; isolated own contigs stay visible.</p>
+  </aside>
+  <main>
+    <div id="stats" aria-live="polite">Preparing network…</div>
+    <div id="cy" aria-label="Interactive genome similarity network"></div>
+    <div class="legend" id="legend"></div>
+    <div id="hint">Click a genome or connection for its evidence. Drag nodes; scroll to zoom.</div>
+  </main>
+  <aside class="details">
+    <h2 id="detail-title">Genome and connection evidence</h2>
+    <div id="details"><p class="muted">Select a dot to inspect the genome, or a line to inspect the comparison.</p></div>
+    <div class="footnote" id="provenance"></div>
+  </aside>
+</div>
+<script id="mosaic-network-data" type="application/json">__MOSAIC_NETWORK_DATA__</script>
+<script>__CYTOSCAPE_LIBRARY__</script>
+<script>
+// Explicit plotting and filtering code. Everything is bundled; no server, CDN or API calls.
+const network = JSON.parse(document.getElementById('mosaic-network-data').textContent);
+const own = network.nodes.filter(n => n.source === 'MOSAIC');
+const byId = new Map(network.nodes.map(n => [n.node_id, n]));
+const el = id => document.getElementById(id);
+const natural = (a,b) => String(a).localeCompare(String(b), undefined, {numeric:true});
+const truth = value => value === true || String(value).toLowerCase() === 'true';
+const shown = value => value === null || value === undefined || value === '' ? 'not reported' : String(value);
+const unique = values => [...new Set(values.filter(v => v !== null && v !== undefined && v !== ''))].sort(natural);
+const sourceColours = {MOSAIC:'#3A72ED', RefSeq:'#de8f05', METAVR:'#009e73'};
+const qualityColours = {'Complete':'#009e73', 'High-quality':'#56b4e9', 'Medium-quality':'#e69f00', 'Low-quality':'#cc79a7', 'Not-determined':'#8a8a8a', 'not reported':'#8a8a8a'};
+const palette = ['#3A72ED','#de8f05','#009e73','#cc79a7','#7c3aed','#56b4e9','#b45309','#68782d','#bd4f6c','#618b8a'];
+const categories = {};
+for (const field of ['expected_host','cluster_rep']) categories[field] = unique(own.map(n => n[field]));
+for (const [id,field] of [['sample','sample'],['host','expected_host'],['quality','CheckV_checkv_quality']]) {
+  for (const value of unique(own.map(n => n[field]))) {
+    const option = document.createElement('option'); option.value = value; option.textContent = value; el(id).appendChild(option);
+  }
+}
+el('threshold').value = network.manifest.default_distance;
+for (const source of ['RefSeq','METAVR']) if (!network.nodes.some(n => n.source === source)) {
+  el('source-'+source).checked = false; el('source-'+source).disabled = true;
+}
+el('provenance').textContent = `Generated ${network.manifest.created_utc}. Mash ${network.manifest.mash_version}: k=${network.manifest.kmer_size}, sketch size=${network.manifest.sketch_size}, seed=${network.manifest.seed}; Cytoscape.js ${network.manifest.cytoscape_version}. ${network.manifest.own_contigs} retained contigs and ${network.manifest.reference_sequences} selected reference sequences. Reference discovery uses existing cluster-representative BLAST; those annotations are not inherited by member contigs.`;
+if (network.manifest.missing_references) {
+  const notice=document.createElement('p'); notice.className='notice';
+  notice.textContent=`${network.manifest.missing_references} selected reference sequences could not be retrieved; see missing_references.tsv.`;
+  el('provenance').before(notice);
+}
+
+const cy = cytoscape({container:el('cy'), elements:[], minZoom:0.03, maxZoom:8, wheelSensitivity:0.2,
+  style:[
+    {selector:'node', style:{'background-color':'data(colour)', 'shape':'data(shape)', 'width':'data(size)', 'height':'data(size)',
+      'border-width':'data(border_width)', 'border-color':'data(border_colour)', 'border-style':'data(border_style)',
+      'label':'', 'font-size':9, 'text-valign':'bottom', 'text-margin-y':5, 'text-outline-width':2, 'text-outline-color':'white'}},
+    {selector:'node.show-label', style:{label:'data(label)'}},
+    {selector:'edge', style:{'width':'mapData(mash_distance,0,1,3,0.4)', 'line-color':'#9ba7b4', 'opacity':0.5, 'curve-style':'haystack'}},
+    {selector:'.faded', style:{opacity:0.1}},
+    {selector:'node:selected', style:{'overlay-color':'#3A72ED','overlay-padding':6,'overlay-opacity':0.15}},
+    {selector:'edge:selected', style:{'line-color':'#3A72ED','opacity':1,'width':4}}
+  ]});
+let visibleNodes=[], visibleEdges=[], first=true;
+
+function nodeColour(node) {
+  const field=el('colour').value;
+  if (field==='source' || node.source!=='MOSAIC') return sourceColours[node.source] || '#8a8a8a';
+  if (field==='CheckV_checkv_quality') return qualityColours[shown(node[field])] || '#8a8a8a';
+  const index=categories[field].indexOf(node[field]); return index<0 ? '#8a8a8a' : palette[index % palette.length];
+}
+
+function selectOwn() {
+  if (!el('source-MOSAIC').checked) return [];
+  const query=el('search').value.trim().toLowerCase();
+  return own.filter(n =>
+    (!el('sample').value || n.sample===el('sample').value) &&
+    (!el('host').value || n.expected_host===el('host').value) &&
+    (!el('decision').value || n.decision===el('decision').value) &&
+    (!el('quality').value || n.CheckV_checkv_quality===el('quality').value) &&
+    Number(n.length_bp)>=Number(el('min-length').value || 0) &&
+    (el('fragments').value==='all' || truth(n.fragment_candidate)===(el('fragments').value==='only')) &&
+    (el('plasmids').value==='all' || truth(n.genomad_plasmid_call)===(el('plasmids').value==='only')) &&
+    (!query || [n.original_id,n.description,n.cluster_rep,n.genomad_taxonomy].some(v => String(v || '').toLowerCase().includes(query))));
+}
+
+function collapse(nodes) {
+  const mode=el('view').value;
+  const groups=new Map();
+  for (const node of nodes) {
+    const key=mode==='identical' ? node.comparison_id : mode==='clusters' ? node.cluster_rep || node.node_id : node.node_id;
+    if (!groups.has(key)) groups.set(key,[]); groups.get(key).push(node);
+  }
+  return [...groups.values()].map(members => {
+    // A collapsed node uses one real retained member and its actual edges, not a maximum over unrelated member comparisons.
+    members.sort((a,b) => Number(b.length_bp)-Number(a.length_bp) || natural(a.node_id,b.node_id));
+    return {...members[0], members:members.map(n => n.node_id), samples:unique(members.map(n => n.sample)), hosts:unique(members.map(n => n.expected_host))};
+  });
+}
+
+function reachable(seeds,edges) {
+  const adjacency=new Map();
+  for (const edge of edges) {
+    if (!adjacency.has(edge.source)) adjacency.set(edge.source,[]);
+    if (!adjacency.has(edge.target)) adjacency.set(edge.target,[]);
+    adjacency.get(edge.source).push(edge.target); adjacency.get(edge.target).push(edge.source);
+  }
+  const reached=new Set(seeds), queue=[...seeds];
+  for (let i=0;i<queue.length;i++) for (const next of adjacency.get(queue[i]) || []) if (!reached.has(next)) { reached.add(next); queue.push(next); }
+  return reached;
+}
+
+function showNetwork(arrange=false) {
+  const threshold=Number(el('threshold').value);
+  el('threshold-label').textContent=threshold.toFixed(3);
+  let nodes=collapse(selectOwn());
+  const referenceNodes=network.nodes.filter(n => n.source!=='MOSAIC' && el('source-'+n.source)?.checked);
+  const allowed=new Set([...nodes,...referenceNodes].map(n => n.node_id));
+  let edges=network.edges.filter(e => Number(e.mash_distance)<=threshold && allowed.has(e.source) && allowed.has(e.target));
+  const attached=reachable(nodes.map(n => n.node_id),edges);
+  // Include reference-to-reference links within a cloud, but omit unrelated reference-only clouds.
+  nodes=nodes.concat(referenceNodes.filter(n => !el('source-MOSAIC').checked || attached.has(n.node_id)));
+  const ids=new Set(nodes.map(n => n.node_id));
+  edges=edges.filter(e => ids.has(e.source) && ids.has(e.target));
+  visibleNodes=nodes; visibleEdges=edges;
+  const oldPositions=new Map(cy.nodes().map(n => [n.id(), {...n.position()}]));
+  const elements=nodes.map((node,index) => ({group:'nodes',position:oldPositions.get(node.node_id) || {x:(index%25)*75,y:Math.floor(index/25)*75},data:{...node,id:node.node_id,
+    label:node.original_id+(node.members?.length>1 ? ` [${node.members.length}]` : ''), colour:nodeColour(node),
+    shape:node.source==='RefSeq' ? 'triangle' : node.source==='METAVR' ? 'diamond' : 'ellipse',
+    size:Math.max(12, Math.min(65, Math.sqrt(Number(node.length_bp))/7)),
+    border_colour:truth(node.genomad_plasmid_call) ? '#009e73' : node.CheckV_checkv_quality==='Complete' ? '#1d2939' : '#ffffff',
+    border_width:truth(node.genomad_plasmid_call) || node.CheckV_checkv_quality==='Complete' ? 3 : 1,
+    border_style:truth(node.fragment_candidate) ? 'dashed' : 'solid'}}));
+  for (let i=0;i<edges.length;i++) elements.push({group:'edges',data:{...edges[i],id:'edge-'+i}});
+  cy.batch(() => { cy.elements().remove(); cy.add(elements); if (el('labels').checked) cy.nodes().addClass('show-label'); });
+  const components=cy.elements().components();
+  const singletons=cy.nodes().filter(n => n.degree()===0).length;
+  const ownCount=nodes.filter(n => n.source==='MOSAIC').length;
+  el('stats').textContent=`${ownCount} own nodes · ${nodes.length-ownCount} reference nodes · ${edges.length} connections · ${components.length} clouds/components · ${singletons} isolated nodes | Mash distance ≤${threshold.toFixed(3)}`;
+  el('hint').textContent=nodes.length ? 'Click a genome or connection for its evidence. Drag nodes; scroll to zoom.' : 'No genomes match these filters. Try resetting the filters.';
+  updateLegend();
+  if (first || arrange) arrangeClouds();
+  else if (nodes.length) cy.fit(undefined,35);
+  first=false;
+}
+
+function arrangeClouds() {
+  if (!cy.nodes().length) return;
+  cy.layout({name:cy.nodes().length<3 ? 'grid' : 'cose', randomize:false, animate:false, fit:true, padding:35,
+    nodeRepulsion:18000, idealEdgeLength:85, componentSpacing:100, numIter:700, gravity:0.1}).run();
+}
+
+function updateLegend() {
+  el('legend').replaceChildren();
+  const entries=new Map();
+  for (const node of visibleNodes) {
+    const field=el('colour').value;
+    const label=node.source!=='MOSAIC' || field==='source' ? node.source : shown(node[field]);
+    entries.set(label,nodeColour(node));
+  }
+  for (const [label,colour] of [...entries].sort((a,b)=>natural(a[0],b[0])).slice(0,20)) {
+    const item=document.createElement('span'), dot=document.createElement('span');
+    dot.className='dot'; dot.style.background=colour; item.append(dot,document.createTextNode(label)); el('legend').appendChild(item);
+  }
+  const note=document.createElement('span'); note.className='muted';
+  note.textContent='Size: genome length · dark border: CheckV Complete · green border: plasmid evidence · dashed border: fragment candidate';
+  el('legend').appendChild(note);
+}
+
+function showDetails(title,fields) {
+  el('detail-title').textContent=title;
+  const list=document.createElement('dl');
+  for (const [label,value] of fields) {
+    const dt=document.createElement('dt'), dd=document.createElement('dd');
+    dt.textContent=label; dd.textContent=shown(value); list.append(dt,dd);
+  }
+  el('details').replaceChildren(list);
+}
+
+cy.on('tap','node',event => {
+  const n=event.target.data();
+  const fields=[['Source',n.source],['Accession / contig',n.accession],['Description',n.description],['Genome length (bp)',Number(n.length_bp).toLocaleString()],
+    ['Sample(s)',n.samples?.join('; ') || n.sample],['Assigned host(s)',n.hosts?.join('; ') || n.expected_host],['Representative sample decision',n.decision],
+    ['Existing MOSAIC cluster',n.cluster_rep],['CheckV quality (displayed member)',n.CheckV_checkv_quality],['CheckV completeness (%)',n.CheckV_completeness],
+    ['CheckV contamination (%)',n.CheckV_contamination],['geNomad classification',n.genomad_classification],['geNomad virus score',n.genomad_virus_score],
+    ['geNomad plasmid score',n.genomad_plasmid_score],['geNomad taxonomy',n.genomad_taxonomy],['geNomad topology',n.genomad_topology],
+    ['geNomad evidence scope',n.genomad_evidence_scope],['Fragment candidate',n.fragment_candidate],['Contained in',n.contained_in_contig],
+    ['Phage-plasmid candidate',n.phage_plasmid_candidate],['Assigned-host prophage match',n.host_prophage_match],['Reference-discovery BLAST queries',n.selection_queries]];
+  if (n.members?.length>1) {
+    fields.push(['Collapsed member count',n.members.length],['Members',n.members.map(id=>byId.get(id).original_id).join('; ')],
+      ['Annotation scope','Fields and connections above belong to the displayed retained member, not every collapsed member.']);
+  }
+  showDetails(n.original_id,fields);
+  cy.elements().removeClass('faded'); cy.elements().not(event.target.closedNeighborhood()).addClass('faded');
+});
+cy.on('tap','edge',event => {
+  const e=event.target.data();
+  showDetails('Genome comparison', [['Source',byId.get(e.source).original_id],['Target',byId.get(e.target).original_id],
+    ['Mash distance (lower is closer)',Number(e.mash_distance).toFixed(6)],
+    ['Matching hashes',e.matching_hashes],['P-value',e.p_value],['Evidence',e.evidence],
+    ['Interpretation','Sketch-based distance, not an alignment percentage or proof of the same species. Short fragments and unequal genome lengths can affect this estimate. A zero distance need not imply identical DNA; exact duplicates are identified separately.']] );
+});
+cy.on('tap',event => { if (event.target===cy) cy.elements().removeClass('faded'); });
+cy.on('mouseover','node',event => { const n=event.target.data(); el('hint').textContent=`${n.original_id} · ${Number(n.length_bp).toLocaleString()} bp · ${shown(n.sample)} · CheckV: ${shown(n.CheckV_checkv_quality)}`; });
+
+let timer;
+for (const id of ['sample','host','decision','quality','min-length','fragments','plasmids','search','threshold','source-MOSAIC','source-RefSeq','source-METAVR','colour','labels']) {
+  el(id).addEventListener('input',() => {clearTimeout(timer); timer=setTimeout(()=>showNetwork(),120);});
+}
+el('view').addEventListener('change',()=>showNetwork(true));
+el('layout').addEventListener('click',arrangeClouds);
+el('fit').addEventListener('click',()=>cy.fit(undefined,35));
+el('reset').addEventListener('click',()=>{
+  for (const id of ['sample','host','decision','quality','search']) el(id).value='';
+  el('min-length').value=0; el('fragments').value='all'; el('plasmids').value='all'; el('view').value='contigs';
+  el('threshold').value=network.manifest.default_distance;
+  for (const source of ['MOSAIC','RefSeq','METAVR']) el('source-'+source).checked=!el('source-'+source).disabled;
+  showNetwork(true);
+});
+
+function download(content,name,type='text/tab-separated-values') {
+  const url=URL.createObjectURL(content instanceof Blob ? content : new Blob([content],{type}));
+  const link=document.createElement('a'); link.href=url; link.download=name; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function tsv(rows,columns) {
+  const cell=value => (Array.isArray(value) ? value.join(';') : value ?? '').toString().replace(/[\t\r\n]/g,' ');
+  return columns.join('\t')+'\n'+rows.map(row=>columns.map(key=>cell(row[key])).join('\t')).join('\n')+'\n';
+}
+el('export-png').addEventListener('click',async()=>{
+  cy.elements().removeClass('faded');
+  download(await cy.png({output:'blob-promise',bg:'white',scale:3,full:true}), 'MOSAIC_isolate_network.png','image/png');
+});
+el('export-nodes').addEventListener('click',()=>download(tsv(visibleNodes,['node_id','source','accession','description','length_bp','sample','samples','expected_host','hosts','decision','cluster_rep','CheckV_checkv_quality','CheckV_completeness','genomad_classification','fragment_candidate','members']), 'MOSAIC_network_visible_nodes.tsv'));
+el('export-edges').addEventListener('click',()=>download(tsv(visibleEdges,['source','target','mash_distance','p_value','matching_hashes','shared_hashes','sketch_hashes','evidence']), 'MOSAIC_network_visible_edges.tsv'));
+showNetwork(true);
+</script>
+</body>
+</html>

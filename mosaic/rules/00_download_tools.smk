@@ -1,3 +1,23 @@
+rule downloadCytoscape:
+	output:
+		library=os.path.join(workflow.basedir, "tools/cytoscape-3.33.1/cytoscape.min.js"),
+		license=os.path.join(workflow.basedir, "tools/cytoscape-3.33.1/LICENSE"),
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env5.yaml"
+	message:
+		"Downloading pinned Cytoscape.js for the offline isolate network"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/downloadCytoscape/tot.tsv"
+	threads: 1
+	shell:
+		"""
+		mkdir -p $(dirname {output.library:q})
+		wget -q --tries=3 -O {output.library:q} https://cdn.jsdelivr.net/npm/cytoscape@3.33.1/dist/cytoscape.min.js
+		printf 'f55947f3daa3bae53209d4b885c195c157f595c225e508a6b382598d9452d6e2  %s\n' {output.library:q} | sha256sum -c -
+		wget -q --tries=3 -O {output.license:q} https://cdn.jsdelivr.net/npm/cytoscape@3.33.1/LICENSE
+		"""
+
+
 rule get_SRAToolkit:
 	output:
 		SRAToolkit_dir=directory("tools/sratoolkit.2.10.0-ubuntu64"),

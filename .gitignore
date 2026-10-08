@@ -40,6 +40,8 @@ mosaic/db/taxmyphage_db/
 mosaic/db/vcontact2/6Nov2024_*
 
 # Downloaded third-party tools
+mosaic/tools/cytoscape-*/
+mosaic/tools/viridic_v1.1
 mosaic/tools/Bracken/
 mosaic/tools/KrakenTools/
 mosaic/tools/PhaGCN_newICTV/
