@@ -123,7 +123,18 @@ host_prophage_activity_min_mean_depth: 1.0
 host_prophage_activity_min_breadth_percent: 50
 host_prophage_activity_mask_bp: 150
 host_prophage_activity_min_length_bp: 1000
-host_prophage_activity_plot_flank_bp: 20000 # display only; statistics use the whole parent scaffold background
+host_prophage_activity_plot_flank_bp: 50000 # display only; statistics use the whole parent scaffold background
+# Additional exploratory host-region notebook; reuses mapping depth, not activity thresholds.
+host_enriched_regions_min_ratio: 2.0
+host_enriched_regions_min_cohen_d: 0.70
+host_enriched_regions_min_mean_depth: 5.0
+host_enriched_regions_breadth_min_depth: 1.0 # base depth used for breadth, independent of the minimum mean
+host_enriched_regions_min_breadth_percent: 80
+host_enriched_regions_min_local_ratio: 2.0
+host_enriched_regions_bin_bp: 1000
+host_enriched_regions_min_length_bp: 5000
+host_enriched_regions_local_flank_bp: 10000
+host_enriched_regions_plot_flank_bp: 200000 # context on each side; does not change enrichment statistics
 isolate_min_depth: 5
 isolate_min_length_bp: 4000
 isolate_short_min_depth: 10 # depth >=5 AND (length >=4000 OR depth >=10)

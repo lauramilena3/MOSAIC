@@ -48,8 +48,7 @@ rule select_isolate_contigs:
 		host_min_query_coverage=float(config.get("isolate_host_min_query_coverage", 90)),
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/select_isolate_contigs/sample={sample}.tsv"
-	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/ISOLATES/{sample}_contig_selection.tot.ipynb"
+	# Reuse selection code without saving a per-sample report notebook.
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/08_isolate_contig_catalogue.py.ipynb"
 
@@ -625,7 +624,7 @@ rule host_prophage_activity:
 		min_breadth_percent=float(config.get("host_prophage_activity_min_breadth_percent", 50)),
 		mask_bp=int(config.get("host_prophage_activity_mask_bp", 150)),
 		min_length_bp=int(config.get("host_prophage_activity_min_length_bp", 1000)),
-		plot_flank_bp=int(config.get("host_prophage_activity_plot_flank_bp", 20000)),
+		plot_flank_bp=int(config.get("host_prophage_activity_plot_flank_bp", 50000)),
 	message:
 		"Checking host prophage coverage enrichment with PropagAtE activity defaults"
 	benchmark:
@@ -637,3 +636,100 @@ rule host_prophage_activity:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_host_prophage_activity.tot.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/08_host_prophage_activity.py.ipynb"
+
+
+# Coverage-first exploration outside geNomad predictions; no new mapping or viral calls.
+rule host_enriched_regions:
+	input:
+		regions=dirs_dict["PLOTS_DIR"] + "/08_host_viral_regions.tot.tsv",
+		assignments=ALL_ASSEMBLED_DIR + "/phage_isolates.tot/sample_host_assignments.tsv",
+		host_fastas=expand(dirs_dict["HOST_DIR"] + "/{host}.fasta", host=HOSTS),
+		depth=lambda wc: [dirs_dict["MAPPING_DIR"] + "/HOST/ACTIVITY/" + sample + "_vs_" + ISOLATE_HOST_ASSIGNMENTS[sample] + ".basecov.tsv.gz"
+			for sample in SAMPLES if sample in ISOLATE_HOST_ASSIGNMENTS],
+	output:
+		table=dirs_dict["PLOTS_DIR"] + "/08_host_enriched_regions.tot.tsv",
+		summary=dirs_dict["PLOTS_DIR"] + "/08_host_enriched_regions_summary.tot.tsv",
+		figures=directory(dirs_dict["PLOTS_DIR"] + "/08_host_enriched_regions.tot"),
+	params:
+		samples=[sample for sample in SAMPLES if sample in ISOLATE_HOST_ASSIGNMENTS],
+		hosts=HOSTS,
+		min_ratio=float(config.get("host_enriched_regions_min_ratio", 2.0)),
+		min_cohen_d=float(config.get("host_enriched_regions_min_cohen_d", 0.70)),
+		min_mean_depth=float(config.get("host_enriched_regions_min_mean_depth", 5.0)),
+		breadth_min_depth=float(config.get("host_enriched_regions_breadth_min_depth", 1.0)),
+		min_breadth_percent=float(config.get("host_enriched_regions_min_breadth_percent", 80)),
+		min_local_ratio=float(config.get("host_enriched_regions_min_local_ratio", 2.0)),
+		mask_bp=int(config.get("host_prophage_activity_mask_bp", 150)),
+		bin_bp=int(config.get("host_enriched_regions_bin_bp", 1000)),
+		min_length_bp=int(config.get("host_enriched_regions_min_length_bp", 5000)),
+		local_flank_bp=int(config.get("host_enriched_regions_local_flank_bp", 10000)),
+		plot_flank_bp=int(config.get("host_enriched_regions_plot_flank_bp", 200000)),
+	message:
+		"Exploring host coverage enrichment outside geNomad predictions"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/host_enriched_regions/tot.tsv"
+	threads: 1
+	resources:
+		mem_mb=8000,
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/08_host_enriched_regions.tot.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/08_host_enriched_regions.py.ipynb"
+
+
+rule extract_host_enriched_regions:
+	input:
+		regions=dirs_dict["PLOTS_DIR"] + "/08_host_enriched_regions.tot.tsv",
+		host_fastas=expand(dirs_dict["HOST_DIR"] + "/{host}.fasta", host=HOSTS),
+	output:
+		fasta=dirs_dict["HOST_DIR"] + "/enriched_regions/host_enriched_regions.tot.fasta",
+		table=dirs_dict["HOST_DIR"] + "/enriched_regions/host_enriched_regions.tot.tsv",
+	params:
+		hosts=HOSTS,
+	message:
+		"Exporting unique enriched host loci and their supporting samples"
+	benchmark:
+		dirs_dict["BENCHMARKS"] + "/extract_host_enriched_regions/tot.tsv"
+	threads: 1
+	run:
+		from pathlib import Path
+		import pandas as pd
+		from Bio import SeqIO
+		from Bio.SeqRecord import SeqRecord
+
+		calls=pd.read_csv(input.regions, sep="\t", dtype={"host": str, "parent_contig": str, "sample": str})
+		loci=[]
+		# Merge overlapping calls across samples, not their much larger plotting windows.
+		for (host, parent), group in calls.groupby(["host", "parent_contig"], sort=False):
+			current=None
+			for row in group.sort_values(["start", "end", "sample"]).itertuples():
+				if current is None or row.start > current["end"]:
+					current=dict(host=host, parent_contig=parent, start=int(row.start), end=int(row.end), calls=[])
+					loci.append(current)
+				current["end"]=max(current["end"], int(row.end))
+				current["calls"].append(row)
+		columns=["region_id", "host", "parent_contig", "start", "end", "length_bp", "n_samples", "samples", "n_sample_calls", "source_intervals"]
+		rows=[]
+		Path(output.fasta).parent.mkdir(parents=True, exist_ok=True)
+		with open(output.fasta, "w") as handle:
+			for host, path in zip(params.hosts, input.host_fastas):
+				wanted={}
+				for locus in loci:
+					if locus["host"] == host:
+						wanted.setdefault(locus["parent_contig"], []).append(locus)
+				with open(path) as source:
+					records=list(SeqIO.parse(source, "fasta"))
+				for record in records:
+					for locus in wanted.get(record.id, []):
+						start, end=locus["start"], locus["end"]
+						region_id=host + "_" + record.id + "_enriched_" + str(start) + "_" + str(end)
+						samples=sorted({call.sample for call in locus["calls"]})
+						# Reported coordinates are 1-based inclusive; no context flanks are exported.
+						sequence=record.seq[start-1:end]
+						SeqIO.write(SeqRecord(sequence, id=region_id,
+							description="host=" + host + " contig=" + record.id + " length=" + str(len(sequence)) + " samples=" + ";".join(samples)), handle, "fasta")
+						rows.append(dict(region_id=region_id, host=host, parent_contig=record.id,
+							start=start, end=end, length_bp=len(sequence), n_samples=len(samples), samples=";".join(samples),
+							n_sample_calls=len(locus["calls"]), source_intervals=";".join(str(a) + "-" + str(b)
+								for a, b in sorted({(call.start, call.end) for call in locus["calls"]}))))
+		pd.DataFrame(rows, columns=columns).to_csv(output.table, sep="\t", index=False)
