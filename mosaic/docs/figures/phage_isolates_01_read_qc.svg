@@ -39,7 +39,7 @@ Q 28.8 146.88 28.8 140.16
 L 28.8 85.92
 Q 28.8 79.2 35.52 79.2
 z
-" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 323.52 79.2
@@ -52,17 +52,17 @@ Q 316.8 176.64 316.8 169.92
 L 316.8 85.92
 Q 316.8 79.2 323.52 79.2
 z
-" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 254.4 113.04
 Q 284.139404 120.131704 312.356252 126.860337
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 307.558468 122.837741
 L 312.356252 126.860337
 L 306.259505 128.285006
 z
-" clip-path="url(#p405b46cad4)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_5">
     <path d="M 323.52 221.76
@@ -75,17 +75,17 @@ Q 316.8 289.44 316.8 282.72
 L 316.8 228.48
 Q 316.8 221.76 323.52 221.76
 z
-" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_6">
     <path d="M 576 176.64
 Q 576 197.700498 576 217.195749
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 578.8 211.595749
 L 576 217.195749
 L 573.2 211.595749
 z
-" clip-path="url(#p405b46cad4)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_7">
     <path d="M 35.52 201.6
@@ -98,17 +98,17 @@ Q 28.8 269.28 28.8 262.56
 L 28.8 208.32
 Q 28.8 201.6 35.52 201.6
 z
-" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p405b46cad4)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_8">
     <path d="M 141.6 146.88
 Q 141.6 172.73874 141.6 197.032233
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 144.4 191.432233
 L 141.6 197.032233
 L 138.8 191.432233
 z
-" clip-path="url(#p405b46cad4)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_9">
     <path d="M 35.52 313.92
@@ -121,27 +121,27 @@ Q 28.8 361.92 28.8 355.2
 L 28.8 320.64
 Q 28.8 313.92 35.52 313.92
 z
-" clip-path="url(#p405b46cad4)" style="fill: #f1f6ff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p405b46cad4)" style="fill: #f1f6ff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="line2d_1">
     <path d="M 36 88.32
 L 36 137.76
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_2">
     <path d="M 324 88.32
 L 324 167.52
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_3">
     <path d="M 324 230.88
 L 324 280.32
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_4">
     <path d="M 36 210.72
 L 36 260.16
-" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p405b46cad4)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="text_1">
     <text style="font-weight: 700; font-size: 16.32px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="28.8" y="29.20065" transform="rotate(-0 28.8 29.20065)">01 / READ QC</text>
@@ -150,7 +150,7 @@ L 36 260.16
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="50.628675" transform="rotate(-0 28.8 50.628675)">Trim technical sequence; report contamination without removing biological reads</text>
    </g>
    <g id="text_3">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="44.16" y="97.687575" transform="rotate(-0 44.16 97.687575)">Paired raw reads</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="44.16" y="97.687575" transform="rotate(-0 44.16 97.687575)">Paired raw reads</text>
    </g>
    <g id="text_4">
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="116.868675" transform="rotate(-0 44.16 116.868675)">R1 + R2 FASTQs</text>
@@ -159,7 +159,7 @@ L 36 260.16
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="131.748675" transform="rotate(-0 44.16 131.748675)">FastQC and raw read counts</text>
    </g>
    <g id="text_6">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="332.16" y="97.687575" transform="rotate(-0 332.16 97.687575)">fastp</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="332.16" y="97.687575" transform="rotate(-0 332.16 97.687575)">fastp</text>
    </g>
    <g id="text_7">
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="332.16" y="116.868675" transform="rotate(-0 332.16 116.868675)">Paired-end overlap analysis + adapter detection; no adapter FASTA</text>
@@ -174,7 +174,7 @@ L 36 260.16
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="332.16" y="161.508675" transform="rotate(-0 332.16 161.508675)">Keep reads ≥50 bp; qualified bases Q15; at most 40% unqualified / 5 Ns</text>
    </g>
    <g id="text_11">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="332.16" y="240.247575" transform="rotate(-0 332.16 240.247575)">All QC-passed reads → mapping</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="332.16" y="240.247575" transform="rotate(-0 332.16 240.247575)">All QC-passed reads → mapping</text>
    </g>
    <g id="text_12">
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="332.16" y="259.428675" transform="rotate(-0 332.16 259.428675)">Keep paired reads and orphans; no 2M subset in isolate mode</text>
@@ -183,7 +183,7 @@ L 36 260.16
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="332.16" y="274.308675" transform="rotate(-0 332.16 274.308675)">Bypass configured-contaminant and eukaryotic read removal</text>
    </g>
    <g id="text_14">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="44.16" y="220.087575" transform="rotate(-0 44.16 220.087575)">SuperDeduper</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="44.16" y="220.087575" transform="rotate(-0 44.16 220.087575)">SuperDeduper</text>
    </g>
    <g id="text_15">
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="238.90395" transform="rotate(-0 44.16 238.90395)">Raw-read PCR-duplicate estimate</text>
@@ -192,7 +192,7 @@ L 36 260.16
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="253.78395" transform="rotate(-0 44.16 253.78395)">QC report only; not assembly input</text>
    </g>
    <g id="text_17">
-    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="39.36" y="329.8734" transform="rotate(-0 39.36 329.8734)">REPORTING</text>
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="39.36" y="329.8734" transform="rotate(-0 39.36 329.8734)">REPORTING</text>
    </g>
    <g id="text_18">
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="39.36" y="347.748675" transform="rotate(-0 39.36 347.748675)">Kraken once on QC-passed reads · FastQC / MultiQC · read counts · separate QC warnings</text>

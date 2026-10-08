@@ -113,4 +113,4 @@ existing isolate HTML report. Empty/no-match profiles produce header-only
 tables and explanatory placeholder plots.
 
 See the [isolate workflow guide](isolate_purity.md) for inputs, read accounting,
-the output index and the Snakemake dependency graphs.
+the output index and the step-by-step workflow diagrams.

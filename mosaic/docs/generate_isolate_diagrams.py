@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draw the isolate guide's conceptual overview and seven step diagrams.
 
-These are manually arranged methods diagrams, not Snakemake dependency graphs.
+These are manually arranged biological methods diagrams.
 Configured thresholds come from config.yaml; no workflow or project is executed.
 """
 
@@ -20,13 +20,22 @@ WORKFLOW = Path(__file__).resolve().parents[1]
 DPI = 150
 INK = "#172b4d"
 MUTED = "#526277"
-BLUE = "#2563eb"
+BLUE = "#3A72ED"
 TEAL = "#0f766e"
 PURPLE = "#7c3aed"
 AMBER = "#b45309"
 RED = "#b42318"
 FILLS = {BLUE: "#f1f6ff", TEAL: "#eff9f6", PURPLE: "#f7f3ff",
          AMBER: "#fff7ed", RED: "#fff1f0", MUTED: "#f3f5f8"}
+READ_ASSIGNMENT_COLORS = {
+    "01_own_retained": BLUE,
+    "02_host_chromosomes": PURPLE,
+    "03_host_viral": "#b69aef",
+    "04_own_excluded": AMBER,
+    "05_other_retained": "#93b4f7",
+    "06_other_excluded": "#e6b07c",
+    "07_unexplained": "#8a8a8a",
+}
 plt.rcParams.update({"font.family": "DejaVu Sans", "svg.fonttype": "none",
                      "svg.hashsalt": "mosaic-isolate-methods"})
 
@@ -274,17 +283,18 @@ def accounting(directory, cfg):
               ("03", "Host viral", "regions", PURPLE), ("04", "Own", "excluded", AMBER),
               ("05", "Other samples’", "retained", BLUE), ("06", "Other samples’", "excluded", AMBER),
               ("REST", "Unexplained", "reads", MUTED)]
-    for index, (stage, first, second, color) in enumerate(groups):
+    for index, ((stage, first, second, family), color) in enumerate(zip(groups, READ_ASSIGNMENT_COLORS.values())):
         x = 60 + 310 * index
-        d.rect(x, 300, 260, 139, color)
-        d.text(x + 130, 316, stage, size=20, color=color, weight="bold", ha="center")
-        d.text(x + 130, 357, first, size=23, color=color, weight="bold", ha="center")
-        d.text(x + 130, 389, second, size=23, color=color, weight="bold", ha="center")
+        d.rect(x, 300, 260, 139, color, fill=FILLS[family])
+        d.ax.plot([x + 16, x + 244], [430, 430], color=color, linewidth=6, solid_capstyle="round")
+        d.text(x + 130, 316, stage, size=20, color=family, weight="bold", ha="center")
+        d.text(x + 130, 357, first, size=23, color=family, weight="bold", ha="center")
+        d.text(x + 130, 389, second, size=23, color=family, weight="bold", ha="center")
         if index:
             d.arrow([(x - 50, 369), (x, 369)])
         if index < 6:
             d.arrow([(x + 130, 439), (x + 130, 483)], color)
-            d.text(x + 130, 495, "Assigned here", size=22, color=color, ha="center")
+            d.text(x + 130, 495, "Assigned here", size=22, color=family, ha="center")
     d.note(553, "Host stages use the assigned host only. Other-sample matches indicate sequence sharing, not proof of origin.")
     d.note(595, "Preserve alternative / discordant / non-unique evidence and single mates; final unexplained reads remain available.")
     d.save(directory, "phage_isolates_06_read_accounting")

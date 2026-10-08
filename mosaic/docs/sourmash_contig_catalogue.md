@@ -79,4 +79,4 @@ produce header-only results. With the flag disabled, the existing metadata
 columns and other workflow modes remain unchanged.
 
 See the [isolate workflow guide](isolate_purity.md) for inputs, read accounting,
-the output index and the Snakemake dependency graphs.
+the output index and the step-by-step workflow diagrams.

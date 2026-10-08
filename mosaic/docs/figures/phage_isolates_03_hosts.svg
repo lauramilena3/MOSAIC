@@ -266,7 +266,7 @@ L 573.6 189.6
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="39.36" y="379.428675" transform="rotate(-0 39.36 379.428675)">Whole parent scaffold, excluding all embedded prophages and masked ends; valid background required.</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="413.14395" transform="rotate(-0 28.8 413.14395)">Profiles show ±20,000 bp, clipped to the scaffold. The display window does not set the statistics.</text>
+    <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="413.14395" transform="rotate(-0 28.8 413.14395)">Profiles show ±50,000 bp, clipped to the scaffold. The display window does not set the statistics.</text>
    </g>
    <g id="text_27">
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="433.30395" transform="rotate(-0 28.8 433.30395)">Coverage enrichment is compatible with replication, not confirmed induction; it does not change retention.</text>

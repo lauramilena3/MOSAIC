@@ -39,7 +39,7 @@ Q 28.8 372 28.8 365.28
 L 28.8 81.12
 Q 28.8 74.4 35.52 74.4
 z
-" clip-path="url(#p192453c98b)" style="fill: #f1f6ff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p192453c98b)" style="fill: #f1f6ff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 318.72 74.4
@@ -78,7 +78,7 @@ Q 38.4 173.28 38.4 166.56
 L 38.4 112.32
 Q 38.4 105.6 45.12 105.6
 z
-" clip-path="url(#p192453c98b)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p192453c98b)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_6">
     <path d="M 45.12 207.36
@@ -91,7 +91,7 @@ Q 38.4 275.04 38.4 268.32
 L 38.4 214.08
 Q 38.4 207.36 45.12 207.36
 z
-" clip-path="url(#p192453c98b)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p192453c98b)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
     <path d="M 45.12 306.24
@@ -104,27 +104,27 @@ Q 38.4 359.04 38.4 352.32
 L 38.4 312.96
 Q 38.4 306.24 45.12 306.24
 z
-" clip-path="url(#p192453c98b)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p192453c98b)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_8">
     <path d="M 148.8 173.28
 Q 148.8 188.820264 148.8 202.79528
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 151.6 197.19528
 L 148.8 202.79528
 L 146 197.19528
 z
-" clip-path="url(#p192453c98b)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_9">
     <path d="M 148.8 275.04
 Q 148.8 289.141318 148.8 301.677389
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 151.6 296.077389
 L 148.8 301.677389
 L 146 296.077389
 z
-" clip-path="url(#p192453c98b)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_10">
     <path d="M 328.32 105.6
@@ -198,22 +198,22 @@ z
    <g id="patch_16">
     <path d="M 259.2 139.44
 Q 288.901318 139.44 317.037389 139.44
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 311.437389 136.64
 L 317.037389 139.44
 L 311.437389 142.24
 z
-" clip-path="url(#p192453c98b)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_17">
     <path d="M 259.2 241.2
 Q 288.901318 241.2 317.037389 241.2
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 311.437389 238.4
 L 317.037389 241.2
 L 311.437389 244
 z
-" clip-path="url(#p192453c98b)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_18">
     <path d="M 611.52 105.6
@@ -343,27 +343,27 @@ z
    <g id="patch_29">
     <path d="M 715.2 484.8
 Q 715.2 476.941348 715.2 470.647943
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 712.4 476.247943
 L 715.2 470.647943
 L 718 476.247943
 z
-" clip-path="url(#p192453c98b)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="line2d_1">
     <path d="M 45.6 114.72
 L 45.6 164.16
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_2">
     <path d="M 45.6 216.48
 L 45.6 265.92
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_3">
     <path d="M 45.6 315.36
 L 45.6 349.92
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_4">
     <path d="M 328.8 114.72
@@ -409,7 +409,7 @@ L 602.4 456.96
     <path d="M 148.8 359.04
 L 148.8 484.8
 L 715.2 484.8
-" clip-path="url(#p192453c98b)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: square"/>
+" clip-path="url(#p192453c98b)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: square"/>
    </g>
    <g id="text_1">
     <text style="font-weight: 700; font-size: 16.32px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="28.8" y="29.20065" transform="rotate(-0 28.8 29.20065)">MOSAIC / PHAGE ISOLATES</text>
@@ -418,7 +418,7 @@ L 715.2 484.8
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="50.628675" transform="rotate(-0 28.8 50.628675)">Genome recovery, purity and relatedness</text>
    </g>
    <g id="text_3">
-    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="38.4" y="91.7934" transform="rotate(-0 38.4 91.7934)">READS</text>
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="38.4" y="91.7934" transform="rotate(-0 38.4 91.7934)">READS</text>
    </g>
    <g id="text_4">
     <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f766e" x="321.6" y="91.7934" transform="rotate(-0 321.6 91.7934)">ASSEMBLED CONTIGS</text>
@@ -427,7 +427,7 @@ L 715.2 484.8
     <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7c3aed" x="604.8" y="91.7934" transform="rotate(-0 604.8 91.7934)">ASSIGNED HOSTS</text>
    </g>
    <g id="text_6">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="53.76" y="124.087575" transform="rotate(-0 53.76 124.087575)">01 / Read QC</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="53.76" y="124.087575" transform="rotate(-0 53.76 124.087575)">01 / Read QC</text>
    </g>
    <g id="text_7">
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="53.76" y="142.90395" transform="rotate(-0 53.76 142.90395)">fastp + contamination reporting</text>
@@ -436,7 +436,7 @@ L 715.2 484.8
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="53.76" y="157.78395" transform="rotate(-0 53.76 157.78395)">Keep all QC-passed reads</text>
    </g>
    <g id="text_9">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="53.76" y="225.847575" transform="rotate(-0 53.76 225.847575)">Full-read mapping</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="53.76" y="225.847575" transform="rotate(-0 53.76 225.847575)">Full-read mapping</text>
    </g>
    <g id="text_10">
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="53.76" y="244.66395" transform="rotate(-0 53.76 244.66395)">Paired reads + orphans; never 2M</text>
@@ -445,7 +445,7 @@ L 715.2 484.8
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="53.76" y="259.54395" transform="rotate(-0 53.76 259.54395)">Depth for per-sample selection</text>
    </g>
    <g id="text_12">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="53.76" y="324.727575" transform="rotate(-0 53.76 324.727575)">06 / Read accounting</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="53.76" y="324.727575" transform="rotate(-0 53.76 324.727575)">06 / Read accounting</text>
    </g>
    <g id="text_13">
     <text style="font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="53.76" y="343.54395" transform="rotate(-0 53.76 343.54395)">Six priority stages + unexplained</text>
@@ -520,7 +520,7 @@ L 715.2 484.8
     <text style="font-weight: 700; font-size: 9.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="516.0945" transform="rotate(-0 28.8 516.0945)">COLOURS</text>
    </g>
    <g id="text_37">
-    <text style="font-weight: 700; font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="105.6" y="516.82395" transform="rotate(-0 105.6 516.82395)">Reads</text>
+    <text style="font-weight: 700; font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="105.6" y="516.82395" transform="rotate(-0 105.6 516.82395)">Reads</text>
    </g>
    <g id="text_38">
     <text style="font-weight: 700; font-size: 10.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f766e" x="184.8" y="516.82395" transform="rotate(-0 184.8 516.82395)">Contigs</text>

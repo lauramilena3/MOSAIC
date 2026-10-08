@@ -4,6 +4,7 @@ import glob
 import shlex
 import csv
 import json
+import textwrap
 from snakemake.common import Mode
 
 #import pandas as pd
@@ -23,6 +24,22 @@ def config_bool(name, default):
 	if isinstance(value, str):
 		return value.strip().lower() in ["1", "true", "yes", "y"]
 	return bool(value)
+
+def natural_sort_key(value):
+	# Compare numeric parts as numbers: Sample2 before Sample10, S2 before S10.
+	return (tuple(int(part) if part.isdigit() else part.casefold()
+		for part in re.split(r"(\d+)", str(value))), str(value))
+
+def print_startup_value(label, value):
+	prefix=f"  {label:<28}: "
+	print(textwrap.fill(str(value), width=110, initial_indent=prefix,
+		subsequent_indent=" " * len(prefix), break_long_words=False, break_on_hyphens=False))
+
+def print_startup_list(label, values):
+	if isinstance(values, str):
+		values=[values] if values else []
+	values=sorted(values, key=natural_sort_key)
+	print_startup_value(f"{label} ({len(values)})", ", ".join(values) if values else "none")
 
 RAW_DATA_DIR =config['input_dir']
 RESULTS_DIR=config['results_dir'].rstrip("/")
@@ -85,17 +102,12 @@ else:
 	if RESULTS_DIR== "":
 		RESULTS_DIR=REPRESENTATIVE_CONTIGS_DIR
 
-if workflow.mode == Mode.default:
-	print("Viral contigs dir" + VIRAL_CONTIGS_DIR)
-
 METAGENOME_FLAG=""
 
 if ISOLATES:
 	METAGENOME=False
 
 if METAGENOME:
-	if workflow.mode == Mode.default:
-		print("metagenomic mode")
 	METAGENOME_FLAG="--meta"
 
 if config["run_dnaapler"]:
@@ -141,11 +153,11 @@ PACBIO_SAMPLES=""
 if not RAW_DATA_DIR == "":
 	RAW_DATA_DIR=RAW_DATA_DIR.rstrip("/")
 	SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['reverse_tag']) + ".fastq.gz")
-	SAMPLES.sort()
+	SAMPLES.sort(key=natural_sort_key)
 	NANOPORE_SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['nanopore_tag']) + ".fastq.gz")
-	NANOPORE_SAMPLES.sort()
+	NANOPORE_SAMPLES.sort(key=natural_sort_key)
 	PACBIO_SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + str(config['pacbio_tag']) + ".fastq.gz")
-	PACBIO_SAMPLES.sort()
+	PACBIO_SAMPLES.sort(key=natural_sort_key)
 
 	for fname in os.listdir(RAW_DATA_DIR):
 		if fname.endswith(str(config['reverse_tag']) + '.fastq.gz'):
@@ -163,8 +175,6 @@ else:
 if PAIRED:
 	READ_TYPES.append(config['reverse_tag'])
 if POOLED:
-	if workflow.mode == Mode.default:
-		print("Nanopore reads are from a pooled sample")
 	NANOPORE_SAMPLES=config['nanopore_pooled_name']
 if len(SAMPLES)==1:
 	SAMPLING_TYPE=["tot"]
@@ -233,13 +243,8 @@ LEVELS_BRACKEN=["S"]
 if os.path.exists(RESULTS_DIR + "/" + config["key_samples"]):
 	with open(RESULTS_DIR + "/" +  config["key_samples"]) as f:
 		SAMPLES_key = f.readlines()
-	SAMPLES_key = [x.strip() for x in SAMPLES_key]
-	if workflow.mode == Mode.default:
-		print("key samples file : "+ RESULTS_DIR + "/" + config["key_samples"])
-
+	SAMPLES_key = sorted([x.strip() for x in SAMPLES_key], key=natural_sort_key)
 else:
-	if workflow.mode == Mode.default:
-		print("no key samples")
 	SAMPLES_key=SAMPLES
 
 SAMPLES_NO_TECHNICAL=[element for element in SAMPLES if "_T" not in element]
@@ -256,55 +261,6 @@ if (len(SAMPLES)==0 ) & (len(PACBIO_SAMPLES)>0):
 if (len(SAMPLES)>0 ) & (len(PACBIO_SAMPLES)>0):
 	PACBIO_HYBRID=True
 
-if workflow.mode == Mode.default:
-	print("Input Dir = ")
-	print(RAW_DATA_DIR)
-
-	print("Results Dir = ")
-	print(RESULTS_DIR)
-
-	print("Illumina Read Tags = " )
-	print(*READ_TYPES, sep = ", ")
-
-	print("Nanopore samples detected= ")
-	print(NANOPORE)
-
-	print("Pacbio samples detected= ")
-	print(PACBIO)
-
-	print("Sample Names = ")
-	print(*SAMPLES, sep = ", ")
-	print(len(SAMPLES))
-
-	print("Nanopore samples= ")
-	print(NANOPORE_SAMPLES)
-
-	print("Pacbio samples= ")
-	print(PACBIO_SAMPLES)
-
-	print("Key Sample Names = ")
-	print(*SAMPLES_key, sep = ", ")
-	print(len(SAMPLES_key))
-
-	print("Contaminants = ")
-	print(*CONTAMINANTS, sep = ", ")
-
-	print("Contaminants post= ")
-	print(*CONTAMINANTS_LIST_POST, sep = ", ")
-
-	print("Reference contigs = ")
-	print(REPRESENTATIVE_CONTIGS_BASE)
-	print(REPRESENTATIVE_CONTIGS_DIR)
-
-	print("Nanopore Only =", NANOPORE_ONLY)
-	print("Pacbio Only =", PACBIO_ONLY)
-
-	print("Sampling= ")
-	print(SAMPLING_TYPE)
-
-	if VCONTACT:
-		print("RUN VCONTACT= ")
-		print(VCONTACT)
 #======================================================
 # Rules
 #======================================================
@@ -870,12 +826,58 @@ def load_isolate_host_assignments(paths, samples, hosts):
 	return assignments
 
 
-HOSTS = [host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host]
+HOSTS = sorted([host for host in glob_wildcards(dirs_dict["HOST_DIR"] + "/{host}.fasta").host if '/' not in host], key=natural_sort_key)
 HOST_ASSIGNMENT_FILES = [path for path in [RESULTS_DIR + "/host_mapping_file.tsv",
 	dirs_dict["HOST_DIR"] + "/host_mapping_file.tsv"] if os.path.isfile(path)]
 ISOLATE_HOST_ASSIGNMENTS = load_isolate_host_assignments(HOST_ASSIGNMENT_FILES, SAMPLES, HOSTS) if ISOLATES else {}
 if workflow.mode == Mode.default:
-	print(HOSTS)
+	print("\n" + "=" * 90)
+	print("MOSAIC | Run configuration")
+	print("-" * 90)
+	print_startup_value("Input directory", RAW_DATA_DIR)
+	print_startup_value("Results directory", RESULTS_DIR)
+	print_startup_value("Assembly mode", "Isolates (DNA)" if ISOLATES else "Metagenome" if METAGENOME else "Standard")
+	print_startup_value("Read tags", ", ".join(READ_TYPES))
+	print_startup_value("Sampling", ", ".join(SAMPLING_TYPE))
+	print("\nSamples and hosts")
+	print_startup_list("Illumina samples", SAMPLES)
+	print_startup_list("Nanopore samples", NANOPORE_SAMPLES)
+	print_startup_list("PacBio samples", PACBIO_SAMPLES)
+	if POOLED:
+		print_startup_value("Nanopore input", "Pooled reads")
+	if NANOPORE_ONLY or PACBIO_ONLY or PACBIO_HYBRID:
+		print_startup_value("Long-read mode", "Nanopore only" if NANOPORE_ONLY else "PacBio only" if PACBIO_ONLY else "PacBio hybrid")
+	print_startup_list("Hosts", HOSTS)
+	if SAMPLES_key == SAMPLES:
+		print_startup_value("Key samples", "All Illumina samples (same list)")
+	else:
+		print_startup_list("Key samples", SAMPLES_key)
+	if os.path.isfile(RESULTS_DIR + "/" + config["key_samples"]):
+		print_startup_value("Key-sample file", RESULTS_DIR + "/" + config["key_samples"])
+	if ISOLATES and HOST_ASSIGNMENT_FILES:
+		print_startup_value("Host assignment file", ", ".join(HOST_ASSIGNMENT_FILES))
+	print("\nAnalysis settings")
+	print_startup_value("Biological filtering", "Bypassed in isolate mode" if ISOLATES else "Eukaryotic removal enabled" if REMOVE_EUK else "Eukaryotic removal disabled")
+	print_startup_list("Contaminant references", CONTAMINANTS)
+	print_startup_list("Post-QC contaminants", CONTAMINANTS_LIST_POST)
+	if ISOLATES and not MICROBIAL:
+		print_startup_value("Isolate catalogue", ALL_ASSEMBLED_DIR + "/phage_isolates.tot")
+	elif not ISOLATES:
+		print_startup_value("vOTU prefix", os.path.join(REPRESENTATIVE_CONTIGS_DIR, REPRESENTATIVE_CONTIGS_BASE))
+	enabled_options=[label for label, enabled in [
+		("RNA enrichment", RNA_MODE), ("Microdiversity", RUN_MICRODIVERSITY),
+		("RefSeq mapping", MAP_TO_REFSEQ), ("All-assembled mapping", MAP_TO_ALL_ASSEMBLED),
+		("METAVR BLAST", METAVR_blast), ("Assembly statistics", ASSEMLY_STATS),
+		("Subassembly", SUBASSEMBLY), ("Subsampling", SUBSAMPLING), ("Cross-assembly", CROSS_ASSEMBLY),
+		("Microbial analysis", MICROBIAL), ("Sourmash", SOURMASH),
+		("Sourmash contig catalogue", SOURMASH_CONTIG_CATALOGUE), ("Sourmash clean reads", SOURMASH_CLEAN_READS),
+		("Interactive isolate network", ISOLATE_NETWORK),
+		("Within-cluster VIRIDIC", ISOLATE_VIRIDIC),
+		("Host prophage activity + region discovery", HOST_PROPHAGE_ACTIVITY and HOSTS),
+		("Host identification test", HOST_IDENTIFICATION_TEST and HOSTS),
+		("vContact", VCONTACT), ("DRAM", DRAM), ("Cenote", RUN_CENOTE)] if enabled]
+	print_startup_value("Enabled options", ", ".join(enabled_options) if enabled_options else "none")
+	print("=" * 90 + "\n")
 
 rule phage_isolates:
 	input:

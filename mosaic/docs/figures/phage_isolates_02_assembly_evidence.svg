@@ -39,7 +39,7 @@ Q 28.8 146.88 28.8 140.16
 L 28.8 85.92
 Q 28.8 79.2 35.52 79.2
 z
-" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 321.12 79.2
@@ -113,12 +113,12 @@ z
    <g id="patch_9">
     <path d="M 146.4 170.4
 Q 146.4 182.099854 146.4 192.234459
-" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
     <path d="M 149.2 186.634459
 L 146.4 192.234459
 L 143.6 186.634459
 z
-" clip-path="url(#p93dbfa2e7d)" style="fill: #2563eb; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: round"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: #3a72ed; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: round"/>
    </g>
    <g id="patch_10">
     <path d="M 35.52 196.8
@@ -131,12 +131,12 @@ Q 28.8 279.36 28.8 272.64
 L 28.8 203.52
 Q 28.8 196.8 35.52 196.8
 z
-" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #2563eb; stroke-width: 1.1; stroke-linejoin: miter"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: #ffffff; stroke: #3a72ed; stroke-width: 1.1; stroke-linejoin: miter"/>
    </g>
    <g id="line2d_1">
     <path d="M 36 88.32
 L 36 137.76
-" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_2">
     <path d="M 321.6 88.32
@@ -167,12 +167,12 @@ L 574.56 170.4
    <g id="line2d_7">
     <path d="M 432 170.4
 L 146.4 170.4
-" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 1.4; stroke-linecap: square"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #3a72ed; stroke-width: 1.4; stroke-linecap: square"/>
    </g>
    <g id="line2d_8">
     <path d="M 36 205.92
 L 36 270.24
-" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #2563eb; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p93dbfa2e7d)" style="fill: none; stroke: #3a72ed; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="text_1">
     <text style="font-weight: 700; font-size: 16.32px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="28.8" y="29.20065" transform="rotate(-0 28.8 29.20065)">02 / ASSEMBLY AND CONTIG EVIDENCE</text>
@@ -181,7 +181,7 @@ L 36 270.24
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #526277" x="28.8" y="50.628675" transform="rotate(-0 28.8 50.628675)">Assembly normalisation does not change the full-read mapping denominator</text>
    </g>
    <g id="text_3">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="44.16" y="97.687575" transform="rotate(-0 44.16 97.687575)">QC-passed assembly reads</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="44.16" y="97.687575" transform="rotate(-0 44.16 97.687575)">QC-passed assembly reads</text>
    </g>
    <g id="text_4">
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="116.868675" transform="rotate(-0 44.16 116.868675)">BBnorm normalisation</text>
@@ -220,7 +220,7 @@ L 36 270.24
     <text style="font-size: 11.04px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="329.76" y="264.228675" transform="rotate(-0 329.76 264.228675)">Terminal repeats: type, sequence, length and end coordinates</text>
    </g>
    <g id="text_16">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2563eb" x="44.16" y="215.287575" transform="rotate(-0 44.16 215.287575)">Own-assembly mapping</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #3a72ed" x="44.16" y="215.287575" transform="rotate(-0 44.16 215.287575)">Own-assembly mapping</text>
    </g>
    <g id="text_17">
     <text style="font-size: 10.08px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172b4d" x="44.16" y="233.739225" transform="rotate(-0 44.16 233.739225)">All QC-passed paired + orphan reads</text>
