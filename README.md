@@ -106,6 +106,12 @@ biological modes are:
 The old target names `assembly_phage` and `microbial` have been replaced by
 `phage_isolates` and `microbial_metagenome` for consistency.
 
+Initial viral identification, including subassemblies, uses geNomad. VirSorter2
+still classifies clustered vOTU representatives later in `runWorkflow`; no
+enabling flag is needed. The obsolete `--virsorter` / `--no-virsorter` wrapper
+options and `VirSorter` config selector have been removed. Remove them from old
+commands; subassembly FASTAs and CheckV inputs consistently use geNomad outputs.
+
 The [isolate recovery and purity workflow](mosaic/docs/isolate_purity.md)
 documents inputs, outputs and decision thresholds, with a colour-coded overview
 and seven step diagrams. It uses all QC-passed reads, preserves host-associated

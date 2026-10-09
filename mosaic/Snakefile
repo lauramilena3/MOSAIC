@@ -48,7 +48,6 @@ LONG_ASSEMBLER_PACBIO=config['long_assembler_pacbio']
 
 METAVR_blast=config['metavr_blast']
 METAGENOME=config['metagenome']
-VIRSORTER=config['VirSorter']
 MEMORY_ECORR=config['ecc_memory']
 VCONTACT=config['run_vcontact']
 DRAM=config['run_DRAM']
@@ -135,11 +134,6 @@ CONTAMINANTS=config['contaminants_list'].split()
 
 subsample_test=[10,20,30,40,50,60,70,80,90,]
 # subsample_test=[10,20,30,40,50,60]
-
-VIRAL_ID_TOOL="geNomad"
-
-if VIRSORTER:
-	VIRAL_ID_TOOL="virSorter"
 
 NANOPORE=False
 PACBIO=False

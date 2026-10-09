@@ -36,7 +36,6 @@ DEFAULT_SNAKEFILE = WORKFLOW_DIR / "Snakefile"
 DEFAULT_FLAGS: Dict[str, object] = {
     "subsampling": False,
     "subassembly": False,
-    "VirSorter": False,
     "assembly_stats": False,
     "cross_assembly": False,
     "long_index": False,
@@ -668,7 +667,6 @@ def unlock(snakefile: Path, workflow_dir: Path, print_only: bool) -> None:
 @click.option("--dram/--no-dram", default=None, help="Override config run_DRAM.")
 @click.option("--metavr-blast/--no-metavr-blast", default=None, help="Override config metavr_blast.")
 @click.option("--map-to-refseq/--no-map-to-refseq", default=None, help="Also map cleaned paired-end reads to RefSeqViral_db.")
-@click.option("--virsorter/--no-virsorter", default=None, help="Override config VirSorter.")
 @click.option("--extract-mapped/--no-extract-mapped", default=None, help="Override config extract_mapped.")
 @click.option("--rna-enriched/--no-rna-enriched", default=None, help="Run additional RNA assemblers for all paired-end samples.")
 @click.option("--microdiversity/--no-microdiversity", default=None, help="Calculate within-sample nucleotide variation against the final vOTU catalogue.")
@@ -719,7 +717,6 @@ def run(
     dram: Optional[bool],
     metavr_blast: Optional[bool],
     map_to_refseq: Optional[bool],
-    virsorter: Optional[bool],
     extract_mapped: Optional[bool],
     rna_enriched: Optional[bool],
     microdiversity: Optional[bool],
@@ -774,7 +771,6 @@ def run(
     set_optional_bool(config_values, "run_DRAM", dram)
     set_optional_bool(config_values, "metavr_blast", metavr_blast)
     set_optional_bool(config_values, "map_to_RefSeq", map_to_refseq)
-    set_optional_bool(config_values, "VirSorter", virsorter)
     set_optional_bool(config_values, "extract_mapped", extract_mapped)
     set_optional_bool(config_values, "RNA_enriched", rna_enriched)
     set_optional_bool(config_values, "microdiversity", microdiversity)

@@ -101,7 +101,6 @@ remove_euk: True # set to False to calculate Kraken euk contamination without re
 
 subsampling: False
 subassembly: False
-VirSorter: False
 assembly_stats: False
 cross_assembly: False
 long_index: False
