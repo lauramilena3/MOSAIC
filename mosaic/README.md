@@ -112,6 +112,11 @@ enabling flag is needed. The obsolete `--virsorter` / `--no-virsorter` wrapper
 options and `VirSorter` config selector have been removed. Remove them from old
 commands; subassembly FASTAs and CheckV inputs consistently use geNomad outputs.
 
+The [memory guide](docs/memory_resources.md) gives suggested profiles and current
+Snakemake memory flags for isolates, RNA-enriched viromes, complex microbiomes and
+very complex communities. Use `complexity=low|medium|high|extreme` or the wrapper's
+`--complexity` flag; Python abundance normalisation is unchanged.
+
 The [isolate recovery and purity workflow](docs/isolate_purity.md) documents
 inputs, outputs and decision thresholds, with a colour-coded overview and seven
 step diagrams. It uses all QC-passed reads and treats geNomad as evidence, not a

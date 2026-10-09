@@ -817,22 +817,23 @@ rule normalizeReads_PE:
 		dirs_dict["BENCHMARKS"] + "/normalizeReads_PE/sample={sample}__sampling={sampling}.tsv"
 	params:
 		min_depth=config['min_norm'],
-		max_depth=config['max_norm']
+		max_depth=config['max_norm'],
+		heap_mb=MEMORY_ECORR
 	threads: 16
 	priority: 1
 	wildcard_constraints:
 		sampling="tot|sub"  
 	resources:
-		mem_mb=MEMORY_ECORR,
+		mem_mb=BBTOOLS_MEM_MB,
 		runtime_min= 125,
 	shell:
 		"""
 		#PE
 		#paired
-		bbnorm.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
+		bbnorm.sh -Xmx{params.heap_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
 			target={params.max_depth} mindepth={params.min_depth} t={threads} khist={output.histogram_pre} peaks={output.peaks} khistout={output.histogram_post}
 		#unpaired
-		bbnorm.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth} threads={threads}
+		bbnorm.sh -Xmx{params.heap_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth} threads={threads}
 		"""
 
 rule concatenate_subassembly:
@@ -862,15 +863,17 @@ rule kmer_rarefraction:
 		histogram=(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_kmer_histogram.{sampling}.csv"),
 	message:
 		"Counting unique reads with BBtools"
+	params:
+		heap_mb=MEMORY_ECORR
 	conda:
 		dirs_dict["ENVS_DIR"]+ "/env1.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/kmer_rarefraction/sample={sample}__sampling={sampling}.tsv"
 	threads: 1
 	resources:
-		mem_mb=MEMORY_ECORR,
+		mem_mb=BBTOOLS_MEM_MB,
 		runtime_min= 412,
 	shell:
 		"""
-		bbcountunique.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out={output.histogram} interval={config[kmer_window]}
+		bbcountunique.sh -Xmx{params.heap_mb}m in1={input.forward_paired} in2={input.reverse_paired} out={output.histogram} interval={config[kmer_window]}
 		"""

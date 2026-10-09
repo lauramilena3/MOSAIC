@@ -24,15 +24,18 @@ if POOLED==True:
 			raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
 			assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}"),
 			metagenomic_flag=METAGENOME_FLAG,
+			mem_gb=HYBRID_MEM_GB,
 		message:
 			"Assembling hybrid reads with metaSpades"
 		conda:
 			dirs_dict["ENVS_DIR"] + "/env3.yaml"
 		threads: 16
+		resources:
+			mem_mb=HYBRID_MEM_MB
 		shell:
 			"""
 			spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-			{params.metagenomic_flag}  -t {threads} --nanopore {input.nanopore} --memory 350
+			{params.metagenomic_flag}  -t {threads} --nanopore {input.nanopore} --memory {params.mem_gb}
 			grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 			| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 			seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}
@@ -51,6 +54,7 @@ rule hybridAsemblySpades:
 		raw_scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/scaffolds.fasta",
 		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}"),
 		metagenomic_flag=METAGENOME_FLAG,
+		mem_gb=HYBRID_MEM_GB,
 	message:
 		"Assembling hybrid reads with metaSpades"
 	conda:
@@ -58,10 +62,12 @@ rule hybridAsemblySpades:
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/hybridAsemblySpades/sample={sample}__sampling={sampling}.tsv"
 	threads: 16
+	resources:
+		mem_mb=HYBRID_MEM_MB
 	shell:
 		"""
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		{params.metagenomic_flag}  -t {threads} --nanopore {input.nanopore} --memory 350
+		{params.metagenomic_flag}  -t {threads} --nanopore {input.nanopore} --memory {params.mem_gb}
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {output.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {output.filtered_list} > {output.scaffolds}

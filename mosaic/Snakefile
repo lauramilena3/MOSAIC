@@ -5,6 +5,7 @@ import shlex
 import csv
 import json
 import textwrap
+import math
 from snakemake.common import Mode
 
 #import pandas as pd
@@ -41,6 +42,52 @@ def print_startup_list(label, values):
 	values=sorted(values, key=natural_sort_key)
 	print_startup_value(f"{label} ({len(values)})", ", ".join(values) if values else "none")
 
+# Tool allowances and total scheduling reservations are separate. All mem_mb
+# values below use MiB; GB/G tool arguments use GiB and MEGAHIT receives bytes.
+MEMORY_PROFILES={
+	"low": {"assembly_gb": 32, "assembly_reserved_gb": 40, "heap_mb": 6144, "bbtools_reserved_gb": 8},
+	"medium": {"assembly_gb": 64, "assembly_reserved_gb": 80, "heap_mb": 6144, "bbtools_reserved_gb": 8},
+	"high": {"assembly_gb": 128, "assembly_reserved_gb": 160, "heap_mb": 16384, "bbtools_reserved_gb": 24},
+	"extreme": {"assembly_gb": 450, "assembly_reserved_gb": 550, "heap_mb": 16384, "bbtools_reserved_gb": 24},
+}
+COMPLEXITY=str(config.get("complexity", "medium")).strip().lower()
+if COMPLEXITY not in MEMORY_PROFILES:
+	raise ValueError("complexity must be low, medium, high or extreme")
+MEMORY_PROFILE=MEMORY_PROFILES[COMPLEXITY]
+
+def memory_value(name, default):
+	value=config.get(name)
+	value=int(default if value is None or value == "" else value)
+	if value <= 0:
+		raise ValueError(name + " must be a positive integer")
+	return value
+
+def memory_reservation(name, tool_mb, default_tool_mb, default_reserved_mb):
+	# Preserve each profile's headroom when a tool allowance is overridden.
+	default=math.ceil(tool_mb * default_reserved_mb / default_tool_mb / 1024) * 1024
+	reserved=memory_value(name, default)
+	if reserved < tool_mb:
+		raise ValueError(name + " must cover its tool allowance")
+	return reserved
+
+ASSEMBLY_MEM_GB=memory_value("assembly_mem_gb", MEMORY_PROFILE["assembly_gb"])
+ASSEMBLY_MEM_MB=memory_reservation("assembly_mem_mb", ASSEMBLY_MEM_GB * 1024,
+	MEMORY_PROFILE["assembly_gb"] * 1024, MEMORY_PROFILE["assembly_reserved_gb"] * 1024)
+MEMORY_ECORR=memory_value("ecc_memory", MEMORY_PROFILE["heap_mb"])
+BBTOOLS_MEM_MB=memory_reservation("bbtools_mem_mb", MEMORY_ECORR,
+	MEMORY_PROFILE["heap_mb"], MEMORY_PROFILE["bbtools_reserved_gb"] * 1024)
+HYBRID_MEM_GB=memory_value("hybrid_assembly_mem_gb", 350)
+HYBRID_MEM_MB=memory_reservation("hybrid_assembly_mem_mb", HYBRID_MEM_GB * 1024, 350 * 1024, 440 * 1024)
+# The optional legacy shared RNA setting remains a fallback, now in MiB.
+RNA_SPADES_MEM_GB=memory_value("rna_spades_mem_gb", math.ceil(memory_value("rna_assembly_mem_mb", 32 * 1024) / 1024))
+RNA_SPADES_MEM_MB=memory_reservation("rna_spades_mem_mb", RNA_SPADES_MEM_GB * 1024, 32 * 1024, 40 * 1024)
+RNA_MEGAHIT_MEM_GB=memory_value("rna_megahit_mem_gb", math.ceil(memory_value("rna_assembly_mem_mb", 16 * 1024) / 1024))
+RNA_MEGAHIT_MEM_MB=memory_reservation("rna_megahit_mem_mb", RNA_MEGAHIT_MEM_GB * 1024, 16 * 1024, 20 * 1024)
+RNA_TRINITY_MEM_GB=memory_value("rna_trinity_mem_gb", math.ceil(memory_value("rna_assembly_mem_mb", 64 * 1024) / 1024))
+RNA_TRINITY_BFLY_HEAP_GB=memory_value("rna_trinity_bfly_heap_gb", 20)
+QUAST_MEM_MB=memory_value("quast_mem_mb", 8192)
+QUAST_DEPTH_MEM_MB=memory_value("quast_depth_mem_mb", 12288)
+
 RAW_DATA_DIR =config['input_dir']
 RESULTS_DIR=config['results_dir'].rstrip("/")
 LONG_ASSEMBLER=config['long_assembler']
@@ -48,7 +95,6 @@ LONG_ASSEMBLER_PACBIO=config['long_assembler_pacbio']
 
 METAVR_blast=config['metavr_blast']
 METAGENOME=config['metagenome']
-MEMORY_ECORR=config['ecc_memory']
 VCONTACT=config['run_vcontact']
 DRAM=config['run_DRAM']
 ASSEMLY_STATS=config['assembly_stats']
@@ -831,6 +877,11 @@ if workflow.mode == Mode.default:
 	print_startup_value("Input directory", RAW_DATA_DIR)
 	print_startup_value("Results directory", RESULTS_DIR)
 	print_startup_value("Assembly mode", "Isolates (DNA)" if ISOLATES else "Metagenome" if METAGENOME else "Standard")
+	print_startup_value("Memory complexity", COMPLEXITY)
+	print_startup_value("DNA assembly memory", f"{ASSEMBLY_MEM_GB} GiB tool / {ASSEMBLY_MEM_MB / 1024:g} GiB reserved")
+	print_startup_value("BBtools memory", f"{MEMORY_ECORR / 1024:g} GiB heap / {BBTOOLS_MEM_MB / 1024:g} GiB reserved")
+	if RNA_MODE:
+		print_startup_value("RNA assembly memory", f"SPAdes {RNA_SPADES_MEM_GB} GiB; MEGAHIT {RNA_MEGAHIT_MEM_GB} GiB; Trinity {RNA_TRINITY_MEM_GB} GiB + {RNA_TRINITY_BFLY_HEAP_GB} GiB/Butterfly")
 	print_startup_value("Read tags", ", ".join(READ_TYPES))
 	print_startup_value("Sampling", ", ".join(SAMPLING_TYPE))
 	print("\nSamples and hosts")

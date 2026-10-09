@@ -19,6 +19,11 @@ snakemake --use-conda -p phage_isolates \
 
 Remove `-n` to execute. This example enables both optional Sourmash screens, with the default 5,000 bp cutoff for cluster representatives. Omit those two flags for the core isolate analysis. `isolates=True` enforces DNA assembly mode and bypasses biological read removal, regardless of the virome defaults for `metagenome`, `RNA_enriched` or `remove_euk`.
 
+See [memory allowances and scheduling](memory_resources.md#phage-isolates) for
+`complexity=low` isolate memory profile and a command with separate DNA SPAdes
+allowance and scheduling reservation. Without a selection, `complexity=medium`
+is used, including for isolates. Python abundance normalisation is unchanged.
+
 Add `map_to_RefSeq=True` for independent RefSeq read mapping/detection, `metavr_blast=True` for METAVR similarity searches, or `host_identification_test=True` for the all-host comparison. These are not prerequisites for the core recovery/purity assessment. RefSeq BLAST of cluster representatives is already part of the core report; it is separate from the optional read-mapping branch.
 
 ## Inputs and project layout

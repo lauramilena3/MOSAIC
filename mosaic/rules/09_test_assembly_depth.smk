@@ -47,18 +47,19 @@ rule normalizeReads_test_depth:
 		dirs_dict["BENCHMARKS"] + "/normalizeReads_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	params:
 		min_depth=config['min_norm'],
-		max_depth=config['max_norm']
+		max_depth=config['max_norm'],
+		heap_mb=MEMORY_ECORR
 	threads: 4
 	resources:
-		mem_mb=MEMORY_ECORR
+		mem_mb=BBTOOLS_MEM_MB
 	shell:
 		"""
 		#PE
 		#paired
-		bbnorm.sh -Xmx{resources.mem_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
+		bbnorm.sh -Xmx{params.heap_mb}m in1={input.forward_paired} in2={input.reverse_paired} out1={output.forward_paired} out2={output.reverse_paired} \
 		target={params.max_depth} mindepth={params.min_depth} t={threads} 
 		#unpaired
-		bbnorm.sh -Xmx{resources.mem_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth} t={threads}
+		bbnorm.sh -Xmx{params.heap_mb}m in={input.unpaired} out={output.unpaired} target={params.max_depth} mindepth={params.min_depth} t={threads}
 		"""
 
 rule metaspadesPE_test_depth:
@@ -72,6 +73,7 @@ rule metaspadesPE_test_depth:
 		raw_scaffolds=dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}/scaffolds.fasta",
 		assembly_dir=directory(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}"),
 		filtered_list=(dirs_dict["ASSEMBLY_TEST"] + "/{sample}_{subsample}_metaspades_{sampling}/filtered_list.txt"),
+		mem_gb=ASSEMBLY_MEM_GB,
 	message:
 		"Assembling PE reads with metaSpades"
 	conda:
@@ -79,11 +81,13 @@ rule metaspadesPE_test_depth:
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/metaspadesPE_test_depth/sample={sample}__sampling={sampling}__subsample={subsample}.tsv"
 	threads: 8
+	resources:
+		mem_mb=ASSEMBLY_MEM_MB
 	shell:
 		"""
 		rm -rf {params.assembly_dir}
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		--meta -t {threads} --memory 450
+		--meta -t {threads} --memory {params.mem_gb}
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {params.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {params.filtered_list} > {output.scaffolds}
@@ -107,6 +111,8 @@ rule assemblyStatsILLUMINA_test_depth:
 	log:
 		dirs_dict["ASSEMBLY_TEST"] + "/quast.{sampling}.log"
 	threads: 4
+	resources:
+		mem_mb=QUAST_DEPTH_MEM_MB
 	shell:
 		"""
 		quast_fastas=()
@@ -175,6 +181,8 @@ rule viralStatsILLUMINA_test_depth:
 	log:
 		dirs_dict["ASSEMBLY_TEST"] + "/quast_viral.{sampling}.log"
 	threads: 4
+	resources:
+		mem_mb=QUAST_DEPTH_MEM_MB
 	shell:
 		"""
 		quast_fastas=()

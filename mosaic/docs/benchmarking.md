@@ -17,6 +17,11 @@ one another's measurements. Existing benchmark files are not moved or deleted.
 DRAM-v annotation now passes `{threads}` to its command, respecting Snakemake's
 thread allocation.
 
+See [memory allowances and scheduling](memory_resources.md) for suggested isolate,
+RNA-virome, complex-community and very-complex-community profiles, current memory
+flags, and separate tool allowances and overhead reservations selected with
+`complexity=low|medium|high|extreme`.
+
 ## Generate the summary
 
 After any workflow stage completes, run this target from the `mosaic/` workflow

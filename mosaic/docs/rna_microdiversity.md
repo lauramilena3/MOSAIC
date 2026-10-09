@@ -151,18 +151,25 @@ Abundance, annotation and optional microdiversity all use the same final
 `filtered_...tot.fasta`. Phage-specific annotations are not thereby made applicable
 to every RNA virus; their biological interpretation still needs care.
 
-SPAdes and MEGAHIT use `rna_assembly_mem_mb` (64,000 MB) and
-`rna_assembly_threads` (16 by default). Trinity uses `rna_trinity_threads` (8 in
-the supplied config) and `rna_trinity_bfly_heap_gb` (20), passed as `--CPU 8` and
-`--bflyHeapSpaceMax 20G`. The heap limit applies per Butterfly process, not to
-the whole assembly. Increasing `rna_assembly_mem_mb` alone does not increase
-that heap limit. Trinity reserves the base `rna_assembly_mem_mb` plus one Butterfly
-heap per allocated thread: 224,000 MB with the supplied config (64,000 + 8 x 20,000).
-The resulting allocation is also passed to `--max_memory`, but this option is
-not an aggregate Java heap limit. If needed, use Snakemake's global
-`--resources mem_mb=<available RAM in MB>` to limit concurrent memory reservations.
+RNAviralSPAdes and MEGAHIT use `rna_assembly_threads` (16 by default), with
+separate tool allowances of 32 and 16 GiB and reservations of 40 and 20 GiB.
+Trinity uses `rna_trinity_threads` (8) and `rna_trinity_bfly_heap_gb` (20), passed
+as `--CPU 8` and `--bflyHeapSpaceMax 20G`. Its main `rna_trinity_mem_gb` allowance
+is 64 GiB, independent of the heap and total reservation. The default reservation
+is 280 GiB (`286720` MiB), including concurrent heaps and overhead; at 16 allocated
+workers it becomes 480 GiB. `--max_memory` is not an aggregate Java heap limit.
+Use `--resources mem_mb=<available RAM in MiB>` to limit concurrent declared
+reservations. Tool limits and reservations can be overridden independently;
+raising only the reservation does not change the tool allowance.
 Trinity runs without
 read normalization and uses `--no_salmon` to skip its final Salmon expression filter.
+
+Keep 8 Trinity workers as the starting point; the other RNA assemblers use their
+separate 16-thread default. See [memory allowances and scheduling](memory_resources.md)
+for `complexity=low|medium|high|extreme`, individual memory overrides and command
+examples. Profiles scale DNA SPAdes/BBtools, while RNA allowances have their own
+defaults. Python abundance normalisation is unchanged.
+
 The assembled transcripts continue through the existing viral-candidate and vOTU filters.
 Trinity's working directory (`03_CONTIGS/RNA/<sample>/trinity_out`) is retained
 on success and failure. The rule copies Trinity's sibling output

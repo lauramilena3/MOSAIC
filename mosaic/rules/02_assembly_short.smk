@@ -100,6 +100,7 @@ rule shortReadAsemblySpadesPE:
 		assembly_dir=directory(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}"),
 		metagenomic_flag=METAGENOME_FLAG,
 		error_correction=input_error_correction,
+		mem_gb=ASSEMBLY_MEM_GB,
 		filtered_list=(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_spades_{sampling}/filtered_list.txt"),
 	message:
 		"Assembling PE reads with metaSpades"
@@ -109,7 +110,7 @@ rule shortReadAsemblySpadesPE:
 		dirs_dict["BENCHMARKS"] + "/shortReadAsemblySpadesPE/sample={sample}__sampling={sampling}.tsv"
 	threads: input_threads_assembler
 	resources:
-		mem_gb=450
+		mem_mb=ASSEMBLY_MEM_MB
 	priority: 1
 	wildcard_constraints:
 		sampling="tot|sub"  
@@ -117,7 +118,7 @@ rule shortReadAsemblySpadesPE:
 		"""
 		rm -rf {params.assembly_dir}
 		spades.py  --pe1-1 {input.forward_paired} --pe1-2 {input.reverse_paired}  --pe1-s {input.unpaired} -o {params.assembly_dir} \
-		{params.metagenomic_flag} -t {threads} --memory {resources.mem_gb} {params.error_correction}
+		{params.metagenomic_flag} -t {threads} --memory {params.mem_gb} {params.error_correction}
 		grep "^>" {params.raw_scaffolds} | sed s"/_/ /"g | awk '{{ if ($4 >= {config[min_len]} && $6 >= {config[min_cov]}) print $0 }}' \
 		| sort -k 4 -n | sed s"/ /_/"g | sed 's/>//' > {params.filtered_list}
 		seqtk subseq {params.raw_scaffolds} {params.filtered_list} > {output.scaffolds}
@@ -156,6 +157,8 @@ rule assemblyStats:
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/assemblyStats/sampling={sampling}.tsv"
 	threads: 1
+	resources:
+		mem_mb=QUAST_MEM_MB
 	shell:
 		"""
 		quast.py {input.scaffolds} -o {output.quast_report_dir}

@@ -8,7 +8,7 @@ rule rna_assemble_spades:
 		fasta=temp(RNA_DIR + "/{sample}_rnaviralspades.unrenamed.fasta"),
 	params:
 		work_prefix=RNA_DIR + "/{sample}/spades_work_",
-		mem_gb=lambda wildcards, resources: max(1, int(resources.mem_mb) // 1000),
+		mem_gb=RNA_SPADES_MEM_GB,
 	message:
 		"Assembling paired-end reads with RNAviralSPAdes"
 	conda:
@@ -17,7 +17,7 @@ rule rna_assemble_spades:
 		dirs_dict["BENCHMARKS"] + "/rna_assemble_spades/sample={sample}.tsv"
 	threads: int(config.get("rna_assembly_threads", 16))
 	resources:
-		mem_mb=int(config.get("rna_assembly_mem_mb", 64000)),
+		mem_mb=RNA_SPADES_MEM_MB,
 	log:
 		RNA_DIR + "/{sample}/rnaviralspades.log"
 	shell:
@@ -39,7 +39,7 @@ rule rna_assemble_megahit:
 		fasta=temp(RNA_DIR + "/{sample}_megahit.unrenamed.fasta"),
 	params:
 		work_prefix=RNA_DIR + "/{sample}/megahit_work_",
-		mem_bytes=lambda wildcards, resources: int(resources.mem_mb) * 1000000,
+		mem_bytes=RNA_MEGAHIT_MEM_GB * 1024 ** 3,
 		min_length=int(config.get("rna_min_contig_length", 500)),
 	message:
 		"Assembling paired-end reads with MEGAHIT"
@@ -49,7 +49,7 @@ rule rna_assemble_megahit:
 		dirs_dict["BENCHMARKS"] + "/rna_assemble_megahit/sample={sample}.tsv"
 	threads: int(config.get("rna_assembly_threads", 16))
 	resources:
-		mem_mb=int(config.get("rna_assembly_mem_mb", 64000)),
+		mem_mb=RNA_MEGAHIT_MEM_MB,
 	log:
 		RNA_DIR + "/{sample}/megahit.log"
 	shell:
@@ -72,8 +72,8 @@ rule rna_assemble_trinity:
 	params:
 		assembly_dir=lambda wildcards: os.path.abspath(RNA_DIR + "/" + wildcards.sample + "/trinity_out"),
 		assembled_fasta=lambda wildcards: os.path.abspath(RNA_DIR + "/" + wildcards.sample + "/trinity_out.Trinity.fasta"),
-		mem_gb=lambda wildcards, resources: max(1, int(resources.mem_mb) // 1000),
-		bfly_heap_gb=int(config.get("rna_trinity_bfly_heap_gb", 20)),
+		mem_gb=RNA_TRINITY_MEM_GB,
+		bfly_heap_gb=RNA_TRINITY_BFLY_HEAP_GB,
 		min_length=int(config.get("rna_min_contig_length", 500)),
 		strand_flag="--SS_lib_type " + config["rna_trinity_strandedness"] if config.get("rna_trinity_strandedness", "") else "",
 	message:
@@ -82,9 +82,10 @@ rule rna_assemble_trinity:
 		dirs_dict["ENVS_DIR"] + "/rna_trinity.yaml"
 	benchmark:
 		dirs_dict["BENCHMARKS"] + "/rna_assemble_trinity/sample={sample}.tsv"
-	threads: int(config.get("rna_trinity_threads", 16))
+	threads: int(config.get("rna_trinity_threads", 8))
 	resources:
-		mem_mb=lambda wc, threads: int(config.get("rna_assembly_mem_mb", 64000)) + threads * int(config.get("rna_trinity_bfly_heap_gb", 20)) * 1000,
+		mem_mb=lambda wc, threads: memory_reservation("rna_trinity_mem_mb",
+			(RNA_TRINITY_MEM_GB + threads * RNA_TRINITY_BFLY_HEAP_GB) * 1024, 224 * 1024, 280 * 1024),
 	log:
 		RNA_DIR + "/{sample}/trinity.log"
 	shell:
@@ -208,6 +209,8 @@ rule assemblyStats_RNA:
 	log:
 		RNA_DIR + "/quast.tot.log"
 	threads: 4
+	resources:
+		mem_mb=QUAST_MEM_MB
 	shell:
 		"""
 		rna_quast_fastas=()

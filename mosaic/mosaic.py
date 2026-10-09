@@ -657,6 +657,8 @@ def unlock(snakefile: Path, workflow_dir: Path, print_only: bool) -> None:
 )
 @click.option("--kraken-db", help="Set config kraken_db.")
 @click.option("--ecc-memory", type=int, help="Set config ecc_memory.")
+@click.option("--complexity", type=click.Choice(["low", "medium", "high", "extreme"], case_sensitive=False),
+              help="Memory profile; medium by default. Does not change the biological workflow mode.")
 @click.option("--sourmash/--no-sourmash", default=None, help="Override config sourmash.")
 @click.option("--remove-euk/--no-remove-euk", default=None, help="Override config remove_euk.")
 @click.option("--assembly-stats/--no-assembly-stats", default=None, help="Override config assembly_stats.")
@@ -707,6 +709,7 @@ def run(
     workflow_dir: Path,
     kraken_db: Optional[str],
     ecc_memory: Optional[int],
+    complexity: Optional[str],
     sourmash: Optional[bool],
     remove_euk: Optional[bool],
     assembly_stats: Optional[bool],
@@ -754,6 +757,8 @@ def run(
         config_values["kraken_db"] = kraken_db
     if ecc_memory is not None:
         config_values["ecc_memory"] = ecc_memory
+    if complexity is not None:
+        config_values["complexity"] = complexity.lower()
     if visualization_tool:
         config_values["visualization_tool"] = visualization_tool.lower()
     if visualization_max_contigs is not None:
